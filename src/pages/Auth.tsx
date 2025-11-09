@@ -380,13 +380,18 @@ const Auth = () => {
                 className="overlay-panel overlay-left absolute flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700 bg-cover bg-center"
                 style={{ backgroundImage: `url(${carLotOverlay})` }}
               >
-                <div className="absolute inset-0 glass-strong" />
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70 backdrop-blur-[2px]" />
                 <div className="relative z-10">
-                  <h1 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Welcome Back to Justice System</h1>
-                  <p className="text-white/90 mb-6 drop-shadow-md">Already have an account?</p>
+                  <h1 className="text-5xl font-bold text-white mb-6" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
+                    Welcome Back to Justice System
+                  </h1>
+                  <p className="text-xl text-white mb-8" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
+                    Already have an account?
+                  </p>
                   <Button
                     variant="outline"
-                    className="bg-white/20 border-2 border-white text-white hover:bg-white/30 backdrop-blur-sm"
+                    size="lg"
+                    className="bg-white text-primary border-2 border-white hover:bg-white/90 hover:scale-105 transition-all shadow-xl font-semibold px-8 py-6 text-lg"
                     onClick={() => setIsSignUp(false)}
                     type="button"
                   >
@@ -400,13 +405,18 @@ const Auth = () => {
                 className="overlay-panel overlay-right absolute right-0 flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700 bg-cover bg-center"
                 style={{ backgroundImage: `url(${carLotOverlay})` }}
               >
-                <div className="absolute inset-0 glass-strong" />
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70 backdrop-blur-[2px]" />
                 <div className="relative z-10">
-                  <h1 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Hello, Welcome to Justice Ultimate System</h1>
-                  <p className="text-white/90 mb-6 drop-shadow-md">Don't have an account?</p>
+                  <h1 className="text-5xl font-bold text-white mb-6" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
+                    Hello, Welcome to Justice Ultimate System
+                  </h1>
+                  <p className="text-xl text-white mb-8" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
+                    Don't have an account?
+                  </p>
                   <Button
                     variant="outline"
-                    className="bg-white/20 border-2 border-white text-white hover:bg-white/30 backdrop-blur-sm"
+                    size="lg"
+                    className="bg-white text-primary border-2 border-white hover:bg-white/90 hover:scale-105 transition-all shadow-xl font-semibold px-8 py-6 text-lg"
                     onClick={() => setIsSignUp(true)}
                     type="button"
                   >
