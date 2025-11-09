@@ -87,7 +87,11 @@ const AdminDashboard = () => {
               <BarChart3 className="h-5 w-5" />
               Overview
             </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/cars")}
+            >
               <Car className="h-5 w-5" />
               Vehicles
             </Button>

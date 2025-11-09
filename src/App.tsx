@@ -14,6 +14,8 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
+import CarManagement from "./pages/CarManagement";
+import AddCar from "./pages/AddCar";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +42,10 @@ const App = () => (
           {/* Dashboard Routes (no layout) */}
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+          
+          {/* Admin Car Management Routes (no layout) */}
+          <Route path="/admin/cars" element={<CarManagement />} />
+          <Route path="/admin/cars/add" element={<AddCar />} />
           
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />

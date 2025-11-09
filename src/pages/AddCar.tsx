@@ -1,0 +1,369 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Upload, X } from "lucide-react";
+
+const AddCar = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState<(File | null)[]>([null, null, null, null, null, null]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<(string | null)[]>([null, null, null, null, null, null]);
+  
+  const [formData, setFormData] = useState({
+    make: "",
+    model: "",
+    year: new Date().getFullYear(),
+    price: "",
+    mileage: "",
+    engine: "",
+    fuel_type: "",
+    transmission: "",
+    drive_type: "",
+    color: "",
+    stock_id: "",
+    description: "",
+  });
+
+  const carBrands = [
+    "Toyota", "BMW", "Mercedes-Benz", "Mazda", "Honda", "Nissan", "Subaru",
+    "Volkswagen", "Audi", "Lexus", "Ford", "Chevrolet", "Hyundai", "Kia",
+    "Mitsubishi", "Peugeot", "Renault", "Land Rover", "Porsche", "Jaguar"
+  ];
+
+  const handleImageSelect = (index: number, file: File | null) => {
+    if (file) {
+      const newImages = [...images];
+      newImages[index] = file;
+      setImages(newImages);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newPreviews = [...imagePreviewUrls];
+        newPreviews[index] = reader.result as string;
+        setImagePreviewUrls(newPreviews);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = [...images];
+    newImages[index] = null;
+    setImages(newImages);
+
+    const newPreviews = [...imagePreviewUrls];
+    newPreviews[index] = null;
+    setImagePreviewUrls(newPreviews);
+  };
+
+  const uploadImages = async (carId: string) => {
+    const uploadedUrls: string[] = [];
+
+    for (let i = 0; i < images.length; i++) {
+      const file = images[i];
+      if (!file) continue;
+
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${carId}/image-${i + 1}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("car-images")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        continue;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("car-images")
+        .getPublicUrl(filePath);
+
+      uploadedUrls.push(publicUrl);
+    }
+
+    return uploadedUrls;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Insert car data first
+      const { data: carData, error: insertError } = await supabase
+        .from("cars")
+        .insert([
+          {
+            make: formData.make,
+            model: formData.model,
+            year: formData.year,
+            price: parseFloat(formData.price),
+            mileage: formData.mileage,
+            engine: formData.engine,
+            fuel_type: formData.fuel_type,
+            transmission: formData.transmission,
+            drive_type: formData.drive_type,
+            color: formData.color,
+            stock_id: formData.stock_id,
+            description: formData.description,
+            status: "available",
+            images: [],
+          },
+        ])
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Upload images
+      const imageUrls = await uploadImages(carData.id);
+
+      // Update car with image URLs
+      const { error: updateError } = await supabase
+        .from("cars")
+        .update({ images: imageUrls })
+        .eq("id", carData.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Success",
+        description: "Car added successfully!",
+      });
+
+      navigate("/admin/cars");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add car",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="flex items-center gap-4 mb-8">
+        <Button variant="outline" onClick={() => navigate("/admin/cars")}>
+          ← Back
+        </Button>
+        <h1 className="text-4xl font-bold">Add New Car</h1>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <Card className="glass-strong">
+          <CardHeader>
+            <CardTitle>Upload Images (Up to 6)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {[0, 1, 2, 3, 4, 5].map((index) => (
+                <div key={index} className="relative aspect-video border-2 border-dashed border-border rounded-lg overflow-hidden">
+                  {imagePreviewUrls[index] ? (
+                    <>
+                      <img
+                        src={imagePreviewUrls[index]!}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        className="absolute top-2 right-2"
+                        onClick={() => removeImage(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-accent/50 transition-colors">
+                      <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Upload Image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImageSelect(index, e.target.files?.[0] || null)}
+                      />
+                    </label>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-strong">
+          <CardHeader>
+            <CardTitle>Car Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="make">Make *</Label>
+                <Select value={formData.make} onValueChange={(value) => setFormData({ ...formData, make: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select brand" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {carBrands.map((brand) => (
+                      <SelectItem key={brand} value={brand}>
+                        {brand}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="model">Model *</Label>
+                <Input
+                  id="model"
+                  value={formData.model}
+                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="year">Year *</Label>
+                <Input
+                  id="year"
+                  type="number"
+                  value={formData.year}
+                  onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="price">Price (KSh) *</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mileage">Mileage (km)</Label>
+                <Input
+                  id="mileage"
+                  value={formData.mileage}
+                  onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="engine">Engine</Label>
+                <Input
+                  id="engine"
+                  placeholder="e.g., 2.0L Turbo"
+                  value={formData.engine}
+                  onChange={(e) => setFormData({ ...formData, engine: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fuel_type">Fuel Type</Label>
+                <Select value={formData.fuel_type} onValueChange={(value) => setFormData({ ...formData, fuel_type: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select fuel type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Petrol">Petrol</SelectItem>
+                    <SelectItem value="Diesel">Diesel</SelectItem>
+                    <SelectItem value="Hybrid">Hybrid</SelectItem>
+                    <SelectItem value="Electric">Electric</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="transmission">Transmission</Label>
+                <Select value={formData.transmission} onValueChange={(value) => setFormData({ ...formData, transmission: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select transmission" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Automatic">Automatic</SelectItem>
+                    <SelectItem value="Manual">Manual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="drive_type">Drive Type</Label>
+                <Select value={formData.drive_type} onValueChange={(value) => setFormData({ ...formData, drive_type: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select drive type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2WD">2WD</SelectItem>
+                    <SelectItem value="4WD">4WD</SelectItem>
+                    <SelectItem value="AWD">AWD</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="color">Color</Label>
+                <Input
+                  id="color"
+                  value={formData.color}
+                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="stock_id">Stock ID</Label>
+                <Input
+                  id="stock_id"
+                  placeholder="e.g., JUA-KEN-0065"
+                  value={formData.stock_id}
+                  onChange={(e) => setFormData({ ...formData, stock_id: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={4}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex gap-4">
+          <Button type="submit" disabled={loading} className="flex-1">
+            {loading ? "Adding Car..." : "Add Car"}
+          </Button>
+          <Button type="button" variant="outline" onClick={() => navigate("/admin/cars")}>
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default AddCar;
