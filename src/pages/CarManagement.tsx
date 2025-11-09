@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, ArrowLeft, Star } from "lucide-react";
 
 interface Car {
   id: string;
@@ -21,6 +21,7 @@ interface Car {
   transmission: string | null;
   mileage: string | null;
   color: string | null;
+  is_featured: boolean | null;
 }
 
 const CarManagement = () => {
@@ -101,6 +102,27 @@ const CarManagement = () => {
     }
   };
 
+  const toggleFeatured = async (carId: string, currentStatus: boolean | null) => {
+    const { error } = await supabase
+      .from("cars")
+      .update({ is_featured: !currentStatus })
+      .eq("id", carId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update featured status",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: `Car ${!currentStatus ? "marked as" : "removed from"} featured`,
+      });
+      fetchCars();
+    }
+  };
+
   const getImageUrl = (images: any) => {
     if (!images) return null;
     const imageArray = Array.isArray(images) ? images : [];
@@ -113,15 +135,31 @@ const CarManagement = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Car Management</h1>
-        <Button onClick={() => navigate("/admin/cars/add")} className="gap-2">
-          <Plus className="h-5 w-5" />
-          Add New Car
-        </Button>
+      <div className="flex flex-col gap-4 mb-8">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate("/admin-dashboard")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Dashboard
+            </Button>
+            <h1 className="text-3xl font-bold">Car Management</h1>
+          </div>
+          <Button onClick={() => navigate("/admin/cars/add")} className="gap-2">
+            <Plus className="h-5 w-5" />
+            Add New Car
+          </Button>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate("/admin/rentals")}>
+            Manage Rentals
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate("/admin/trade-ins")}>
+            Manage Trade-Ins
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {cars.map((car) => (
           <Card key={car.id} className="glass-strong overflow-hidden">
             <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 relative">
@@ -168,29 +206,43 @@ const CarManagement = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => toggleStatus(car.id, car.status)}
-                >
-                  Toggle Status
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => navigate(`/admin/cars/edit/${car.id}`)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => deleteCar(car.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => toggleStatus(car.id, car.status)}
+                  >
+                    Toggle Status
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={car.is_featured ? "default" : "outline"}
+                    onClick={() => toggleFeatured(car.id, car.is_featured)}
+                    title="Mark as Featured"
+                  >
+                    <Star className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => navigate(`/admin/cars/edit/${car.id}`)}
+                  >
+                    <Pencil className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => deleteCar(car.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

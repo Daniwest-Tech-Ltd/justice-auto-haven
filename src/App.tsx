@@ -16,6 +16,14 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import CarManagement from "./pages/CarManagement";
 import AddCar from "./pages/AddCar";
+import EditCar from "./pages/EditCar";
+import AdminCustomers from "./pages/AdminCustomers";
+import CustomerBadge from "./pages/CustomerBadge";
+import BrandManagement from "./pages/BrandManagement";
+import VideoManagement from "./pages/VideoManagement";
+import SalesAnalytics from "./pages/SalesAnalytics";
+import RentalsManagement from "./pages/RentalsManagement";
+import TradeInsManagement from "./pages/TradeInsManagement";
 import NotFound from "./pages/NotFound";
 import CarDetails from "./pages/CarDetails";
 import Unauthorized from "./pages/Unauthorized";
@@ -79,6 +87,72 @@ const App = () => (
             element={
               <ProtectedRoute requiredRole="admin">
                 <AddCar />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/cars/edit/:id" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <EditCar />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/customers" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminCustomers />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/brands" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <BrandManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/videos" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <VideoManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/sales" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SalesAnalytics />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/rentals" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <RentalsManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/trade-ins" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <TradeInsManagement />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Customer Routes */}
+          <Route 
+            path="/customer/badge" 
+            element={
+              <ProtectedRoute requiredRole="customer">
+                <CustomerBadge />
               </ProtectedRoute>
             } 
           />

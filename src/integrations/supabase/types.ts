@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      badges: {
+        Row: {
+          badge_type: string
+          created_at: string | null
+          id: string
+          issued_date: string | null
+          user_id: string
+        }
+        Insert: {
+          badge_type: string
+          created_at?: string | null
+          id?: string
+          issued_date?: string | null
+          user_id: string
+        }
+        Update: {
+          badge_type?: string
+          created_at?: string | null
+          id?: string
+          issued_date?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      blogs: {
+        Row: {
+          author_id: string | null
+          content: string
+          created_at: string | null
+          excerpt: string | null
+          featured_image: string | null
+          id: string
+          is_published: boolean | null
+          links: Json | null
+          published_at: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          content: string
+          created_at?: string | null
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_published?: boolean | null
+          links?: Json | null
+          published_at?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          content?: string
+          created_at?: string | null
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_published?: boolean | null
+          links?: Json | null
+          published_at?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      brands: {
+        Row: {
+          created_at: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cars: {
         Row: {
           color: string | null
@@ -80,6 +170,41 @@ export type Database = {
         }
         Relationships: []
       }
+      featured_cars: {
+        Row: {
+          car_id: string
+          created_at: string | null
+          featured_date: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          car_id: string
+          created_at?: string | null
+          featured_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          car_id?: string
+          created_at?: string | null
+          featured_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_cars_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           county_city: string | null
@@ -89,6 +214,7 @@ export type Database = {
           full_name: string
           gender: string | null
           id: string
+          is_suspended: boolean | null
           phone: string
           preferred_contact: string | null
           updated_at: string | null
@@ -102,6 +228,7 @@ export type Database = {
           full_name: string
           gender?: string | null
           id?: string
+          is_suspended?: boolean | null
           phone: string
           preferred_contact?: string | null
           updated_at?: string | null
@@ -115,6 +242,7 @@ export type Database = {
           full_name?: string
           gender?: string | null
           id?: string
+          is_suspended?: boolean | null
           phone?: string
           preferred_contact?: string | null
           updated_at?: string | null
@@ -159,6 +287,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "rentals_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          car_id: string
+          created_at: string | null
+          customer_id: string | null
+          id: string
+          notes: string | null
+          payment_type: string | null
+          sale_date: string | null
+          sale_price: number
+          updated_at: string | null
+        }
+        Insert: {
+          car_id: string
+          created_at?: string | null
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          payment_type?: string | null
+          sale_date?: string | null
+          sale_price: number
+          updated_at?: string | null
+        }
+        Update: {
+          car_id?: string
+          created_at?: string | null
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          payment_type?: string | null
+          sale_date?: string | null
+          sale_price?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_car_id_fkey"
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
@@ -235,6 +407,42 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      videos: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_published: boolean | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          video_type: string | null
+          video_url: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          video_type?: string | null
+          video_url: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          video_type?: string | null
+          video_url?: string
         }
         Relationships: []
       }
