@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import carLotBg from "@/assets/car-lot-bg.jpg";
+import authBg from "@/assets/auth-bg.jpg";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -176,9 +176,9 @@ const Auth = () => {
     <>
       <div 
         className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center relative"
-        style={{ backgroundImage: `url(${carLotBg})` }}
+        style={{ backgroundImage: `url(${authBg})` }}
       >
-        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
         
         <Link to="/" className="absolute top-4 left-4 z-50">
           <Button variant="outline" size="icon" className="glass">
@@ -371,7 +371,7 @@ const Auth = () => {
             <div className="overlay bg-gradient-auth relative left-[-100%] h-full w-[200%] transform transition-transform duration-700 flex">
               {/* Left Overlay */}
               <div className="overlay-panel overlay-left absolute flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700">
-                <h1 className="text-4xl font-bold text-white mb-4">Welcome Back!</h1>
+                <h1 className="text-4xl font-bold text-white mb-4">Welcome Back to Justice System</h1>
                 <p className="text-white/90 mb-6">Already have an account?</p>
                 <Button
                   variant="outline"
@@ -385,7 +385,7 @@ const Auth = () => {
 
               {/* Right Overlay */}
               <div className="overlay-panel overlay-right absolute right-0 flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700">
-                <h1 className="text-4xl font-bold text-white mb-4">Hello, Welcome</h1>
+                <h1 className="text-4xl font-bold text-white mb-4">Hello, Welcome to Justice Ultimate System</h1>
                 <p className="text-white/90 mb-6">Don't have an account?</p>
                 <Button
                   variant="outline"
