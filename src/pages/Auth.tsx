@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import authBg from "@/assets/auth-bg.jpg";
+import carLotOverlay from "@/assets/car-lot-overlay.jpg";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -80,24 +81,29 @@ const Auth = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Check user role
-        const { data: roleData } = await supabase
+        // Check user role with maybeSingle to avoid errors
+        const { data: roleData, error: roleError } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", data.user.id)
-          .single();
+          .maybeSingle();
+
+        console.log("Role data:", roleData);
+        console.log("User ID:", data.user.id);
 
         toast({
           title: "Login Successful!",
           description: "Welcome back to Justice Ultimate Automobiles",
         });
 
-        // Redirect based on role
-        if (roleData?.role === "admin") {
-          navigate("/admin-dashboard");
-        } else {
-          navigate("/customer-dashboard");
-        }
+        // Redirect based on role - wait a moment for state to update
+        setTimeout(() => {
+          if (roleData && roleData.role === "admin") {
+            navigate("/admin-dashboard");
+          } else {
+            navigate("/customer-dashboard");
+          }
+        }, 100);
       }
     } catch (error: any) {
       toast({
@@ -368,33 +374,45 @@ const Auth = () => {
 
           {/* Overlay Container */}
           <div className="overlay-container absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-transform duration-700 z-30">
-            <div className="overlay bg-gradient-auth relative left-[-100%] h-full w-[200%] transform transition-transform duration-700 flex">
-              {/* Left Overlay */}
-              <div className="overlay-panel overlay-left absolute flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700">
-                <h1 className="text-4xl font-bold text-white mb-4">Welcome Back to Justice System</h1>
-                <p className="text-white/90 mb-6">Already have an account?</p>
-                <Button
-                  variant="outline"
-                  className="bg-transparent border-2 border-white text-white hover:bg-white/10"
-                  onClick={() => setIsSignUp(false)}
-                  type="button"
-                >
-                  Login
-                </Button>
+            <div className="overlay relative left-[-100%] h-full w-[200%] transform transition-transform duration-700 flex">
+              {/* Left Overlay - Shows on Register (with car lot image) */}
+              <div 
+                className="overlay-panel overlay-left absolute flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700 bg-cover bg-center"
+                style={{ backgroundImage: `url(${carLotOverlay})` }}
+              >
+                <div className="absolute inset-0 glass-strong" />
+                <div className="relative z-10">
+                  <h1 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Welcome Back to Justice System</h1>
+                  <p className="text-white/90 mb-6 drop-shadow-md">Already have an account?</p>
+                  <Button
+                    variant="outline"
+                    className="bg-white/20 border-2 border-white text-white hover:bg-white/30 backdrop-blur-sm"
+                    onClick={() => setIsSignUp(false)}
+                    type="button"
+                  >
+                    Login
+                  </Button>
+                </div>
               </div>
 
-              {/* Right Overlay */}
-              <div className="overlay-panel overlay-right absolute right-0 flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700">
-                <h1 className="text-4xl font-bold text-white mb-4">Hello, Welcome to Justice Ultimate System</h1>
-                <p className="text-white/90 mb-6">Don't have an account?</p>
-                <Button
-                  variant="outline"
-                  className="bg-transparent border-2 border-white text-white hover:bg-white/10"
-                  onClick={() => setIsSignUp(true)}
-                  type="button"
-                >
-                  Register
-                </Button>
+              {/* Right Overlay - Shows on Login (with car lot image) */}
+              <div 
+                className="overlay-panel overlay-right absolute right-0 flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700 bg-cover bg-center"
+                style={{ backgroundImage: `url(${carLotOverlay})` }}
+              >
+                <div className="absolute inset-0 glass-strong" />
+                <div className="relative z-10">
+                  <h1 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">Hello, Welcome to Justice Ultimate System</h1>
+                  <p className="text-white/90 mb-6 drop-shadow-md">Don't have an account?</p>
+                  <Button
+                    variant="outline"
+                    className="bg-white/20 border-2 border-white text-white hover:bg-white/30 backdrop-blur-sm"
+                    onClick={() => setIsSignUp(true)}
+                    type="button"
+                  >
+                    Register
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
