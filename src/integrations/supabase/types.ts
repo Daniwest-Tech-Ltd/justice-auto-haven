@@ -14,16 +14,245 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cars: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          drive_type: string | null
+          engine: string | null
+          fuel_type: string | null
+          id: string
+          images: Json | null
+          is_featured: boolean | null
+          is_rental: boolean | null
+          make: string
+          mileage: string | null
+          model: string
+          price: number
+          status: string | null
+          stock_id: string | null
+          transmission: string | null
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          drive_type?: string | null
+          engine?: string | null
+          fuel_type?: string | null
+          id?: string
+          images?: Json | null
+          is_featured?: boolean | null
+          is_rental?: boolean | null
+          make: string
+          mileage?: string | null
+          model: string
+          price: number
+          status?: string | null
+          stock_id?: string | null
+          transmission?: string | null
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          drive_type?: string | null
+          engine?: string | null
+          fuel_type?: string | null
+          id?: string
+          images?: Json | null
+          is_featured?: boolean | null
+          is_rental?: boolean | null
+          make?: string
+          mileage?: string | null
+          model?: string
+          price?: number
+          status?: string | null
+          stock_id?: string | null
+          transmission?: string | null
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          county_city: string | null
+          created_at: string | null
+          email: string
+          exact_location: string | null
+          full_name: string
+          gender: string | null
+          id: string
+          phone: string
+          preferred_contact: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          county_city?: string | null
+          created_at?: string | null
+          email: string
+          exact_location?: string | null
+          full_name: string
+          gender?: string | null
+          id?: string
+          phone: string
+          preferred_contact?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          county_city?: string | null
+          created_at?: string | null
+          email?: string
+          exact_location?: string | null
+          full_name?: string
+          gender?: string | null
+          id?: string
+          phone?: string
+          preferred_contact?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rentals: {
+        Row: {
+          car_id: string
+          created_at: string | null
+          end_date: string
+          id: string
+          start_date: string
+          status: string | null
+          total_price: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string | null
+          end_date: string
+          id?: string
+          start_date: string
+          status?: string | null
+          total_price: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          start_date?: string
+          status?: string | null
+          total_price?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rentals_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_ins: {
+        Row: {
+          admin_notes: string | null
+          car_condition: string | null
+          car_make: string
+          car_mileage: string | null
+          car_model: string
+          car_year: number
+          created_at: string | null
+          description: string | null
+          estimated_value: number | null
+          id: string
+          images: Json | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          car_condition?: string | null
+          car_make: string
+          car_mileage?: string | null
+          car_model: string
+          car_year: number
+          created_at?: string | null
+          description?: string | null
+          estimated_value?: number | null
+          id?: string
+          images?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          car_condition?: string | null
+          car_make?: string
+          car_mileage?: string | null
+          car_model?: string
+          car_year?: number
+          created_at?: string | null
+          description?: string | null
+          estimated_value?: number | null
+          id?: string
+          images?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "customer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +379,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "customer"],
+    },
   },
 } as const

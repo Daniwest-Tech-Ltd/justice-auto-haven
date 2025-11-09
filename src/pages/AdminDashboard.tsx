@@ -1,11 +1,66 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2 } from "lucide-react";
+import { useAuth, getGreeting } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const { user, profile, role, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!loading && (!user || role?.role !== "admin")) {
+      navigate("/auth");
+    }
+  }, [loading, user, role, navigate]);
+
+  useEffect(() => {
+    if (user && role?.role === "admin") {
+      fetchCustomers();
+    }
+  }, [user, role]);
+
+  const fetchCustomers = async () => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select(`
+        *,
+        user_roles(role)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      setCustomers(data);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out",
+    });
+    navigate("/");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user || !profile || role?.role !== "admin") return null;
 
   return (
     <div className="min-h-screen relative">
@@ -48,7 +103,11 @@ const AdminDashboard = () => {
               <Settings className="h-5 w-5" />
               Settings
             </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2 text-destructive">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2 text-destructive"
+              onClick={handleSignOut}
+            >
               <LogOut className="h-5 w-5" />
               Logout
             </Button>
@@ -60,7 +119,10 @@ const AdminDashboard = () => {
       <main className="lg:ml-64 p-4 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-4xl font-bold">Dashboard Overview</h1>
+            <div>
+              <h1 className="text-4xl font-bold">{getGreeting(profile.full_name)}</h1>
+              <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
+            </div>
             <Button>Add Vehicle</Button>
           </div>
 
@@ -129,10 +191,50 @@ const AdminDashboard = () => {
             <TabsContent value="customers" className="space-y-4">
               <Card className="glass-strong">
                 <CardHeader>
-                  <CardTitle>Customer List</CardTitle>
+                  <CardTitle>Customer Management</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">Customer management interface would go here...</p>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Location</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Joined</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {customers.map((customer) => (
+                        <TableRow key={customer.id}>
+                          <TableCell className="font-medium">{customer.full_name}</TableCell>
+                          <TableCell>{customer.email}</TableCell>
+                          <TableCell>{customer.phone}</TableCell>
+                          <TableCell>{customer.county_city || "N/A"}</TableCell>
+                          <TableCell>
+                            <Badge variant={customer.user_roles?.[0]?.role === "admin" ? "default" : "secondary"}>
+                              {customer.user_roles?.[0]?.role || "customer"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(customer.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline">
+                                <Ban className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="destructive">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </CardContent>
               </Card>
             </TabsContent>

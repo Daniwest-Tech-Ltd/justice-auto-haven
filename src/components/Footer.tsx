@@ -169,7 +169,15 @@ const Footer = () => {
               Driving excellence across Africa and beyond 🌍
             </p>
             <p className="text-sm text-muted-foreground">
-              Developed by <span className="text-primary">Daniwest Tech Sol</span>
+              Developed by{" "}
+              <a 
+                href="https://github.com/maishdan" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-primary hover:underline"
+              >
+                Daniwest Tech Sol
+              </a>
             </p>
           </div>
           <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
