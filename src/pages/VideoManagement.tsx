@@ -149,10 +149,15 @@ const VideoManagement = () => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Dashboard
         </Button>
-        <Button onClick={() => setShowForm(!showForm)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Video
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => navigate("/admin/blogs")}>
+            Manage Blogs
+          </Button>
+          <Button onClick={() => setShowForm(!showForm)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Video
+          </Button>
+        </div>
       </div>
 
       {showForm && (

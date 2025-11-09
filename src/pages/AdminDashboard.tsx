@@ -95,15 +95,27 @@ const AdminDashboard = () => {
               <Car className="h-5 w-5" />
               Vehicles
             </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/customers")}
+            >
               <Users className="h-5 w-5" />
               Customers
             </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/sales")}
+            >
               <DollarSign className="h-5 w-5" />
               Sales
             </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/settings")}
+            >
               <Settings className="h-5 w-5" />
               Settings
             </Button>
@@ -127,7 +139,11 @@ const AdminDashboard = () => {
               <h1 className="text-4xl font-bold">{getGreeting(profile.full_name)}</h1>
               <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
             </div>
-            <Button>Add Vehicle</Button>
+            <div className="flex gap-2">
+              <Button onClick={() => navigate("/admin/cars/add")}>Add Vehicle</Button>
+              <Button variant="outline" onClick={() => navigate("/admin/videos")}>Manage Videos</Button>
+              <Button variant="outline" onClick={() => navigate("/admin/brands")}>Brands</Button>
+            </div>
           </div>
 
           {/* Stats Cards */}

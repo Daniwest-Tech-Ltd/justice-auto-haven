@@ -10,6 +10,10 @@ import Contact from "./pages/Contact";
 import Services from "./pages/Services";
 import Catalogue from "./pages/Catalogue";
 import Videos from "./pages/Videos";
+import Blogs from "./pages/Blogs";
+import RentalBooking from "./pages/RentalBooking";
+import TradeInSubmission from "./pages/TradeInSubmission";
+import AdminSettings from "./pages/AdminSettings";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -21,6 +25,7 @@ import AdminCustomers from "./pages/AdminCustomers";
 import CustomerBadge from "./pages/CustomerBadge";
 import BrandManagement from "./pages/BrandManagement";
 import VideoManagement from "./pages/VideoManagement";
+import BlogManagement from "./pages/BlogManagement";
 import SalesAnalytics from "./pages/SalesAnalytics";
 import RentalsManagement from "./pages/RentalsManagement";
 import TradeInsManagement from "./pages/TradeInsManagement";
@@ -47,6 +52,9 @@ const App = () => (
           <Route path="/services" element={<Layout><Services /></Layout>} />
           <Route path="/catalogue" element={<Layout><Catalogue /></Layout>} />
           <Route path="/videos" element={<Layout><Videos /></Layout>} />
+          <Route path="/blogs" element={<Layout><Blogs /></Layout>} />
+          <Route path="/rental-booking" element={<Layout><RentalBooking /></Layout>} />
+          <Route path="/trade-in" element={<Layout><TradeInSubmission /></Layout>} />
           
           {/* Car Details Route */}
           <Route path="/car/:id" element={<Layout><CarDetails /></Layout>} />
@@ -123,6 +131,14 @@ const App = () => (
             } 
           />
           <Route 
+            path="/admin/blogs" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <BlogManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/admin/sales" 
             element={
               <ProtectedRoute requiredRole="admin">
@@ -143,6 +159,14 @@ const App = () => (
             element={
               <ProtectedRoute requiredRole="admin">
                 <TradeInsManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/settings" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminSettings />
               </ProtectedRoute>
             } 
           />

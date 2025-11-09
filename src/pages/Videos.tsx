@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -39,7 +40,9 @@ const Videos = () => {
         <p className="text-lg text-muted-foreground mb-6">
           🎥 Explore our video collection - local content and embedded videos from YouTube & TikTok
         </p>
-        <Button size="lg">Add Video</Button>
+        <Link to="/blogs">
+          <Button size="lg">View Blogs</Button>
+        </Link>
       </div>
 
       {/* Videos Grid */}

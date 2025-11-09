@@ -123,8 +123,12 @@ const Catalogue = () => {
           🚗 Discover our premium collection of vehicles from luxury cars to commercial vehicles, all available for rent or purchase.
         </p>
         <div className="flex flex-wrap gap-4 justify-center">
-          <Button size="lg" className="bg-green-600 hover:bg-green-700">View Rentals</Button>
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700">Trade-In Your Car</Button>
+          <Link to="/rental-booking">
+            <Button size="lg" className="bg-green-600 hover:bg-green-700">View Rentals</Button>
+          </Link>
+          <Link to="/trade-in">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">Trade-In Your Car</Button>
+          </Link>
         </div>
       </div>
 

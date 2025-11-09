@@ -1,8 +1,44 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Car, Shield, Globe, Zap, Award, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Car, Shield, Globe, Zap, Award, Users, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Home = () => {
+  const [featuredCar, setFeaturedCar] = useState<any>(null);
+
+  useEffect(() => {
+    fetchFeaturedCar();
+  }, []);
+
+  const fetchFeaturedCar = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("featured_cars")
+        .select(`
+          *,
+          cars (*)
+        `)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!error && data) {
+        setFeaturedCar(data.cars);
+      }
+    } catch (error) {
+      console.error("Error fetching featured car:", error);
+    }
+  };
+
+  const getImageUrl = (images: any) => {
+    if (!images) return null;
+    const imageArray = Array.isArray(images) ? images : [];
+    return imageArray[0] || null;
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 space-y-20">
       {/* Hero Section */}
@@ -37,6 +73,57 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Featured Today */}
+      {featuredCar && (
+        <section className="glass-strong rounded-3xl p-8">
+          <div className="flex items-center gap-3 mb-6">
+            <Star className="h-8 w-8 text-yellow-500 fill-yellow-500" />
+            <h2 className="text-3xl md:text-4xl font-bold">
+              <span className="bg-gradient-accent bg-clip-text text-transparent">
+                Featured Today
+              </span>
+            </h2>
+          </div>
+          
+          <Link to={`/car/${featuredCar.stock_id || featuredCar.id}`}>
+            <div className="grid md:grid-cols-2 gap-8 items-center hover:scale-[1.02] transition-transform">
+              <div className="aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
+                {getImageUrl(featuredCar.images) ? (
+                  <img
+                    src={getImageUrl(featuredCar.images)}
+                    alt={`${featuredCar.make} ${featuredCar.model}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-6xl">{featuredCar.make.charAt(0)}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-4">
+                <Badge className="bg-yellow-600">⭐ Featured Today</Badge>
+                <h3 className="text-3xl font-bold">
+                  {featuredCar.make} {featuredCar.model}
+                </h3>
+                <p className="text-2xl text-primary font-bold">
+                  KSh {featuredCar.price.toLocaleString()}
+                </p>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div><strong>Year:</strong> {featuredCar.year}</div>
+                  <div><strong>Fuel:</strong> {featuredCar.fuel_type || "N/A"}</div>
+                  <div><strong>Transmission:</strong> {featuredCar.transmission || "N/A"}</div>
+                  <div><strong>Mileage:</strong> {featuredCar.mileage || "N/A"}</div>
+                </div>
+                <Button size="lg" className="w-full md:w-auto">
+                  View Details →
+                </Button>
+              </div>
+            </div>
+          </Link>
+        </section>
+      )}
 
       {/* Why Choose Us */}
       <section className="space-y-12">
