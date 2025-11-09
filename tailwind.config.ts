@@ -108,6 +108,7 @@ export default {
       backgroundImage: {
         "gradient-hero": "var(--gradient-hero)",
         "gradient-accent": "var(--gradient-accent)",
+        "gradient-auth": "var(--gradient-auth)",
       },
     },
   },
