@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter, Phone, Mail, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import LoadingScreen from "@/components/LoadingScreen";
 
 interface Car {
   id: string;
@@ -23,7 +24,6 @@ interface Car {
 }
 
 const Catalogue = () => {
-  const navigate = useNavigate();
   const [cars, setCars] = useState<Car[]>([]);
   const [filteredCars, setFilteredCars] = useState<Car[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,11 +77,7 @@ const Catalogue = () => {
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-12">
-        <p className="text-center">Loading cars...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   // Remove sample data array
@@ -183,10 +179,10 @@ const Catalogue = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCars.map((car) => (
-            <div 
-              key={car.id} 
-              className="glass-strong rounded-2xl overflow-hidden hover:scale-105 transition-transform cursor-pointer"
-              onClick={() => navigate(`/car/${car.stock_id || car.id}`)}
+            <Link
+              key={car.id}
+              to={`/car/${car.stock_id || car.id}`}
+              className="glass-strong rounded-2xl overflow-hidden hover:scale-105 transition-transform block"
             >
               {/* Image */}
               <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 relative">
@@ -253,7 +249,7 @@ const Catalogue = () => {
 
                 <Button className="w-full">Quick View →</Button>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

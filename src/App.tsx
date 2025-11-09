@@ -17,6 +17,11 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import CarManagement from "./pages/CarManagement";
 import AddCar from "./pages/AddCar";
 import NotFound from "./pages/NotFound";
+import CarDetails from "./pages/CarDetails";
+import Unauthorized from "./pages/Unauthorized";
+import Forbidden from "./pages/Forbidden";
+import ServerError from "./pages/ServerError";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -35,17 +40,53 @@ const App = () => (
           <Route path="/catalogue" element={<Layout><Catalogue /></Layout>} />
           <Route path="/videos" element={<Layout><Videos /></Layout>} />
           
+          {/* Car Details Route */}
+          <Route path="/car/:id" element={<Layout><CarDetails /></Layout>} />
+          
           {/* Auth Routes (no layout) */}
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           
-          {/* Dashboard Routes (no layout) */}
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+          {/* Protected Dashboard Routes */}
+          <Route 
+            path="/admin-dashboard" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/customer-dashboard" 
+            element={
+              <ProtectedRoute requiredRole="customer">
+                <CustomerDashboard />
+              </ProtectedRoute>
+            } 
+          />
           
-          {/* Admin Car Management Routes (no layout) */}
-          <Route path="/admin/cars" element={<CarManagement />} />
-          <Route path="/admin/cars/add" element={<AddCar />} />
+          {/* Protected Admin Routes */}
+          <Route 
+            path="/admin/cars" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <CarManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/cars/add" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AddCar />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Error Pages */}
+          <Route path="/401" element={<Unauthorized />} />
+          <Route path="/403" element={<Forbidden />} />
+          <Route path="/500" element={<ServerError />} />
           
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
