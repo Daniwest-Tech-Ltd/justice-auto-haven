@@ -51,6 +51,9 @@ const AdminMessages = lazy(() => import("./pages/AdminMessages"));
 const CustomerMessages = lazy(() => import("./pages/CustomerMessages"));
 const CRMManagement = lazy(() => import("./pages/CRMManagement"));
 const CustomerProfile = lazy(() => import("./pages/CustomerProfile"));
+const CustomerNotifications = lazy(() => import("./pages/CustomerNotifications"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Compare = lazy(() => import("./pages/Compare"));
 
 const queryClient = new QueryClient();
 
