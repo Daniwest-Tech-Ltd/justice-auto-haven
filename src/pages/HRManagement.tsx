@@ -76,6 +76,34 @@ const HRManagement = () => {
           </Button>
         </div>
 
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Button
+            variant="outline"
+            className="h-24"
+            onClick={() => navigate("/admin/hr/payroll")}
+          >
+            <DollarSign className="mr-2 h-5 w-5" />
+            Payroll Management
+          </Button>
+          <Button
+            variant="outline"
+            className="h-24"
+            onClick={() => navigate("/admin/hr/attendance")}
+          >
+            <Calendar className="mr-2 h-5 w-5" />
+            Attendance System
+          </Button>
+          <Button
+            variant="outline"
+            className="h-24"
+            onClick={() => navigate("/admin/hr/add-staff")}
+          >
+            <UserPlus className="mr-2 h-5 w-5" />
+            Add New Staff
+          </Button>
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="glass-strong">
@@ -155,13 +183,22 @@ const HRManagement = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => navigate(`/admin/hr/staff-badge/${member.id}`)}
-                      >
-                        View Badge
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => navigate(`/admin/hr/staff-badge/${member.id}`)}
+                        >
+                          View Badge
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => navigate(`/admin/hr/business-card/${member.id}`)}
+                        >
+                          Business Card
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

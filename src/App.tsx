@@ -41,6 +41,9 @@ const ServerError = lazy(() => import("./pages/ServerError"));
 const HRManagement = lazy(() => import("./pages/HRManagement"));
 const AddStaff = lazy(() => import("./pages/AddStaff"));
 const StaffBadge = lazy(() => import("./pages/StaffBadge"));
+const PayrollManagement = lazy(() => import("./pages/PayrollManagement"));
+const AttendanceManagement = lazy(() => import("./pages/AttendanceManagement"));
+const BusinessCard = lazy(() => import("./pages/BusinessCard"));
 const CRMManagement = lazy(() => import("./pages/CRMManagement"));
 const CustomerProfile = lazy(() => import("./pages/CustomerProfile"));
 
@@ -220,6 +223,30 @@ const App = () => (
             element={
               <ProtectedRoute requiredRole="admin">
                 <StaffBadge />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/hr/payroll" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <PayrollManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/hr/attendance" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AttendanceManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/hr/business-card/:id" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <BusinessCard />
               </ProtectedRoute>
             } 
           />
