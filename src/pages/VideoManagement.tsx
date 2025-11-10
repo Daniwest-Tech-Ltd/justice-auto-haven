@@ -201,20 +201,58 @@ const VideoManagement = () => {
                   <SelectContent>
                     <SelectItem value="youtube">YouTube</SelectItem>
                     <SelectItem value="tiktok">TikTok</SelectItem>
+                    <SelectItem value="upload">Upload Video</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="video_url">Video URL</Label>
-                <Input
-                  id="video_url"
-                  value={formData.video_url}
-                  onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                  placeholder="https://youtube.com/watch?v=..."
-                  required
-                />
-              </div>
+              {formData.video_type === "upload" ? (
+                <div>
+                  <Label htmlFor="video_file">Upload Video</Label>
+                  <Input
+                    id="video_file"
+                    type="file"
+                    accept="video/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const fileName = `${Date.now()}-${file.name}`;
+                        const { data: uploadData, error: uploadError } = await supabase.storage
+                          .from("video-uploads")
+                          .upload(fileName, file);
+
+                        if (uploadError) {
+                          toast({
+                            title: "Error",
+                            description: "Failed to upload video",
+                            variant: "destructive",
+                          });
+                        } else {
+                          const { data: { publicUrl } } = supabase.storage
+                            .from("video-uploads")
+                            .getPublicUrl(uploadData.path);
+                          setFormData({ ...formData, video_url: publicUrl });
+                          toast({
+                            title: "Success",
+                            description: "Video uploaded successfully",
+                          });
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <Label htmlFor="video_url">Video URL</Label>
+                  <Input
+                    id="video_url"
+                    value={formData.video_url}
+                    onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                    placeholder="https://youtube.com/watch?v=..."
+                    required
+                  />
+                </div>
+              )}
 
               <div className="flex gap-2">
                 <Button type="submit" className="flex-1">Add Video</Button>

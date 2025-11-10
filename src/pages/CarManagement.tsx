@@ -59,23 +59,61 @@ const CarManagement = () => {
   const toggleStatus = async (carId: string, currentStatus: string | null) => {
     const newStatus = currentStatus === "available" ? "sold" : "available";
     
-    const { error } = await supabase
-      .from("cars")
-      .update({ status: newStatus })
-      .eq("id", carId);
+    try {
+      const { error: updateError } = await supabase
+        .from("cars")
+        .update({ status: newStatus })
+        .eq("id", carId);
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update car status",
-        variant: "destructive",
-      });
-    } else {
+      if (updateError) throw updateError;
+
+      // If marking as sold, create a sales record
+      if (newStatus === "sold") {
+        const car = cars.find(c => c.id === carId);
+        if (car) {
+          const { error: salesError } = await supabase
+            .from("sales")
+            .insert({
+              car_id: carId,
+              sale_price: car.price,
+              sale_date: new Date().toISOString().split('T')[0],
+              payment_type: "To be confirmed",
+              notes: "Auto-generated sale record",
+            });
+
+          if (salesError) throw salesError;
+
+          // Notify admin
+          const { data: adminData } = await supabase
+            .from("user_roles")
+            .select("user_id")
+            .eq("role", "admin")
+            .limit(1)
+            .maybeSingle();
+
+          if (adminData) {
+            await supabase.from("notifications").insert({
+              user_id: adminData.user_id,
+              title: "Car Sold",
+              message: `${car.make} ${car.model} ${car.year} has been sold`,
+              type: "sale",
+              metadata: { car_id: carId, sale_price: car.price },
+            });
+          }
+        }
+      }
+
       toast({
         title: "Success",
-        description: `Car marked as ${newStatus === "available" ? "In Stock" : "Sold Out"}`,
+        description: `Car marked as ${newStatus === "available" ? "In Stock" : "Sold"}${newStatus === "sold" ? " and sale recorded" : ""}`,
       });
       fetchCars();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 

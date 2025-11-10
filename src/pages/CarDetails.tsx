@@ -225,20 +225,32 @@ const CarDetails = () => {
 
             {/* Contact Buttons */}
             <div className="space-y-3">
-              <Button className="w-full bg-green-600 hover:bg-green-700" size="lg">
-                <Phone className="mr-2 h-5 w-5" />
-                +254 7228 27458 -0751 5555 44
-              </Button>
+              <a href="tel:+254722827458" className="block">
+                <Button className="w-full bg-green-600 hover:bg-green-700" size="lg">
+                  <Phone className="mr-2 h-5 w-5" />
+                  +254 722 827 458
+                </Button>
+              </a>
               
-              <Button variant="outline" className="w-full" size="lg">
-                <Mail className="mr-2 h-5 w-5" />
-                justicevincentt@gmail.com
-              </Button>
+              <a href="mailto:justicevincentt@gmail.com" className="block">
+                <Button variant="outline" className="w-full" size="lg">
+                  <Mail className="mr-2 h-5 w-5" />
+                  justicevincentt@gmail.com
+                </Button>
+              </a>
               
-              <Button className="w-full bg-green-500 hover:bg-green-600" size="lg">
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Whatsapp
-              </Button>
+              <a href={`https://wa.me/254722827458?text=${encodeURIComponent(`Hi, I'm interested in the ${car.year} ${car.make} ${car.model}`)}`} target="_blank" rel="noopener noreferrer" className="block">
+                <Button className="w-full bg-green-500 hover:bg-green-600" size="lg">
+                  <MessageCircle className="mr-2 h-5 w-5" />
+                  WhatsApp
+                </Button>
+              </a>
+              
+              <a href={`sms:+254722827458?body=${encodeURIComponent(`Hi, I'm interested in the ${car.year} ${car.make} ${car.model}`)}`} className="block">
+                <Button variant="outline" className="w-full" size="lg">
+                  SMS
+                </Button>
+              </a>
             </div>
 
             {/* Action Buttons */}
@@ -320,7 +332,7 @@ const CarDetails = () => {
         {/* Similar Vehicles */}
         {similarCars.length > 0 && (
           <div className="mt-12">
-            <h2 className="mb-6 text-3xl font-bold text-primary">Similar Vehicles From</h2>
+            <h2 className="mb-6 text-3xl font-bold text-primary">Similar Vehicles from {car.make}</h2>
             
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {similarCars.map((similarCar) => (

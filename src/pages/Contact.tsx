@@ -1,9 +1,79 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("contact_submissions")
+        .insert([{
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+        }]);
+
+      if (error) throw error;
+
+      // Create notification for admin
+      const { data: adminData } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin")
+        .limit(1)
+        .single();
+
+      if (adminData) {
+        await supabase.from("notifications").insert({
+          user_id: adminData.user_id,
+          title: "New Contact Submission",
+          message: `${formData.name} sent a message: ${formData.subject}`,
+          type: "contact",
+        });
+      }
+
+      toast({
+        title: "Message Sent!",
+        description: "We'll get back to you as soon as possible.",
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
       {/* Header */}
@@ -18,27 +88,51 @@ const Contact = () => {
         {/* Contact Form */}
         <div className="glass-strong rounded-3xl p-8">
           <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Input placeholder="Full Name" />
+              <Input
+                placeholder="Full Name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
             </div>
             <div>
-              <Input type="email" placeholder="Email Address" />
+              <Input
+                type="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+              />
             </div>
             <div>
-              <Input type="tel" placeholder="Phone Number" />
+              <Input
+                type="tel"
+                placeholder="Phone Number"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
             </div>
             <div>
-              <Input placeholder="Subject" />
+              <Input
+                placeholder="Subject"
+                value={formData.subject}
+                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                required
+              />
             </div>
             <div>
-              <Textarea placeholder="Message" rows={6} />
+              <Textarea
+                placeholder="Message"
+                rows={6}
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                required
+              />
             </div>
-            <div>
-              <Input type="file" />
-            </div>
-            <Button className="w-full" size="lg">
-              Send Message
+            <Button className="w-full" size="lg" type="submit" disabled={submitting}>
+              {submitting ? "Sending..." : "Send Message"}
             </Button>
           </form>
         </div>
@@ -55,9 +149,6 @@ const Contact = () => {
                   Mpesi Lane 11, Westlands<br />
                   Nairobi, Kenya
                 </p>
-                <Button variant="link" className="px-0 mt-2">
-                  Get Directions →
-                </Button>
               </div>
             </div>
           </div>
@@ -123,15 +214,6 @@ const Contact = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="glass-strong rounded-2xl p-8 text-center">
-        <h3 className="text-2xl font-bold mb-6">Quick Actions</h3>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Button size="lg">View Cars</Button>
-          <Button size="lg" variant="outline">💳 Financing</Button>
         </div>
       </div>
     </div>

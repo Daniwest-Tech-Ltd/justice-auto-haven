@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2 } from "lucide-react";
+import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2, MessageSquare, Bell } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import NotificationsPanel from "@/components/NotificationsPanel";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
