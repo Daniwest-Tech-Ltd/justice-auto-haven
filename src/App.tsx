@@ -1,45 +1,48 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Services from "./pages/Services";
-import Catalogue from "./pages/Catalogue";
-import Videos from "./pages/Videos";
-import Blogs from "./pages/Blogs";
-import RentalBooking from "./pages/RentalBooking";
-import TradeInSubmission from "./pages/TradeInSubmission";
-import AdminSettings from "./pages/AdminSettings";
-import Auth from "./pages/Auth";
-import ResetPassword from "./pages/ResetPassword";
-import AdminDashboard from "./pages/AdminDashboard";
-import CustomerDashboard from "./pages/CustomerDashboard";
-import CarManagement from "./pages/CarManagement";
-import AddCar from "./pages/AddCar";
-import EditCar from "./pages/EditCar";
-import AdminCustomers from "./pages/AdminCustomers";
-import CustomerBadge from "./pages/CustomerBadge";
-import BrandManagement from "./pages/BrandManagement";
-import VideoManagement from "./pages/VideoManagement";
-import BlogManagement from "./pages/BlogManagement";
-import SalesAnalytics from "./pages/SalesAnalytics";
-import RentalsManagement from "./pages/RentalsManagement";
-import TradeInsManagement from "./pages/TradeInsManagement";
-import NotFound from "./pages/NotFound";
-import CarDetails from "./pages/CarDetails";
-import Unauthorized from "./pages/Unauthorized";
-import Forbidden from "./pages/Forbidden";
-import ServerError from "./pages/ServerError";
 import ProtectedRoute from "./components/ProtectedRoute";
-import HRManagement from "./pages/HRManagement";
-import AddStaff from "./pages/AddStaff";
-import StaffBadge from "./pages/StaffBadge";
-import CRMManagement from "./pages/CRMManagement";
-import CustomerProfile from "./pages/CustomerProfile";
+
+// Lazy load pages
+const Home = lazy(() => import("./pages/Home"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Services = lazy(() => import("./pages/Services"));
+const Catalogue = lazy(() => import("./pages/Catalogue"));
+const Videos = lazy(() => import("./pages/Videos"));
+const Blogs = lazy(() => import("./pages/Blogs"));
+const RentalBooking = lazy(() => import("./pages/RentalBooking"));
+const TradeInSubmission = lazy(() => import("./pages/TradeInSubmission"));
+const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard"));
+const CarManagement = lazy(() => import("./pages/CarManagement"));
+const AddCar = lazy(() => import("./pages/AddCar"));
+const EditCar = lazy(() => import("./pages/EditCar"));
+const AdminCustomers = lazy(() => import("./pages/AdminCustomers"));
+const CustomerBadge = lazy(() => import("./pages/CustomerBadge"));
+const BrandManagement = lazy(() => import("./pages/BrandManagement"));
+const VideoManagement = lazy(() => import("./pages/VideoManagement"));
+const BlogManagement = lazy(() => import("./pages/BlogManagement"));
+const SalesAnalytics = lazy(() => import("./pages/SalesAnalytics"));
+const RentalsManagement = lazy(() => import("./pages/RentalsManagement"));
+const TradeInsManagement = lazy(() => import("./pages/TradeInsManagement"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const CarDetails = lazy(() => import("./pages/CarDetails"));
+const Unauthorized = lazy(() => import("./pages/Unauthorized"));
+const Forbidden = lazy(() => import("./pages/Forbidden"));
+const ServerError = lazy(() => import("./pages/ServerError"));
+const HRManagement = lazy(() => import("./pages/HRManagement"));
+const AddStaff = lazy(() => import("./pages/AddStaff"));
+const StaffBadge = lazy(() => import("./pages/StaffBadge"));
+const CRMManagement = lazy(() => import("./pages/CRMManagement"));
+const CustomerProfile = lazy(() => import("./pages/CustomerProfile"));
 
 const queryClient = new QueryClient();
 
@@ -49,7 +52,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+          <Routes>
           {/* Public Routes with Layout */}
           <Route path="/" element={<Layout><Home /></Layout>} />
           <Route path="/about" element={<Layout><About /></Layout>} />
@@ -238,6 +242,7 @@ const App = () => (
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

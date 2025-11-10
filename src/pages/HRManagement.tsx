@@ -45,7 +45,7 @@ const HRManagement = () => {
 
     if (staffData) {
       const active = staffData.filter(s => s.status === "active").length;
-      const totalSalary = staffData.reduce((sum, s) => sum + (parseFloat(s.salary) || 0), 0);
+      const totalSalary = staffData.reduce((sum, s) => sum + (typeof s.salary === 'string' ? parseFloat(s.salary) : s.salary), 0);
 
       setStats({
         totalStaff: staffData.length,

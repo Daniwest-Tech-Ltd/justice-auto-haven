@@ -57,7 +57,7 @@ const AdminDashboard = () => {
     setStats({
       totalVehicles: carsData?.length || 0,
       activeCustomers: profilesData?.length || 0,
-      monthlySales: salesData?.reduce((sum, s) => sum + parseFloat(s.sale_price), 0) || 0,
+      monthlySales: salesData?.reduce((sum, s) => sum + (typeof s.sale_price === 'string' ? parseFloat(s.sale_price) : s.sale_price), 0) || 0,
       pendingOrders: rentalsData?.length || 0,
     });
   };

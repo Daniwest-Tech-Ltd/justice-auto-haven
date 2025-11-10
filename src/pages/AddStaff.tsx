@@ -46,7 +46,7 @@ const AddStaff = () => {
           email: formData.email,
           phone: formData.phone,
           department: formData.department,
-          position: formData.position,
+          position: formData.position as "ceo" | "manager" | "sales_executive" | "technician" | "accountant" | "hr_manager" | "receptionist" | "driver",
           salary: parseFloat(formData.salary),
           emergency_contact: formData.emergency_contact,
           address: formData.address,
