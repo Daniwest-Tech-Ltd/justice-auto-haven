@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
@@ -342,28 +342,16 @@ const Catalogue = () => {
 
                   <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground mb-3">
                     <div className="flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 6v6l4 2"/>
-                      </svg>
+                      <Gauge className="h-3 w-3 text-primary" />
                       {car.mileage || "N/A"}
                     </div>
                     <div className="flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 2v4"/>
-                        <path d="M12 18v4"/>
-                        <path d="M4.93 4.93l2.83 2.83"/>
-                        <path d="M16.24 16.24l2.83 2.83"/>
-                        <path d="M2 12h4"/>
-                        <path d="M18 12h4"/>
-                        <path d="M4.93 19.07l2.83-2.83"/>
-                        <path d="M16.24 7.76l2.83-2.83"/>
-                      </svg>
+                      <SettingsIcon className="h-3 w-3 text-primary" />
                       {car.transmission || "N/A"}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-1">
+                  <div className="grid grid-cols-3 gap-1 mb-3">
                     <Button
                       size="sm"
                       variant="outline"
@@ -388,6 +376,19 @@ const Catalogue = () => {
                     >
                       <Mail className="h-3 w-3" />
                     </Button>
+                  </div>
+
+                  <div className="border-t pt-3 -mx-4 -mb-4 px-4 pb-3 bg-muted/30">
+                    <button
+                      className="w-full flex items-center justify-center gap-2 text-sm font-semibold hover:text-primary transition-colors group"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        trackView(car.id);
+                      }}
+                    >
+                      <Car className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+                      <span>View Details</span>
+                    </button>
                   </div>
                 </div>
               </Link>

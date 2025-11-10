@@ -72,11 +72,22 @@ const BrandManagement = () => {
       const existingBrand = brands.find(b => b.name.toLowerCase() === selectedBrand.toLowerCase());
 
       const fileExt = newBrandLogo.name.split(".").pop();
-      const fileName = `${selectedBrand.toLowerCase().replace(/\s+/g, "-")}.${fileExt}`;
+      const fileName = `${selectedBrand.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.${fileExt}`;
       
+      // First, remove old file if updating
+      if (existingBrand?.logo_url) {
+        const oldFileName = existingBrand.logo_url.split('/').pop();
+        if (oldFileName) {
+          await supabase.storage.from("brand-logos").remove([oldFileName]);
+        }
+      }
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("brand-logos")
-        .upload(fileName, newBrandLogo, { upsert: true });
+        .upload(fileName, newBrandLogo, { 
+          cacheControl: '3600',
+          upsert: false 
+        });
 
       if (uploadError) throw uploadError;
 
@@ -113,6 +124,8 @@ const BrandManagement = () => {
 
       setSelectedBrand("");
       setNewBrandLogo(null);
+      const fileInput = document.getElementById("brandLogo") as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
       fetchBrands();
     } catch (error: any) {
       toast({
