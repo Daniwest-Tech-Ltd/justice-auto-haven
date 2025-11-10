@@ -40,10 +40,10 @@ const Catalogue = () => {
   const [loading, setLoading] = useState(true);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [filters, setFilters] = useState({
-    brand: "",
-    year: "",
-    availability: "",
-    fuelType: "",
+    brand: "all",
+    year: "all",
+    availability: "all",
+    fuelType: "all",
   });
   const { user } = useAuth();
 
@@ -100,19 +100,19 @@ const Catalogue = () => {
       );
     }
 
-    if (filters.brand) {
+    if (filters.brand && filters.brand !== "all") {
       filtered = filtered.filter((car) => car.make.toLowerCase() === filters.brand.toLowerCase());
     }
 
-    if (filters.year) {
+    if (filters.year && filters.year !== "all") {
       filtered = filtered.filter((car) => car.year.toString() === filters.year);
     }
 
-    if (filters.availability) {
+    if (filters.availability && filters.availability !== "all") {
       filtered = filtered.filter((car) => car.status === filters.availability);
     }
 
-    if (filters.fuelType) {
+    if (filters.fuelType && filters.fuelType !== "all") {
       filtered = filtered.filter((car) => car.fuel_type?.toLowerCase() === filters.fuelType.toLowerCase());
     }
 
@@ -182,10 +182,10 @@ const Catalogue = () => {
   const resetFilters = () => {
     setSearchQuery("");
     setFilters({
-      brand: "",
-      year: "",
-      availability: "",
-      fuelType: "",
+      brand: "all",
+      year: "all",
+      availability: "all",
+      fuelType: "all",
     });
   };
 
@@ -231,9 +231,9 @@ const Catalogue = () => {
               <SelectValue placeholder="Brand" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Brands</SelectItem>
+              <SelectItem value="all">All Brands</SelectItem>
               {brands.map((brand) => (
-                <SelectItem key={brand.id} value={brand.name}>{brand.name}</SelectItem>
+                <SelectItem key={brand.id} value={brand.name || `brand-${brand.id}`}>{brand.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -243,7 +243,7 @@ const Catalogue = () => {
               <SelectValue placeholder="Year" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Years</SelectItem>
+              <SelectItem value="all">All Years</SelectItem>
               {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((year) => (
                 <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
               ))}
@@ -255,7 +255,7 @@ const Catalogue = () => {
               <SelectValue placeholder="Availability" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All</SelectItem>
+              <SelectItem value="all">All</SelectItem>
               <SelectItem value="available">Available</SelectItem>
               <SelectItem value="sold">Sold</SelectItem>
             </SelectContent>
@@ -266,7 +266,7 @@ const Catalogue = () => {
               <SelectValue placeholder="Fuel Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Fuel Types</SelectItem>
+              <SelectItem value="all">All Fuel Types</SelectItem>
               <SelectItem value="petrol">Petrol</SelectItem>
               <SelectItem value="diesel">Diesel</SelectItem>
               <SelectItem value="hybrid">Hybrid</SelectItem>

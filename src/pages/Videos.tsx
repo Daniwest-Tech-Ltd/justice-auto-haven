@@ -1,34 +1,88 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import LoadingScreen from "@/components/LoadingScreen";
+import { Play } from "lucide-react";
+
+interface Video {
+  id: string;
+  title: string;
+  description: string | null;
+  video_url: string;
+  thumbnail_url: string | null;
+  video_type: string | null;
+  is_published: boolean;
+}
 
 const Videos = () => {
-  const videos = [
-    {
-      id: 1,
-      title: "Showroom Highlights",
-      description: "Tour our premium showroom facilities",
-      type: "local",
-    },
-    {
-      id: 2,
-      title: "Car Previews",
-      description: "Featured vehicles showcase",
-      type: "local",
-    },
-    {
-      id: 3,
-      title: "Vehicles On The Road",
-      description: "See how the cars are!",
-      type: "local",
-    },
-    {
-      id: 4,
-      title: "Featured Today @Justice Ultimate Automobiles",
-      description: "Toyota Land Cruiser GR",
-      type: "local",
-    },
-  ];
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+
+  const fetchVideos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("videos")
+        .select("*")
+        .eq("is_published", true)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setVideos(data || []);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getVideoEmbed = (video: Video) => {
+    if (video.video_type === "youtube") {
+      const videoId = video.video_url.includes("youtube.com")
+        ? new URLSearchParams(new URL(video.video_url).search).get("v")
+        : video.video_url.split("/").pop();
+      return (
+        <iframe
+          className="w-full h-full"
+          src={`https://www.youtube.com/embed/${videoId}`}
+          title={video.title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      );
+    } else if (video.video_type === "tiktok") {
+      return (
+        <iframe
+          className="w-full h-full"
+          src={`https://www.tiktok.com/embed/${video.video_url.split("/").pop()}`}
+          title={video.title}
+          frameBorder="0"
+          allow="encrypted-media;"
+          allowFullScreen
+        />
+      );
+    } else {
+      // Upload type - direct video player
+      return (
+        <video
+          className="w-full h-full object-cover"
+          controls
+          poster={video.thumbnail_url || undefined}
+        >
+          <source src={video.video_url} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+  };
+
+  if (loading) return <LoadingScreen />;
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
@@ -46,29 +100,34 @@ const Videos = () => {
       </div>
 
       {/* Videos Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {videos.map((video) => (
-          <div key={video.id} className="glass-strong rounded-2xl overflow-hidden hover:scale-105 transition-transform">
-            {/* Video Placeholder */}
-            <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                  <div className="w-0 h-0 border-l-[16px] border-l-white border-y-[10px] border-y-transparent ml-1"></div>
+      {videos.length === 0 ? (
+        <div className="text-center py-12">
+          <Play className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-lg text-muted-foreground">No videos available yet</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {videos.map((video) => (
+            <div key={video.id} className="glass-strong rounded-2xl overflow-hidden hover:scale-105 transition-transform">
+              {/* Video Player */}
+              <div className="aspect-video bg-secondary/20 relative">
+                {getVideoEmbed(video)}
+                <div className="absolute top-4 left-4">
+                  <Badge variant="secondary">{video.video_type || "video"}</Badge>
                 </div>
               </div>
-              <div className="absolute top-4 left-4">
-                <Badge variant="secondary">{video.type}</Badge>
+
+              {/* Content */}
+              <div className="p-6">
+                <h3 className="text-xl font-bold mb-2">{video.title}</h3>
+                {video.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">{video.description}</p>
+                )}
               </div>
             </div>
-
-            {/* Content */}
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-2">{video.title}</h3>
-              <p className="text-sm text-muted-foreground">{video.description}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
