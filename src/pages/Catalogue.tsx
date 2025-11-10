@@ -200,7 +200,7 @@ const Catalogue = () => {
   const uniqueYears = Array.from(new Set(cars.map((car) => car.year)))
     .sort((a, b) => b - a);
 
-  const uniqueMakes = Array.from(new Set(cars.map((car) => car.make))).sort();
+  const uniqueMakes = Array.from(new Set(cars.map((car) => car.make).filter(make => make && make.trim() !== ''))).sort();
 
   const uniqueFuelTypes = Array.from(new Set(cars.map((car) => car.fuel_type).filter(type => type && type.trim() !== ''))).sort();
 
