@@ -99,6 +99,19 @@ const AddCar = () => {
     setLoading(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/auth");
+        return;
+      }
+
+      // Generate stock ID automatically
+      const { data: stockIdData, error: stockError } = await supabase
+        .rpc("generate_stock_id");
+
+      if (stockError) throw stockError;
+      const autoStockId = stockIdData as string;
+
       // Insert car data first
       const { data: carData, error: insertError } = await supabase
         .from("cars")
@@ -114,7 +127,7 @@ const AddCar = () => {
             transmission: formData.transmission,
             drive_type: formData.drive_type,
             color: formData.color,
-            stock_id: formData.stock_id,
+            stock_id: autoStockId,
             description: formData.description,
             status: "available",
             images: [],
@@ -136,9 +149,22 @@ const AddCar = () => {
 
       if (updateError) throw updateError;
 
+      // Log activity
+      await supabase.rpc("log_activity", {
+        p_user_id: user.id,
+        p_action_type: "add_car",
+        p_target_table: "cars",
+        p_target_id: carData.id,
+        p_details: {
+          stock_id: autoStockId,
+          make: formData.make,
+          model: formData.model,
+        },
+      });
+
       toast({
         title: "Success",
-        description: "Car added successfully!",
+        description: `Car added successfully with Stock ID: ${autoStockId}`,
       });
 
       navigate("/admin/cars");
@@ -334,10 +360,13 @@ const AddCar = () => {
                 <Label htmlFor="stock_id">Stock ID</Label>
                 <Input
                   id="stock_id"
-                  placeholder="e.g., JUA-KEN-0065"
-                  value={formData.stock_id}
-                  onChange={(e) => setFormData({ ...formData, stock_id: e.target.value })}
+                  value="Auto-generated on save (e.g., JUA-KEN-021)"
+                  disabled
+                  className="bg-muted"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Stock ID will be automatically generated when you save
+                </p>
               </div>
             </div>
 

@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          target_id: string | null
+          target_table: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_table?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_table?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           clock_in: string | null
@@ -21,9 +51,12 @@ export type Database = {
           created_at: string
           date: string
           id: string
+          marked_by: string | null
           notes: string | null
           staff_id: string
           status: string
+          time_in: string | null
+          time_out: string | null
         }
         Insert: {
           clock_in?: string | null
@@ -31,9 +64,12 @@ export type Database = {
           created_at?: string
           date: string
           id?: string
+          marked_by?: string | null
           notes?: string | null
           staff_id: string
           status?: string
+          time_in?: string | null
+          time_out?: string | null
         }
         Update: {
           clock_in?: string | null
@@ -41,9 +77,12 @@ export type Database = {
           created_at?: string
           date?: string
           id?: string
+          marked_by?: string | null
           notes?: string | null
           staff_id?: string
           status?: string
+          time_in?: string | null
+          time_out?: string | null
         }
         Relationships: [
           {
@@ -369,6 +408,39 @@ export type Database = {
           },
         ]
       }
+      daily_reports: {
+        Row: {
+          date: string
+          file_path: string
+          generated_at: string | null
+          generated_by: string | null
+          id: string
+          period_end: string
+          period_start: string
+          user_id: string
+        }
+        Insert: {
+          date: string
+          file_path: string
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          user_id: string
+        }
+        Update: {
+          date?: string
+          file_path?: string
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       featured_cars: {
         Row: {
           car_id: string
@@ -662,6 +734,36 @@ export type Database = {
           },
         ]
       }
+      sessions: {
+        Row: {
+          client_info: Json | null
+          created_at: string | null
+          id: string
+          last_activity_at: string
+          login_at: string
+          logout_at: string | null
+          user_id: string
+        }
+        Insert: {
+          client_info?: Json | null
+          created_at?: string | null
+          id?: string
+          last_activity_at?: string
+          login_at?: string
+          logout_at?: string | null
+          user_id: string
+        }
+        Update: {
+          client_info?: Json | null
+          created_at?: string | null
+          id?: string
+          last_activity_at?: string
+          login_at?: string
+          logout_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       staff: {
         Row: {
           address: string | null
@@ -732,6 +834,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      stock_sequence: {
+        Row: {
+          id: string
+          last_number: number
+          prefix: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          last_number?: number
+          prefix?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          last_number?: number
+          prefix?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       trade_ins: {
         Row: {
@@ -899,12 +1022,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_daily_attendance: {
+        Args: { attendance_date?: string }
+        Returns: number
+      }
+      generate_stock_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      log_activity: {
+        Args: {
+          p_action_type: string
+          p_details?: Json
+          p_target_id?: string
+          p_target_table?: string
+          p_user_id: string
+        }
+        Returns: string
       }
     }
     Enums: {
