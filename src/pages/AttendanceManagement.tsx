@@ -116,9 +116,28 @@ const AttendanceManagement = () => {
 
   const calculateHours = (clockIn: string, clockOut: string | null) => {
     if (!clockOut) return "In Progress";
+    
     const start = new Date(clockIn);
     const end = new Date(clockOut);
-    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    
+    // Calculate total minutes worked
+    let totalMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+    
+    // Lunch break is 13:00-14:00 (1 hour)
+    const lunchStart = new Date(start);
+    lunchStart.setHours(13, 0, 0, 0);
+    const lunchEnd = new Date(start);
+    lunchEnd.setHours(14, 0, 0, 0);
+    
+    // Check if work period overlaps with lunch break
+    if (end > lunchStart && start < lunchEnd) {
+      const overlapStart = start < lunchStart ? lunchStart : start;
+      const overlapEnd = end > lunchEnd ? lunchEnd : end;
+      const lunchMinutes = (overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60);
+      totalMinutes -= lunchMinutes;
+    }
+    
+    const hours = totalMinutes / 60;
     return `${hours.toFixed(2)} hrs`;
   };
 

@@ -41,11 +41,16 @@ const AdminDashboard = () => {
   const fetchCustomers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("*, user_roles(role)")
+      .select(`
+        *,
+        user_roles!inner(role)
+      `)
       .order("created_at", { ascending: false });
 
     if (!error && data) {
       setCustomers(data);
+    } else if (error) {
+      console.error("Error fetching customers:", error);
     }
   };
 
@@ -260,10 +265,40 @@ const AdminDashboard = () => {
             <TabsContent value="vehicles" className="space-y-4">
               <Card className="glass-strong">
                 <CardHeader>
-                  <CardTitle>Recent Vehicles</CardTitle>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Recent Vehicles</CardTitle>
+                    <Button onClick={() => navigate("/admin/cars")}>View All</Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">Vehicle management interface would go here...</p>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Stock ID</TableHead>
+                        <TableHead>Make & Model</TableHead>
+                        <TableHead>Year</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {stats.totalVehicles > 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center">
+                            <Button variant="link" onClick={() => navigate("/admin/cars")}>
+                              Click to view all vehicles
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-muted-foreground">
+                            No vehicles yet. Add your first vehicle.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -322,10 +357,31 @@ const AdminDashboard = () => {
             <TabsContent value="sales" className="space-y-4">
               <Card className="glass-strong">
                 <CardHeader>
-                  <CardTitle>Sales Analytics</CardTitle>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Sales Overview</CardTitle>
+                    <Button onClick={() => navigate("/admin/sales")}>View Analytics</Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">Sales charts and analytics would go here...</p>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="glass p-4 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Total Revenue</p>
+                        <p className="text-2xl font-bold">KSh {stats.monthlySales.toLocaleString()}</p>
+                      </div>
+                      <div className="glass p-4 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Pending Orders</p>
+                        <p className="text-2xl font-bold">{stats.pendingOrders}</p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => navigate("/admin/sales")}
+                    >
+                      View Detailed Analytics
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
