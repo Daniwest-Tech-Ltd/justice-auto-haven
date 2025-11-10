@@ -44,6 +44,8 @@ const StaffBadge = lazy(() => import("./pages/StaffBadge"));
 const PayrollManagement = lazy(() => import("./pages/PayrollManagement"));
 const AttendanceManagement = lazy(() => import("./pages/AttendanceManagement"));
 const BusinessCard = lazy(() => import("./pages/BusinessCard"));
+const AdminMessages = lazy(() => import("./pages/AdminMessages"));
+const CustomerMessages = lazy(() => import("./pages/CustomerMessages"));
 const CRMManagement = lazy(() => import("./pages/CRMManagement"));
 const CustomerProfile = lazy(() => import("./pages/CustomerProfile"));
 

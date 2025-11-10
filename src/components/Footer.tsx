@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 import logo from "@/assets/logo.png";
+import BrandMarquee from "./BrandMarquee";
 
 const Footer = () => {
   return (
@@ -32,6 +33,22 @@ const Footer = () => {
             </div>
           </div>
 
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-4">Quick Links</h3>
+            <div className="space-y-2">
+              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                📜 Terms of Use
+              </a>
+              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                🔒 Privacy Policy
+              </a>
+              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                🍪 Cookie Policy
+              </a>
+            </div>
+          </div>
+
           {/* Our Services */}
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-4">Our Services</h3>
@@ -51,31 +68,6 @@ const Footer = () => {
               <Link to="/services" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
                 🔧 Auto Services
               </Link>
-              <div className="text-sm text-muted-foreground/50">
-                💰 Vehicle Insurance (Coming Soon)
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold text-foreground mb-4">Quick Links</h3>
-            <div className="space-y-2">
-              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                📰 Latest News
-              </a>
-              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                ⭐ Success Stories
-              </a>
-              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                📜 Terms of Use
-              </a>
-              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                🔒 Privacy Policy
-              </a>
-              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                🍪 Cookie Policy
-              </a>
             </div>
           </div>
 
@@ -160,6 +152,12 @@ const Footer = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Trusted Partners Marquee */}
+        <div className="border-t border-white/10 mt-8 pt-8">
+          <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Our Trusted Partners</h3>
+          <BrandMarquee />
         </div>
 
         <div className="border-t border-white/10 mt-8 pt-8">

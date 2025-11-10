@@ -4,9 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Phone, Mail, MessageCircle } from "lucide-react";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Search, Filter, Phone, Mail, MessageCircle, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
+import { usePagination } from "@/hooks/usePagination";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Car {
   id: string;
@@ -18,9 +21,16 @@ interface Car {
   transmission: string | null;
   mileage: string | null;
   status: string | null;
+  color: string | null;
   images: any;
   stock_id: string | null;
   is_featured: boolean | null;
+}
+
+interface Brand {
+  id: string;
+  name: string;
+  logo_url: string | null;
 }
 
 const Catalogue = () => {
@@ -28,14 +38,40 @@ const Catalogue = () => {
   const [filteredCars, setFilteredCars] = useState<Car[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [filters, setFilters] = useState({
+    brand: "",
+    model: "",
+    year: "",
+    availability: "",
+    color: "",
+    fuelType: "",
+  });
+  const { user } = useAuth();
+
+  const { currentItems, currentPage, totalPages, goToPage, nextPage, prevPage, resetPagination } = usePagination({
+    items: filteredCars,
+    itemsPerPage: 20,
+  });
 
   useEffect(() => {
     fetchCars();
+    fetchBrands();
   }, []);
 
   useEffect(() => {
     filterCars();
-  }, [searchQuery, cars]);
+  }, [searchQuery, cars, filters]);
+
+  const fetchBrands = async () => {
+    const { data, error } = await supabase
+      .from("brands")
+      .select("*")
+      .order("name");
+    if (!error && data) {
+      setBrands(data);
+    }
+  };
 
   const fetchCars = async () => {
     setLoading(true);
@@ -52,28 +88,114 @@ const Catalogue = () => {
   };
 
   const filterCars = () => {
-    if (!searchQuery.trim()) {
-      setFilteredCars(cars);
-      return;
+    let filtered = [...cars];
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (car) =>
+          car.make.toLowerCase().includes(query) ||
+          car.model.toLowerCase().includes(query) ||
+          car.year.toString().includes(query) ||
+          car.fuel_type?.toLowerCase().includes(query) ||
+          car.transmission?.toLowerCase().includes(query)
+      );
     }
 
-    const query = searchQuery.toLowerCase();
-    const filtered = cars.filter(
-      (car) =>
-        car.make.toLowerCase().includes(query) ||
-        car.model.toLowerCase().includes(query) ||
-        car.year.toString().includes(query) ||
-        car.fuel_type?.toLowerCase().includes(query) ||
-        car.transmission?.toLowerCase().includes(query)
-    );
+    if (filters.brand) {
+      filtered = filtered.filter((car) => car.make.toLowerCase() === filters.brand.toLowerCase());
+    }
+
+    if (filters.year) {
+      filtered = filtered.filter((car) => car.year.toString() === filters.year);
+    }
+
+    if (filters.availability) {
+      filtered = filtered.filter((car) => car.status === filters.availability);
+    }
+
+    if (filters.color) {
+      filtered = filtered.filter((car) => car.color?.toLowerCase() === filters.color.toLowerCase());
+    }
+
+    if (filters.fuelType) {
+      filtered = filtered.filter((car) => car.fuel_type?.toLowerCase() === filters.fuelType.toLowerCase());
+    }
 
     setFilteredCars(filtered);
+    resetPagination();
   };
 
   const getImageUrl = (images: any) => {
     if (!images) return null;
     const imageArray = Array.isArray(images) ? images : [];
     return imageArray[0] || null;
+  };
+
+  const getBrandLogo = (make: string) => {
+    const brand = brands.find(b => b.name.toLowerCase() === make.toLowerCase());
+    return brand?.logo_url;
+  };
+
+  const trackView = async (carId: string) => {
+    await supabase.from("view_tracking").insert({
+      user_id: user?.id || null,
+      car_id: carId,
+    });
+
+    // Create notification for admin
+    const { data: adminData } = await supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin")
+      .limit(1)
+      .single();
+
+    if (adminData) {
+      await supabase.from("notifications").insert({
+        user_id: adminData.user_id,
+        title: "Car View",
+        message: `A user viewed a car listing`,
+        type: "view",
+        metadata: { car_id: carId },
+      });
+    }
+  };
+
+  const handleContactClick = (e: React.MouseEvent, type: string, car: Car) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const phone = "+254722827458";
+    const email = "justicevincentt@gmail.com";
+    const message = `Hi, I'm interested in the ${car.year} ${car.make} ${car.model} (Stock ID: ${car.stock_id})`;
+
+    switch (type) {
+      case "whatsapp":
+        window.open(`https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`, "_blank");
+        break;
+      case "call":
+        window.location.href = `tel:${phone}`;
+        break;
+      case "email":
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(`Inquiry about ${car.make} ${car.model}`)}&body=${encodeURIComponent(message)}`;
+        break;
+      case "sms":
+        window.location.href = `sms:${phone}?body=${encodeURIComponent(message)}`;
+        break;
+    }
+  };
+
+  const resetFilters = () => {
+    setSearchQuery("");
+    setFilters({
+      brand: "",
+      model: "",
+      year: "",
+      availability: "",
+      color: "",
+      fuelType: "",
+    });
   };
 
   if (loading) {
@@ -134,7 +256,7 @@ const Catalogue = () => {
 
       {/* Filters */}
       <div className="glass-strong rounded-2xl p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input 
@@ -144,28 +266,56 @@ const Catalogue = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Select>
+          
+          <Select value={filters.brand} onValueChange={(value) => setFilters({ ...filters, brand: value })}>
             <SelectTrigger>
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="All Categories" />
+              <SelectValue placeholder="Brand" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="suv">SUV</SelectItem>
-              <SelectItem value="sedan">Sedan</SelectItem>
-              <SelectItem value="luxury">Luxury</SelectItem>
+              <SelectItem value="">All Brands</SelectItem>
+              {brands.map((brand) => (
+                <SelectItem key={brand.id} value={brand.name}>{brand.name}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Select>
+
+          <Select value={filters.year} onValueChange={(value) => setFilters({ ...filters, year: value })}>
             <SelectTrigger>
-              <SelectValue placeholder="Sort: Newest" />
+              <SelectValue placeholder="Year" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
+              <SelectItem value="">All Years</SelectItem>
+              {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
+
+          <Select value={filters.availability} onValueChange={(value) => setFilters({ ...filters, availability: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Availability" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All</SelectItem>
+              <SelectItem value="available">Available</SelectItem>
+              <SelectItem value="sold">Sold</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Fuel Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Fuel Types</SelectItem>
+              <SelectItem value="petrol">Petrol</SelectItem>
+              <SelectItem value="diesel">Diesel</SelectItem>
+              <SelectItem value="hybrid">Hybrid</SelectItem>
+              <SelectItem value="electric">Electric</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button onClick={resetFilters} variant="outline">Reset</Button>
         </div>
       </div>
 

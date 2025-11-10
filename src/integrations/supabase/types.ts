@@ -211,6 +211,45 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          admin_reply: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          status: string | null
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          admin_reply?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          status?: string | null
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          admin_reply?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: string | null
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crm_interactions: {
         Row: {
           created_at: string
@@ -340,6 +379,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_broadcast: boolean | null
+          is_read: boolean | null
+          message: string
+          receiver_id: string | null
+          sender_id: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_broadcast?: boolean | null
+          is_read?: boolean | null
+          message: string
+          receiver_id?: string | null
+          sender_id: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_broadcast?: boolean | null
+          is_read?: boolean | null
+          message?: string
+          receiver_id?: string | null
+          sender_id?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          metadata: Json | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          metadata?: Json | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          metadata?: Json | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       payroll: {
         Row: {
@@ -706,6 +814,27 @@ export type Database = {
           updated_at?: string | null
           video_type?: string | null
           video_url?: string
+        }
+        Relationships: []
+      }
+      view_tracking: {
+        Row: {
+          car_id: string
+          id: string
+          user_id: string | null
+          viewed_at: string
+        }
+        Insert: {
+          car_id: string
+          id?: string
+          user_id?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          car_id?: string
+          id?: string
+          user_id?: string | null
+          viewed_at?: string
         }
         Relationships: []
       }
