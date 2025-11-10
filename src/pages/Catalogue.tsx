@@ -202,7 +202,7 @@ const Catalogue = () => {
 
   const uniqueMakes = Array.from(new Set(cars.map((car) => car.make))).sort();
 
-  const uniqueFuelTypes = Array.from(new Set(cars.map((car) => car.fuel_type).filter(Boolean))).sort();
+  const uniqueFuelTypes = Array.from(new Set(cars.map((car) => car.fuel_type).filter(type => type && type.trim() !== ''))).sort();
 
   if (loading) {
     return <LoadingScreen />;
