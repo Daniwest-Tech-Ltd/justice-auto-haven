@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, Moon, Sun, User, LogOut, Home as HomeIcon, LayoutDashboard } from "lucide-react";
+import { Menu, X, Moon, Sun, User, LogOut, Home as HomeIcon, LayoutDashboard, Heart, Bell, Mail } from "lucide-react";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +14,9 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("darkMode");
     return saved !== null ? JSON.parse(saved) : true;
@@ -29,19 +33,57 @@ const Header = () => {
 
   useEffect(() => {
     checkAuth();
+    fetchCounts();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
         setIsAuthenticated(true);
         fetchUserRole(session.user.id);
+        fetchCounts();
       } else if (event === "SIGNED_OUT") {
         setIsAuthenticated(false);
         setUserRole(null);
+        setWishlistCount(0);
+        setNotificationCount(0);
+        setMessageCount(0);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchCounts = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      // Fetch wishlist count
+      const { count: wCount } = await supabase
+        .from("wishlist")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      setWishlistCount(wCount || 0);
+
+      // Fetch unread notifications
+      const { count: nCount } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+      setNotificationCount(nCount || 0);
+
+      // Fetch unread messages
+      const { count: mCount } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("receiver_id", user.id)
+        .eq("is_read", false);
+      setMessageCount(mCount || 0);
+    } else {
+      // For non-logged in users, get wishlist from localStorage
+      const local = JSON.parse(localStorage.getItem("wishlist") || "[]");
+      setWishlistCount(local.length);
+    }
+  };
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -125,6 +167,62 @@ const Header = () => {
                 <HomeIcon className="h-5 w-5" />
               </Link>
             </Button>
+
+            {/* Wishlist Icon - Always visible */}
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              aria-label="Wishlist"
+              className="relative"
+            >
+              <Link to="/wishlist">
+                <Heart className="h-5 w-5" />
+                {wishlistCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                    {wishlistCount}
+                  </Badge>
+                )}
+              </Link>
+            </Button>
+
+            {/* Notifications - Show when authenticated and is customer */}
+            {isAuthenticated && userRole === "customer" && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  asChild
+                  aria-label="Notifications"
+                  className="relative"
+                >
+                  <Link to="/customer/notifications">
+                    <Bell className="h-5 w-5" />
+                    {notificationCount > 0 && (
+                      <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                        {notificationCount}
+                      </Badge>
+                    )}
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  asChild
+                  aria-label="Messages"
+                  className="relative"
+                >
+                  <Link to="/customer/messages">
+                    <Mail className="h-5 w-5" />
+                    {messageCount > 0 && (
+                      <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                        {messageCount}
+                      </Badge>
+                    )}
+                  </Link>
+                </Button>
+              </>
+            )}
 
             {/* Dashboard Icon - Show when authenticated and not on dashboard */}
             {isAuthenticated && !isDashboard && (

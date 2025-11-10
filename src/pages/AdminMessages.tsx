@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Send, Mail, MessageSquare } from "lucide-react";
+import { ArrowLeft, Send, Mail, MessageSquare, User, Trash2 } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 
 const AdminMessages = () => {
@@ -20,12 +20,22 @@ const AdminMessages = () => {
   const [broadcastMessage, setBroadcastMessage] = useState({ subject: "", message: "" });
   const [replyMessage, setReplyMessage] = useState({ id: "", reply: "" });
   const [showBroadcast, setShowBroadcast] = useState(false);
+  const [showDirectMessage, setShowDirectMessage] = useState(false);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [directMessage, setDirectMessage] = useState({ subject: "", message: "" });
+  const [users, setUsers] = useState<any[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchData();
+    fetchUsers();
   }, []);
+
+  const fetchUsers = async () => {
+    const { data } = await supabase.from("profiles").select("user_id, full_name, email");
+    if (data) setUsers(data);
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -104,6 +114,56 @@ const AdminMessages = () => {
     }
   };
 
+  const handleDeleteContact = async (submissionId: string) => {
+    const { error } = await supabase
+      .from("contact_submissions")
+      .delete()
+      .eq("id", submissionId);
+
+    if (!error) {
+      toast({ title: "Success", description: "Message deleted successfully" });
+      fetchData();
+    } else {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleDirectMessage = async () => {
+    if (!selectedUser || !directMessage.subject || !directMessage.message) {
+      toast({ title: "Error", description: "Please fill all fields", variant: "destructive" });
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase.from("messages").insert({
+      sender_id: user.id,
+      receiver_id: selectedUser,
+      subject: directMessage.subject,
+      message: directMessage.message,
+      is_broadcast: false
+    });
+
+    if (!error) {
+      toast({ title: "Success", description: "Message sent successfully" });
+      setDirectMessage({ subject: "", message: "" });
+      setSelectedUser("");
+      setShowDirectMessage(false);
+      fetchData();
+
+      // Create notification
+      await supabase.from("notifications").insert({
+        user_id: selectedUser,
+        title: "New Message",
+        message: directMessage.subject,
+        type: "message",
+      });
+    } else {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
   if (loading) return <LoadingScreen />;
 
   return (
@@ -116,8 +176,8 @@ const AdminMessages = () => {
         <h1 className="text-4xl font-bold">Messages & Communications</h1>
       </div>
 
-      {/* Broadcast Button */}
-      <div className="mb-6">
+      {/* Message Action Buttons */}
+      <div className="flex gap-4 mb-6">
         <Dialog open={showBroadcast} onOpenChange={setShowBroadcast}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700">
@@ -151,6 +211,60 @@ const AdminMessages = () => {
               </div>
               <Button onClick={handleBroadcast} className="w-full">
                 Send Broadcast
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showDirectMessage} onOpenChange={setShowDirectMessage}>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <User className="mr-2 h-4 w-4" />
+              Direct Message
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Send Direct Message</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="user">Select User</Label>
+                <select
+                  id="user"
+                  value={selectedUser}
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                  className="w-full p-2 rounded-md border bg-background"
+                >
+                  <option value="">-- Select User --</option>
+                  {users.map((user) => (
+                    <option key={user.user_id} value={user.user_id}>
+                      {user.full_name} ({user.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="dm-subject">Subject</Label>
+                <Input
+                  id="dm-subject"
+                  value={directMessage.subject}
+                  onChange={(e) => setDirectMessage({ ...directMessage, subject: e.target.value })}
+                  placeholder="Enter subject"
+                />
+              </div>
+              <div>
+                <Label htmlFor="dm-message">Message</Label>
+                <Textarea
+                  id="dm-message"
+                  value={directMessage.message}
+                  onChange={(e) => setDirectMessage({ ...directMessage, message: e.target.value })}
+                  placeholder="Type your message..."
+                  rows={6}
+                />
+              </div>
+              <Button onClick={handleDirectMessage} className="w-full">
+                Send Message
               </Button>
             </div>
           </DialogContent>
@@ -190,10 +304,11 @@ const AdminMessages = () => {
                   </TableCell>
                   <TableCell>{new Date(submission.created_at).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="outline">View & Reply</Button>
-                      </DialogTrigger>
+                    <div className="flex gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm" variant="outline">View & Reply</Button>
+                        </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Contact Submission</DialogTitle>
@@ -237,6 +352,14 @@ const AdminMessages = () => {
                         </div>
                       </DialogContent>
                     </Dialog>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteContact(submission.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

@@ -255,8 +255,20 @@ const CarDetails = () => {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="w-full">Compare</Button>
-              <Button variant="outline" className="w-full">Trade in</Button>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => navigate(`/compare?ids=${car.id}`)}
+              >
+                Compare
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => navigate("/trade-in")}
+              >
+                Trade in
+              </Button>
             </div>
 
             {car.stock_id && (

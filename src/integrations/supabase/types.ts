@@ -145,6 +145,30 @@ export type Database = {
         }
         Relationships: []
       }
+      car_comparisons: {
+        Row: {
+          car_ids: Json
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          car_ids?: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          car_ids?: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       cars: {
         Row: {
           color: string | null
@@ -840,6 +864,35 @@ export type Database = {
           viewed_at?: string
         }
         Relationships: []
+      }
+      wishlist: {
+        Row: {
+          car_id: string
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          car_id: string
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          car_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

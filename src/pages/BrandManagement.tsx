@@ -247,13 +247,25 @@ const BrandManagement = () => {
                     </div>
                   )}
                   <p className="font-medium text-center">{brand.name}</p>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => deleteBrand(brand.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedBrand(brand.name);
+                        document.getElementById("brandLogo")?.focus();
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteBrand(brand.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

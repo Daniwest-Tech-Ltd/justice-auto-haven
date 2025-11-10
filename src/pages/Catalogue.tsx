@@ -5,11 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface Car {
   id: string;
@@ -39,6 +40,7 @@ const Catalogue = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const [filters, setFilters] = useState({
     brand: "all",
     year: "all",
@@ -46,140 +48,128 @@ const Catalogue = () => {
     fuelType: "all",
   });
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const { currentItems, currentPage, totalPages, goToPage, nextPage, prevPage, resetPagination } = usePagination({
     items: filteredCars,
-    itemsPerPage: 20,
+    itemsPerPage: 12,
   });
 
   useEffect(() => {
     fetchCars();
     fetchBrands();
+    fetchWishlist();
   }, []);
 
   useEffect(() => {
     filterCars();
-  }, [searchQuery, cars, filters]);
+  }, [cars, searchQuery, filters]);
 
-  const fetchBrands = async () => {
-    const { data, error } = await supabase
-      .from("brands")
-      .select("*")
-      .order("name");
-    if (!error && data) {
-      setBrands(data);
+  const fetchCars = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("cars")
+        .select("*")
+        .eq("status", "available")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setCars(data || []);
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const fetchCars = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("cars")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const fetchBrands = async () => {
+    const { data } = await supabase.from("brands").select("*").order("name");
+    if (data) setBrands(data);
+  };
 
-    if (!error && data) {
-      setCars(data);
-      setFilteredCars(data);
+  const fetchWishlist = async () => {
+    if (user) {
+      const { data } = await supabase
+        .from("wishlist")
+        .select("car_id")
+        .eq("user_id", user.id);
+      
+      setWishlist(data?.map(w => w.car_id) || []);
+    } else {
+      const local = JSON.parse(localStorage.getItem("wishlist") || "[]");
+      setWishlist(local);
     }
-    setLoading(false);
+  };
+
+  const toggleWishlist = async (e: React.MouseEvent, carId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      if (wishlist.includes(carId)) {
+        if (user) {
+          await supabase
+            .from("wishlist")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("car_id", carId);
+        } else {
+          const local = JSON.parse(localStorage.getItem("wishlist") || "[]");
+          localStorage.setItem("wishlist", JSON.stringify(local.filter((id: string) => id !== carId)));
+        }
+        setWishlist(wishlist.filter(id => id !== carId));
+        toast({ title: "Removed from wishlist" });
+      } else {
+        if (user) {
+          await supabase
+            .from("wishlist")
+            .insert({ user_id: user.id, car_id: carId });
+        } else {
+          const local = JSON.parse(localStorage.getItem("wishlist") || "[]");
+          localStorage.setItem("wishlist", JSON.stringify([...local, carId]));
+        }
+        setWishlist([...wishlist, carId]);
+        toast({ title: "Added to wishlist" });
+      }
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
   const filterCars = () => {
     let filtered = [...cars];
 
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+    if (searchQuery) {
       filtered = filtered.filter(
         (car) =>
-          car.make.toLowerCase().includes(query) ||
-          car.model.toLowerCase().includes(query) ||
-          car.year.toString().includes(query) ||
-          car.fuel_type?.toLowerCase().includes(query) ||
-          car.transmission?.toLowerCase().includes(query)
+          car.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          car.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          car.year.toString().includes(searchQuery)
       );
     }
 
-    if (filters.brand && filters.brand !== "all") {
-      filtered = filtered.filter((car) => car.make.toLowerCase() === filters.brand.toLowerCase());
+    if (filters.brand !== "all") {
+      filtered = filtered.filter((car) => car.make === filters.brand);
     }
 
-    if (filters.year && filters.year !== "all") {
+    if (filters.year !== "all") {
       filtered = filtered.filter((car) => car.year.toString() === filters.year);
     }
 
-    if (filters.availability && filters.availability !== "all") {
+    if (filters.availability !== "all") {
       filtered = filtered.filter((car) => car.status === filters.availability);
     }
 
-    if (filters.fuelType && filters.fuelType !== "all") {
-      filtered = filtered.filter((car) => car.fuel_type?.toLowerCase() === filters.fuelType.toLowerCase());
+    if (filters.fuelType !== "all") {
+      filtered = filtered.filter((car) => car.fuel_type === filters.fuelType);
     }
 
     setFilteredCars(filtered);
     resetPagination();
   };
 
-  const getImageUrl = (images: any) => {
-    if (!images) return null;
-    const imageArray = Array.isArray(images) ? images : [];
-    return imageArray[0] || null;
-  };
-
-  const getBrandLogo = (make: string) => {
-    const brand = brands.find(b => b.name.toLowerCase() === make.toLowerCase());
-    return brand?.logo_url;
-  };
-
-  const trackView = async (carId: string) => {
-    await supabase.from("view_tracking").insert({
-      user_id: user?.id || null,
-      car_id: carId,
-    });
-
-    const { data: adminData } = await supabase
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "admin")
-      .limit(1)
-      .maybeSingle();
-
-    if (adminData) {
-      await supabase.from("notifications").insert({
-        user_id: adminData.user_id,
-        title: "Car View",
-        message: `Someone viewed a car listing`,
-        type: "view",
-        metadata: { car_id: carId },
-      });
-    }
-  };
-
-  const handleContactClick = (e: React.MouseEvent, type: string, car: Car) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const phone = "+254722827458";
-    const email = "justicevincentt@gmail.com";
-    const message = `Hi, I'm interested in the ${car.year} ${car.make} ${car.model} (Stock ID: ${car.stock_id})`;
-
-    switch (type) {
-      case "whatsapp":
-        window.open(`https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`, "_blank");
-        break;
-      case "call":
-        window.location.href = `tel:${phone}`;
-        break;
-      case "email":
-        window.location.href = `mailto:${email}?subject=${encodeURIComponent(`Inquiry about ${car.make} ${car.model}`)}&body=${encodeURIComponent(message)}`;
-        break;
-      case "sms":
-        window.location.href = `sms:${phone}?body=${encodeURIComponent(message)}`;
-        break;
-    }
-  };
-
-  const resetFilters = () => {
+  const clearFilters = () => {
     setSearchQuery("");
     setFilters({
       brand: "all",
@@ -189,272 +179,262 @@ const Catalogue = () => {
     });
   };
 
+  const getImages = (images: any): string[] => {
+    if (!images) return [];
+    if (Array.isArray(images)) return images;
+    if (typeof images === "string") {
+      try {
+        return JSON.parse(images);
+      } catch {
+        return [images];
+      }
+    }
+    return [];
+  };
+
+  const getBrandLogo = (make: string) => {
+    const brand = brands.find(b => b.name.toLowerCase() === make.toLowerCase());
+    return brand?.logo_url;
+  };
+
+  const uniqueYears = Array.from(new Set(cars.map((car) => car.year)))
+    .sort((a, b) => b - a);
+
+  const uniqueMakes = Array.from(new Set(cars.map((car) => car.make))).sort();
+
+  const uniqueFuelTypes = Array.from(new Set(cars.map((car) => car.fuel_type).filter(Boolean))).sort();
+
   if (loading) {
     return <LoadingScreen />;
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-8">
-      {/* Header */}
-      <div className="glass-strong rounded-3xl p-12 text-center">
-        <h1 className="text-5xl md:text-6xl font-bold mb-6">
-          <span className="bg-gradient-accent bg-clip-text text-transparent">CATALOGUE</span>
+    <div className="min-h-screen py-8">
+      <div className="container mx-auto px-4">
+        <h1 className="text-4xl md:text-5xl font-bold mb-2 text-center bg-gradient-accent bg-clip-text text-transparent">
+          Vehicle Catalogue
         </h1>
-        <p className="text-lg text-muted-foreground mb-8">
-          🚗 Discover our premium collection of vehicles from luxury cars to commercial vehicles.
+        <p className="text-center text-muted-foreground mb-8">
+          Browse our collection of premium vehicles
         </p>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Link to="/rental-booking">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700">View Rentals</Button>
-          </Link>
-          <Link to="/trade-in">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">Trade-In Your Car</Button>
-          </Link>
-        </div>
-      </div>
 
-      {/* Filters */}
-      <div className="glass-strong rounded-2xl p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input 
-              placeholder="Search..." 
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        {/* Search and Filters */}
+        <div className="glass-strong rounded-lg p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="lg:col-span-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by make, model, or year..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <Select value={filters.brand} onValueChange={(value) => setFilters({ ...filters, brand: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Brands" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Brands</SelectItem>
+                {uniqueMakes.map((make) => (
+                  <SelectItem key={make} value={make}>
+                    {make}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.year} onValueChange={(value) => setFilters({ ...filters, year: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Years" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Years</SelectItem>
+                {uniqueYears.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Fuel Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Fuel Types</SelectItem>
+                {uniqueFuelTypes.map((type) => (
+                  <SelectItem key={type} value={type!}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          
-          <Select value={filters.brand} onValueChange={(value) => setFilters({ ...filters, brand: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Brand" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Brands</SelectItem>
-              {brands.map((brand) => (
-                <SelectItem key={brand.id} value={brand.name || `brand-${brand.id}`}>{brand.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
 
-          <Select value={filters.year} onValueChange={(value) => setFilters({ ...filters, year: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Year" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Years</SelectItem>
-              {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-                <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={filters.availability} onValueChange={(value) => setFilters({ ...filters, availability: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Availability" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="available">Available</SelectItem>
-              <SelectItem value="sold">Sold</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Fuel Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Fuel Types</SelectItem>
-              <SelectItem value="petrol">Petrol</SelectItem>
-              <SelectItem value="diesel">Diesel</SelectItem>
-              <SelectItem value="hybrid">Hybrid</SelectItem>
-              <SelectItem value="electric">Electric</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button onClick={resetFilters} variant="outline">Reset</Button>
-        </div>
-      </div>
-
-      {/* Cars Grid - 5 per row */}
-      {filteredCars.length === 0 ? (
-        <div className="glass-strong rounded-2xl p-12 text-center">
-          <h3 className="text-2xl font-bold mb-4">No cars found</h3>
-          <p className="text-muted-foreground mb-6">
-            {searchQuery || Object.values(filters).some(v => v) ? "Try adjusting your filters." : "No cars available at the moment."}
-          </p>
-          {(searchQuery || Object.values(filters).some(v => v)) && (
-            <Button onClick={resetFilters}>Clear Filters</Button>
+          {(searchQuery || filters.brand !== "all" || filters.year !== "all" || filters.fuelType !== "all") && (
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Showing {filteredCars.length} of {cars.length} vehicles
+              </p>
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                Clear Filters
+              </Button>
+            </div>
           )}
         </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {currentItems.map((car) => (
-              <Link
-                key={car.id}
-                to={`/car/${car.stock_id || car.id}`}
-                onClick={() => trackView(car.id)}
-                className="glass-strong rounded-xl overflow-hidden hover:scale-105 transition-transform block"
-              >
-                <div className="h-40 bg-gradient-to-br from-primary/20 to-accent/20 relative">
-                  {getImageUrl(car.images) ? (
-                    <img
-                      src={getImageUrl(car.images)}
-                      alt={`${car.make} ${car.model}`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-3xl">{car.make.charAt(0)}</span>
-                    </div>
-                  )}
-                  <div className="absolute top-2 left-2 flex gap-1">
-                    {car.is_featured && <Badge className="bg-yellow-600 text-xs">Featured</Badge>}
-                    {car.status === "available" ? (
-                      <Badge className="bg-green-600 text-xs">In Stock</Badge>
-                    ) : (
-                      <Badge className="bg-red-600 text-xs">Sold</Badge>
-                    )}
-                  </div>
-                  {getBrandLogo(car.make) ? (
-                    <div className="absolute bottom-2 right-2 bg-background/90 rounded-full p-1">
-                      <img src={getBrandLogo(car.make)!} alt={car.make} className="h-6 w-6 object-contain" />
-                    </div>
-                  ) : (
-                    <div className="absolute bottom-2 right-2 bg-background/90 rounded-full px-2 py-1">
-                      <span className="text-xs font-bold">{car.make}</span>
-                    </div>
-                  )}
-                </div>
 
-                <div className="p-4">
-                  <h3 className="font-bold text-sm mb-1">
-                    {car.make} {car.model}
-                  </h3>
-                  <span className="text-xs text-muted-foreground">{car.year}</span>
-
-                  <div className="text-lg font-bold text-primary my-2">
-                    KSh {car.price.toLocaleString()}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground mb-3">
-                    <div className="flex items-center gap-1">
-                      <Gauge className="h-3 w-3 text-primary" />
-                      {car.mileage || "N/A"}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <SettingsIcon className="h-3 w-3 text-primary" />
-                      {car.transmission || "N/A"}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-1 mb-3">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-8 p-0"
-                      onClick={(e) => handleContactClick(e, "whatsapp", car)}
-                    >
-                      <MessageCircle className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-8 p-0"
-                      onClick={(e) => handleContactClick(e, "call", car)}
-                    >
-                      <Phone className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-8 p-0"
-                      onClick={(e) => handleContactClick(e, "email", car)}
-                    >
-                      <Mail className="h-3 w-3" />
-                    </Button>
-                  </div>
-
-                  <div className="border-t pt-3 -mx-4 -mb-4 px-4 pb-3 bg-muted/30">
-                    <button
-                      className="w-full flex items-center justify-center gap-2 text-sm font-semibold hover:text-primary transition-colors group"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        trackView(car.id);
-                      }}
-                    >
-                      <Car className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
-                      <span>View Details</span>
-                    </button>
-                  </div>
-                </div>
-              </Link>
-            ))}
+        {/* Cars Grid */}
+        {filteredCars.length === 0 ? (
+          <div className="glass-strong rounded-lg p-12 text-center">
+            <Car className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-xl font-semibold mb-2">No vehicles found</h3>
+            <p className="text-muted-foreground mb-6">
+              Try adjusting your filters or search criteria
+            </p>
+            <Button onClick={clearFilters}>Clear All Filters</Button>
           </div>
-
-          {totalPages > 1 && (
-            <Pagination className="mt-8">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={prevPage}
-                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {currentItems.map((car) => {
+                const images = getImages(car.images);
+                const brandLogo = getBrandLogo(car.make);
                 
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-
-                  return (
-                    <PaginationItem key={pageNum}>
-                      <PaginationLink
-                        onClick={() => goToPage(pageNum)}
-                        isActive={currentPage === pageNum}
-                        className="cursor-pointer"
+                return (
+                  <Link
+                    key={car.id}
+                    to={`/car/${car.stock_id || car.id}`}
+                    className="glass-strong rounded-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <img
+                        src={images[0] || "/placeholder.svg"}
+                        alt={`${car.make} ${car.model}`}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <Badge className="absolute top-2 left-2 bg-primary">
+                        {car.year}
+                      </Badge>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="absolute top-2 right-2"
+                        onClick={(e) => toggleWishlist(e, car.id)}
                       >
-                        {pageNum}
-                      </PaginationLink>
+                        <Heart
+                          className={`h-4 w-4 ${
+                            wishlist.includes(car.id) ? "fill-red-500 text-red-500" : ""
+                          }`}
+                        />
+                      </Button>
+                      {brandLogo && (
+                        <div className="absolute bottom-2 left-2 bg-white/90 rounded p-1">
+                          <img src={brandLogo} alt={car.make} className="h-6 w-auto object-contain" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg mb-2 line-clamp-1">
+                        {car.make} {car.model}
+                      </h3>
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                        <span className="flex items-center gap-1">
+                          <Gauge className="h-4 w-4" />
+                          {car.mileage || "N/A"}
+                        </span>
+                        <span>•</span>
+                        <span className="uppercase">{car.fuel_type || "N/A"}</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <SettingsIcon className="h-4 w-4" />
+                          {car.transmission || "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-2xl font-bold text-primary">
+                          KSH {car.price.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="border-t border-white/10 mt-4 pt-3">
+                        <Button variant="ghost" className="w-full justify-start gap-2 text-sm">
+                          <Car className="h-4 w-4 text-primary" />
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => prevPage()} 
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
                     </PaginationItem>
-                  );
-                })}
+                    
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => goToPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => nextPage()} 
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+          </>
+        )}
 
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={nextPage}
-                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
-        </>
-      )}
-
-      {/* CTA */}
-      <div className="glass-strong rounded-3xl p-12 text-center">
-        <h2 className="text-3xl font-bold mb-4">Can't Find What You're Looking For?</h2>
-        <p className="text-muted-foreground mb-6">
-          Contact our team for custom vehicle sourcing, special requests, or to discuss your specific automotive needs.
-        </p>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Link to="/contact">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700">Contact Us</Button>
-          </Link>
-          <Link to="/services">
-            <Button size="lg" variant="outline">Our Services</Button>
-          </Link>
+        {/* Contact CTA */}
+        <div className="glass-strong rounded-lg p-8 mt-12 text-center">
+          <h2 className="text-2xl font-bold mb-4">Can't Find What You're Looking For?</h2>
+          <p className="text-muted-foreground mb-6">
+            Contact us and we'll help you find your perfect vehicle
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a href="tel:+254722827458">
+              <Button className="gap-2">
+                <Phone className="h-4 w-4" />
+                Call Us
+              </Button>
+            </a>
+            <a href="mailto:justicevincentt@gmail.com">
+              <Button variant="outline" className="gap-2">
+                <Mail className="h-4 w-4" />
+                Email Us
+              </Button>
+            </a>
+            <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
+              <Button className="gap-2 bg-green-600 hover:bg-green-700">
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </Button>
+            </a>
+          </div>
         </div>
       </div>
     </div>

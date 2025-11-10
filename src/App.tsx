@@ -100,6 +100,10 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          <Route path="/customer/notifications" element={<CustomerNotifications />} />
+          <Route path="/customer/messages" element={<CustomerMessages />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/compare" element={<Compare />} />
           
           {/* Protected Admin Routes */}
           <Route 
