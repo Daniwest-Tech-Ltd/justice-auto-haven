@@ -19,6 +19,7 @@ interface Video {
   thumbnail_url: string | null;
   video_type: string | null;
   is_published: boolean;
+  category: string | null;
 }
 
 const VideoManagement = () => {
@@ -31,7 +32,10 @@ const VideoManagement = () => {
     video_url: "",
     video_type: "youtube" as "youtube" | "tiktok" | "upload",
     is_published: true,
+    category: "",
   });
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -61,10 +65,39 @@ const VideoManagement = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploadingVideo(true);
+    
     try {
+      let videoUrl = formData.video_url;
+
+      // Handle video file upload
+      if (formData.video_type === "upload" && videoFile) {
+        const fileExt = videoFile.name.split(".").pop();
+        const fileName = `${Date.now()}-${formData.title.toLowerCase().replace(/\s+/g, "-")}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("video-uploads")
+          .upload(fileName, videoFile, { upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("video-uploads")
+          .getPublicUrl(uploadData.path);
+
+        videoUrl = publicUrl;
+      }
+
       const { error } = await supabase
         .from("videos")
-        .insert([formData]);
+        .insert({
+          title: formData.title,
+          description: formData.description,
+          video_url: videoUrl,
+          video_type: formData.video_type,
+          is_published: formData.is_published,
+          category: formData.category || null,
+        });
 
       if (error) throw error;
 
@@ -79,7 +112,9 @@ const VideoManagement = () => {
         video_url: "",
         video_type: "youtube",
         is_published: true,
+        category: "",
       });
+      setVideoFile(null);
       setShowForm(false);
       fetchVideos();
     } catch (error: any) {
@@ -88,6 +123,8 @@ const VideoManagement = () => {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setUploadingVideo(false);
     }
   };
 
@@ -191,71 +228,63 @@ const VideoManagement = () => {
                 <Label htmlFor="video_type">Video Type</Label>
                 <Select
                   value={formData.video_type}
-                  onValueChange={(value: "youtube" | "tiktok" | "upload") =>
-                    setFormData({ ...formData, video_type: value })
-                  }
+                  onValueChange={(value: "youtube" | "tiktok" | "upload") => {
+                    setFormData({ ...formData, video_type: value, video_url: "" });
+                    setVideoFile(null);
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="youtube">YouTube</SelectItem>
-                    <SelectItem value="tiktok">TikTok</SelectItem>
-                    <SelectItem value="upload">Upload Video</SelectItem>
+                    <SelectItem value="youtube">YouTube URL</SelectItem>
+                    <SelectItem value="tiktok">TikTok URL</SelectItem>
+                    <SelectItem value="upload">Upload Video File</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {formData.video_type === "upload" ? (
                 <div>
-                  <Label htmlFor="video_file">Upload Video</Label>
+                  <Label htmlFor="video_file">Upload Video File</Label>
                   <Input
                     id="video_file"
                     type="file"
-                    accept="video/*"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const fileName = `${Date.now()}-${file.name}`;
-                        const { data: uploadData, error: uploadError } = await supabase.storage
-                          .from("video-uploads")
-                          .upload(fileName, file);
-
-                        if (uploadError) {
-                          toast({
-                            title: "Error",
-                            description: "Failed to upload video",
-                            variant: "destructive",
-                          });
-                        } else {
-                          const { data: { publicUrl } } = supabase.storage
-                            .from("video-uploads")
-                            .getPublicUrl(uploadData.path);
-                          setFormData({ ...formData, video_url: publicUrl });
-                          toast({
-                            title: "Success",
-                            description: "Video uploaded successfully",
-                          });
-                        }
-                      }
-                    }}
+                    accept="video/mp4,video/quicktime,video/x-msvideo,video/webm"
+                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                    required
+                    className="cursor-pointer"
                   />
+                  {videoFile && <p className="text-sm text-muted-foreground mt-1">{videoFile.name}</p>}
                 </div>
               ) : (
                 <div>
                   <Label htmlFor="video_url">Video URL</Label>
                   <Input
                     id="video_url"
+                    placeholder={formData.video_type === "youtube" ? "https://youtube.com/watch?v=..." : "https://tiktok.com/@user/video/..."}
                     value={formData.video_url}
                     onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                    placeholder="https://youtube.com/watch?v=..."
                     required
                   />
                 </div>
               )}
 
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  placeholder="e.g., Reviews, Showroom Tour, Test Drive"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                />
+              </div>
+
               <div className="flex gap-2">
-                <Button type="submit" className="flex-1">Add Video</Button>
+                <Button type="submit" disabled={uploadingVideo} className="flex-1">
+                  <Plus className="mr-2 h-4 w-4" />
+                  {uploadingVideo ? "Uploading..." : "Add Video"}
+                </Button>
                 <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
                   Cancel
                 </Button>
@@ -274,10 +303,23 @@ const VideoManagement = () => {
               </div>
               <h3 className="font-semibold mb-2">{video.title}</h3>
               {video.description && (
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                   {video.description}
                 </p>
               )}
+              <div className="flex gap-2 flex-wrap mb-3">
+                <span className="text-xs px-2 py-1 rounded-full bg-primary/10">
+                  {video.video_type || "video"}
+                </span>
+                {video.category && (
+                  <span className="text-xs px-2 py-1 rounded-full bg-secondary/50">
+                    {video.category}
+                  </span>
+                )}
+                <span className={`text-xs px-2 py-1 rounded-full ${video.is_published ? 'bg-green-500/10' : 'bg-orange-500/10'}`}>
+                  {video.is_published ? "Published" : "Draft"}
+                </span>
+              </div>
               <div className="flex gap-2">
                 <Button
                   size="sm"

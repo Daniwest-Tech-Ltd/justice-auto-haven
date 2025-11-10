@@ -15,11 +15,18 @@ interface Brand {
   logo_url: string | null;
 }
 
+const PREDEFINED_BRANDS = [
+  "Toyota", "BMW", "Mercedes-Benz", "Mazda", "Nissan", "Volkswagen", "Volvo",
+  "Ford", "Kia", "Hyundai", "Audi", "Honda", "Subaru", "Peugeot", "Renault",
+  "Fiat", "Alfa Romeo", "Citroën", "Skoda", "Opel", "Mitsubishi", "Land Rover",
+  "Lexus", "Jaguar", "Porsche", "Tesla", "Suzuki", "Chevrolet", "Jeep", "Bentley"
+];
+
 const BrandManagement = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [newBrandName, setNewBrandName] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState("");
   const [newBrandLogo, setNewBrandLogo] = useState<File | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -50,41 +57,61 @@ const BrandManagement = () => {
 
   const handleAddBrand = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newBrandName) return;
+    if (!selectedBrand || !newBrandLogo) {
+      toast({
+        title: "Error",
+        description: "Please select a brand and upload a logo",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setUploading(true);
     try {
-      let logoUrl = null;
+      // Check if brand already exists
+      const existingBrand = brands.find(b => b.name.toLowerCase() === selectedBrand.toLowerCase());
 
-      if (newBrandLogo) {
-        const fileExt = newBrandLogo.name.split(".").pop();
-        const fileName = `${newBrandName.toLowerCase().replace(/\s+/g, "-")}.${fileExt}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("brand-logos")
-          .upload(fileName, newBrandLogo, { upsert: true });
+      const fileExt = newBrandLogo.name.split(".").pop();
+      const fileName = `${selectedBrand.toLowerCase().replace(/\s+/g, "-")}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("brand-logos")
+        .upload(fileName, newBrandLogo, { upsert: true });
 
-        if (uploadError) throw uploadError;
+      if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from("brand-logos")
-          .getPublicUrl(uploadData.path);
+      const { data: { publicUrl } } = supabase.storage
+        .from("brand-logos")
+        .getPublicUrl(uploadData.path);
 
-        logoUrl = publicUrl;
+      if (existingBrand) {
+        // Update existing brand
+        const { error } = await supabase
+          .from("brands")
+          .update({ logo_url: publicUrl })
+          .eq("id", existingBrand.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Brand logo updated successfully",
+        });
+      } else {
+        // Insert new brand
+        const { error } = await supabase
+          .from("brands")
+          .insert({ name: selectedBrand, logo_url: publicUrl });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Brand added successfully",
+        });
       }
 
-      const { error } = await supabase
-        .from("brands")
-        .insert({ name: newBrandName, logo_url: logoUrl });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Brand added successfully",
-      });
-
-      setNewBrandName("");
+      setSelectedBrand("");
       setNewBrandLogo(null);
       fetchBrands();
     } catch (error: any) {
@@ -97,6 +124,10 @@ const BrandManagement = () => {
       setUploading(false);
     }
   };
+
+  const availableBrands = PREDEFINED_BRANDS.filter(
+    brand => !brands.some(b => b.name.toLowerCase() === brand.toLowerCase())
+  );
 
   const deleteBrand = async (id: string) => {
     try {
@@ -137,35 +168,47 @@ const BrandManagement = () => {
       <div className="grid gap-6">
         <Card className="glass-strong">
           <CardHeader>
-            <CardTitle>Add New Brand</CardTitle>
+            <CardTitle>Add/Update Brand Logo</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAddBrand} className="space-y-4">
               <div>
-                <Label htmlFor="brandName">Brand Name</Label>
-                <Input
-                  id="brandName"
-                  value={newBrandName}
-                  onChange={(e) => setNewBrandName(e.target.value)}
-                  placeholder="e.g., Toyota, BMW, Mercedes"
+                <Label htmlFor="brandSelect">Select Brand</Label>
+                <select
+                  id="brandSelect"
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="w-full p-2 rounded-md border bg-background"
                   required
-                />
+                >
+                  <option value="">-- Select Brand --</option>
+                  {PREDEFINED_BRANDS.map((brand) => (
+                    <option key={brand} value={brand}>
+                      {brand}
+                      {brands.some(b => b.name.toLowerCase() === brand.toLowerCase()) ? " (Has Logo)" : ""}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
-                <Label htmlFor="brandLogo">Brand Logo</Label>
+                <Label htmlFor="brandLogo">Brand Logo Image</Label>
                 <Input
                   id="brandLogo"
                   type="file"
                   accept="image/*"
                   onChange={(e) => setNewBrandLogo(e.target.files?.[0] || null)}
                   className="cursor-pointer"
+                  required
                 />
+                {newBrandLogo && (
+                  <p className="text-sm text-muted-foreground mt-1">{newBrandLogo.name}</p>
+                )}
               </div>
 
-              <Button type="submit" disabled={uploading} className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                {uploading ? "Adding..." : "Add Brand"}
+              <Button type="submit" disabled={uploading || !selectedBrand || !newBrandLogo} className="w-full">
+                <Upload className="mr-2 h-4 w-4" />
+                {uploading ? "Uploading..." : brands.some(b => b.name.toLowerCase() === selectedBrand.toLowerCase()) ? "Update Brand Logo" : "Add Brand Logo"}
               </Button>
             </form>
           </CardContent>

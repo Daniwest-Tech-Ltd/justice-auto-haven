@@ -14,11 +14,14 @@ interface Video {
   thumbnail_url: string | null;
   video_type: string | null;
   is_published: boolean;
+  category: string | null;
 }
 
 const Videos = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     fetchVideos();
@@ -34,12 +37,22 @@ const Videos = () => {
 
       if (error) throw error;
       setVideos(data || []);
+      
+      // Extract unique categories
+      const uniqueCategories = Array.from(
+        new Set(data?.map(v => v.category).filter(Boolean) as string[])
+      );
+      setCategories(uniqueCategories);
     } catch (error) {
       console.error("Error fetching videos:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  const filteredVideos = selectedCategory === "all" 
+    ? videos 
+    : videos.filter(v => v.category === selectedCategory);
 
   const getVideoEmbed = (video: Video) => {
     if (video.video_type === "youtube") {
@@ -99,21 +112,52 @@ const Videos = () => {
         </Link>
       </div>
 
+      {/* Category Filter */}
+      {categories.length > 0 && (
+        <div className="glass-strong rounded-2xl p-4">
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Button
+              variant={selectedCategory === "all" ? "default" : "outline"}
+              onClick={() => setSelectedCategory("all")}
+              size="sm"
+            >
+              All Videos
+            </Button>
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                onClick={() => setSelectedCategory(category)}
+                size="sm"
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Videos Grid */}
-      {videos.length === 0 ? (
+      {filteredVideos.length === 0 ? (
         <div className="text-center py-12">
           <Play className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-lg text-muted-foreground">No videos available yet</p>
+          <p className="text-lg text-muted-foreground">
+            {selectedCategory === "all" ? "No videos available yet" : `No videos in "${selectedCategory}" category`}
+          </p>
+          {selectedCategory !== "all" && (
+            <Button onClick={() => setSelectedCategory("all")} className="mt-4">View All Videos</Button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {videos.map((video) => (
+          {filteredVideos.map((video) => (
             <div key={video.id} className="glass-strong rounded-2xl overflow-hidden hover:scale-105 transition-transform">
               {/* Video Player */}
               <div className="aspect-video bg-secondary/20 relative">
                 {getVideoEmbed(video)}
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-4 left-4 flex gap-2">
                   <Badge variant="secondary">{video.video_type || "video"}</Badge>
+                  {video.category && <Badge variant="outline">{video.category}</Badge>}
                 </div>
               </div>
 

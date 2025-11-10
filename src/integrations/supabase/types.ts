@@ -783,6 +783,7 @@ export type Database = {
       }
       videos: {
         Row: {
+          category: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -794,6 +795,7 @@ export type Database = {
           video_url: string
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -805,6 +807,7 @@ export type Database = {
           video_url: string
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
