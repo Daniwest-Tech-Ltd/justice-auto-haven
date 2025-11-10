@@ -54,6 +54,8 @@ const CRMManagement = lazy(() => import("./pages/CRMManagement"));
 const CustomerProfile = lazy(() => import("./pages/CustomerProfile"));
 const CustomerNotifications = lazy(() => import("./pages/CustomerNotifications"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
+const DailyReports = lazy(() => import("./pages/DailyReports"));
+const ActivityAnalytics = lazy(() => import("./pages/ActivityAnalytics"));
 const Compare = lazy(() => import("./pages/Compare"));
 
 const queryClient = new QueryClient();
@@ -106,6 +108,24 @@ const AppContent = () => {
           <Route path="/customer/messages" element={<CustomerMessages />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/compare" element={<Compare />} />
+          
+          {/* Admin Analytics Routes */}
+          <Route 
+            path="/admin/reports" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <DailyReports />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/analytics" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <ActivityAnalytics />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Protected Admin Routes */}
           <Route 

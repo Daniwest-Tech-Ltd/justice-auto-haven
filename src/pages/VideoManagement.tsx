@@ -9,6 +9,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Plus, Trash2, Edit, Play } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import LoadingScreen from "@/components/LoadingScreen";
 
 interface Video {
@@ -128,8 +139,16 @@ const VideoManagement = () => {
     }
   };
 
-  const deleteVideo = async (id: string) => {
+  const deleteVideo = async (id: string, videoUrl: string) => {
     try {
+      // If it's an uploaded video, delete from storage
+      if (videoUrl.includes('video-uploads')) {
+        const path = videoUrl.split('/video-uploads/')[1];
+        if (path) {
+          await supabase.storage.from('video-uploads').remove([path]);
+        }
+      }
+
       const { error } = await supabase
         .from("videos")
         .delete()
@@ -329,13 +348,30 @@ const VideoManagement = () => {
                 >
                   {video.is_published ? "Unpublish" : "Publish"}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => deleteVideo(video.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Video?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete "{video.title}".
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => deleteVideo(video.id, video.video_url)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>

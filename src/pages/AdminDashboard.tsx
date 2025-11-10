@@ -147,6 +147,22 @@ const AdminDashboard = () => {
             <Button 
               variant="ghost" 
               className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/reports")}
+            >
+              <BarChart3 className="h-5 w-5" />
+              Daily Reports
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/analytics")}
+            >
+              <BarChart3 className="h-5 w-5" />
+              Activity Analytics
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
               onClick={() => navigate("/admin/crm")}
             >
               <Users className="h-5 w-5" />

@@ -162,8 +162,6 @@ const Footer = () => {
             <span>🔒 Secure Transactions</span>
             <span>|</span>
             <span>🌟 Customer Excellence</span>
-            <span>|</span>
-            <span>🚀 AI-Powered Support</span>
           </div>
         </div>
       </div>

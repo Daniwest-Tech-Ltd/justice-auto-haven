@@ -1,1 +1,13 @@
 project_id = "ccsfhblxkmyqdqqcgitt"
+
+[functions.create-daily-attendance]
+verify_jwt = false
+
+[functions.generate-daily-reports]
+verify_jwt = false
+
+[functions.send-notifications]
+verify_jwt = false
+
+[functions.auto-generate-stock-id]
+verify_jwt = false
