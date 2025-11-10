@@ -27,11 +27,11 @@ const BrandMarquee = () => {
             {brands.map((brand) => (
               <div key={`${groupIndex}-${brand.id}`} className="flex-shrink-0">
                 {brand.logo_url ? (
-                  <img
-                    src={brand.logo_url}
-                    alt={brand.name}
-                    className="h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100"
-                  />
+                <img
+                  src={brand.logo_url}
+                  alt={brand.name}
+                  className="h-12 w-auto object-contain transition-all hover:scale-110"
+                />
                 ) : (
                   <span className="text-2xl font-bold opacity-70">{brand.name}</span>
                 )}

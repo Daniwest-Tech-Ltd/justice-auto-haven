@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Car, Calendar, User, Settings, Menu, X, LogOut, Award } from "lucide-react";
+import { Heart, Car, Calendar, User, Settings, Menu, X, LogOut, Award, Home } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -107,12 +107,17 @@ const CustomerDashboard = () => {
       <main className="lg:ml-64 p-4 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold">{getGreeting(profile.full_name)}</h1>
-              <p className="text-muted-foreground">Welcome to Customer Dashboard</p>
-              <p className="text-sm text-muted-foreground mt-1">Manage your vehicles and bookings</p>
-            </div>
+          <div>
+            <h1 className="text-4xl font-bold">{getGreeting(profile.full_name)}</h1>
+            <p className="text-muted-foreground">Welcome to Customer Dashboard</p>
+            <p className="text-sm text-muted-foreground mt-1">Manage your vehicles and bookings</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon" onClick={() => navigate("/")}>
+              <Home className="h-5 w-5" />
+            </Button>
             <Button onClick={() => navigate("/catalogue")}>Browse Catalogue</Button>
+          </div>
           </div>
 
           {/* Stats Cards */}

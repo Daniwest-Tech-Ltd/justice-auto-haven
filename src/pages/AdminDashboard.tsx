@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2, MessageSquare, Bell } from "lucide-react";
+import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2, MessageSquare, Bell, Home } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -184,6 +184,13 @@ const AdminDashboard = () => {
               <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
             </div>
             <div className="flex gap-2 items-center">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => navigate("/")}
+              >
+                <Home className="h-5 w-5" />
+              </Button>
               <NotificationsPanel />
               <Button 
                 variant="ghost" 
