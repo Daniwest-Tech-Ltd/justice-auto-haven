@@ -35,6 +35,11 @@ import Unauthorized from "./pages/Unauthorized";
 import Forbidden from "./pages/Forbidden";
 import ServerError from "./pages/ServerError";
 import ProtectedRoute from "./components/ProtectedRoute";
+import HRManagement from "./pages/HRManagement";
+import AddStaff from "./pages/AddStaff";
+import StaffBadge from "./pages/StaffBadge";
+import CRMManagement from "./pages/CRMManagement";
+import CustomerProfile from "./pages/CustomerProfile";
 
 const queryClient = new QueryClient();
 
@@ -177,6 +182,50 @@ const App = () => (
             element={
               <ProtectedRoute requiredRole="customer">
                 <CustomerBadge />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/customer/profile" 
+            element={
+              <ProtectedRoute requiredRole="customer">
+                <CustomerProfile />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* HR Routes */}
+          <Route 
+            path="/admin/hr" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <HRManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/hr/add-staff" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AddStaff />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/hr/staff-badge/:id" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <StaffBadge />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* CRM Route */}
+          <Route 
+            path="/admin/crm" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <CRMManagement />
               </ProtectedRoute>
             } 
           />

@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance: {
+        Row: {
+          clock_in: string | null
+          clock_out: string | null
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          staff_id: string
+          status: string
+        }
+        Insert: {
+          clock_in?: string | null
+          clock_out?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          staff_id: string
+          status?: string
+        }
+        Update: {
+          clock_in?: string | null
+          clock_out?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          staff_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       badges: {
         Row: {
           badge_type: string
@@ -170,6 +211,101 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_interactions: {
+        Row: {
+          created_at: string
+          id: string
+          interaction_type: string
+          lead_id: string
+          next_follow_up: string | null
+          notes: string | null
+          staff_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interaction_type: string
+          lead_id: string
+          next_follow_up?: string | null
+          notes?: string | null
+          staff_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          lead_id?: string
+          next_follow_up?: string | null
+          notes?: string | null
+          staff_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_interactions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_interactions_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_leads: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          email: string | null
+          id: string
+          interest: string | null
+          name: string
+          notes: string | null
+          phone: string
+          source: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest?: string | null
+          name: string
+          notes?: string | null
+          phone: string
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_leads_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       featured_cars: {
         Row: {
           car_id: string
@@ -201,6 +337,62 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll: {
+        Row: {
+          allowances: number | null
+          basic_salary: number
+          created_at: string
+          deductions: number | null
+          id: string
+          net_pay: number
+          notes: string | null
+          overtime_pay: number | null
+          pay_period_end: string
+          pay_period_start: string
+          payment_date: string | null
+          payment_status: string | null
+          staff_id: string
+        }
+        Insert: {
+          allowances?: number | null
+          basic_salary: number
+          created_at?: string
+          deductions?: number | null
+          id?: string
+          net_pay: number
+          notes?: string | null
+          overtime_pay?: number | null
+          pay_period_end: string
+          pay_period_start: string
+          payment_date?: string | null
+          payment_status?: string | null
+          staff_id: string
+        }
+        Update: {
+          allowances?: number | null
+          basic_salary?: number
+          created_at?: string
+          deductions?: number | null
+          id?: string
+          net_pay?: number
+          notes?: string | null
+          overtime_pay?: number | null
+          pay_period_end?: string
+          pay_period_start?: string
+          payment_date?: string | null
+          payment_status?: string | null
+          staff_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
             referencedColumns: ["id"]
           },
         ]
@@ -338,6 +530,77 @@ export type Database = {
           },
         ]
       }
+      staff: {
+        Row: {
+          address: string | null
+          created_at: string
+          department: string
+          documents: Json | null
+          email: string
+          emergency_contact: string | null
+          full_name: string
+          hire_date: string
+          id: string
+          phone: string
+          photo_url: string | null
+          position: Database["public"]["Enums"]["staff_role"]
+          profile_id: string | null
+          salary: number | null
+          staff_id: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          department: string
+          documents?: Json | null
+          email: string
+          emergency_contact?: string | null
+          full_name: string
+          hire_date?: string
+          id?: string
+          phone: string
+          photo_url?: string | null
+          position: Database["public"]["Enums"]["staff_role"]
+          profile_id?: string | null
+          salary?: number | null
+          staff_id: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          department?: string
+          documents?: Json | null
+          email?: string
+          emergency_contact?: string | null
+          full_name?: string
+          hire_date?: string
+          id?: string
+          phone?: string
+          photo_url?: string | null
+          position?: Database["public"]["Enums"]["staff_role"]
+          profile_id?: string | null
+          salary?: number | null
+          staff_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trade_ins: {
         Row: {
           admin_notes: string | null
@@ -461,6 +724,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "customer"
+      staff_role:
+        | "ceo"
+        | "manager"
+        | "sales_executive"
+        | "technician"
+        | "accountant"
+        | "hr_manager"
+        | "receptionist"
+        | "driver"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -589,6 +861,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "customer"],
+      staff_role: [
+        "ceo",
+        "manager",
+        "sales_executive",
+        "technician",
+        "accountant",
+        "hr_manager",
+        "receptionist",
+        "driver",
+      ],
     },
   },
 } as const

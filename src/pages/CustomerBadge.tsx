@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Download } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 interface BadgeData {
   full_name: string;
@@ -20,6 +22,7 @@ const CustomerBadge = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const badgeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchBadge();
@@ -63,22 +66,62 @@ const CustomerBadge = () => {
     }
   };
 
+  const downloadPDF = async () => {
+    if (!badgeRef.current) return;
+
+    try {
+      const canvas = await html2canvas(badgeRef.current, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [85.6, 54],
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, 85.6, 54);
+      pdf.save(`customer-badge-${badge?.full_name}.pdf`);
+
+      toast({
+        title: "Badge Downloaded",
+        description: "Your badge has been saved as PDF",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) return <LoadingScreen />;
   if (!badge) return <div>No badge found</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/10 py-12 px-4">
       <div className="container mx-auto max-w-2xl">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/customer-dashboard")}
-          className="mb-6"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
-        </Button>
+        <div className="flex justify-between items-center mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/customer-dashboard")}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+          <Button onClick={downloadPDF}>
+            <Download className="mr-2 h-4 w-4" />
+            Download PDF
+          </Button>
+        </div>
 
-        <Card className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-background/80 via-secondary/30 to-primary/20 border-2 border-primary/30 shadow-2xl">
+        <Card 
+          ref={badgeRef}
+          className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-background/80 via-secondary/30 to-primary/20 border-2 border-primary/30 shadow-2xl"
+        >
           {/* Kenyan Flag Background */}
           <div className="absolute inset-0 opacity-10">
             <div className="h-1/3 bg-black"></div>
@@ -120,13 +163,6 @@ const CustomerBadge = () => {
               </div>
             </div>
 
-            <div className="flex justify-center gap-4">
-              <Button onClick={() => window.print()} className="gap-2">
-                <Download className="h-4 w-4" />
-                Download Badge
-              </Button>
-            </div>
-
             <div className="mt-8 pt-6 border-t border-border/50">
               <p className="text-xs text-muted-foreground">
                 Nairobi, Kenya • +254 722 827 458
@@ -142,25 +178,6 @@ const CustomerBadge = () => {
           This badge certifies your membership with Justice Ultimate Automobiles
         </p>
       </div>
-
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          .container, .container * {
-            visibility: visible;
-          }
-          .container {
-            position: absolute;
-            left: 0;
-            top: 0;
-          }
-          button {
-            display: none;
-          }
-        }
-      `}</style>
     </div>
   );
 };

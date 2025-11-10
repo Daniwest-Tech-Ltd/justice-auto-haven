@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Car, Calendar, User, Settings, Menu, X, LogOut } from "lucide-react";
+import { Heart, Car, Calendar, User, Settings, Menu, X, LogOut, Award } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -75,9 +75,21 @@ const CustomerDashboard = () => {
               <Calendar className="h-5 w-5" />
               Bookings
             </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/customer/badge")}
+            >
+              <Award className="h-5 w-5" />
+              My Badge
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/customer/profile")}
+            >
               <Settings className="h-5 w-5" />
-              Settings
+              Edit Profile
             </Button>
             <Button 
               variant="ghost" 

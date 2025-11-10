@@ -23,24 +23,43 @@ const AdminDashboard = () => {
     }
   }, [loading, user, role, navigate]);
 
+  const [stats, setStats] = useState({
+    totalVehicles: 0,
+    activeCustomers: 0,
+    monthlySales: 0,
+    pendingOrders: 0,
+  });
+
   useEffect(() => {
     if (user && role?.role === "admin") {
       fetchCustomers();
+      fetchRealStats();
     }
   }, [user, role]);
 
   const fetchCustomers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select(`
-        *,
-        user_roles(role)
-      `)
+      .select("*, user_roles(role)")
       .order("created_at", { ascending: false });
 
     if (!error && data) {
       setCustomers(data);
     }
+  };
+
+  const fetchRealStats = async () => {
+    const { data: carsData } = await supabase.from("cars").select("*");
+    const { data: profilesData } = await supabase.from("profiles").select("*");
+    const { data: salesData } = await supabase.from("sales").select("*");
+    const { data: rentalsData } = await supabase.from("rentals").select("*").eq("status", "pending");
+
+    setStats({
+      totalVehicles: carsData?.length || 0,
+      activeCustomers: profilesData?.length || 0,
+      monthlySales: salesData?.reduce((sum, s) => sum + parseFloat(s.sale_price), 0) || 0,
+      pendingOrders: rentalsData?.length || 0,
+    });
   };
 
   const handleSignOut = async () => {
@@ -114,6 +133,22 @@ const AdminDashboard = () => {
             <Button 
               variant="ghost" 
               className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/hr")}
+            >
+              <Users className="h-5 w-5" />
+              HR Management
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/crm")}
+            >
+              <Users className="h-5 w-5" />
+              CRM
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
               onClick={() => navigate("/admin/settings")}
             >
               <Settings className="h-5 w-5" />
@@ -153,8 +188,8 @@ const AdminDashboard = () => {
                 <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">248</div>
-                <p className="text-sm text-muted-foreground">+12% from last month</p>
+                <div className="text-3xl font-bold">{stats.totalVehicles}</div>
+                <p className="text-sm text-muted-foreground">Total inventory</p>
               </CardContent>
             </Card>
 
@@ -163,8 +198,8 @@ const AdminDashboard = () => {
                 <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">1,842</div>
-                <p className="text-sm text-muted-foreground">+18% from last month</p>
+                <div className="text-3xl font-bold">{stats.activeCustomers}</div>
+                <p className="text-sm text-muted-foreground">Registered users</p>
               </CardContent>
             </Card>
 
@@ -173,8 +208,8 @@ const AdminDashboard = () => {
                 <CardTitle className="text-sm font-medium">Monthly Sales</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">KSh 45M</div>
-                <p className="text-sm text-muted-foreground">+25% from last month</p>
+                <div className="text-3xl font-bold">KSh {stats.monthlySales.toLocaleString()}</div>
+                <p className="text-sm text-muted-foreground">Total revenue</p>
               </CardContent>
             </Card>
 
@@ -183,8 +218,8 @@ const AdminDashboard = () => {
                 <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">23</div>
-                <p className="text-sm text-muted-foreground">-5% from last month</p>
+                <div className="text-3xl font-bold">{stats.pendingOrders}</div>
+                <p className="text-sm text-muted-foreground">Awaiting processing</p>
               </CardContent>
             </Card>
           </div>
