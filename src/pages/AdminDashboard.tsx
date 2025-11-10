@@ -157,6 +157,14 @@ const AdminDashboard = () => {
             </Button>
             <Button 
               variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/messages")}
+            >
+              <MessageSquare className="h-5 w-5" />
+              Messages
+            </Button>
+            <Button 
+              variant="ghost" 
               className="w-full justify-start gap-2 text-destructive"
               onClick={handleSignOut}
             >
@@ -175,7 +183,16 @@ const AdminDashboard = () => {
               <h1 className="text-4xl font-bold">{getGreeting(profile.full_name)}</h1>
               <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <NotificationsPanel />
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate("/admin/messages")}
+                className="relative"
+              >
+                <MessageSquare className="h-5 w-5" />
+              </Button>
               <Button onClick={() => navigate("/admin/cars/add")}>Add Vehicle</Button>
               <Button variant="outline" onClick={() => navigate("/admin/videos")}>Manage Videos</Button>
               <Button variant="outline" onClick={() => navigate("/admin/brands")}>Brands</Button>

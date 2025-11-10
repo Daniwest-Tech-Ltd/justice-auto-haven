@@ -15,6 +15,9 @@ const Services = lazy(() => import("./pages/Services"));
 const Catalogue = lazy(() => import("./pages/Catalogue"));
 const Videos = lazy(() => import("./pages/Videos"));
 const Blogs = lazy(() => import("./pages/Blogs"));
+const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const RentalBooking = lazy(() => import("./pages/RentalBooking"));
 const TradeInSubmission = lazy(() => import("./pages/TradeInSubmission"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
@@ -67,6 +70,9 @@ const App = () => (
           <Route path="/catalogue" element={<Layout><Catalogue /></Layout>} />
           <Route path="/videos" element={<Layout><Videos /></Layout>} />
           <Route path="/blogs" element={<Layout><Blogs /></Layout>} />
+          <Route path="/terms" element={<Layout><TermsOfUse /></Layout>} />
+          <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
+          <Route path="/cookies" element={<Layout><CookiePolicy /></Layout>} />
           <Route path="/rental-booking" element={<Layout><RentalBooking /></Layout>} />
           <Route path="/trade-in" element={<Layout><TradeInSubmission /></Layout>} />
           
@@ -181,6 +187,14 @@ const App = () => (
             element={
               <ProtectedRoute requiredRole="admin">
                 <AdminSettings />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/messages" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminMessages />
               </ProtectedRoute>
             } 
           />

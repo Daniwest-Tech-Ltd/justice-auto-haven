@@ -24,7 +24,7 @@ const LoadingScreen = () => {
           <div className="absolute inset-0 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
         </div>
         
-        <p className="mt-6 text-lg text-white/90">Loading your experience</p>
+        <p className="mt-6 text-lg text-white/90">With you every step of the way</p>
       </div>
     </div>
   );

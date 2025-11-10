@@ -140,7 +140,12 @@ const Contact = () => {
         {/* Contact Information */}
         <div className="space-y-6">
           {/* Location */}
-          <div className="glass-strong rounded-2xl p-6">
+          <a 
+            href="https://maps.app.goo.gl/spVusF8WkEfe7pZx5" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="glass-strong rounded-2xl p-6 block hover:scale-105 transition-transform"
+          >
             <div className="flex items-start gap-4">
               <MapPin className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
               <div>
@@ -149,9 +154,10 @@ const Contact = () => {
                   Mpesi Lane 11, Westlands<br />
                   Nairobi, Kenya
                 </p>
+                <p className="text-primary text-sm mt-2">Click to view on map →</p>
               </div>
             </div>
-          </div>
+          </a>
 
           {/* Contact Methods */}
           <div className="glass-strong rounded-2xl p-6 space-y-4">

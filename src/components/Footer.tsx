@@ -7,7 +7,7 @@ const Footer = () => {
   return (
     <footer className="glass border-t border-white/10 mt-20">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-3 mb-4">
@@ -37,36 +37,14 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-4">Quick Links</h3>
             <div className="space-y-2">
-              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/terms" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
                 📜 Terms of Use
-              </a>
-              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+              </Link>
+              <Link to="/privacy" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
                 🔒 Privacy Policy
-              </a>
-              <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+              </Link>
+              <Link to="/cookies" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
                 🍪 Cookie Policy
-              </a>
-            </div>
-          </div>
-
-          {/* Our Services */}
-          <div>
-            <h3 className="text-lg font-semibold text-foreground mb-4">Our Services</h3>
-            <div className="space-y-2">
-              <Link to="/catalogue" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                🚗 Vehicle Catalogue
-              </Link>
-              <Link to="/services" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                📅 Test Drive Booking
-              </Link>
-              <Link to="/services" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                🔑 Car Rentals
-              </Link>
-              <Link to="/videos" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                🎥 Video Showcase
-              </Link>
-              <Link to="/services" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                🔧 Auto Services
               </Link>
             </div>
           </div>
