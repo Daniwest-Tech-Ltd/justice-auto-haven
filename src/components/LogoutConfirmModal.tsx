@@ -23,10 +23,10 @@ export const LogoutConfirmModal = ({ isOpen, onConfirm, onCancel }: LogoutConfir
         </AlertDialogHeader>
         <AlertDialogFooter>
           <Button variant="outline" onClick={onCancel}>
-            Cancel
+            No
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Yes, Logout
+          <Button onClick={onConfirm} className="bg-red-600 hover:bg-red-700 text-white">
+            Yes
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

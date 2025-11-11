@@ -114,12 +114,41 @@ const DailyReports = () => {
   };
 
   const handleDownload = async (report: DailyReport) => {
-    toast({
-      title: "Downloading",
-      description: "Report download started...",
-    });
-    // In production, you would download from the file_path
-    window.open(report.file_path, '_blank');
+    try {
+      toast({
+        title: "Generating PDF",
+        description: "Please wait...",
+      });
+
+      // Call the PDF generation function
+      const { data, error } = await supabase.functions.invoke('generate-pdf-report', {
+        body: { reportId: report.id }
+      });
+
+      if (error) throw error;
+
+      // Download the PDF
+      const blob = new Blob([atob(data.pdfData)], { type: 'text/html' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = data.fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Success",
+        description: "Report downloaded successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDelete = async (reportId: string) => {

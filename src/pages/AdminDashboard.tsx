@@ -139,6 +139,14 @@ const AdminDashboard = () => {
             <Button 
               variant="ghost" 
               className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/sales/forecasting")}
+            >
+              <TrendingUp className="h-5 w-5" />
+              Sales Forecasting
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
               onClick={() => navigate("/admin/hr")}
             >
               <Users className="h-5 w-5" />

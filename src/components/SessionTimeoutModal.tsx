@@ -24,10 +24,10 @@ export const SessionTimeoutModal = ({ isOpen, timeLeft, onExtend, onLogout }: Se
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <Button variant="outline" onClick={onLogout}>
-            Logout Now
+          <Button variant="outline" onClick={onLogout} className="border-red-600 text-red-600 hover:bg-red-50">
+            Cancel
           </Button>
-          <Button onClick={onExtend}>
+          <Button onClick={onExtend} className="bg-primary hover:bg-primary/90">
             Extend Session
           </Button>
         </AlertDialogFooter>

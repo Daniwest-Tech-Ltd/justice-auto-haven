@@ -59,6 +59,7 @@ const ActivityAnalytics = lazy(() => import("./pages/ActivityAnalytics"));
 const StaffPerformance = lazy(() => import("./pages/StaffPerformance"));
 const LiveAttendanceMonitor = lazy(() => import("./pages/LiveAttendanceMonitor"));
 const Compare = lazy(() => import("./pages/Compare"));
+const SalesForecasting = lazy(() => import("./pages/SalesForecasting"));
 
 const queryClient = new QueryClient();
 
@@ -207,6 +208,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <SalesAnalytics />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/sales/forecasting" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SalesForecasting />
               </ProtectedRoute>
             } 
           />

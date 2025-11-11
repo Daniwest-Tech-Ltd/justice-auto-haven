@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Pencil, Trash2, Plus, ArrowLeft, Star } from "lucide-react";
+import { SalesRecordModal } from "@/components/SalesRecordModal";
 
 interface Car {
   id: string;
@@ -27,6 +28,8 @@ interface Car {
 const CarManagement = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
+  const [salesModalOpen, setSalesModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const { user, role } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -59,6 +62,17 @@ const CarManagement = () => {
   const toggleStatus = async (carId: string, currentStatus: string | null) => {
     const newStatus = currentStatus === "available" ? "sold" : "available";
     
+    // If marking as sold, open the sales modal
+    if (newStatus === "sold") {
+      const car = cars.find(c => c.id === carId);
+      if (car) {
+        setSelectedCar(car);
+        setSalesModalOpen(true);
+      }
+      return;
+    }
+
+    // If marking as available (unsold)
     try {
       const { error: updateError } = await supabase
         .from("cars")
@@ -67,45 +81,9 @@ const CarManagement = () => {
 
       if (updateError) throw updateError;
 
-      // If marking as sold, create a sales record
-      if (newStatus === "sold") {
-        const car = cars.find(c => c.id === carId);
-        if (car) {
-          const { error: salesError } = await supabase
-            .from("sales")
-            .insert({
-              car_id: carId,
-              sale_price: car.price,
-              sale_date: new Date().toISOString().split('T')[0],
-              payment_type: "To be confirmed",
-              notes: "Auto-generated sale record",
-            });
-
-          if (salesError) throw salesError;
-
-          // Notify admin
-          const { data: adminData } = await supabase
-            .from("user_roles")
-            .select("user_id")
-            .eq("role", "admin")
-            .limit(1)
-            .maybeSingle();
-
-          if (adminData) {
-            await supabase.from("notifications").insert({
-              user_id: adminData.user_id,
-              title: "Car Sold",
-              message: `${car.make} ${car.model} ${car.year} has been sold`,
-              type: "sale",
-              metadata: { car_id: carId, sale_price: car.price },
-            });
-          }
-        }
-      }
-
       toast({
         title: "Success",
-        description: `Car marked as ${newStatus === "available" ? "In Stock" : "Sold"}${newStatus === "sold" ? " and sale recorded" : ""}`,
+        description: "Car marked as available",
       });
       fetchCars();
     } catch (error: any) {
@@ -172,7 +150,26 @@ const CarManagement = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
+      {selectedCar && (
+        <SalesRecordModal
+          isOpen={salesModalOpen}
+          onClose={() => {
+            setSalesModalOpen(false);
+            setSelectedCar(null);
+          }}
+          carId={selectedCar.id}
+          carInfo={{
+            make: selectedCar.make,
+            model: selectedCar.model,
+            year: selectedCar.year,
+            price: selectedCar.price,
+          }}
+          onSuccess={fetchCars}
+        />
+      )}
+      
+      <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col gap-4 mb-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -286,7 +283,8 @@ const CarManagement = () => {
           </Card>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
