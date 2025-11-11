@@ -42,17 +42,30 @@ const AdminDashboard = () => {
   }, [user, role]);
 
   const fetchCustomers = async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select(`
-        *,
-        user_roles!inner(role)
-      `)
-      .order("created_at", { ascending: false });
+    try {
+      // Fetch profiles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-    if (!error && data) {
-      setCustomers(data);
-    } else if (error) {
+      if (profilesError) throw profilesError;
+
+      // Fetch user roles
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+
+      if (rolesError) throw rolesError;
+
+      // Merge profiles with roles
+      const customersWithRoles = (profilesData || []).map(profile => ({
+        ...profile,
+        user_roles: rolesData?.filter(role => role.user_id === profile.user_id) || []
+      }));
+
+      setCustomers(customersWithRoles);
+    } catch (error) {
       console.error("Error fetching customers:", error);
     }
   };

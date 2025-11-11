@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { SuspendedUserModal } from "@/components/SuspendedUserModal";
+import { useSecurityLogger } from "@/hooks/useSecurityLogger";
 import authBg from "@/assets/auth-bg.jpg";
 import carLotOverlay from "@/assets/car-lot-overlay.jpg";
 
@@ -27,8 +28,12 @@ const Auth = () => {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showSuspendedModal, setShowSuspendedModal] = useState(false);
   const [suspensionReason, setSuspensionReason] = useState("");
+  const [show2FADialog, setShow2FADialog] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { logLoginAttempt, logSuspiciousActivity } = useSecurityLogger();
 
   // Login form
   const [email, setEmail] = useState("");
@@ -71,6 +76,111 @@ const Auth = () => {
   };
 
   const passwordStrength = checkPasswordStrength(regPassword);
+
+  const completeLogin = async (userId: string) => {
+    try {
+      // Update online status and reset login attempts
+      await supabase
+        .from("profiles")
+        .update({
+          is_online: true,
+          last_seen: new Date().toISOString(),
+          login_attempts: 0
+        })
+        .eq("user_id", userId);
+
+      // Check user role
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      // Get profile for name
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", userId)
+        .single();
+
+      sonnerToast.success(`Welcome back, ${profile?.full_name || "User"}! 🎉`, {
+        description: `Logged in as ${roleData?.role || "customer"}`,
+      });
+
+      // Redirect based on role
+      setTimeout(() => {
+        if (roleData && roleData.role === "admin") {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/customer-dashboard");
+        }
+      }, 500);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const verify2FA = async () => {
+    if (!pendingUserId || !twoFactorCode) {
+      toast({
+        title: "Error",
+        description: "Please enter the verification code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Verify 2FA code
+      const { data: twoFAData, error: twoFAError } = await supabase
+        .from("two_factor_auth")
+        .select("*")
+        .eq("user_id", pendingUserId)
+        .eq("code", twoFactorCode)
+        .eq("verified", false)
+        .gte("expires_at", new Date().toISOString())
+        .maybeSingle();
+
+      if (twoFAError || !twoFAData) {
+        await logSuspiciousActivity(
+          "Invalid 2FA Code",
+          `Failed 2FA verification for user ${pendingUserId}`,
+          undefined,
+          { code: twoFactorCode }
+        );
+        
+        toast({
+          title: "Invalid Code",
+          description: "The verification code is incorrect or expired",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Mark code as verified
+      await supabase
+        .from("two_factor_auth")
+        .update({ verified: true })
+        .eq("id", twoFAData.id);
+
+      setShow2FADialog(false);
+      await completeLogin(pendingUserId);
+    } catch (error: any) {
+      toast({
+        title: "Verification Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,6 +240,9 @@ const Auth = () => {
               .update({ login_attempts: newAttempts, last_login_attempt: new Date().toISOString() })
               .eq("user_id", profileData.user_id);
             
+            // Log failed attempt
+            await logLoginAttempt(email, false);
+            
             toast({
               title: "Login Failed",
               description: `Invalid password. Attempt ${newAttempts} of 3.`,
@@ -137,6 +250,9 @@ const Auth = () => {
             });
           }
         } else {
+          // Log failed attempt
+          await logLoginAttempt(email, false);
+          
           toast({
             title: "Login Failed",
             description: error.message,
@@ -148,42 +264,31 @@ const Auth = () => {
       }
 
       if (data.user) {
-        // Update online status and reset login attempts
-        await supabase
-          .from("profiles")
-          .update({
-            is_online: true,
-            last_seen: new Date().toISOString(),
-            login_attempts: 0
-          })
-          .eq("user_id", data.user.id);
+        // Log successful login attempt
+        await logLoginAttempt(email, true);
 
-        // Check user role
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", data.user.id)
-          .maybeSingle();
-
-        // Get profile for name
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("user_id", data.user.id)
-          .single();
-
-        sonnerToast.success(`Welcome back, ${profile?.full_name || "User"}! 🎉`, {
-          description: `Logged in as ${roleData?.role || "customer"}`,
+        // Send 2FA code
+        const { error: twoFAError } = await supabase.functions.invoke('send-2fa-code', {
+          body: { email, userId: data.user.id }
         });
 
-        // Redirect based on role
-        setTimeout(() => {
-          if (roleData && roleData.role === "admin") {
-            navigate("/admin-dashboard");
-          } else {
-            navigate("/customer-dashboard");
-          }
-        }, 500);
+        if (twoFAError) {
+          console.error("2FA error:", twoFAError);
+          toast({
+            title: "Warning",
+            description: "Could not send 2FA code. Proceeding without 2FA.",
+            variant: "destructive",
+          });
+        } else {
+          // Show 2FA dialog
+          setPendingUserId(data.user.id);
+          setShow2FADialog(true);
+          setLoading(false);
+          return;
+        }
+
+        // If 2FA fails, continue with login
+        await completeLogin(data.user.id);
       }
     } catch (error: any) {
       toast({
@@ -578,6 +683,49 @@ const Auth = () => {
           sonnerToast.success("Account reactivated successfully! Please login again.");
         }}
       />
+
+      {/* 2FA Verification Dialog */}
+      <Dialog open={show2FADialog} onOpenChange={setShow2FADialog}>
+        <DialogContent className="glass-strong">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Two-Factor Authentication</DialogTitle>
+            <DialogDescription className="space-y-4 pt-4">
+              <p>A 6-digit verification code has been sent to your email.</p>
+              <p className="text-sm text-muted-foreground">
+                Please enter the code below to complete your login.
+              </p>
+              <Input
+                type="text"
+                placeholder="Enter 6-digit code"
+                value={twoFactorCode}
+                onChange={(e) => setTwoFactorCode(e.target.value)}
+                maxLength={6}
+                className="text-center text-2xl tracking-widest"
+              />
+              <div className="flex gap-4 pt-4">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShow2FADialog(false);
+                    setPendingUserId(null);
+                    setTwoFactorCode("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={verify2FA}
+                  disabled={loading || twoFactorCode.length !== 6}
+                >
+                  {loading ? "Verifying..." : "Verify"}
+                </Button>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

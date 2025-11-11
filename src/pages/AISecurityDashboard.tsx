@@ -35,12 +35,21 @@ const AISecurityDashboard = () => {
   const [selectedAlert, setSelectedAlert] = useState<SecurityAlert | null>(null);
   const [autoBlock, setAutoBlock] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalAlerts: 0,
+    criticalAlerts: 0,
+    blockedIps: 0,
+    acknowledgedAlerts: 0,
+    alertsTrend: 0,
+    avgResponseTime: 0
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchAlerts();
     fetchBlockedIps();
+    calculateStats();
     
     // Subscribe to real-time security events
     const channel = supabase
@@ -50,6 +59,7 @@ const AISecurityDashboard = () => {
         { event: "INSERT", schema: "public", table: "security_events" },
         (payload) => {
           setAlerts((prev) => [payload.new as SecurityAlert, ...prev]);
+          calculateStats();
           
           // Show toast for high/critical alerts
           if (payload.new.severity === "high" || payload.new.severity === "critical") {
@@ -67,6 +77,50 @@ const AISecurityDashboard = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const calculateStats = async () => {
+    try {
+      const now = new Date();
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      
+      // Get alerts from last 24 hours for trend
+      const { data: recentAlerts } = await supabase
+        .from("security_events")
+        .select("created_at")
+        .gte("created_at", oneDayAgo.toISOString());
+
+      const alertsTrend = recentAlerts?.length || 0;
+
+      // Calculate average response time (time to acknowledge)
+      const { data: acknowledgedAlerts } = await supabase
+        .from("security_events")
+        .select("created_at, acknowledged_at")
+        .not("acknowledged_at", "is", null)
+        .gte("created_at", oneDayAgo.toISOString());
+
+      let totalResponseTime = 0;
+      acknowledgedAlerts?.forEach(alert => {
+        if (alert.acknowledged_at) {
+          const responseTime = new Date(alert.acknowledged_at).getTime() - new Date(alert.created_at).getTime();
+          totalResponseTime += responseTime;
+        }
+      });
+      const avgResponseTime = acknowledgedAlerts?.length 
+        ? Math.round(totalResponseTime / acknowledgedAlerts.length / 1000 / 60) // minutes
+        : 0;
+
+      setStats({
+        totalAlerts: alerts.length,
+        criticalAlerts: alerts.filter((a) => a.severity === "critical").length,
+        blockedIps: blockedIps.length,
+        acknowledgedAlerts: alerts.filter((a) => a.acknowledged).length,
+        alertsTrend,
+        avgResponseTime
+      });
+    } catch (error) {
+      console.error("Error calculating stats:", error);
+    }
+  };
 
   const fetchAlerts = async () => {
     try {
@@ -241,13 +295,13 @@ const AISecurityDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
         <Card className="glass-strong">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Alerts</p>
-                <h3 className="text-3xl font-bold">{alerts.length}</h3>
+                <h3 className="text-3xl font-bold">{stats.totalAlerts}</h3>
               </div>
               <AlertTriangle className="h-10 w-10 text-orange-500" />
             </div>
@@ -260,7 +314,7 @@ const AISecurityDashboard = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Critical</p>
                 <h3 className="text-3xl font-bold text-red-600">
-                  {alerts.filter((a) => a.severity === "critical").length}
+                  {stats.criticalAlerts}
                 </h3>
               </div>
               <Shield className="h-10 w-10 text-red-600" />
@@ -273,7 +327,7 @@ const AISecurityDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Blocked IPs</p>
-                <h3 className="text-3xl font-bold">{blockedIps.length}</h3>
+                <h3 className="text-3xl font-bold">{stats.blockedIps}</h3>
               </div>
               <Ban className="h-10 w-10 text-primary" />
             </div>
@@ -286,10 +340,38 @@ const AISecurityDashboard = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Acknowledged</p>
                 <h3 className="text-3xl font-bold text-green-600">
-                  {alerts.filter((a) => a.acknowledged).length}
+                  {stats.acknowledgedAlerts}
                 </h3>
               </div>
               <CheckCircle className="h-10 w-10 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-strong">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">24h Trend</p>
+                <h3 className="text-3xl font-bold text-blue-600">
+                  {stats.alertsTrend}
+                </h3>
+              </div>
+              <AlertTriangle className="h-10 w-10 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-strong">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Avg Response</p>
+                <h3 className="text-3xl font-bold text-purple-600">
+                  {stats.avgResponseTime}m
+                </h3>
+              </div>
+              <CheckCircle className="h-10 w-10 text-purple-600" />
             </div>
           </CardContent>
         </Card>

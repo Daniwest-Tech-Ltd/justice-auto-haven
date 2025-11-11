@@ -18,6 +18,9 @@ verify_jwt = false
 [functions.send-2fa-code]
 verify_jwt = false
 
+[functions.send-suspension-notification]
+verify_jwt = false
+
 [functions.generate-sales-pdf]
 verify_jwt = false
 
