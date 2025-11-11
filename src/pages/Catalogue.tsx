@@ -48,6 +48,7 @@ const Catalogue = () => {
     year: "all",
     availability: "all",
     fuelType: "all",
+    priceRange: "all",
   });
   const { user } = useAuth();
   const { toast } = useToast();
@@ -167,6 +168,16 @@ const Catalogue = () => {
       filtered = filtered.filter((car) => car.fuel_type === filters.fuelType);
     }
 
+    if (filters.priceRange !== "all") {
+      const [min, max] = filters.priceRange.split("-").map(Number);
+      filtered = filtered.filter((car) => {
+        if (max) {
+          return car.price >= min && car.price <= max;
+        }
+        return car.price >= min;
+      });
+    }
+
     setFilteredCars(filtered);
     resetPagination();
   };
@@ -178,6 +189,7 @@ const Catalogue = () => {
       year: "all",
       availability: "all",
       fuelType: "all",
+      priceRange: "all",
     });
   };
 
@@ -222,7 +234,7 @@ const Catalogue = () => {
 
         {/* Search and Filters */}
         <div className="glass-strong rounded-lg p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             <div className="lg:col-span-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -276,9 +288,23 @@ const Catalogue = () => {
                 ))}
               </SelectContent>
             </Select>
+
+            <Select value={filters.priceRange} onValueChange={(value) => setFilters({ ...filters, priceRange: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Price Range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Prices</SelectItem>
+                <SelectItem value="0-1000000">Under 1M</SelectItem>
+                <SelectItem value="1000000-3000000">1M - 3M</SelectItem>
+                <SelectItem value="3000000-5000000">3M - 5M</SelectItem>
+                <SelectItem value="5000000-10000000">5M - 10M</SelectItem>
+                <SelectItem value="10000000">10M+</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {(searchQuery || filters.brand !== "all" || filters.year !== "all" || filters.fuelType !== "all") && (
+          {(searchQuery || filters.brand !== "all" || filters.year !== "all" || filters.fuelType !== "all" || filters.priceRange !== "all") && (
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
                 Showing {filteredCars.length} of {cars.length} vehicles

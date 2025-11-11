@@ -9,6 +9,7 @@ import { Facebook, Instagram, Linkedin, ArrowLeft, Mail } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { SuspendedUserModal } from "@/components/SuspendedUserModal";
 import authBg from "@/assets/auth-bg.jpg";
 import carLotOverlay from "@/assets/car-lot-overlay.jpg";
 
@@ -23,6 +25,8 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showSuspendedModal, setShowSuspendedModal] = useState(false);
+  const [suspensionReason, setSuspensionReason] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 

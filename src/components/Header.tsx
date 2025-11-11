@@ -6,6 +6,9 @@ import { Badge } from "./ui/badge";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { LogoutConfirmModal } from "./LogoutConfirmModal";
+import { SessionTimeoutModal } from "./SessionTimeoutModal";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -17,10 +20,13 @@ const Header = () => {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [notificationCount, setNotificationCount] = useState(0);
   const [messageCount, setMessageCount] = useState(0);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("darkMode");
     return saved !== null ? JSON.parse(saved) : true;
   });
+
+  const { showWarning, timeLeft, extendSession, handleLogout: sessionLogout } = useSessionTimeout();
 
   useEffect(() => {
     if (darkMode) {
@@ -111,6 +117,11 @@ const Header = () => {
       title: "Signed out successfully",
     });
     navigate("/");
+    setShowLogoutConfirm(false);
+  };
+
+  const initiateLogout = () => {
+    setShowLogoutConfirm(true);
   };
 
   const toggleDarkMode = () => {
@@ -130,6 +141,7 @@ const Header = () => {
   const dashboardPath = userRole === "admin" ? "/admin-dashboard" : "/customer-dashboard";
 
   return (
+    <>
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
@@ -243,7 +255,7 @@ const Header = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={handleSignOut}
+                onClick={initiateLogout}
                 aria-label="Sign Out"
               >
                 <LogOut className="h-5 w-5" />
@@ -302,7 +314,7 @@ const Header = () => {
                     </Button>
                   </Link>
                 )}
-                <Button variant="destructive" className="w-full mt-2" onClick={handleSignOut}>
+                <Button variant="destructive" className="w-full mt-2" onClick={initiateLogout}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </Button>
@@ -319,6 +331,24 @@ const Header = () => {
         )}
       </div>
     </header>
+
+    {/* Session Timeout Modal */}
+    {isAuthenticated && (
+      <SessionTimeoutModal
+        isOpen={showWarning}
+        timeLeft={timeLeft}
+        onExtend={extendSession}
+        onLogout={sessionLogout}
+      />
+    )}
+
+    {/* Logout Confirmation Modal */}
+    <LogoutConfirmModal
+      isOpen={showLogoutConfirm}
+      onConfirm={handleSignOut}
+      onCancel={() => setShowLogoutConfirm(false)}
+    />
+    </>
   );
 };
 

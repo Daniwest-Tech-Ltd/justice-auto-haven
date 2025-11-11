@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Phone, Mail, MessageCircle, ArrowLeft } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useToast } from "@/hooks/use-toast";
+import { ReviewsSection } from "@/components/ReviewsSection";
 
 interface Car {
   id: string;
@@ -340,6 +341,9 @@ const CarDetails = () => {
             )}
           </div>
         </div>
+
+        {/* Customer Reviews */}
+        <ReviewsSection carId={car.id} carName={`${car.make} ${car.model}`} />
 
         {/* Similar Vehicles */}
         {similarCars.length > 0 && (

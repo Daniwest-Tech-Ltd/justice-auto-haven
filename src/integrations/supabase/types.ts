@@ -603,6 +603,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          activation_code: string | null
           county_city: string | null
           created_at: string | null
           email: string
@@ -613,10 +614,13 @@ export type Database = {
           is_suspended: boolean | null
           phone: string
           preferred_contact: string | null
+          suspended_at: string | null
+          suspended_reason: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          activation_code?: string | null
           county_city?: string | null
           created_at?: string | null
           email: string
@@ -627,10 +631,13 @@ export type Database = {
           is_suspended?: boolean | null
           phone: string
           preferred_contact?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          activation_code?: string | null
           county_city?: string | null
           created_at?: string | null
           email?: string
@@ -641,6 +648,8 @@ export type Database = {
           is_suspended?: boolean | null
           phone?: string
           preferred_contact?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -683,6 +692,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "rentals_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          admin_response: string | null
+          car_id: string
+          comment: string
+          created_at: string
+          id: string
+          is_approved: boolean | null
+          is_verified_purchase: boolean | null
+          rating: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_response?: string | null
+          car_id: string
+          comment: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          is_verified_purchase?: boolean | null
+          rating: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_response?: string | null
+          car_id?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          is_verified_purchase?: boolean | null
+          rating?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_car_id_fkey"
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
@@ -1032,6 +1091,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_verified_buyer: {
+        Args: { p_car_id: string; p_user_id: string }
         Returns: boolean
       }
       log_activity: {
