@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, TrendingUp, DollarSign, Car, Users } from "lucide-react";
+import { ArrowLeft, TrendingUp, DollarSign, Car, Users, Download } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
-
-const COLORS = ["hsl(var(--primary))", "hsl(var(--secondary))", "hsl(var(--accent))", "hsl(var(--muted))"];
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
+import { format } from "date-fns";
 
 const SalesAnalytics = () => {
   const [loading, setLoading] = useState(true);
@@ -190,22 +189,13 @@ const SalesAnalytics = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={salesByBrand}
-                  dataKey="count"
-                  nameKey="brand"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {salesByBrand.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
+              <BarChart data={salesByBrand} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis type="number" stroke="hsl(var(--foreground))" />
+                <YAxis type="category" dataKey="brand" stroke="hsl(var(--foreground))" />
                 <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }} />
-              </PieChart>
+                <Bar dataKey="count" fill="hsl(var(--primary))" name="Cars Sold" />
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
