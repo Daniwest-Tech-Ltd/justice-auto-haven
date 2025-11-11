@@ -308,19 +308,18 @@ const Catalogue = () => {
                 const brandLogo = getBrandLogo(car.make);
                 
                 return (
-                  <Link
-                    key={car.id}
-                    to={`/car/${car.stock_id || car.id}`}
-                    className="group [perspective:1000px]"
-                  >
-                    <div className="relative h-full transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+                  <div key={car.id} className="group [perspective:1000px] h-[480px]">
+                    <div className="relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
                       {/* Front of card */}
-                      <div className="absolute inset-0 glass-strong rounded-lg overflow-hidden [backface-visibility:hidden]">
-                        <div className="relative aspect-[4/3] overflow-hidden">
+                      <Link
+                        to={`/car/${car.stock_id || car.id}`}
+                        className="absolute inset-0 glass-strong rounded-lg overflow-hidden [backface-visibility:hidden] flex flex-col"
+                      >
+                        <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0">
                           <img
                             src={images[0] || "/placeholder.svg"}
                             alt={`${car.make} ${car.model}`}
-                            className="w-full h-full object-cover transition-transform duration-500"
+                            className="w-full h-full object-cover"
                           />
                           <Badge className="absolute top-2 left-2 bg-primary">
                             {car.year}
@@ -328,7 +327,7 @@ const Catalogue = () => {
                           <Button
                             size="icon"
                             variant="secondary"
-                            className="absolute top-2 right-2"
+                            className="absolute top-2 right-2 z-10"
                             onClick={(e) => toggleWishlist(e, car.id)}
                           >
                             <Heart
@@ -343,7 +342,7 @@ const Catalogue = () => {
                             </div>
                           )}
                         </div>
-                        <div className="p-4">
+                        <div className="p-4 flex-1 flex flex-col">
                           <h3 className="font-bold text-lg mb-2 line-clamp-1">
                             {car.make} {car.model}
                           </h3>
@@ -360,7 +359,7 @@ const Catalogue = () => {
                               {car.transmission || "N/A"}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between mt-auto">
                             <p className="text-2xl font-bold text-primary">
                               KSH {car.price.toLocaleString()}
                             </p>
@@ -372,32 +371,34 @@ const Catalogue = () => {
                             </Button>
                           </div>
                         </div>
-                      </div>
+                      </Link>
 
                       {/* Back of card */}
-                      <div className="absolute inset-0 glass-strong rounded-lg overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                        <div className="relative aspect-[4/3] overflow-hidden">
+                      <Link
+                        to={`/car/${car.stock_id || car.id}`}
+                        className="absolute inset-0 glass-strong rounded-lg overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col"
+                      >
+                        <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0">
                           <img
                             src={images[1] || images[0] || "/placeholder.svg"}
                             alt={`${car.make} ${car.model} - Image 2`}
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/50 to-transparent flex items-end p-6">
-                            <div className="space-y-2 w-full">
-                              <h3 className="font-bold text-xl text-white">{car.make} {car.model}</h3>
-                              <p className="text-sm text-white/80">Stock ID: {car.stock_id || "N/A"}</p>
-                              <div className="flex items-center gap-2 text-white/90">
-                                <span className="text-xs">{car.color || "N/A"}</span>
-                                <span>•</span>
-                                <span className="text-xs">{car.engine || "N/A"}</span>
-                              </div>
-                              <Button className="w-full mt-4">View Full Details</Button>
-                            </div>
-                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/50 to-transparent" />
                         </div>
-                      </div>
+                        <div className="p-6 flex-1 flex flex-col justify-end">
+                          <h3 className="font-bold text-xl mb-2">{car.make} {car.model}</h3>
+                          <p className="text-sm text-muted-foreground mb-2">Stock ID: {car.stock_id || "N/A"}</p>
+                          <div className="flex items-center gap-2 text-muted-foreground mb-4">
+                            <span className="text-xs">{car.color || "N/A"}</span>
+                            <span>•</span>
+                            <span className="text-xs">{car.engine || "N/A"}</span>
+                          </div>
+                          <Button className="w-full">View Full Details</Button>
+                        </div>
+                      </Link>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>

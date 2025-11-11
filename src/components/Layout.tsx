@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
+import MouseTracker from "./MouseTracker";
 import heroCar from "@/assets/hero-car.jpg";
 
 interface LayoutProps {
@@ -10,6 +11,8 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen relative">
+      <MouseTracker />
+      
       {/* Background Image */}
       <div
         className="fixed inset-0 z-0"
