@@ -1,11 +1,11 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Shield, AlertTriangle, CheckCircle, Ban } from "lucide-react";
+import { ArrowLeft, Shield, AlertTriangle, CheckCircle, Ban, Download, TrendingUp, Clock } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 
 interface SecurityAlert {
@@ -248,6 +248,47 @@ const AISecurityDashboard = () => {
     }
   };
 
+  const exportSecurityReport = async (format: 'json' | 'csv') => {
+    try {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30); // Last 30 days
+      
+      const { data, error } = await supabase.functions.invoke('export-security-report', {
+        body: {
+          startDate: startDate.toISOString(),
+          endDate: new Date().toISOString(),
+          format
+        }
+      });
+
+      if (error) throw error;
+
+      // Create download link
+      const blob = new Blob([format === 'json' ? JSON.stringify(data, null, 2) : data], {
+        type: format === 'json' ? 'application/json' : 'text/csv'
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `security-report-${new Date().toISOString().split('T')[0]}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Report Exported",
+        description: `Security report downloaded as ${format.toUpperCase()}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Export Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case "critical": return "bg-red-600";
@@ -291,6 +332,16 @@ const AISecurityDashboard = () => {
             />
             <span className="text-sm">Auto-block suspicious IPs</span>
           </label>
+          <div className="flex gap-2">
+            <Button onClick={() => exportSecurityReport('json')} variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              JSON
+            </Button>
+            <Button onClick={() => exportSecurityReport('csv')} variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              CSV
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -357,7 +408,7 @@ const AISecurityDashboard = () => {
                   {stats.alertsTrend}
                 </h3>
               </div>
-              <AlertTriangle className="h-10 w-10 text-blue-600" />
+              <TrendingUp className="h-10 w-10 text-blue-600" />
             </div>
           </CardContent>
         </Card>
@@ -371,7 +422,7 @@ const AISecurityDashboard = () => {
                   {stats.avgResponseTime}m
                 </h3>
               </div>
-              <CheckCircle className="h-10 w-10 text-purple-600" />
+              <Clock className="h-10 w-10 text-purple-600" />
             </div>
           </CardContent>
         </Card>

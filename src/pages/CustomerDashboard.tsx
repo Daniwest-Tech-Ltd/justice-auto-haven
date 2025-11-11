@@ -6,10 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Car, Calendar, User, Settings, Menu, X, LogOut, Award, Home } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { SessionTimeoutModal } from "@/components/SessionTimeoutModal";
+import SessionTimeoutModal from "@/components/SessionTimeoutModal";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
+import { CustomerLoyaltyBadge } from "@/components/CustomerLoyaltyBadge";
+import { LiveChatWidget } from "@/components/LiveChatWidget";
 
 const CustomerDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -162,18 +164,21 @@ const CustomerDashboard = () => {
       <main className="lg:ml-64 p-4 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold">{getGreeting(profile.full_name)}</h1>
-            <p className="text-muted-foreground">Welcome to Customer Dashboard</p>
-            <p className="text-sm text-muted-foreground mt-1">Manage your vehicles and bookings</p>
+            <div>
+              <h1 className="text-4xl font-bold">{getGreeting(profile.full_name)}</h1>
+              <p className="text-muted-foreground">Welcome to Customer Dashboard</p>
+              <p className="text-sm text-muted-foreground mt-1">Manage your vehicles and bookings</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="icon" onClick={() => navigate("/")}>
+                <Home className="h-5 w-5" />
+              </Button>
+              <Button onClick={() => navigate("/catalogue")}>Browse Catalogue</Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={() => navigate("/")}>
-              <Home className="h-5 w-5" />
-            </Button>
-            <Button onClick={() => navigate("/catalogue")}>Browse Catalogue</Button>
-          </div>
-          </div>
+
+          {/* Loyalty Badge */}
+          <CustomerLoyaltyBadge />
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -300,6 +305,8 @@ const CustomerDashboard = () => {
           </Tabs>
         </div>
       </main>
+      
+      <LiveChatWidget />
     </div>
   );
 };

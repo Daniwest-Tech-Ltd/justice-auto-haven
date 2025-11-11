@@ -105,6 +105,13 @@ const AdminCustomers = () => {
 
   const suspendCustomer = async (userId: string) => {
     try {
+      // Get user email first
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("user_id", userId)
+        .single();
+
       // Generate activation code
       const { data: codeData } = await supabase.rpc('generate_activation_code');
       const activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -121,9 +128,20 @@ const AdminCustomers = () => {
 
       if (error) throw error;
 
+      // Send suspension notification email
+      if (profile?.email) {
+        await supabase.functions.invoke('send-suspension-notification', {
+          body: {
+            email: profile.email,
+            reason: "Suspended by admin",
+            activationCode
+          }
+        });
+      }
+
       toast({
         title: "Customer Suspended",
-        description: `Activation code: ${activationCode}`,
+        description: `Activation code: ${activationCode}. Email notification sent.`,
       });
       fetchCustomers();
     } catch (error: any) {

@@ -3,10 +3,11 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Phone, Mail, MessageCircle, ArrowLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight, Phone, Mail, MessageCircle, ArrowLeft, Download } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useToast } from "@/hooks/use-toast";
 import { ReviewsSection } from "@/components/ReviewsSection";
+import { downloadImageWithWatermark } from "@/lib/watermark";
 
 interface Car {
   id: string;
@@ -114,6 +115,32 @@ const CarDetails = () => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const handleDownloadImage = async () => {
+    if (!car) return;
+    
+    const images = getImages(car.images);
+    const currentImage = images[currentImageIndex];
+    
+    try {
+      await downloadImageWithWatermark(
+        currentImage,
+        { make: car.make, model: car.model, year: car.year },
+        `${car.stock_id || car.id}_image_${currentImageIndex + 1}.jpg`
+      );
+      
+      toast({
+        title: "Image Downloaded",
+        description: "Image saved with Justice Ultimate Automobiles watermark",
+      });
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Could not download image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -177,6 +204,15 @@ const CarDetails = () => {
                     onClick={nextImage}
                   >
                     <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute bottom-4 right-4"
+                    onClick={handleDownloadImage}
+                    title="Download image with watermark"
+                  >
+                    <Download className="h-4 w-4" />
                   </Button>
                 </>
               )}

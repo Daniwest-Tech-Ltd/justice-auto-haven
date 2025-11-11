@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.generate-pdf-report]
 verify_jwt = false
+
+[functions.check-rate-limit]
+verify_jwt = false
+
+[functions.export-security-report]
+verify_jwt = false
