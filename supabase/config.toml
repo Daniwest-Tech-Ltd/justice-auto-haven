@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.send-smart-notifications]
 verify_jwt = false
+
+[functions.send-2fa-code]
+verify_jwt = false
+
+[functions.generate-sales-pdf]
+verify_jwt = false
+
+[functions.generate-pdf-report]
+verify_jwt = false

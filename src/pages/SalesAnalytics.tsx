@@ -26,6 +26,42 @@ const SalesAnalytics = () => {
     fetchAnalytics();
   }, []);
 
+  const downloadPDF = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.functions.invoke("generate-sales-pdf");
+      
+      if (error) throw error;
+      
+      // Decode base64 and create blob
+      const htmlContent = atob(data.pdfData);
+      const blob = new Blob([htmlContent], { type: "text/html" });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Success",
+        description: "Sales report downloaded successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchAnalytics = async () => {
     try {
       // Fetch sales data
@@ -99,14 +135,23 @@ const SalesAnalytics = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Button
-        variant="ghost"
-        onClick={() => navigate("/admin-dashboard")}
-        className="mb-6"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Dashboard
-      </Button>
+      <div className="flex items-center justify-between mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/admin-dashboard")}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Button>
+        
+        <Button
+          onClick={downloadPDF}
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Export to PDF
+        </Button>
+      </div>
 
       <h1 className="text-4xl font-bold mb-8">Sales Analytics</h1>
 

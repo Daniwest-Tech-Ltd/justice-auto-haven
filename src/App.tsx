@@ -60,6 +60,7 @@ const StaffPerformance = lazy(() => import("./pages/StaffPerformance"));
 const LiveAttendanceMonitor = lazy(() => import("./pages/LiveAttendanceMonitor"));
 const Compare = lazy(() => import("./pages/Compare"));
 const SalesForecasting = lazy(() => import("./pages/SalesForecasting"));
+const AISecurityDashboard = lazy(() => import("./pages/AISecurityDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -220,7 +221,15 @@ const AppContent = () => {
             } 
           />
           <Route 
-            path="/admin/rentals" 
+            path="/admin/security" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AISecurityDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/rentals"
             element={
               <ProtectedRoute requiredRole="admin">
                 <RentalsManagement />
