@@ -10,6 +10,8 @@ import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationsPanel from "@/components/NotificationsPanel";
+import { SessionTimeoutModal } from "@/components/SessionTimeoutModal";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,6 +19,7 @@ const AdminDashboard = () => {
   const { user, profile, role, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
 
   useEffect(() => {
     if (!loading && (!user || role?.role !== "admin")) {
@@ -89,6 +92,12 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen relative">
+      <SessionTimeoutModal
+        isOpen={showWarning}
+        timeLeft={timeLeft}
+        onExtend={extendSession}
+        onLogout={handleLogout}
+      />
       {/* Mobile Menu Button */}
       <Button
         variant="ghost"

@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Car, Calendar, User, Settings, Menu, X, LogOut, Award, Home } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { SessionTimeoutModal } from "@/components/SessionTimeoutModal";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
 
@@ -14,6 +16,7 @@ const CustomerDashboard = () => {
   const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
   const [wishlistCount, setWishlistCount] = useState(0);
   const [rentalsCount, setRentalsCount] = useState(0);
   const [purchasesCount, setPurchasesCount] = useState(0);
@@ -86,6 +89,12 @@ const CustomerDashboard = () => {
 
   return (
     <div className="min-h-screen relative">
+      <SessionTimeoutModal
+        isOpen={showWarning}
+        timeLeft={timeLeft}
+        onExtend={extendSession}
+        onLogout={handleLogout}
+      />
       {/* Mobile Menu Button */}
       <Button
         variant="ghost"
