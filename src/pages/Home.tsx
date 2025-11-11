@@ -116,10 +116,10 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen animate-fade-in">
       {/* Featured Cars Section - Just below header */}
       {featuredCars.length > 0 && (
-        <section className="bg-gradient-to-br from-primary/10 to-accent/10 py-8">
+        <section className="bg-gradient-to-br from-primary/10 to-accent/10 py-8 animate-fade-in">
           <div className="container mx-auto px-4">
             <div className="flex items-center gap-3 mb-6">
               <Star className="h-8 w-8 text-accent fill-accent" />
@@ -227,15 +227,15 @@ const Home = () => {
       {/* Search Section */}
       <section className="py-16 bg-secondary/30">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="max-w-5xl mx-auto space-y-6">
             <div className="text-center space-y-2">
               <h2 className="text-4xl font-bold">Find Your Dream Car</h2>
               <p className="text-muted-foreground">
                 Try "Toyota Harrier Hybrid under 100k km" or use filters below
               </p>
             </div>
-            <div className="grid md:grid-cols-4 gap-4">
-              <div className="md:col-span-2">
+            <div className="grid md:grid-cols-6 gap-4">
+              <div className="md:col-span-3">
                 <Input
                   placeholder="Search by make, model, or features..."
                   value={searchQuery}
@@ -246,7 +246,7 @@ const Home = () => {
               </div>
               <Select value={selectedBrand} onValueChange={setSelectedBrand}>
                 <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Select Brand" />
+                  <SelectValue placeholder="Brand" />
                 </SelectTrigger>
                 <SelectContent>
                   {brands.map((brand) => (
@@ -256,9 +256,21 @@ const Home = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <Select>
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015].map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button onClick={handleSearch} size="lg" className="h-12">
                 <Search className="mr-2 h-5 w-5" />
-                Search Vehicle
+                Search
               </Button>
             </div>
           </div>
@@ -470,11 +482,74 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Partners Section */}
+      {/* Testimonials Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Our Trusted Partners</h2>
-          <BrandMarquee />
+          <h2 className="text-4xl font-bold text-center mb-12">What Our Clients Say</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-accent text-accent" />
+                ))}
+              </div>
+              <p className="text-muted-foreground italic">
+                "Outstanding service! Justice Ultimate Automobiles helped me find the perfect Land Rover. 
+                The process was smooth, transparent, and professional from start to finish."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold">Sarah Mwangi</p>
+                  <p className="text-sm text-muted-foreground">Nairobi, Kenya</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-accent text-accent" />
+                ))}
+              </div>
+              <p className="text-muted-foreground italic">
+                "Best car dealership in Kenya! Got my Toyota Harrier at a great price with flexible payment options. 
+                The team is knowledgeable and genuinely cares about customer satisfaction."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold">James Kamau</p>
+                  <p className="text-sm text-muted-foreground">Mombasa, Kenya</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-accent text-accent" />
+                ))}
+              </div>
+              <p className="text-muted-foreground italic">
+                "Traded in my old car and upgraded to a BMW X5. The valuation was fair, 
+                and the entire exchange process was completed in one day. Highly recommended!"
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold">Grace Achieng</p>
+                  <p className="text-sm text-muted-foreground">Kisumu, Kenya</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
