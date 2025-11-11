@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Filter, CheckCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
 const NotificationsPanel = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [filter, setFilter] = useState<string>("all");
   const { user } = useAuth();
 
   useEffect(() => {
@@ -35,12 +37,20 @@ const NotificationsPanel = () => {
   }, [user]);
 
   const fetchNotifications = async () => {
-    const { data, error } = await supabase
+    let query = supabase
       .from("notifications")
       .select("*")
       .eq("user_id", user?.id)
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(50);
+
+    if (filter === "unread") {
+      query = query.eq("is_read", false);
+    } else if (filter !== "all") {
+      query = query.eq("type", filter);
+    }
+
+    const { data, error } = await query;
 
     if (!error && data) {
       setNotifications(data);
@@ -82,14 +92,33 @@ const NotificationsPanel = () => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-semibold">Notifications</h3>
-          {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={markAllAsRead}>
-              Mark all read
-            </Button>
-          )}
+      <PopoverContent className="w-96 p-0" align="end">
+        <div className="p-4 border-b space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold">Notifications</h3>
+            {unreadCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+                <CheckCheck className="mr-1 h-4 w-4" />
+                Mark all read
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="h-8 w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Notifications</SelectItem>
+                <SelectItem value="unread">Unread Only</SelectItem>
+                <SelectItem value="info">Info</SelectItem>
+                <SelectItem value="success">Success</SelectItem>
+                <SelectItem value="warning">Warning</SelectItem>
+                <SelectItem value="error">Error</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="max-h-[400px] overflow-y-auto">
           {notifications.length === 0 ? (
@@ -107,7 +136,15 @@ const NotificationsPanel = () => {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
-                    <p className="font-medium text-sm">{notification.title}</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-medium text-sm">{notification.title}</p>
+                      <Badge 
+                        variant={notification.type === "error" ? "destructive" : "secondary"}
+                        className="text-xs"
+                      >
+                        {notification.type}
+                      </Badge>
+                    </div>
                     <p className="text-sm text-muted-foreground mt-1">
                       {notification.message}
                     </p>

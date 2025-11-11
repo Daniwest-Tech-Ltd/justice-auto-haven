@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, TrendingUp, Users, Clock, Calendar } from "lucide-react";
+import { ArrowLeft, TrendingUp, Users, Clock, Calendar, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
+import * as XLSX from "xlsx";
 
 interface StaffMember {
   id: string;
@@ -167,6 +168,29 @@ const StaffPerformance = () => {
 
   totalStats.avgAttendance = performanceData.length > 0 ? totalStats.avgAttendance / performanceData.length : 0;
 
+  const exportToExcel = () => {
+    const exportData = performanceData.map(p => ({
+      Name: p.full_name,
+      "Total Days": p.total_days,
+      "Present Days": p.present_days,
+      "Absent Days": p.absent_days,
+      "Total Hours": p.total_hours.toFixed(2),
+      "Avg Hours/Day": p.avg_hours_per_day.toFixed(2),
+      "Total Activities": p.total_activities,
+      "Attendance Rate": p.total_days > 0 ? ((p.present_days / p.total_days) * 100).toFixed(1) + "%" : "0%",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Performance");
+    XLSX.writeFile(workbook, `staff_performance_${selectedMonth}_${selectedYear}.xlsx`);
+
+    toast({
+      title: "Export Successful",
+      description: "Performance data exported to Excel.",
+    });
+  };
+
   return (
     <div className="min-h-screen p-4 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -180,7 +204,13 @@ const StaffPerformance = () => {
               <p className="text-muted-foreground">Comprehensive analytics and insights</p>
             </div>
           </div>
-          <TrendingUp className="h-8 w-8 text-primary" />
+          <div className="flex items-center gap-4">
+            <Button onClick={exportToExcel}>
+              <Download className="mr-2 h-4 w-4" />
+              Export to Excel
+            </Button>
+            <TrendingUp className="h-8 w-8 text-primary" />
+          </div>
         </div>
 
         {/* Filters */}

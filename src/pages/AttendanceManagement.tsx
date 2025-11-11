@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
-import { ArrowLeft, Clock, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, XCircle, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import * as XLSX from "xlsx";
 
 const AttendanceManagement = () => {
   const [attendance, setAttendance] = useState<any[]>([]);
@@ -141,6 +142,31 @@ const AttendanceManagement = () => {
     return `${hours.toFixed(2)} hrs`;
   };
 
+  const exportToExcel = () => {
+    const exportData = staff.map((member) => {
+      const record = getAttendanceForStaff(member.id);
+      return {
+        Name: member.full_name,
+        Position: member.position,
+        Department: member.department,
+        Status: record?.status || "Not Recorded",
+        "Clock In": record?.clock_in ? new Date(record.clock_in).toLocaleTimeString() : "-",
+        "Clock Out": record?.clock_out ? new Date(record.clock_out).toLocaleTimeString() : "-",
+        Hours: record?.clock_in ? calculateHours(record.clock_in, record.clock_out) : "-",
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+    XLSX.writeFile(workbook, `attendance_${selectedDate.toISOString().split('T')[0]}.xlsx`);
+
+    toast({
+      title: "Export Successful",
+      description: "Attendance data exported to Excel.",
+    });
+  };
+
   return (
     <div className="min-h-screen p-4 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -174,7 +200,13 @@ const AttendanceManagement = () => {
 
           <Card className="lg:col-span-2 glass-strong">
             <CardHeader>
-              <CardTitle>Attendance for {selectedDate.toLocaleDateString()}</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Attendance for {selectedDate.toLocaleDateString()}</CardTitle>
+                <Button onClick={exportToExcel} size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export to Excel
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>

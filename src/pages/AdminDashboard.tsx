@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp } from "lucide-react";
+import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -159,6 +159,14 @@ const AdminDashboard = () => {
             >
               <BarChart3 className="h-5 w-5" />
               Activity Analytics
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/live-attendance")}
+            >
+              <Clock className="h-5 w-5" />
+              Live Attendance
             </Button>
             <Button 
               variant="ghost" 
