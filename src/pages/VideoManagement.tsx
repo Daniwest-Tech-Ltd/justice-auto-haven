@@ -47,6 +47,7 @@ const VideoManagement = () => {
   });
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [editingVideo, setEditingVideo] = useState<Video | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -99,23 +100,46 @@ const VideoManagement = () => {
         videoUrl = publicUrl;
       }
 
-      const { error } = await supabase
-        .from("videos")
-        .insert({
-          title: formData.title,
-          description: formData.description,
-          video_url: videoUrl,
-          video_type: formData.video_type,
-          is_published: formData.is_published,
-          category: formData.category || null,
+      if (editingVideo) {
+        // Update existing video
+        const { error } = await supabase
+          .from("videos")
+          .update({
+            title: formData.title,
+            description: formData.description,
+            video_url: videoUrl,
+            video_type: formData.video_type,
+            is_published: formData.is_published,
+            category: formData.category || null,
+          })
+          .eq("id", editingVideo.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Video updated successfully",
         });
+      } else {
+        // Create new video
+        const { error } = await supabase
+          .from("videos")
+          .insert({
+            title: formData.title,
+            description: formData.description,
+            video_url: videoUrl,
+            video_type: formData.video_type,
+            is_published: formData.is_published,
+            category: formData.category || null,
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Video added successfully",
-      });
+        toast({
+          title: "Success",
+          description: "Video added successfully",
+        });
+      }
 
       setFormData({
         title: "",
@@ -126,6 +150,7 @@ const VideoManagement = () => {
         category: "",
       });
       setVideoFile(null);
+      setEditingVideo(null);
       setShowForm(false);
       fetchVideos();
     } catch (error: any) {
@@ -137,6 +162,19 @@ const VideoManagement = () => {
     } finally {
       setUploadingVideo(false);
     }
+  };
+
+  const handleEdit = (video: Video) => {
+    setEditingVideo(video);
+    setFormData({
+      title: video.title,
+      description: video.description || "",
+      video_url: video.video_url,
+      video_type: video.video_type as "youtube" | "tiktok" | "upload",
+      is_published: video.is_published,
+      category: video.category || "",
+    });
+    setShowForm(true);
   };
 
   const deleteVideo = async (id: string, videoUrl: string) => {
@@ -209,17 +247,28 @@ const VideoManagement = () => {
           <Button onClick={() => navigate("/admin/blogs")}>
             Manage Blogs
           </Button>
-          <Button onClick={() => setShowForm(!showForm)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Video
-          </Button>
+        <Button onClick={() => {
+          setEditingVideo(null);
+          setFormData({
+            title: "",
+            description: "",
+            video_url: "",
+            video_type: "youtube",
+            is_published: true,
+            category: "",
+          });
+          setShowForm(!showForm);
+        }}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Video
+        </Button>
         </div>
       </div>
 
       {showForm && (
         <Card className="glass-strong mb-6">
           <CardHeader>
-            <CardTitle>Add New Video</CardTitle>
+            <CardTitle>{editingVideo ? "Edit Video" : "Add New Video"}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -301,10 +350,13 @@ const VideoManagement = () => {
 
               <div className="flex gap-2">
                 <Button type="submit" disabled={uploadingVideo} className="flex-1">
-                  <Plus className="mr-2 h-4 w-4" />
-                  {uploadingVideo ? "Uploading..." : "Add Video"}
+                  {editingVideo ? <Edit className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+                  {uploadingVideo ? "Uploading..." : editingVideo ? "Update Video" : "Add Video"}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+                <Button type="button" variant="outline" onClick={() => {
+                  setShowForm(false);
+                  setEditingVideo(null);
+                }}>
                   Cancel
                 </Button>
               </div>
@@ -343,7 +395,13 @@ const VideoManagement = () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-1"
+                  onClick={() => handleEdit(video)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
                   onClick={() => togglePublish(video.id, video.is_published)}
                 >
                   {video.is_published ? "Unpublish" : "Publish"}

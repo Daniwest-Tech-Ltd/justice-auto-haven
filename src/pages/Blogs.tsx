@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, ExternalLink } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar, User, ExternalLink, Share2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import LoadingScreen from "@/components/LoadingScreen";
 
 interface Blog {
@@ -21,6 +24,9 @@ interface Blog {
 const Blogs = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBlogs();
@@ -110,7 +116,37 @@ const Blogs = () => {
                   </div>
                 )}
 
-                <Button className="w-full">Read More →</Button>
+                <div className="flex gap-2">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="flex-1" onClick={() => setSelectedBlog(blog)}>Read More →</Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>{blog.title}</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        {blog.featured_image && (
+                          <img src={blog.featured_image} alt={blog.title} className="w-full rounded-lg" />
+                        )}
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <p className="whitespace-pre-wrap">{blog.content}</p>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      const shareUrl = `${window.location.origin}/blogs`;
+                      navigator.clipboard.writeText(shareUrl);
+                      toast({ title: "Share link copied to clipboard!" });
+                    }}
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}

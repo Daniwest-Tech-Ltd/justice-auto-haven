@@ -162,11 +162,25 @@ const Videos = () => {
               </div>
 
               {/* Content */}
-              <div className="p-6">
+              <div className="p-6 space-y-4">
                 <h3 className="text-xl font-bold mb-2">{video.title}</h3>
                 {video.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">{video.description}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-3">{video.description}</p>
                 )}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      const shareUrl = `${window.location.origin}/videos`;
+                      navigator.clipboard.writeText(shareUrl);
+                      alert("Share link copied to clipboard!");
+                    }}
+                  >
+                    Share
+                  </Button>
+                </div>
               </div>
             </div>
           ))}

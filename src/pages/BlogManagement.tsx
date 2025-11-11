@@ -24,6 +24,7 @@ const BlogManagement = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     excerpt: "",
@@ -83,20 +84,39 @@ const BlogManagement = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { error } = await supabase
-        .from("blogs")
-        .insert([{
-          ...formData,
-          author_id: session.user.id,
-          published_at: formData.is_published ? new Date().toISOString() : null,
-        }]);
+      if (editingBlog) {
+        // Update existing blog
+        const { error } = await supabase
+          .from("blogs")
+          .update({
+            ...formData,
+            published_at: formData.is_published ? new Date().toISOString() : null,
+          })
+          .eq("id", editingBlog.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Blog post created successfully",
-      });
+        toast({
+          title: "Success",
+          description: "Blog post updated successfully",
+        });
+      } else {
+        // Create new blog
+        const { error } = await supabase
+          .from("blogs")
+          .insert([{
+            ...formData,
+            author_id: session.user.id,
+            published_at: formData.is_published ? new Date().toISOString() : null,
+          }]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Blog post created successfully",
+        });
+      }
 
       setFormData({
         title: "",
@@ -106,6 +126,7 @@ const BlogManagement = () => {
         links: [],
         is_published: true,
       });
+      setEditingBlog(null);
       setShowForm(false);
       fetchBlogs();
     } catch (error: any) {
@@ -115,6 +136,19 @@ const BlogManagement = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleEdit = (blog: Blog) => {
+    setEditingBlog(blog);
+    setFormData({
+      title: blog.title,
+      excerpt: blog.excerpt || "",
+      content: blog.content,
+      featured_image: blog.featured_image || "",
+      links: Array.isArray(blog.links) ? blog.links : [],
+      is_published: blog.is_published,
+    });
+    setShowForm(true);
   };
 
   const deleteBlog = async (id: string) => {
@@ -178,7 +212,18 @@ const BlogManagement = () => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Videos
         </Button>
-        <Button onClick={() => setShowForm(!showForm)}>
+        <Button onClick={() => {
+          setEditingBlog(null);
+          setFormData({
+            title: "",
+            excerpt: "",
+            content: "",
+            featured_image: "",
+            links: [],
+            is_published: true,
+          });
+          setShowForm(!showForm);
+        }}>
           <Plus className="mr-2 h-4 w-4" />
           New Blog Post
         </Button>
@@ -187,7 +232,7 @@ const BlogManagement = () => {
       {showForm && (
         <Card className="glass-strong mb-6">
           <CardHeader>
-            <CardTitle>Create New Blog Post</CardTitle>
+            <CardTitle>{editingBlog ? "Edit Blog Post" : "Create New Blog Post"}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -266,8 +311,13 @@ const BlogManagement = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button type="submit" className="flex-1">Publish Blog Post</Button>
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+                <Button type="submit" className="flex-1">
+                  {editingBlog ? "Update Blog Post" : "Publish Blog Post"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => {
+                  setShowForm(false);
+                  setEditingBlog(null);
+                }}>
                   Cancel
                 </Button>
               </div>
@@ -291,14 +341,31 @@ const BlogManagement = () => {
                   {blog.excerpt}
                 </p>
               )}
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-1"
+                  onClick={() => handleEdit(blog)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
                   onClick={() => togglePublish(blog.id, blog.is_published)}
                 >
                   {blog.is_published ? "Unpublish" : "Publish"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/blogs`;
+                    navigator.clipboard.writeText(shareUrl);
+                    toast({ title: "Share link copied!" });
+                  }}
+                >
+                  Share
                 </Button>
                 <Button
                   size="sm"
