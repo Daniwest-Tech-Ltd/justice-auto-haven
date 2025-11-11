@@ -77,37 +77,113 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // First check if user profile exists and check suspension status
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle();
+
+      if (profileData?.is_suspended) {
+        setShowSuspendedModal(true);
+        setSuspensionReason(profileData.suspended_reason || "Account suspended");
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Track failed login attempt
+        if (profileData) {
+          const newAttempts = (profileData.login_attempts || 0) + 1;
+          
+          if (newAttempts >= 3) {
+            // Auto-suspend after 3 failed attempts
+            const { data: codeData } = await supabase.rpc('generate_activation_code');
+            const activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
+            
+            await supabase
+              .from("profiles")
+              .update({
+                is_suspended: true,
+                suspended_at: new Date().toISOString(),
+                suspended_reason: "Too many failed login attempts",
+                activation_code: activationCode,
+                login_attempts: newAttempts
+              })
+              .eq("user_id", profileData.user_id);
+
+            toast({
+              title: "Account Suspended",
+              description: "Too many failed login attempts. Contact admin for activation code.",
+              variant: "destructive",
+            });
+            setShowSuspendedModal(true);
+            setSuspensionReason("Too many failed login attempts");
+          } else {
+            await supabase
+              .from("profiles")
+              .update({ login_attempts: newAttempts, last_login_attempt: new Date().toISOString() })
+              .eq("user_id", profileData.user_id);
+            
+            toast({
+              title: "Login Failed",
+              description: `Invalid password. Attempt ${newAttempts} of 3.`,
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Login Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+        setLoading(false);
+        return;
+      }
 
       if (data.user) {
-        // Check user role with maybeSingle to avoid errors
-        const { data: roleData, error: roleError } = await supabase
+        // Update online status and reset login attempts
+        await supabase
+          .from("profiles")
+          .update({
+            is_online: true,
+            last_seen: new Date().toISOString(),
+            login_attempts: 0
+          })
+          .eq("user_id", data.user.id);
+
+        // Check user role
+        const { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", data.user.id)
           .maybeSingle();
 
-        console.log("Role data:", roleData);
-        console.log("User ID:", data.user.id);
+        // Get profile for name
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_id", data.user.id)
+          .single();
 
-        toast({
-          title: "Login Successful!",
-          description: "Welcome back to Justice Ultimate Automobiles",
+        sonnerToast.success(`Welcome back, ${profile?.full_name || "User"}! 🎉`, {
+          description: `Logged in as ${roleData?.role || "customer"}`,
         });
 
-        // Redirect based on role - wait a moment for state to update
+        // Redirect based on role
         setTimeout(() => {
           if (roleData && roleData.role === "admin") {
             navigate("/admin-dashboard");
           } else {
             navigate("/customer-dashboard");
           }
-        }, 100);
+        }, 500);
       }
     } catch (error: any) {
       toast({
@@ -492,6 +568,16 @@ const Auth = () => {
           </DialogHeader>
         </DialogContent>
       </Dialog>
+
+      {/* Suspended User Modal */}
+      <SuspendedUserModal 
+        isOpen={showSuspendedModal}
+        reason={suspensionReason}
+        onSuccess={() => {
+          setShowSuspendedModal(false);
+          sonnerToast.success("Account reactivated successfully! Please login again.");
+        }}
+      />
     </>
   );
 };

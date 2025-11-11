@@ -39,15 +39,31 @@ export const useSessionTimeout = () => {
   }, [resetTimer, sessionId]);
 
   const handleLogout = useCallback(async () => {
-    // Mark session as logged out
-    if (sessionId) {
-      await supabase
-        .from("sessions")
-        .update({ logout_at: new Date().toISOString() })
-        .eq("id", sessionId);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Mark user as offline
+      if (user) {
+        await supabase
+          .from("profiles")
+          .update({ is_online: false })
+          .eq("user_id", user.id);
+      }
+      
+      // Mark session as logged out
+      if (sessionId) {
+        await supabase
+          .from("sessions")
+          .update({ logout_at: new Date().toISOString() })
+          .eq("id", sessionId);
+      }
+      
+      await supabase.auth.signOut();
+      window.location.href = "/auth";
+    } catch (error) {
+      console.error("Logout error:", error);
+      window.location.href = "/auth";
     }
-    await supabase.auth.signOut();
-    window.location.href = "/auth";
   }, [sessionId]);
 
   // Initialize session tracking

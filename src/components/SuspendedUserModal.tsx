@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ShieldAlert, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 interface SuspendedUserModalProps {
   isOpen: boolean;
@@ -105,14 +106,22 @@ export const SuspendedUserModal = ({ isOpen, reason, onSuccess }: SuspendedUserM
           </Button>
         </form>
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-4">
-          <MessageCircle className="w-4 h-4" />
-          <span>
-            Don't have a code?{" "}
-            <a href="/contact" className="text-primary hover:underline">
-              Contact Support
-            </a>
-          </span>
+        <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground border-t pt-4">
+          <div className="flex items-center gap-2">
+            <MessageCircle className="w-4 h-4" />
+            <span>
+              Don't have a code?{" "}
+              <a href="/contact" className="text-primary hover:underline">
+                Contact Support
+              </a>
+            </span>
+          </div>
+          <div className="text-center">
+            <span>Or{" "}</span>
+            <Link to="/reset-password" className="text-primary hover:underline font-medium">
+              reset your password
+            </Link>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

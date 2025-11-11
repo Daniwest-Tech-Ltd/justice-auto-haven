@@ -611,7 +611,11 @@ export type Database = {
           full_name: string
           gender: string | null
           id: string
+          is_online: boolean | null
           is_suspended: boolean | null
+          last_login_attempt: string | null
+          last_seen: string | null
+          login_attempts: number | null
           phone: string
           preferred_contact: string | null
           suspended_at: string | null
@@ -628,7 +632,11 @@ export type Database = {
           full_name: string
           gender?: string | null
           id?: string
+          is_online?: boolean | null
           is_suspended?: boolean | null
+          last_login_attempt?: string | null
+          last_seen?: string | null
+          login_attempts?: number | null
           phone: string
           preferred_contact?: string | null
           suspended_at?: string | null
@@ -645,7 +653,11 @@ export type Database = {
           full_name?: string
           gender?: string | null
           id?: string
+          is_online?: boolean | null
           is_suspended?: boolean | null
+          last_login_attempt?: string | null
+          last_seen?: string | null
+          login_attempts?: number | null
           phone?: string
           preferred_contact?: string | null
           suspended_at?: string | null
@@ -1085,6 +1097,7 @@ export type Database = {
         Args: { attendance_date?: string }
         Returns: number
       }
+      generate_activation_code: { Args: never; Returns: string }
       generate_stock_id: { Args: never; Returns: string }
       has_role: {
         Args: {
