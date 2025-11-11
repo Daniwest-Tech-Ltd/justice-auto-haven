@@ -8,52 +8,54 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 220 25% 8%;
+    --background: 210 40% 4%;
     --foreground: 0 0% 98%;
 
-    --card: 220 20% 12%;
+    --card: 210 30% 8%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 220 20% 12%;
+    --popover: 210 30% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 210 100% 50%;
+    --primary: 210 100% 30%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 20%;
+    --secondary: 210 25% 15%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 15% 18%;
+    --muted: 210 20% 12%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 45 100% 55%;
-    --accent-foreground: 220 25% 8%;
+    --accent: 45 95% 50%;
+    --accent-foreground: 210 40% 4%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 22%;
-    --input: 220 15% 22%;
-    --ring: 210 100% 50%;
+    --border: 210 20% 20%;
+    --input: 210 20% 20%;
+    --ring: 45 95% 50%;
 
     --radius: 0.5rem;
 
-    --gradient-hero: linear-gradient(135deg, hsl(220 25% 8%), hsl(220 20% 12%), hsl(210 30% 15%));
-    --gradient-accent: linear-gradient(90deg, hsl(210 100% 50%), hsl(200 100% 60%));
-    --gradient-auth: linear-gradient(135deg, hsl(200 100% 60%), hsl(210 100% 50%));
-    --shadow-glow: 0 0 60px hsl(210 100% 50% / 0.3);
+    --gradient-hero: linear-gradient(135deg, hsl(210 40% 4%), hsl(210 30% 8%), hsl(210 25% 12%));
+    --gradient-accent: linear-gradient(90deg, hsl(210 100% 30%), hsl(45 95% 50%));
+    --gradient-gold: linear-gradient(135deg, hsl(45 95% 50%), hsl(40 90% 55%));
+    --gradient-auth: linear-gradient(135deg, hsl(210 100% 30%), hsl(210 80% 40%));
+    --shadow-glow: 0 0 60px hsl(45 95% 50% / 0.3);
+    --shadow-blue: 0 0 40px hsl(210 100% 30% / 0.4);
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    --glass-bg: hsl(220 20% 12% / 0.6);
-    --glass-border: hsl(0 0% 100% / 0.1);
+    --glass-bg: hsl(210 30% 8% / 0.7);
+    --glass-border: hsl(45 95% 50% / 0.2);
 
-    --sidebar-background: 220 20% 10%;
+    --sidebar-background: 210 35% 6%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 210 100% 50%;
+    --sidebar-primary: 210 100% 30%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent: 210 25% 12%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 15% 22%;
-    --sidebar-ring: 210 100% 50%;
+    --sidebar-border: 210 20% 20%;
+    --sidebar-ring: 45 95% 50%;
   }
 
   .light {
@@ -87,33 +89,33 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 220 25% 8%;
+    --background: 210 40% 4%;
     --foreground: 0 0% 98%;
-    --card: 220 20% 12%;
+    --card: 210 30% 8%;
     --card-foreground: 0 0% 98%;
-    --popover: 220 20% 12%;
+    --popover: 210 30% 8%;
     --popover-foreground: 0 0% 98%;
-    --primary: 210 100% 50%;
+    --primary: 210 100% 30%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 15% 20%;
+    --secondary: 210 25% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 220 15% 18%;
+    --muted: 210 20% 12%;
     --muted-foreground: 0 0% 65%;
-    --accent: 45 100% 55%;
-    --accent-foreground: 220 25% 8%;
+    --accent: 45 95% 50%;
+    --accent-foreground: 210 40% 4%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 22%;
-    --input: 220 15% 22%;
-    --ring: 210 100% 50%;
-    --sidebar-background: 220 20% 10%;
+    --border: 210 20% 20%;
+    --input: 210 20% 20%;
+    --ring: 45 95% 50%;
+    --sidebar-background: 210 35% 6%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 210 100% 50%;
+    --sidebar-primary: 210 100% 30%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent: 210 25% 12%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 15% 22%;
-    --sidebar-ring: 210 100% 50%;
+    --sidebar-border: 210 20% 20%;
+    --sidebar-ring: 45 95% 50%;
   }
 }
 
@@ -156,4 +158,35 @@ All colors MUST be HSL.
 
 .animate-marquee {
   animation: marquee 30s linear infinite;
+}
+
+/* Flip Card Animation */
+.flip-card {
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
 }

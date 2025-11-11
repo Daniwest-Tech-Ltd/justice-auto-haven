@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -35,14 +35,15 @@ interface Brand {
 }
 
 const Catalogue = () => {
+  const [searchParams] = useSearchParams();
   const [cars, setCars] = useState<Car[]>([]);
   const [filteredCars, setFilteredCars] = useState<Car[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [loading, setLoading] = useState(true);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [filters, setFilters] = useState({
-    brand: "all",
+    brand: searchParams.get("brand") || "all",
     year: "all",
     availability: "all",
     fuelType: "all",
