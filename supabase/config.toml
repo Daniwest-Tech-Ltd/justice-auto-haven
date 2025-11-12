@@ -32,3 +32,7 @@ verify_jwt = false
 
 [functions.export-security-report]
 verify_jwt = false
+
+[functions.send-order-notification]
+verify_jwt = false
+

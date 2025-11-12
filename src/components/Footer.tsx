@@ -163,6 +163,14 @@ const Footer = () => {
                   Help & Support
                 </Link>
               </li>
+              <li>
+                <Link 
+                  to="/track-order" 
+                  className="text-muted-foreground hover:text-accent transition-colors"
+                >
+                  Track VIP Order ⏳
+                </Link>
+              </li>
             </ul>
           </div>
 

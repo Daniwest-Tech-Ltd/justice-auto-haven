@@ -347,101 +347,78 @@ const Catalogue = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentItems.map((car) => {
-                const images = getImages(car.images);
+                const images = getImages(car);
                 const brandLogo = getBrandLogo(car.make);
                 
                 return (
-                  <div key={car.id} className="group [perspective:1000px] h-[480px]">
-                    <div className="relative w-full h-full transition-all duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-                      {/* Front of card */}
-                      <Link
-                        to={`/car/${car.stock_id || car.id}`}
-                        className="absolute inset-0 glass-strong rounded-lg overflow-hidden [backface-visibility:hidden] flex flex-col"
+                  <Link
+                    key={car.id}
+                    to={`/car/${car.stock_id || car.id}`}
+                    className="glass-strong rounded-lg overflow-hidden flex flex-col hover:scale-[1.02] transition-transform"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <img
+                        src={images[0] || "/placeholder.svg"}
+                        alt={`${car.make} ${car.model}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      <Badge className="absolute top-2 left-2 bg-primary">
+                        {car.year}
+                      </Badge>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="absolute top-2 right-2 z-10"
+                        onClick={(e) => toggleWishlist(e, car.id)}
                       >
-                        <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0">
-                          <img
-                            src={images[0] || "/placeholder.svg"}
-                            alt={`${car.make} ${car.model}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <Badge className="absolute top-2 left-2 bg-primary">
-                            {car.year}
-                          </Badge>
-                          <Button
-                            size="icon"
-                            variant="secondary"
-                            className="absolute top-2 right-2 z-10"
-                            onClick={(e) => toggleWishlist(e, car.id)}
-                          >
-                            <Heart
-                              className={`h-4 w-4 ${
-                                wishlist.includes(car.id) ? "fill-red-500 text-red-500" : ""
-                              }`}
-                            />
-                          </Button>
-                          {brandLogo && (
-                            <div className="absolute bottom-2 left-2 bg-white/90 rounded p-1">
-                              <img src={brandLogo} alt={car.make} className="h-6 w-auto object-contain" />
-                            </div>
-                          )}
+                        <Heart
+                          className={`h-4 w-4 ${
+                            wishlist.includes(car.id) ? "fill-red-500 text-red-500" : ""
+                          }`}
+                        />
+                      </Button>
+                      {brandLogo && (
+                        <div className="absolute bottom-2 left-2 bg-white/90 rounded p-1">
+                          <img src={brandLogo} alt={car.make} className="h-6 w-auto object-contain" />
                         </div>
-                        <div className="p-4 flex-1 flex flex-col">
-                          <h3 className="font-bold text-lg mb-2 line-clamp-1">
-                            {car.make} {car.model}
-                          </h3>
-                          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-                            <span className="flex items-center gap-1">
-                              <Gauge className="h-4 w-4" />
-                              {car.mileage || "N/A"}
-                            </span>
-                            <span>•</span>
-                            <span className="uppercase">{car.fuel_type || "N/A"}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1">
-                              <SettingsIcon className="h-4 w-4" />
-                              {car.transmission || "N/A"}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between mt-auto">
-                            <p className="text-2xl font-bold text-primary">
-                              KSH {car.price.toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="border-t border-white/10 mt-4 pt-3">
-                            <Button variant="ghost" className="w-full justify-start gap-2 text-sm">
-                              <Car className="h-4 w-4 text-primary" />
-                              View Details
-                            </Button>
-                          </div>
-                        </div>
-                      </Link>
-
-                      {/* Back of card */}
-                      <Link
-                        to={`/car/${car.stock_id || car.id}`}
-                        className="absolute inset-0 glass-strong rounded-lg overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col"
-                      >
-                        <div className="relative aspect-[4/3] overflow-hidden flex-shrink-0">
-                          <img
-                            src={images[1] || images[0] || "/placeholder.svg"}
-                            alt={`${car.make} ${car.model} - Image 2`}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/50 to-transparent" />
-                        </div>
-                        <div className="p-6 flex-1 flex flex-col justify-end">
-                          <h3 className="font-bold text-xl mb-2">{car.make} {car.model}</h3>
-                          <p className="text-sm text-muted-foreground mb-2">Stock ID: {car.stock_id || "N/A"}</p>
-                          <div className="flex items-center gap-2 text-muted-foreground mb-4">
-                            <span className="text-xs">{car.color || "N/A"}</span>
-                            <span>•</span>
-                            <span className="text-xs">{car.engine || "N/A"}</span>
-                          </div>
-                          <Button className="w-full">View Full Details</Button>
-                        </div>
-                      </Link>
+                      )}
                     </div>
-                  </div>
+                    <div className="p-4 flex-1 flex flex-col">
+                      <h3 className="font-bold text-lg mb-2 line-clamp-1">
+                        {car.make} {car.model}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-2">Stock ID: {car.stock_id || "N/A"}</p>
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                        <span className="flex items-center gap-1">
+                          <Gauge className="h-4 w-4" />
+                          {car.mileage || "N/A"}
+                        </span>
+                        <span>•</span>
+                        <span className="uppercase">{car.fuel_type || "N/A"}</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <SettingsIcon className="h-4 w-4" />
+                          {car.transmission || "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                        <span className="text-xs">{car.color || "N/A"}</span>
+                        <span>•</span>
+                        <span className="text-xs">{car.engine || "N/A"}</span>
+                      </div>
+                      <div className="flex items-center justify-between mt-auto">
+                        <p className="text-2xl font-bold text-primary">
+                          KSH {car.price.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="border-t border-white/10 mt-4 pt-3">
+                        <Button variant="ghost" className="w-full justify-start gap-2 text-sm">
+                          <Car className="h-4 w-4 text-primary" />
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  </Link>
                 );
               })}
             </div>

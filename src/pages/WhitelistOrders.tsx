@@ -50,6 +50,16 @@ const WhitelistOrders = () => {
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
+      // Get order details first
+      const { data: orderData } = await supabase
+        .from("whitelist_orders")
+        .select("*")
+        .eq("id", orderId)
+        .single();
+
+      if (!orderData) throw new Error("Order not found");
+
+      // Update order status
       const { error } = await supabase
         .from("whitelist_orders")
         .update({
@@ -62,9 +72,30 @@ const WhitelistOrders = () => {
 
       if (error) throw error;
 
+      // Send automated email notification
+      if (["approved", "contacted", "closed"].includes(newStatus)) {
+        try {
+          await supabase.functions.invoke("send-order-notification", {
+            body: {
+              email: orderData.email,
+              phone: orderData.phone,
+              customerName: orderData.full_name,
+              carMake: orderData.car_make,
+              carModel: orderData.car_model,
+              carYear: orderData.car_year,
+              status: newStatus,
+              adminNotes: adminNotes[orderId] || null,
+            },
+          });
+        } catch (emailError) {
+          console.error("Email notification error:", emailError);
+          // Don't fail the whole operation if email fails
+        }
+      }
+
       toast({
         title: "Success",
-        description: `Order marked as ${newStatus}`,
+        description: `Order marked as ${newStatus}${["approved", "contacted", "closed"].includes(newStatus) ? " and customer notified via email" : ""}`,
       });
       fetchOrders();
       setExpandedOrder(null);
@@ -137,9 +168,14 @@ const WhitelistOrders = () => {
           </Button>
           <h1 className="text-3xl font-bold">VIP Whitelist Orders</h1>
         </div>
-        <Badge variant="outline" className="text-lg px-4 py-2">
-          {pendingCount} Pending
-        </Badge>
+        <div className="flex gap-2">
+          <Button onClick={() => navigate("/admin/vip-analytics")} variant="outline">
+            View Analytics
+          </Button>
+          <Badge variant="outline" className="text-lg px-4 py-2">
+            {pendingCount} Pending
+          </Badge>
+        </div>
       </div>
 
       <Card className="glass-strong">

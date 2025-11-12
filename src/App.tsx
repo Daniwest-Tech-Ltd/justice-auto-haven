@@ -62,6 +62,8 @@ const Compare = lazy(() => import("./pages/Compare"));
 const SalesForecasting = lazy(() => import("./pages/SalesForecasting"));
 const AISecurityDashboard = lazy(() => import("./pages/AISecurityDashboard"));
 const WhitelistOrders = lazy(() => import("./pages/WhitelistOrders"));
+const OrderTracking = lazy(() => import("./pages/OrderTracking"));
+const VIPAnalytics = lazy(() => import("./pages/VIPAnalytics"));
 
 const queryClient = new QueryClient();
 
@@ -113,6 +115,7 @@ const AppContent = () => {
           <Route path="/customer/messages" element={<CustomerMessages />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/compare" element={<Compare />} />
+          <Route path="/track-order" element={<OrderTracking />} />
           
           {/* Admin Analytics Routes */}
           <Route 
@@ -152,6 +155,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <WhitelistOrders />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/vip-analytics" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <VIPAnalytics />
               </ProtectedRoute>
             } 
           />
