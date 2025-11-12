@@ -1,73 +1,132 @@
-# Welcome to your Lovable project
+Justice Ultimate Automobiles System
+Overview
 
-## Project info
+Justice Ultimate Automobiles is a state-of-the-art automotive management and sales system designed for large-scale car dealerships.
+This repository contains the official system built by Daniwest Tech Sol, delivering a modern, secure, and professional platform to manage all aspects of a car dealership, including inventory, sales, payments, and customer interactions.
 
-**URL**: https://lovable.dev/projects/2c372f72-4053-4026-b52c-01cdc1810775
+For more information or professional support, contact:
+📞 0722827458 | 0701460110
 
-## How can I edit this code?
+Project URL
 
-There are several ways of editing your application.
+Access the live system here:
+https://justiceultimateautomobiles.com
 
-**Use Lovable**
+Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/2c372f72-4053-4026-b52c-01cdc1810775) and start prompting.
+This platform includes:
 
-Changes made via Lovable will be committed automatically to this repo.
+Complete vehicle inventory management
 
-**Use your preferred IDE**
+Sales and customer management
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Online payments integration
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Admin dashboard with real-time analytics
 
-Follow these steps:
+Secure login and multi-level access
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+Blog and content management system
+
+Professional video and media uploads
+
+Advanced reporting and notifications
+
+Mobile-responsive design
+
+Modern UI/UX powered by React and Tailwind CSS
+
+Technology Stack
+
+This project uses the following technologies:
+
+Vite – for a fast and optimized development environment
+
+TypeScript – for strong typing and maintainable code
+
+React – for building a responsive, interactive frontend
+
+Tailwind CSS – for a modern, flexible, and fully responsive UI
+
+shadcn-ui – for reusable UI components and design consistency
+
+Getting Started
+
+Follow these steps to set up the project locally:
+
+Prerequisites
+
+Make sure you have installed:
+
+Node.js & npm
+
+Git (for cloning the repository)
+
+Installation
+# Step 1: Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Step 2: Navigate to the project directory
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Step 3: Install project dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Your local server will now run with hot-reloading, allowing you to see changes instantly.
 
-**Use GitHub Codespaces**
+Editing the Project
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+You can edit the project using:
 
-## What technologies are used for this project?
+Your Preferred IDE – Open the project folder in VS Code, WebStorm, or any IDE of your choice.
 
-This project is built with:
+Direct File Editing – Navigate to the files you want to update and edit them. Changes can be committed and pushed to GitHub as usual.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Deployment
 
-## How can I deploy this project?
+To deploy the system:
 
-Simply open [Lovable](https://lovable.dev/projects/2c372f72-4053-4026-b52c-01cdc1810775) and click on Share -> Publish.
+Build the production-ready code:
 
-## Can I connect a custom domain to my Lovable project?
+npm run build
 
-Yes, you can!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Serve the build on your preferred hosting provider (Vercel, Netlify, AWS, etc.)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Configure your domain to point to the hosting provider (if applicable)
+
+Domain Integration
+
+The system is fully ready for a custom domain.
+To connect a domain:
+
+Configure your hosting provider to point to your domain.
+
+Ensure SSL/TLS is enabled for secure HTTPS access.
+
+Update environment variables if required for production.
+
+Contribution
+
+This project is developed and maintained by Daniwest Tech Sol.
+Contributions are currently restricted to internal development. For corporate inquiries, partnerships, or professional implementation, please contact the numbers above.
+
+Contact
+
+For business inquiries, support, or consultations:
+
+📞 0722827458
+📞 0701460110
+
+Email (optional): support@daniwesttechsol.com
+
+License
+
+This system is proprietary and owned by Justice Ultimate Automobiles.
+Unauthorized use or distribution is prohibited.
+
+✅ Developed by Daniwest Tech Sol – Delivering modern, scalable, and professional automotive management systems.
