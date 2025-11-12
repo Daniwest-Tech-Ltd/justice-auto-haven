@@ -3,14 +3,17 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Heart, Trash2, Gauge, Settings as SettingsIcon } from "lucide-react";
+import { ArrowLeft, Heart, Trash2, Gauge, Settings as SettingsIcon, ShoppingCart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import LoadingScreen from "@/components/LoadingScreen";
+import { OrderSubmissionModal } from "@/components/OrderSubmissionModal";
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -95,17 +98,43 @@ const Wishlist = () => {
     }
   };
 
-  const getImages = (images: any): string[] => {
-    if (!images) return [];
-    if (Array.isArray(images)) return images;
-    if (typeof images === "string") {
-      try {
-        return JSON.parse(images);
-      } catch {
-        return [images];
+  const getImages = (car: any): string[] => {
+    // Try new image structure first
+    if (car?.main_images) {
+      if (Array.isArray(car.main_images) && car.main_images.length > 0) {
+        return car.main_images;
+      }
+      if (typeof car.main_images === 'string') {
+        try {
+          const parsed = JSON.parse(car.main_images);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch {}
+      }
+    }
+
+    // Fallback to old images field
+    if (car?.images) {
+      if (Array.isArray(car.images)) return car.images;
+      if (typeof car.images === "string") {
+        try {
+          return JSON.parse(car.images);
+        } catch {
+          return [car.images];
+        }
       }
     }
     return [];
+  };
+
+  const handlePlaceOrder = (car: any) => {
+    setSelectedCar({
+      id: car.id,
+      make: car.make,
+      model: car.model,
+      year: car.year,
+      price: car.price,
+    });
+    setOrderModalOpen(true);
   };
 
   if (loading) return <LoadingScreen />;
@@ -150,7 +179,7 @@ const Wishlist = () => {
             const car = item.cars;
             if (!car) return null;
             
-            const images = getImages(car.images);
+            const images = getImages(car);
             return (
               <Card key={item.id} className="glass-strong overflow-hidden group">
                 <div className="relative aspect-[4/3]">
@@ -188,12 +217,22 @@ const Wishlist = () => {
                       {car.transmission || "N/A"}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-xl font-bold text-primary">
-                      KSH {car.price.toLocaleString()}
-                    </p>
-                    <Link to={`/car/${car.stock_id || car.id}`}>
-                      <Button size="sm">View Details</Button>
+                  <p className="text-xl font-bold text-primary mb-3">
+                    KSH {car.price.toLocaleString()}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handlePlaceOrder(car)}
+                      className="flex-1"
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      Place Order
+                    </Button>
+                    <Link to={`/car/${car.stock_id || car.id}`} className="flex-1">
+                      <Button size="sm" variant="outline" className="w-full">
+                        View Details
+                      </Button>
                     </Link>
                   </div>
                 </CardContent>
@@ -201,6 +240,14 @@ const Wishlist = () => {
             );
           })}
         </div>
+      )}
+
+      {selectedCar && (
+        <OrderSubmissionModal
+          open={orderModalOpen}
+          onOpenChange={setOrderModalOpen}
+          car={selectedCar}
+        />
       )}
     </div>
   );

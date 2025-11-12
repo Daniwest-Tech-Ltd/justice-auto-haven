@@ -61,6 +61,7 @@ const LiveAttendanceMonitor = lazy(() => import("./pages/LiveAttendanceMonitor")
 const Compare = lazy(() => import("./pages/Compare"));
 const SalesForecasting = lazy(() => import("./pages/SalesForecasting"));
 const AISecurityDashboard = lazy(() => import("./pages/AISecurityDashboard"));
+const WhitelistOrders = lazy(() => import("./pages/WhitelistOrders"));
 
 const queryClient = new QueryClient();
 
@@ -143,6 +144,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <LiveAttendanceMonitor />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/whitelist-orders" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <WhitelistOrders />
               </ProtectedRoute>
             } 
           />

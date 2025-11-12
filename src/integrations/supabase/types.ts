@@ -1173,6 +1173,71 @@ export type Database = {
         }
         Relationships: []
       }
+      whitelist_orders: {
+        Row: {
+          admin_notes: string | null
+          car_id: string
+          car_make: string
+          car_model: string
+          car_price: number
+          car_year: number
+          contact_method: string
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          car_id: string
+          car_make: string
+          car_model: string
+          car_price: number
+          car_year: number
+          contact_method: string
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          car_id?: string
+          car_make?: string
+          car_model?: string
+          car_price?: number
+          car_year?: number
+          contact_method?: string
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whitelist_orders_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wishlist: {
         Row: {
           car_id: string

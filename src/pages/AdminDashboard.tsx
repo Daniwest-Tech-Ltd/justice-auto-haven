@@ -32,6 +32,7 @@ const AdminDashboard = () => {
     activeCustomers: 0,
     monthlySales: 0,
     pendingOrders: 0,
+    whitelistOrders: 0,
   });
 
   useEffect(() => {
@@ -75,12 +76,14 @@ const AdminDashboard = () => {
     const { data: profilesData } = await supabase.from("profiles").select("*");
     const { data: salesData } = await supabase.from("sales").select("*");
     const { data: rentalsData } = await supabase.from("rentals").select("*").eq("status", "pending");
+    const { data: whitelistData } = await supabase.from("whitelist_orders").select("*").eq("status", "pending");
 
     setStats({
       totalVehicles: carsData?.length || 0,
       activeCustomers: profilesData?.length || 0,
       monthlySales: salesData?.reduce((sum, s) => sum + (typeof s.sale_price === 'string' ? parseFloat(s.sale_price) : s.sale_price), 0) || 0,
       pendingOrders: rentalsData?.length || 0,
+      whitelistOrders: whitelistData?.length || 0,
     });
   };
 
@@ -320,6 +323,21 @@ const AdminDashboard = () => {
               <CardContent>
                 <div className="text-3xl font-bold">{stats.pendingOrders}</div>
                 <p className="text-sm text-muted-foreground">Awaiting processing</p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="glass-strong cursor-pointer hover:border-primary transition-colors" 
+              onClick={() => navigate("/admin/whitelist-orders")}
+            >
+              <CardHeader>
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  VIP Orders ⏳
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stats.whitelistOrders}</div>
+                <p className="text-sm text-muted-foreground">Pending VIP orders</p>
               </CardContent>
             </Card>
           </div>
