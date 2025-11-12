@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Combobox } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Upload, X } from "lucide-react";
@@ -21,6 +22,7 @@ const EditCar = () => {
     make: "",
     model: "",
     year: new Date().getFullYear(),
+    month: "",
     price: 0,
     mileage: "",
     color: "",
@@ -33,8 +35,16 @@ const EditCar = () => {
     is_featured: false,
     is_rental: false,
   });
-  const [existingImages, setExistingImages] = useState<string[]>([]);
-  const [newImages, setNewImages] = useState<File[]>([]);
+  const [existingMainImages, setExistingMainImages] = useState<string[]>([]);
+  const [existingAdditionalImages, setExistingAdditionalImages] = useState<string[]>([]);
+  const [newMainImages, setNewMainImages] = useState<File[]>([]);
+  const [newAdditionalImages, setNewAdditionalImages] = useState<File[]>([]);
+
+  const fuelTypes = ["Petrol", "Diesel", "Hybrid", "Electric", "LPG", "CNG", "Flex Fuel"];
+  const transmissions = ["Manual", "Automatic", "Semi-Automatic", "CVT", "Dual-Clutch"];
+  const driveTypes = ["2WD", "FWD", "RWD", "4WD", "AWD"];
+  const colors = ["White", "Black", "Silver", "Grey", "Blue", "Red", "Green", "Yellow", "Orange", "Brown", "Beige", "Gold", "Purple", "Maroon", "Wine", "Pink"];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   useEffect(() => {
     if (id) {
@@ -57,6 +67,7 @@ const EditCar = () => {
           make: data.make || "",
           model: data.model || "",
           year: data.year || new Date().getFullYear(),
+          month: data.month || "",
           price: data.price || 0,
           mileage: data.mileage || "",
           color: data.color || "",
@@ -69,8 +80,14 @@ const EditCar = () => {
           is_featured: data.is_featured || false,
           is_rental: data.is_rental || false,
         });
-        const images = data.images as string[] | null;
-        setExistingImages(Array.isArray(images) ? images : []);
+        
+        // Load images from new structure, fallback to old
+        const mainImgs = data.main_images as string[] | null;
+        const additionalImgs = data.additional_images as string[] | null;
+        const oldImgs = data.images as string[] | null;
+        
+        setExistingMainImages(Array.isArray(mainImgs) && mainImgs.length > 0 ? mainImgs : (Array.isArray(oldImgs) ? oldImgs : []));
+        setExistingAdditionalImages(Array.isArray(additionalImgs) ? additionalImgs : []);
       }
     } catch (error: any) {
       toast({
@@ -83,28 +100,52 @@ const EditCar = () => {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const totalImages = existingImages.length + newImages.length + files.length;
+    const totalImages = existingMainImages.length + newMainImages.length + files.length;
 
-    if (totalImages > 6) {
+    if (totalImages > 8) {
       toast({
         title: "Error",
-        description: "Maximum 6 images allowed",
+        description: "Maximum 8 main images allowed",
         variant: "destructive",
       });
       return;
     }
 
-    setNewImages([...newImages, ...files]);
+    setNewMainImages([...newMainImages, ...files]);
   };
 
-  const removeExistingImage = (index: number) => {
-    setExistingImages(existingImages.filter((_, i) => i !== index));
+  const handleAdditionalImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const totalImages = existingAdditionalImages.length + newAdditionalImages.length + files.length;
+
+    if (totalImages > 4) {
+      toast({
+        title: "Error",
+        description: "Maximum 4 additional images allowed",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setNewAdditionalImages([...newAdditionalImages, ...files]);
   };
 
-  const removeNewImage = (index: number) => {
-    setNewImages(newImages.filter((_, i) => i !== index));
+  const removeExistingMainImage = (index: number) => {
+    setExistingMainImages(existingMainImages.filter((_, i) => i !== index));
+  };
+
+  const removeExistingAdditionalImage = (index: number) => {
+    setExistingAdditionalImages(existingAdditionalImages.filter((_, i) => i !== index));
+  };
+
+  const removeNewMainImage = (index: number) => {
+    setNewMainImages(newMainImages.filter((_, i) => i !== index));
+  };
+
+  const removeNewAdditionalImage = (index: number) => {
+    setNewAdditionalImages(newAdditionalImages.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,12 +153,13 @@ const EditCar = () => {
     setUploading(true);
 
     try {
-      let allImageUrls = [...existingImages];
+      let allMainImageUrls = [...existingMainImages];
+      let allAdditionalImageUrls = [...existingAdditionalImages];
 
-      // Upload new images
-      for (const file of newImages) {
+      // Upload new main images
+      for (const file of newMainImages) {
         const fileExt = file.name.split(".").pop();
-        const fileName = `${id}_${Date.now()}.${fileExt}`;
+        const fileName = `${id}_main_${Date.now()}.${fileExt}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from("car-images")
           .upload(fileName, file);
@@ -128,14 +170,33 @@ const EditCar = () => {
           .from("car-images")
           .getPublicUrl(uploadData.path);
 
-        allImageUrls.push(publicUrl);
+        allMainImageUrls.push(publicUrl);
+      }
+
+      // Upload new additional images
+      for (const file of newAdditionalImages) {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${id}_additional_${Date.now()}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("car-images")
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("car-images")
+          .getPublicUrl(uploadData.path);
+
+        allAdditionalImageUrls.push(publicUrl);
       }
 
       const { error: updateError } = await supabase
         .from("cars")
         .update({
           ...formData,
-          images: allImageUrls,
+          main_images: allMainImageUrls,
+          additional_images: allAdditionalImageUrls,
+          images: [...allMainImageUrls, ...allAdditionalImageUrls],
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
@@ -210,6 +271,22 @@ const EditCar = () => {
               </div>
 
               <div>
+                <Label htmlFor="month">Month</Label>
+                <Select value={formData.month} onValueChange={(value) => setFormData({ ...formData, month: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((month) => (
+                      <SelectItem key={month} value={month}>
+                        {month}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
                 <Label htmlFor="price">Price (KSh) *</Label>
                 <Input
                   id="price"
@@ -232,48 +309,49 @@ const EditCar = () => {
 
               <div>
                 <Label htmlFor="color">Color</Label>
-                <Input
-                  id="color"
+                <Combobox
+                  options={colors}
                   value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  onValueChange={(value) => setFormData({ ...formData, color: value })}
+                  placeholder="Select or type color"
+                  searchPlaceholder="Search color..."
+                  emptyMessage="No color found."
                 />
               </div>
 
               <div>
                 <Label htmlFor="fuel_type">Fuel Type</Label>
-                <Select value={formData.fuel_type} onValueChange={(value) => setFormData({ ...formData, fuel_type: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select fuel type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Petrol">Petrol</SelectItem>
-                    <SelectItem value="Diesel">Diesel</SelectItem>
-                    <SelectItem value="Hybrid">Hybrid</SelectItem>
-                    <SelectItem value="Electric">Electric</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  options={fuelTypes}
+                  value={formData.fuel_type}
+                  onValueChange={(value) => setFormData({ ...formData, fuel_type: value })}
+                  placeholder="Select or type fuel type"
+                  searchPlaceholder="Search fuel type..."
+                  emptyMessage="No fuel type found."
+                />
               </div>
 
               <div>
                 <Label htmlFor="transmission">Transmission</Label>
-                <Select value={formData.transmission} onValueChange={(value) => setFormData({ ...formData, transmission: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select transmission" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Automatic">Automatic</SelectItem>
-                    <SelectItem value="Manual">Manual</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  options={transmissions}
+                  value={formData.transmission}
+                  onValueChange={(value) => setFormData({ ...formData, transmission: value })}
+                  placeholder="Select or type transmission"
+                  searchPlaceholder="Search transmission..."
+                  emptyMessage="No transmission found."
+                />
               </div>
 
               <div>
                 <Label htmlFor="drive_type">Drive Type</Label>
-                <Input
-                  id="drive_type"
+                <Combobox
+                  options={driveTypes}
                   value={formData.drive_type}
-                  onChange={(e) => setFormData({ ...formData, drive_type: e.target.value })}
-                  placeholder="e.g., 4WD, FWD, RWD"
+                  onValueChange={(value) => setFormData({ ...formData, drive_type: value })}
+                  placeholder="Select or type drive type"
+                  searchPlaceholder="Search drive type..."
+                  emptyMessage="No drive type found."
                 />
               </div>
 
@@ -312,17 +390,17 @@ const EditCar = () => {
             </div>
 
             <div>
-              <Label>Current Images</Label>
+              <Label>Main Images (Up to 8)</Label>
               <div className="grid grid-cols-3 gap-4 mt-2">
-                {existingImages.map((url, index) => (
+                {existingMainImages.map((url, index) => (
                   <div key={index} className="relative">
-                    <img src={url} alt={`Car ${index + 1}`} className="w-full h-32 object-cover rounded" />
+                    <img src={url} alt={`Main ${index + 1}`} className="w-full h-32 object-cover rounded" />
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
                       className="absolute top-2 right-2"
-                      onClick={() => removeExistingImage(index)}
+                      onClick={() => removeExistingMainImage(index)}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -331,15 +409,15 @@ const EditCar = () => {
               </div>
             </div>
 
-            {newImages.length > 0 && (
+            {newMainImages.length > 0 && (
               <div>
-                <Label>New Images to Upload</Label>
+                <Label>New Main Images to Upload</Label>
                 <div className="grid grid-cols-3 gap-4 mt-2">
-                  {newImages.map((file, index) => (
+                  {newMainImages.map((file, index) => (
                     <div key={index} className="relative">
                       <img
                         src={URL.createObjectURL(file)}
-                        alt={`New ${index + 1}`}
+                        alt={`New Main ${index + 1}`}
                         className="w-full h-32 object-cover rounded"
                       />
                       <Button
@@ -347,7 +425,7 @@ const EditCar = () => {
                         variant="destructive"
                         size="icon"
                         className="absolute top-2 right-2"
-                        onClick={() => removeNewImage(index)}
+                        onClick={() => removeNewMainImage(index)}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -357,16 +435,78 @@ const EditCar = () => {
               </div>
             )}
 
-            {existingImages.length + newImages.length < 6 && (
+            {existingMainImages.length + newMainImages.length < 8 && (
               <div>
-                <Label htmlFor="images">Add More Images (Max 6 total)</Label>
+                <Label htmlFor="main-images">Add More Main Images (Max 8 total)</Label>
                 <div className="mt-2">
                   <Input
-                    id="images"
+                    id="main-images"
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={handleImageUpload}
+                    onChange={handleMainImageUpload}
+                    className="cursor-pointer"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div>
+              <Label>Additional Images (Up to 4)</Label>
+              <div className="grid grid-cols-3 gap-4 mt-2">
+                {existingAdditionalImages.map((url, index) => (
+                  <div key={index} className="relative">
+                    <img src={url} alt={`Additional ${index + 1}`} className="w-full h-32 object-cover rounded" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => removeExistingAdditionalImage(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {newAdditionalImages.length > 0 && (
+              <div>
+                <Label>New Additional Images to Upload</Label>
+                <div className="grid grid-cols-3 gap-4 mt-2">
+                  {newAdditionalImages.map((file, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`New Additional ${index + 1}`}
+                        className="w-full h-32 object-cover rounded"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={() => removeNewAdditionalImage(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {existingAdditionalImages.length + newAdditionalImages.length < 4 && (
+              <div>
+                <Label htmlFor="additional-images">Add More Additional Images (Max 4 total)</Label>
+                <div className="mt-2">
+                  <Input
+                    id="additional-images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleAdditionalImageUpload}
                     className="cursor-pointer"
                   />
                 </div>

@@ -193,16 +193,33 @@ const Catalogue = () => {
     });
   };
 
-  const getImages = (images: any): string[] => {
-    if (!images) return [];
-    if (Array.isArray(images)) return images;
-    if (typeof images === "string") {
-      try {
-        return JSON.parse(images);
-      } catch {
-        return [images];
+  const getImages = (car: any): string[] => {
+    // Try new image structure first (main_images)
+    if (car.main_images) {
+      if (Array.isArray(car.main_images) && car.main_images.length > 0) {
+        return car.main_images;
+      }
+      if (typeof car.main_images === 'string') {
+        try {
+          const parsed = JSON.parse(car.main_images);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch {}
       }
     }
+
+    // Fallback to old images field
+    if (car.images) {
+      if (Array.isArray(car.images)) return car.images;
+      if (typeof car.images === 'string') {
+        try {
+          const parsed = JSON.parse(car.images);
+          return Array.isArray(parsed) ? parsed : [parsed];
+        } catch {
+          return [car.images];
+        }
+      }
+    }
+    
     return [];
   };
 

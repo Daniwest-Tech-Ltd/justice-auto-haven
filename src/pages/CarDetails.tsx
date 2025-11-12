@@ -92,33 +92,48 @@ const CarDetails = () => {
     }
   };
 
-  const getImages = (images: any): string[] => {
-    if (!images) return [];
-    if (Array.isArray(images)) return images;
-    if (typeof images === "string") {
-      try {
-        return JSON.parse(images);
-      } catch {
-        return [images];
+  const getImages = (car: any): string[] => {
+    // Try new image structure first
+    if (car?.main_images) {
+      if (Array.isArray(car.main_images) && car.main_images.length > 0) {
+        return car.main_images;
+      }
+      if (typeof car.main_images === 'string') {
+        try {
+          const parsed = JSON.parse(car.main_images);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch {}
+      }
+    }
+
+    // Fallback to old images field
+    if (car?.images) {
+      if (Array.isArray(car.images)) return car.images;
+      if (typeof car.images === "string") {
+        try {
+          return JSON.parse(car.images);
+        } catch {
+          return [car.images];
+        }
       }
     }
     return [];
   };
 
   const nextImage = () => {
-    const images = getImages(car?.images);
+    const images = getImages(car);
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
   };
 
   const prevImage = () => {
-    const images = getImages(car?.images);
+    const images = getImages(car);
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
   const handleDownloadImage = async () => {
     if (!car) return;
     
-    const images = getImages(car.images);
+    const images = getImages(car);
     const currentImage = images[currentImageIndex];
     
     try {
@@ -149,7 +164,7 @@ const CarDetails = () => {
     return null;
   }
 
-  const images = getImages(car.images);
+  const images = getImages(car);
   const currentImage = images[currentImageIndex] || "/placeholder.svg";
 
   return (
@@ -395,7 +410,7 @@ const CarDetails = () => {
                 >
                   <div className="aspect-[4/3] overflow-hidden">
                     <img
-                      src={getImages(similarCar.images)[0] || "/placeholder.svg"}
+                      src={getImages(similarCar)[0] || "/placeholder.svg"}
                       alt={`${similarCar.make} ${similarCar.model}`}
                       className="h-full w-full object-cover transition-transform group-hover:scale-110"
                     />

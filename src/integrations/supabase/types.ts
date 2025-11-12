@@ -243,6 +243,7 @@ export type Database = {
       }
       cars: {
         Row: {
+          additional_images: Json | null
           color: string | null
           created_at: string | null
           description: string | null
@@ -253,9 +254,11 @@ export type Database = {
           images: Json | null
           is_featured: boolean | null
           is_rental: boolean | null
+          main_images: Json | null
           make: string
           mileage: string | null
           model: string
+          month: string | null
           price: number
           status: string | null
           stock_id: string | null
@@ -264,6 +267,7 @@ export type Database = {
           year: number
         }
         Insert: {
+          additional_images?: Json | null
           color?: string | null
           created_at?: string | null
           description?: string | null
@@ -274,9 +278,11 @@ export type Database = {
           images?: Json | null
           is_featured?: boolean | null
           is_rental?: boolean | null
+          main_images?: Json | null
           make: string
           mileage?: string | null
           model: string
+          month?: string | null
           price: number
           status?: string | null
           stock_id?: string | null
@@ -285,6 +291,7 @@ export type Database = {
           year: number
         }
         Update: {
+          additional_images?: Json | null
           color?: string | null
           created_at?: string | null
           description?: string | null
@@ -295,9 +302,11 @@ export type Database = {
           images?: Json | null
           is_featured?: boolean | null
           is_rental?: boolean | null
+          main_images?: Json | null
           make?: string
           mileage?: string | null
           model?: string
+          month?: string | null
           price?: number
           status?: string | null
           stock_id?: string | null
