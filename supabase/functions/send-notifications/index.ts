@@ -77,7 +77,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "Justice Ultimate Automobiles <onboarding@resend.dev>",
+      from: "Justice Ultimate Automobiles <noreply@justiceultimateautomobiles.com>",
       to: [to],
       subject: subject,
       html: html,

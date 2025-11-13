@@ -45,7 +45,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Justice Ultimate Automobiles <onboarding@resend.dev>",
+        from: "Justice Ultimate Automobiles <noreply@justiceultimateautomobiles.com>",
         to: [email],
         subject: "Your 2FA Verification Code",
         html: `
@@ -65,7 +65,9 @@ serve(async (req) => {
     });
 
     if (!emailResponse.ok) {
-      throw new Error("Failed to send email");
+      const errorData = await emailResponse.text();
+      console.error("Resend API error:", emailResponse.status, errorData);
+      throw new Error(`Failed to send email: ${emailResponse.status} - ${errorData}`);
     }
 
     return new Response(

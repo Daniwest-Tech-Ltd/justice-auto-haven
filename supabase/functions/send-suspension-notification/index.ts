@@ -69,7 +69,7 @@ serve(async (req) => {
         Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
       },
       body: JSON.stringify({
-        from: "Justice Automobiles <onboarding@resend.dev>",
+        from: "Justice Ultimate Automobiles <noreply@justiceultimateautomobiles.com>",
         to: [email],
         subject: "⚠️ Account Suspension Notice",
         html: htmlContent,
