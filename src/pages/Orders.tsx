@@ -43,7 +43,7 @@ interface Order {
 
 const Orders = () => {
   const navigate = useNavigate();
-  const { user, role } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
@@ -74,6 +74,9 @@ const Orders = () => {
   });
 
   useEffect(() => {
+    // Wait for auth to load before checking role
+    if (authLoading) return;
+    
     if (role?.role !== "admin") {
       navigate("/admin-dashboard");
       return;
@@ -81,7 +84,7 @@ const Orders = () => {
     fetchOrders();
     const cleanup = setupRealtimeSubscription();
     return cleanup;
-  }, [role, navigate]);
+  }, [role, navigate, authLoading]);
 
   const playNotificationSound = () => {
     if (audioEnabled) {
@@ -419,7 +422,7 @@ const Orders = () => {
     }
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return <LoadingScreen />;
   }
 
