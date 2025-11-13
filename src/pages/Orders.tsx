@@ -8,12 +8,16 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Phone, MessageSquare, Mail, Send, CheckCircle, XCircle, Download } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { ArrowLeft, Phone, MessageSquare, Mail, Send, CheckCircle, XCircle, Download, Edit, Trash2, Volume2, VolumeX, Filter, Search } from "lucide-react";
 import { toast } from "sonner";
 import { usePagination } from "@/hooks/usePagination";
 import LoadingScreen from "@/components/LoadingScreen";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import logo from "@/assets/logo.png";
 
 interface Order {
   id: string;
@@ -42,9 +46,25 @@ const Orders = () => {
   const [adminNotes, setAdminNotes] = useState<{ [key: string]: string }>({});
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
+
+  const filteredOrders = orders.filter(o => {
+    const matchesStatus = statusFilter === "all" || o.status === statusFilter;
+    const matchesSearch = !searchQuery || 
+      o.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.phone.includes(searchQuery) ||
+      o.car_make.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.car_model.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   const { currentItems, currentPage, totalPages, nextPage, prevPage, goToPage } = usePagination({
-    items: orders.filter(o => statusFilter === "all" || o.status === statusFilter),
+    items: filteredOrders,
     itemsPerPage: 10,
   });
 
@@ -54,8 +74,16 @@ const Orders = () => {
       return;
     }
     fetchOrders();
-    setupRealtimeSubscription();
+    const cleanup = setupRealtimeSubscription();
+    return cleanup;
   }, [role, navigate]);
+
+  const playNotificationSound = () => {
+    if (audioEnabled) {
+      const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZTR0NVKzn77BiFApLpdv1xnMpBSl+zPLaizsIGGS57OihUBELTKXh8bllHAU2jdXzzn0vBSF1xu/glEcOEmCz6OyrWBQLTqjh8L1lHQU7ktjyzn0vBSV7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBSZ7y/HdkEAJE1y06emsWRQLUKvl8bZjGwU5jtXzzn0vBQ==");
+      audio.play().catch(() => {});
+    }
+  };
 
   const setupRealtimeSubscription = () => {
     const channel = supabase
@@ -70,6 +98,7 @@ const Orders = () => {
         (payload) => {
           console.log('Order change detected:', payload);
           if (payload.eventType === 'INSERT') {
+            playNotificationSound();
             toast.success("New Order Received!", {
               description: `Order from ${(payload.new as Order).full_name}`,
             });
@@ -163,38 +192,69 @@ const Orders = () => {
     }
   };
 
-  const exportToPDF = () => {
-    const doc = new jsPDF();
-    const filteredOrders = statusFilter === "all" ? orders : orders.filter(o => o.status === statusFilter);
-    
-    doc.setFontSize(18);
-    doc.text("Orders Report", 14, 22);
-    doc.setFontSize(11);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30);
-    doc.text(`Total Orders: ${filteredOrders.length}`, 14, 36);
+  const exportToPDF = async () => {
+    try {
+      const doc = new jsPDF();
+      
+      // Add logo
+      const logoImg = new Image();
+      logoImg.src = logo;
+      await new Promise((resolve) => {
+        logoImg.onload = resolve;
+      });
+      doc.addImage(logoImg, 'PNG', 14, 10, 30, 15);
+      
+      // Header
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.text("JUSTICE ULTIMATE AUTOMOBILES", 50, 18);
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text("Orders Report", 50, 24);
+      
+      doc.setFontSize(10);
+      doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 32);
+      doc.text(`Total Orders: ${filteredOrders.length}`, 14, 38);
 
-    const tableData = filteredOrders.map(order => [
-      order.full_name,
-      `${order.car_make} ${order.car_model} (${order.car_year})`,
-      `KSh ${Number(order.car_price).toLocaleString()}`,
-      order.phone,
-      order.email,
-      order.contact_method,
-      order.status,
-      new Date(order.submitted_at).toLocaleDateString(),
-    ]);
+      const tableData = filteredOrders.map(order => [
+        order.full_name,
+        `${order.car_make} ${order.car_model} (${order.car_year})`,
+        `KSh ${Number(order.car_price).toLocaleString()}`,
+        order.phone,
+        order.email,
+        order.contact_method,
+        order.status,
+        new Date(order.submitted_at).toLocaleDateString(),
+      ]);
 
-    (doc as any).autoTable({
-      head: [['Customer', 'Vehicle', 'Price', 'Phone', 'Email', 'Contact', 'Status', 'Date']],
-      body: tableData,
-      startY: 45,
-      theme: 'grid',
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [59, 130, 246] },
-    });
+      (doc as any).autoTable({
+        head: [['Customer', 'Vehicle', 'Price', 'Phone', 'Email', 'Contact', 'Status', 'Date']],
+        body: tableData,
+        startY: 45,
+        theme: 'grid',
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [220, 38, 38] },
+      });
 
-    doc.save(`orders-report-${new Date().toISOString().split('T')[0]}.pdf`);
-    toast.success("PDF exported successfully!");
+      // Watermark on each page
+      const pageCount = (doc as any).internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(50);
+        doc.setTextColor(200, 200, 200);
+        doc.setFont("helvetica", "bold");
+        doc.text("JUSTICE ULTIMATE AUTOMOBILES", doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() / 2, {
+          align: "center",
+          angle: 45
+        });
+      }
+
+      doc.save(`orders-report-${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success("PDF exported successfully!");
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast.error("Failed to export PDF");
+    }
   };
 
   const handleContact = (order: Order) => {
@@ -241,6 +301,54 @@ const Orders = () => {
     }
   };
 
+  const handleEditOrder = (order: Order) => {
+    setEditingOrder(order);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingOrder) return;
+    
+    try {
+      const { error } = await supabase
+        .from("whitelist_orders")
+        .update({
+          full_name: editingOrder.full_name,
+          phone: editingOrder.phone,
+          email: editingOrder.email,
+          admin_notes: editingOrder.admin_notes,
+        })
+        .eq("id", editingOrder.id);
+
+      if (error) throw error;
+      
+      toast.success("Order updated successfully!");
+      setIsEditDialogOpen(false);
+      fetchOrders();
+    } catch (error: any) {
+      console.error("Error updating order:", error);
+      toast.error("Failed to update order");
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from("whitelist_orders")
+        .delete()
+        .eq("id", orderId);
+
+      if (error) throw error;
+      
+      toast.success("Order deleted successfully!");
+      setDeleteOrderId(null);
+      fetchOrders();
+    } catch (error: any) {
+      console.error("Error deleting order:", error);
+      toast.error("Failed to delete order");
+    }
+  };
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -268,18 +376,43 @@ const Orders = () => {
               </p>
             </div>
           </div>
-          <Button onClick={exportToPDF} className="gap-2">
-            <Download className="w-4 h-4" />
-            Export PDF
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setAudioEnabled(!audioEnabled)}
+              title={audioEnabled ? "Disable audio notifications" : "Enable audio notifications"}
+            >
+              {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </Button>
+            <Button onClick={exportToPDF} className="gap-2">
+              <Download className="w-4 h-4" />
+              Export PDF
+            </Button>
+          </div>
         </div>
 
-        {/* Filters and Bulk Actions */}
+        {/* Search and Filters */}
         <Card>
           <CardHeader>
-            <CardTitle>Filters & Bulk Actions</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="w-5 h-5" />
+              Search & Filters
+            </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-4">
+          <CardContent className="space-y-4">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name, email, phone, or vehicle..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-4">
             <div className="flex gap-2">
               <Button
                 variant={statusFilter === "all" ? "default" : "outline"}
@@ -334,6 +467,7 @@ const Orders = () => {
                 </Button>
               </div>
             )}
+            </div>
           </CardContent>
         </Card>
 
@@ -409,13 +543,29 @@ const Orders = () => {
                         {new Date(order.submitted_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
-                        >
-                          {expandedOrderId === order.id ? "Close" : "Review"}
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                          >
+                            {expandedOrderId === order.id ? "Close" : "Review"}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditOrder(order)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteOrderId(order.id)}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                     {expandedOrderId === order.id && (
@@ -498,6 +648,77 @@ const Orders = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit Order Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Order</DialogTitle>
+            <DialogDescription>Update order information</DialogDescription>
+          </DialogHeader>
+          {editingOrder && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Customer Name</label>
+                <Input
+                  value={editingOrder.full_name}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, full_name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Phone</label>
+                <Input
+                  value={editingOrder.phone}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, phone: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  type="email"
+                  value={editingOrder.email}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, email: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Admin Notes</label>
+                <Textarea
+                  value={editingOrder.admin_notes || ""}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, admin_notes: e.target.value })}
+                  placeholder="Internal notes..."
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteOrderId} onOpenChange={() => setDeleteOrderId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Order?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the order from the system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteOrderId && handleDeleteOrder(deleteOrderId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
