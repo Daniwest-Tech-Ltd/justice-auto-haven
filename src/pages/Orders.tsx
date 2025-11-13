@@ -11,13 +11,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Phone, MessageSquare, Mail, Send, CheckCircle, XCircle, Download, Edit, Trash2, Volume2, VolumeX, Filter, Search } from "lucide-react";
+import { ArrowLeft, Phone, MessageSquare, Mail, Send, CheckCircle, XCircle, Download, Edit, Trash2, Volume2, VolumeX, Filter, Search, Upload, FileDown, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { usePagination } from "@/hooks/usePagination";
 import LoadingScreen from "@/components/LoadingScreen";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import logo from "@/assets/logo.png";
+import { EmailTemplates } from "@/components/EmailTemplates";
+import { OrderAnalytics } from "@/components/OrderAnalytics";
+import { AutomatedFollowUp } from "@/components/AutomatedFollowUp";
+import * as XLSX from "xlsx";
 
 interface Order {
   id: string;
@@ -51,6 +55,7 @@ const Orders = () => {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"orders" | "analytics" | "templates" | "followup">("orders");
 
   const filteredOrders = orders.filter(o => {
     const matchesStatus = statusFilter === "all" || o.status === statusFilter;
@@ -257,6 +262,71 @@ const Orders = () => {
     }
   };
 
+  const exportToExcel = () => {
+    try {
+      const exportData = filteredOrders.map(order => ({
+        'Customer Name': order.full_name,
+        'Phone': order.phone,
+        'Email': order.email,
+        'Vehicle': `${order.car_make} ${order.car_model} (${order.car_year})`,
+        'Price': order.car_price,
+        'Contact Method': order.contact_method,
+        'Status': order.status,
+        'Submitted': new Date(order.submitted_at).toLocaleString(),
+        'Admin Notes': order.admin_notes || ''
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Orders");
+      XLSX.writeFile(wb, `orders-export-${new Date().toISOString().split('T')[0]}.xlsx`);
+      toast.success("Excel file exported successfully!");
+    } catch (error) {
+      console.error("Error exporting Excel:", error);
+      toast.error("Failed to export Excel file");
+    }
+  };
+
+  const handleImportExcel = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = e.target?.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        // Validate and insert data
+        for (const row of jsonData as any[]) {
+          await supabase.from('whitelist_orders').insert({
+            car_id: row['Car ID'], // User must provide this
+            car_make: row['Vehicle Make'],
+            car_model: row['Vehicle Model'],
+            car_year: row['Vehicle Year'],
+            car_price: row['Price'],
+            full_name: row['Customer Name'],
+            phone: row['Phone'],
+            email: row['Email'],
+            contact_method: row['Contact Method'] || 'email',
+            status: row['Status'] || 'pending',
+            admin_notes: row['Admin Notes'] || ''
+          });
+        }
+
+        toast.success("Orders imported successfully!");
+        fetchOrders();
+      } catch (error) {
+        console.error("Error importing Excel:", error);
+        toast.error("Failed to import Excel file");
+      }
+    };
+    reader.readAsBinaryString(file);
+  };
+
   const handleContact = (order: Order) => {
     const { contact_method, phone, email } = order;
     
@@ -385,6 +455,23 @@ const Orders = () => {
             >
               {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </Button>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleImportExcel}
+              className="hidden"
+              id="import-excel"
+            />
+            <Button variant="outline" asChild className="gap-2">
+              <label htmlFor="import-excel" className="cursor-pointer">
+                <Upload className="w-4 h-4" />
+                Import Excel
+              </label>
+            </Button>
+            <Button variant="outline" onClick={exportToExcel} className="gap-2">
+              <FileDown className="w-4 h-4" />
+              Export Excel
+            </Button>
             <Button onClick={exportToPDF} className="gap-2">
               <Download className="w-4 h-4" />
               Export PDF
@@ -392,6 +479,44 @@ const Orders = () => {
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="flex gap-2 border-b">
+          <Button
+            variant={activeTab === "orders" ? "default" : "ghost"}
+            onClick={() => setActiveTab("orders")}
+          >
+            Orders
+          </Button>
+          <Button
+            variant={activeTab === "analytics" ? "default" : "ghost"}
+            onClick={() => setActiveTab("analytics")}
+            className="gap-2"
+          >
+            <BarChart3 className="w-4 h-4" />
+            Analytics
+          </Button>
+          <Button
+            variant={activeTab === "templates" ? "default" : "ghost"}
+            onClick={() => setActiveTab("templates")}
+            className="gap-2"
+          >
+            <Mail className="w-4 h-4" />
+            Templates
+          </Button>
+          <Button
+            variant={activeTab === "followup" ? "default" : "ghost"}
+            onClick={() => setActiveTab("followup")}
+          >
+            Follow-up
+          </Button>
+        </div>
+
+        {activeTab === "analytics" && <OrderAnalytics />}
+        {activeTab === "templates" && <EmailTemplates />}
+        {activeTab === "followup" && <AutomatedFollowUp />}
+
+        {activeTab === "orders" && (
+          <>
         {/* Search and Filters */}
         <Card>
           <CardHeader>
@@ -647,6 +772,8 @@ const Orders = () => {
             )}
           </CardContent>
         </Card>
+          </>
+        )}
       </div>
 
       {/* Edit Order Dialog */}

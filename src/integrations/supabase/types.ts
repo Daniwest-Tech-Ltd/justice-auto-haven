@@ -483,6 +483,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_templates: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          name: string
+          subject: string
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          name: string
+          subject: string
+          template_type: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          name?: string
+          subject?: string
+          template_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       featured_cars: {
         Row: {
           car_id: string
@@ -514,6 +544,41 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      followup_rules: {
+        Row: {
+          created_at: string
+          days_after: number
+          enabled: boolean
+          id: string
+          status_filter: string
+          template_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          days_after: number
+          enabled?: boolean
+          id?: string
+          status_filter: string
+          template_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          days_after?: number
+          enabled?: boolean
+          id?: string
+          status_filter?: string
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followup_rules_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
             referencedColumns: ["id"]
           },
         ]
@@ -1285,6 +1350,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
       is_verified_buyer: {
         Args: { p_car_id: string; p_user_id: string }
         Returns: boolean
