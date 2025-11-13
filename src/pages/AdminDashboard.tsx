@@ -145,10 +145,10 @@ const AdminDashboard = () => {
             <Button 
               variant="ghost" 
               className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/whitelist-orders")}
+              onClick={() => navigate("/admin/orders")}
             >
               <Clock className="h-5 w-5" />
-              VIP Orders
+              Orders
             </Button>
             <Button 
               variant="ghost" 
@@ -315,16 +315,16 @@ const AdminDashboard = () => {
 
             <Card 
               className="glass-strong cursor-pointer hover:border-primary transition-colors" 
-              onClick={() => navigate("/admin/whitelist-orders")}
+              onClick={() => navigate("/admin/orders")}
             >
               <CardHeader>
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  VIP Orders ⏳
+                  Orders 📦
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{stats.whitelistOrders}</div>
-                <p className="text-sm text-muted-foreground">Pending VIP orders</p>
+                <p className="text-sm text-muted-foreground">Pending orders</p>
               </CardContent>
             </Card>
           </div>

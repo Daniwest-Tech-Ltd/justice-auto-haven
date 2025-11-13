@@ -61,8 +61,8 @@ const LiveAttendanceMonitor = lazy(() => import("./pages/LiveAttendanceMonitor")
 const Compare = lazy(() => import("./pages/Compare"));
 const SalesForecasting = lazy(() => import("./pages/SalesForecasting"));
 const AISecurityDashboard = lazy(() => import("./pages/AISecurityDashboard"));
-const WhitelistOrders = lazy(() => import("./pages/WhitelistOrders"));
-const OrderTracking = lazy(() => import("./pages/OrderTracking"));
+const Orders = lazy(() => import("./pages/Orders"));
+const CustomerOrderStatus = lazy(() => import("./pages/CustomerOrderStatus"));
 const VIPAnalytics = lazy(() => import("./pages/VIPAnalytics"));
 
 const queryClient = new QueryClient();
@@ -115,7 +115,7 @@ const AppContent = () => {
           <Route path="/customer/messages" element={<CustomerMessages />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/compare" element={<Compare />} />
-          <Route path="/track-order" element={<OrderTracking />} />
+          <Route path="/order-status" element={<CustomerOrderStatus />} />
           
           {/* Admin Analytics Routes */}
           <Route 
@@ -151,10 +151,10 @@ const AppContent = () => {
             } 
           />
           <Route 
-            path="/admin/whitelist-orders" 
+            path="/admin/orders" 
             element={
               <ProtectedRoute requiredRole="admin">
-                <WhitelistOrders />
+                <Orders />
               </ProtectedRoute>
             } 
           />
