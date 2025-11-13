@@ -64,6 +64,7 @@ const AISecurityDashboard = lazy(() => import("./pages/AISecurityDashboard"));
 const Orders = lazy(() => import("./pages/Orders"));
 const CustomerOrderStatus = lazy(() => import("./pages/CustomerOrderStatus"));
 const VIPAnalytics = lazy(() => import("./pages/VIPAnalytics"));
+const TrackOrder = lazy(() => import("./pages/TrackOrder"));
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,7 @@ const AppContent = () => {
           <Route path="/cookies" element={<Layout><CookiePolicy /></Layout>} />
           <Route path="/rental-booking" element={<Layout><RentalBooking /></Layout>} />
           <Route path="/trade-in" element={<Layout><TradeInSubmission /></Layout>} />
+          <Route path="/track-order" element={<Layout><TrackOrder /></Layout>} />
           
           {/* Car Details Route */}
           <Route path="/car/:id" element={<Layout><CarDetails /></Layout>} />

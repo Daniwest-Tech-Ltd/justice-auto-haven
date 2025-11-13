@@ -163,14 +163,6 @@ const Footer = () => {
                   Help & Support
                 </Link>
               </li>
-              <li>
-                <Link 
-                  to="/track-order" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Track VIP Order ⏳
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -219,6 +211,7 @@ const Footer = () => {
               <p>📍 Mpesi Lane 11, Westlands</p>
               <p>Nairobi, Kenya</p>
               <p>📞 +254 722 827 458</p>
+              <p className="text-xs italic mt-2 opacity-70">Powered By Daniwest Tech Sol</p>
             </div>
           </div>
         </div>
