@@ -31,7 +31,6 @@ const AdminDashboard = () => {
     totalVehicles: 0,
     activeCustomers: 0,
     monthlySales: 0,
-    pendingOrders: 0,
     whitelistOrders: 0,
   });
 
@@ -75,14 +74,12 @@ const AdminDashboard = () => {
     const { data: carsData } = await supabase.from("cars").select("*");
     const { data: profilesData } = await supabase.from("profiles").select("*");
     const { data: salesData } = await supabase.from("sales").select("*");
-    const { data: rentalsData } = await supabase.from("rentals").select("*").eq("status", "pending");
     const { data: whitelistData } = await supabase.from("whitelist_orders").select("*").eq("status", "pending");
 
     setStats({
       totalVehicles: carsData?.length || 0,
       activeCustomers: profilesData?.length || 0,
       monthlySales: salesData?.reduce((sum, s) => sum + (typeof s.sale_price === 'string' ? parseFloat(s.sale_price) : s.sale_price), 0) || 0,
-      pendingOrders: rentalsData?.length || 0,
       whitelistOrders: whitelistData?.length || 0,
     });
   };
@@ -132,9 +129,9 @@ const AdminDashboard = () => {
       >
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-8">Admin Dashboard</h2>
-          <nav className="space-y-2">
+          <nav className="space-y-2 overflow-y-auto max-h-[calc(100vh-200px)] pr-2">
             <Button variant="ghost" className="w-full justify-start gap-2">
-              <BarChart3 className="h-5 w-5" />
+              <Home className="h-5 w-5" />
               Overview
             </Button>
             <Button 
@@ -144,6 +141,14 @@ const AdminDashboard = () => {
             >
               <Car className="h-5 w-5" />
               Vehicles
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/whitelist-orders")}
+            >
+              <Clock className="h-5 w-5" />
+              VIP Orders
             </Button>
             <Button 
               variant="ghost" 
@@ -192,14 +197,6 @@ const AdminDashboard = () => {
             >
               <BarChart3 className="h-5 w-5" />
               Daily Reports
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/analytics")}
-            >
-              <BarChart3 className="h-5 w-5" />
-              Activity Analytics
             </Button>
             <Button 
               variant="ghost" 
@@ -313,16 +310,6 @@ const AdminDashboard = () => {
               <CardContent>
                 <div className="text-3xl font-bold">KSh {stats.monthlySales.toLocaleString()}</div>
                 <p className="text-sm text-muted-foreground">Total revenue</p>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-strong">
-              <CardHeader>
-                <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.pendingOrders}</div>
-                <p className="text-sm text-muted-foreground">Awaiting processing</p>
               </CardContent>
             </Card>
 
@@ -452,15 +439,9 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="glass p-4 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Total Revenue</p>
-                        <p className="text-2xl font-bold">KSh {stats.monthlySales.toLocaleString()}</p>
-                      </div>
-                      <div className="glass p-4 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Pending Orders</p>
-                        <p className="text-2xl font-bold">{stats.pendingOrders}</p>
-                      </div>
+                    <div className="glass p-4 rounded-lg">
+                      <p className="text-sm text-muted-foreground">Total Revenue</p>
+                      <p className="text-2xl font-bold">KSh {stats.monthlySales.toLocaleString()}</p>
                     </div>
                     <Button 
                       variant="outline" 
