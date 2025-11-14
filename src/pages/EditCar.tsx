@@ -81,8 +81,8 @@ const EditCar = () => {
           status: data.status || "available",
           is_featured: data.is_featured || false,
           is_rental: data.is_rental || false,
-          vin: data.vin || "",
-          vin_history: data.vin_history || "",
+          vin: (data as any).vin || "",
+          vin_history: (data as any).vin_history || "",
         });
         
         // Load images from new structure, fallback to old
