@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Car, Shield, Globe, Zap, Award, Users, Search, 
   TrendingUp, CheckCircle, Heart, ArrowRight, Star,
-  Clock, DollarSign, Settings, Phone
+  Clock, DollarSign, Settings, Phone, Gauge
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import BrandMarquee from "@/components/BrandMarquee";
@@ -34,14 +34,15 @@ const Home = () => {
   }, []);
 
   const fetchAllData = async () => {
-    // Fetch featured cars
-    const { data: featured } = await supabase
-      .from("featured_cars")
-      .select("*, cars(*)")
-      .eq("is_active", true)
+    // Fetch featured cars based on is_featured flag
+    const { data: featuredData } = await supabase
+      .from("cars")
+      .select("*")
+      .eq("is_featured", true)
+      .eq("status", "available")
       .order("created_at", { ascending: false })
-      .limit(3);
-    if (featured) setFeaturedCars(featured.map(f => f.cars));
+      .limit(6);
+    if (featuredData) setFeaturedCars(featuredData);
 
     // Fetch hero cars for slideshow (one from each category)
     const { data: luxury } = await supabase
@@ -276,6 +277,77 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Featured / Priority Cars Section */}
+      {featuredCars.length > 0 && (
+        <section className="py-16 bg-accent/5">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-2">Featured Vehicles</h2>
+              <p className="text-muted-foreground">Our handpicked selection of premium vehicles</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredCars.map((car) => {
+                const imageUrl = getImageUrl(car.images) || getImageUrl(car.main_images);
+                return (
+                  <Link 
+                    key={car.id} 
+                    to={`/car/${car.stock_id || car.id}`}
+                    className="flip-card h-96 cursor-pointer"
+                  >
+                    <div className="flip-card-inner">
+                      {/* Front */}
+                      <div className="flip-card-front relative">
+                        <img
+                          src={imageUrl || "/placeholder.svg"}
+                          alt={`${car.make} ${car.model}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
+                          <Badge className="absolute top-4 left-4 bg-accent text-accent-foreground">
+                            FEATURED
+                          </Badge>
+                          <h3 className="text-2xl font-bold text-white">{car.make} {car.model}</h3>
+                          <p className="text-white/80">{car.year}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Back */}
+                      <div className="flip-card-back glass-strong flex flex-col justify-between p-6">
+                        <div>
+                          <h3 className="text-2xl font-bold mb-4">{car.make} {car.model}</h3>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Car className="h-4 w-4 text-accent" />
+                              <span>{car.year} • {car.transmission || "N/A"}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Settings className="h-4 w-4 text-accent" />
+                              <span>{car.fuel_type || "N/A"} • {car.mileage || "N/A"} km</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Gauge className="h-4 w-4 text-accent" />
+                              <span>{car.engine || "N/A"}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="text-3xl font-bold text-accent">
+                            KSh {car.price?.toLocaleString()}
+                          </div>
+                          <Button className="w-full" size="lg">
+                            View Details <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Available Cars Section */}
       <section className="py-16">
