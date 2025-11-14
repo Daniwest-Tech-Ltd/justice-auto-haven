@@ -408,13 +408,13 @@ const Catalogue = () => {
                       </Badge>
                       
                       {/* Stock Status Badge - Centered at Top */}
-                      <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-10">
+                      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10">
                         {car.status === "sold" ? (
-                          <Badge className="bg-red-600 hover:bg-red-600 text-white text-base font-bold px-6 py-2 shadow-lg border-2 border-white">
+                          <Badge className="bg-red-600 hover:bg-red-600 text-white text-xs px-2 py-0.5">
                             Sold Out
                           </Badge>
                         ) : (
-                          <Badge className="bg-green-600 hover:bg-green-600 text-white text-base font-bold px-6 py-2 shadow-lg border-2 border-white">
+                          <Badge className="bg-green-600 hover:bg-green-600 text-white text-xs px-2 py-0.5">
                             In Stock
                           </Badge>
                         )}
