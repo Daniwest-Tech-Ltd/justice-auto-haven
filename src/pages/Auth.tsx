@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,6 +21,7 @@ import { SuspendedUserModal } from "@/components/SuspendedUserModal";
 import { useSecurityLogger } from "@/hooks/useSecurityLogger";
 import authBg from "@/assets/auth-bg.jpg";
 import carLotOverlay from "@/assets/car-lot-overlay.jpg";
+import kenyaLocations from "@/data/kenya-locations.json";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -49,6 +50,16 @@ const Auth = () => {
   const [countyCity, setCountyCity] = useState("");
   const [exactLocation, setExactLocation] = useState("");
   const [preferredContact, setPreferredContact] = useState("email");
+  const [availableTowns, setAvailableTowns] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Update available towns when county changes
+    if (countyCity) {
+      const county = kenyaLocations.counties.find((c: any) => c.name === countyCity);
+      setAvailableTowns(county?.towns || []);
+      setExactLocation(""); // Reset town when county changes
+    }
+  }, [countyCity]);
 
   // Password strength checker
   const checkPasswordStrength = (pwd: string) => {
@@ -505,21 +516,41 @@ const Auth = () => {
                 </div>
               </div>
 
-              <Input 
-                type="text" 
-                placeholder="County / City" 
-                className="w-full"
-                value={countyCity}
-                onChange={(e) => setCountyCity(e.target.value)}
-              />
+              <div className="w-full">
+                <Label className="text-sm mb-2">County</Label>
+                <Select value={countyCity} onValueChange={setCountyCity}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select County" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {kenyaLocations.counties.map((county: any) => (
+                      <SelectItem key={county.name} value={county.name}>
+                        {county.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               
-              <Input 
-                type="text" 
-                placeholder="Exact Location / Estate" 
-                className="w-full"
-                value={exactLocation}
-                onChange={(e) => setExactLocation(e.target.value)}
-              />
+              <div className="w-full">
+                <Label className="text-sm mb-2">Town / Location</Label>
+                <Select 
+                  value={exactLocation} 
+                  onValueChange={setExactLocation}
+                  disabled={!countyCity}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={countyCity ? "Select Town" : "First select a county"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTowns.map((town: string) => (
+                      <SelectItem key={town} value={town}>
+                        {town}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div className="w-full text-left space-y-2">
                 <Label className="text-sm">Preferred Contact Method</Label>

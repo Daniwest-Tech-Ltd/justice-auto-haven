@@ -5,14 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Save, User, Building, Mail, Phone } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
+import kenyaLocations from "@/data/kenya-locations.json";
 
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [profile, setProfile] = useState({
     full_name: "",
     email: "",
@@ -26,6 +29,14 @@ const AdminSettings = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    // Update available towns when county changes
+    if (profile.county_city) {
+      const county = kenyaLocations.counties.find((c: any) => c.name === profile.county_city);
+      setAvailableTowns(county?.towns || []);
+    }
+  }, [profile.county_city]);
 
   const fetchProfile = async () => {
     try {
@@ -159,21 +170,42 @@ const AdminSettings = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="county_city">County/City</Label>
-                  <Input
-                    id="county_city"
+                  <Label htmlFor="county_city">County</Label>
+                  <Select
                     value={profile.county_city}
-                    onChange={(e) => setProfile({ ...profile, county_city: e.target.value })}
-                  />
+                    onValueChange={(value) => setProfile({ ...profile, county_city: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select County" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {kenyaLocations.counties.map((county: any) => (
+                        <SelectItem key={county.name} value={county.name}>
+                          {county.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
-                  <Label htmlFor="exact_location">Exact Location</Label>
-                  <Input
-                    id="exact_location"
+                  <Label htmlFor="exact_location">Town / Location</Label>
+                  <Select
                     value={profile.exact_location}
-                    onChange={(e) => setProfile({ ...profile, exact_location: e.target.value })}
-                  />
+                    onValueChange={(value) => setProfile({ ...profile, exact_location: value })}
+                    disabled={!profile.county_city}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={profile.county_city ? "Select Town" : "First select a county"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableTowns.map((town: string) => (
+                        <SelectItem key={town} value={town}>
+                          {town}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Button onClick={handleSave} disabled={saving} className="w-full">
