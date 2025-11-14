@@ -50,6 +50,7 @@ const Catalogue = () => {
     fuelType: "all",
     priceRange: "all",
   });
+  const [stockFilter, setStockFilter] = useState<string>("all"); // "all", "in-stock", "sold-out"
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -66,7 +67,7 @@ const Catalogue = () => {
 
   useEffect(() => {
     filterCars();
-  }, [cars, searchQuery, filters]);
+  }, [cars, searchQuery, filters, stockFilter]);
 
   const fetchCars = async () => {
     try {
@@ -177,6 +178,13 @@ const Catalogue = () => {
       });
     }
 
+    // Stock filter
+    if (stockFilter === "in-stock") {
+      filtered = filtered.filter((car) => car.status !== "sold");
+    } else if (stockFilter === "sold-out") {
+      filtered = filtered.filter((car) => car.status === "sold");
+    }
+
     setFilteredCars(filtered);
     resetPagination();
   };
@@ -190,6 +198,7 @@ const Catalogue = () => {
       fuelType: "all",
       priceRange: "all",
     });
+    setStockFilter("all");
   };
 
   const getImages = (car: any): string[] => {
@@ -250,6 +259,39 @@ const Catalogue = () => {
 
         {/* Search and Filters */}
         <div className="glass-strong rounded-lg p-6 mb-8">
+          {/* Stock Status Filter Buttons */}
+          <div className="flex gap-3 mb-6">
+            <Button
+              variant={stockFilter === "all" ? "default" : "outline"}
+              onClick={() => setStockFilter("all")}
+              className="flex-1"
+            >
+              All Vehicles
+            </Button>
+            <Button
+              variant={stockFilter === "in-stock" ? "default" : "outline"}
+              onClick={() => setStockFilter("in-stock")}
+              className={`flex-1 ${
+                stockFilter === "in-stock"
+                  ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
+                  : "border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-950"
+              }`}
+            >
+              In Stock
+            </Button>
+            <Button
+              variant={stockFilter === "sold-out" ? "default" : "outline"}
+              onClick={() => setStockFilter("sold-out")}
+              className={`flex-1 ${
+                stockFilter === "sold-out"
+                  ? "bg-red-600 hover:bg-red-700 text-white border-red-600"
+                  : "border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+              }`}
+            >
+              Sold Out
+            </Button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             <div className="lg:col-span-2">
               <div className="relative">
@@ -320,7 +362,7 @@ const Catalogue = () => {
             </Select>
           </div>
 
-          {(searchQuery || filters.brand !== "all" || filters.year !== "all" || filters.fuelType !== "all" || filters.priceRange !== "all") && (
+          {(searchQuery || filters.brand !== "all" || filters.year !== "all" || filters.fuelType !== "all" || filters.priceRange !== "all" || stockFilter !== "all") && (
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
                 Showing {filteredCars.length} of {cars.length} vehicles
@@ -364,11 +406,20 @@ const Catalogue = () => {
                       <Badge className="absolute top-2 left-2 bg-primary">
                         {car.year}
                       </Badge>
-                      {car.status === "sold" && (
-                        <Badge className="absolute top-2 right-2 bg-red-600 text-white">
-                          SOLD OUT
-                        </Badge>
-                      )}
+                      
+                      {/* Stock Status Badge - Centered at Top */}
+                      <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-10">
+                        {car.status === "sold" ? (
+                          <Badge className="bg-red-600 hover:bg-red-600 text-white text-base font-bold px-6 py-2 shadow-lg border-2 border-white">
+                            Sold Out
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-green-600 hover:bg-green-600 text-white text-base font-bold px-6 py-2 shadow-lg border-2 border-white">
+                            In Stock
+                          </Badge>
+                        )}
+                      </div>
+
                       <Button
                         size="icon"
                         variant="secondary"
