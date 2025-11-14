@@ -118,65 +118,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen animate-fade-in">
-      {/* Featured Cars Section - Just below header */}
-      {featuredCars.length > 0 && (
-        <section className="bg-gradient-to-br from-primary/10 to-accent/10 py-8 animate-fade-in">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center gap-3 mb-6">
-              <Star className="h-8 w-8 text-accent fill-accent" />
-              <h2 className="text-3xl font-bold text-foreground">Featured Today</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredCars.map((car) => (
-                <Link 
-                  key={car.id} 
-                  to={`/car/${car.stock_id || car.id}`}
-                  className="flip-card h-80"
-                >
-                  <div className="flip-card-inner">
-                    <div className="flip-card-front bg-card border border-border rounded-xl overflow-hidden">
-                      <div className="h-48">
-                        {getImageUrl(car.images) ? (
-                          <img
-                            src={getImageUrl(car.images)}
-                            alt={`${car.make} ${car.model}`}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-muted flex items-center justify-center">
-                            <Car className="h-16 w-16 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <Badge className="bg-accent text-accent-foreground mb-2">⭐ Featured</Badge>
-                        <h3 className="text-xl font-bold">{car.make} {car.model}</h3>
-                        <p className="text-2xl text-primary font-bold mt-2">
-                          KSh {car.price?.toLocaleString() || 'N/A'}
-                        </p>
-                        <Button className="w-full mt-3" size="sm">
-                          View Details <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="flip-card-back bg-gradient-to-br from-primary to-accent p-6 flex flex-col justify-center items-center text-center text-primary-foreground">
-                      <CheckCircle className="h-12 w-12 mb-4" />
-                      <h4 className="text-xl font-bold mb-3">Why Choose Justice?</h4>
-                      <ul className="text-sm space-y-2 text-left">
-                        <li>✓ Verified & Inspected</li>
-                        <li>✓ Flexible Payment Plans</li>
-                        <li>✓ Premium Customer Service</li>
-                        <li>✓ Trusted Across Kenya</li>
-                      </ul>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Hero Section with Slideshow */}
       <section className="relative h-[600px] overflow-hidden">
         <div className="absolute inset-0">
