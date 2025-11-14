@@ -34,6 +34,8 @@ const AddCar = () => {
     color: "",
     stock_id: "",
     description: "",
+    vin: "",
+    vin_history: "",
   });
 
   const carBrands = [
@@ -169,6 +171,8 @@ const AddCar = () => {
             main_images: [],
             additional_images: [],
             images: [],
+            vin: formData.vin || null,
+            vin_history: formData.vin_history || null,
           },
         ])
         .select()
@@ -477,6 +481,34 @@ const AddCar = () => {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="vin">VIN (Vehicle Identification Number)</Label>
+              <Input
+                id="vin"
+                value={formData.vin}
+                onChange={(e) => setFormData({ ...formData, vin: e.target.value })}
+                placeholder="17-digit VIN"
+                maxLength={17}
+              />
+              <p className="text-xs text-muted-foreground">
+                Optional: Enter the 17-character Vehicle Identification Number
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="vin_history">Vehicle History</Label>
+              <Textarea
+                id="vin_history"
+                value={formData.vin_history}
+                onChange={(e) => setFormData({ ...formData, vin_history: e.target.value })}
+                rows={6}
+                placeholder="Enter vehicle history including: &#10;• Accident history&#10;• Import details&#10;• Mileage verification&#10;• Auction grade&#10;• Ownership records&#10;• Service history"
+              />
+              <p className="text-xs text-muted-foreground">
+                Optional: This information will be displayed to customers if provided
+              </p>
             </div>
           </CardContent>
         </Card>

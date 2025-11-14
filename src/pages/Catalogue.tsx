@@ -74,7 +74,6 @@ const Catalogue = () => {
       const { data, error } = await supabase
         .from("cars")
         .select("*")
-        .eq("status", "available")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -365,6 +364,11 @@ const Catalogue = () => {
                       <Badge className="absolute top-2 left-2 bg-primary">
                         {car.year}
                       </Badge>
+                      {car.status === "sold" && (
+                        <Badge className="absolute top-2 right-2 bg-red-600 text-white">
+                          SOLD OUT
+                        </Badge>
+                      )}
                       <Button
                         size="icon"
                         variant="secondary"

@@ -34,6 +34,8 @@ const EditCar = () => {
     status: "available",
     is_featured: false,
     is_rental: false,
+    vin: "",
+    vin_history: "",
   });
   const [existingMainImages, setExistingMainImages] = useState<string[]>([]);
   const [existingAdditionalImages, setExistingAdditionalImages] = useState<string[]>([]);
@@ -79,6 +81,8 @@ const EditCar = () => {
           status: data.status || "available",
           is_featured: data.is_featured || false,
           is_rental: data.is_rental || false,
+          vin: data.vin || "",
+          vin_history: data.vin_history || "",
         });
         
         // Load images from new structure, fallback to old
@@ -387,6 +391,34 @@ const EditCar = () => {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
               />
+            </div>
+
+            <div>
+              <Label htmlFor="vin">VIN (Vehicle Identification Number)</Label>
+              <Input
+                id="vin"
+                value={formData.vin}
+                onChange={(e) => setFormData({ ...formData, vin: e.target.value })}
+                placeholder="17-digit VIN"
+                maxLength={17}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Optional: Enter the 17-character Vehicle Identification Number
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="vin_history">Vehicle History</Label>
+              <Textarea
+                id="vin_history"
+                value={formData.vin_history}
+                onChange={(e) => setFormData({ ...formData, vin_history: e.target.value })}
+                rows={6}
+                placeholder="Enter vehicle history including: &#10;• Accident history&#10;• Import details&#10;• Mileage verification&#10;• Auction grade&#10;• Ownership records&#10;• Service history"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Optional: This information will be displayed to customers if provided
+              </p>
             </div>
 
             <div>
