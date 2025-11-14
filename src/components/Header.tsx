@@ -9,6 +9,14 @@ import { useToast } from "@/hooks/use-toast";
 import { LogoutConfirmModal } from "./LogoutConfirmModal";
 import { SessionTimeoutModal } from "./SessionTimeoutModal";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
+import { BusinessHours } from "./BusinessHours";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "./ui/drawer";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -168,6 +176,9 @@ const Header = () => {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
+            {/* Business Hours */}
+            <BusinessHours />
+            
             {/* Home Icon - Always visible */}
             <Button
               variant="ghost"
@@ -290,15 +301,29 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden pb-6 space-y-2 animate-fade-in">
+      </div>
+
+      {/* Mobile Drawer Menu */}
+      <Drawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <DrawerContent className="h-[80vh]">
+          <DrawerHeader className="border-b border-border">
+            <div className="flex items-center justify-between">
+              <DrawerTitle className="text-lg font-semibold">Menu</DrawerTitle>
+              <DrawerClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-5 w-5" />
+                </Button>
+              </DrawerClose>
+            </div>
+          </DrawerHeader>
+          
+          <div className="overflow-y-auto p-4 space-y-2">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3 rounded-md text-sm font-medium text-foreground/90 hover:bg-white/5 hover:text-primary transition-colors"
+                className="block px-4 py-3 rounded-md text-sm font-medium text-foreground/90 hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 {link.label}
               </Link>
@@ -314,7 +339,10 @@ const Header = () => {
                     </Button>
                   </Link>
                 )}
-                <Button variant="destructive" className="w-full mt-2" onClick={initiateLogout}>
+                <Button variant="destructive" className="w-full mt-2" onClick={() => {
+                  setMobileMenuOpen(false);
+                  initiateLogout();
+                }}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </Button>
@@ -328,8 +356,8 @@ const Header = () => {
               </Link>
             )}
           </div>
-        )}
-      </div>
+        </DrawerContent>
+      </Drawer>
     </header>
 
     {/* Session Timeout Modal */}
