@@ -9,12 +9,14 @@ import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import kenyaLocations from "@/data/kenya-locations.json";
 
 const CustomerProfile = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -34,8 +36,25 @@ const CustomerProfile = () => {
         gender: profile.gender || "",
         preferred_contact: profile.preferred_contact || "",
       });
+      
+      // Load towns for the existing county
+      if (profile.county_city) {
+        const county = kenyaLocations.counties.find((c: any) => c.name === profile.county_city);
+        setAvailableTowns(county?.towns || []);
+      }
     }
   }, [profile]);
+
+  useEffect(() => {
+    // Update available towns when county changes
+    if (formData.county_city) {
+      const county = kenyaLocations.counties.find((c: any) => c.name === formData.county_city);
+      setAvailableTowns(county?.towns || []);
+      if (formData.county_city !== profile?.county_city) {
+        setFormData(prev => ({ ...prev, exact_location: "" })); // Reset town when county changes
+      }
+    }
+  }, [formData.county_city]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,21 +124,42 @@ const CustomerProfile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="county_city">County/City</Label>
-                  <Input
-                    id="county_city"
+                  <Label htmlFor="county_city">County</Label>
+                  <Select
                     value={formData.county_city}
-                    onChange={(e) => setFormData({ ...formData, county_city: e.target.value })}
-                  />
+                    onValueChange={(value) => setFormData({ ...formData, county_city: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select County" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {kenyaLocations.counties.map((county: any) => (
+                        <SelectItem key={county.name} value={county.name}>
+                          {county.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="exact_location">Exact Location</Label>
-                  <Input
-                    id="exact_location"
+                  <Label htmlFor="exact_location">Town / Location</Label>
+                  <Select
                     value={formData.exact_location}
-                    onChange={(e) => setFormData({ ...formData, exact_location: e.target.value })}
-                  />
+                    onValueChange={(value) => setFormData({ ...formData, exact_location: value })}
+                    disabled={!formData.county_city}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={formData.county_city ? "Select Town" : "First select a county"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableTowns.map((town: string) => (
+                        <SelectItem key={town} value={town}>
+                          {town}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
