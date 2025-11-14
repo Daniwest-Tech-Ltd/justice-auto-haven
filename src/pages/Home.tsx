@@ -33,7 +33,16 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
- 
+  const fetchAllData = async () => {
+    // Fetch featured cars based on is_featured flag
+    const { data: featuredData } = await supabase
+      .from("cars")
+      .select("*")
+      .eq("is_featured", true)
+      .eq("status", "available")
+      .order("created_at", { ascending: false })
+      .limit(6);
+    if (featuredData) setFeaturedCars(featuredData);
 
     // Fetch hero cars for slideshow (one from each category)
     const { data: luxury } = await supabase
