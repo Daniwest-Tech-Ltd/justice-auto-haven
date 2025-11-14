@@ -34,7 +34,7 @@ const Home = () => {
   }, []);
 
   const fetchAllData = async () => {
-    // Featured cars
+    // Fetch featured cars based on is_featured flag
     const { data: featuredData } = await supabase
       .from("cars")
       .select("*")
@@ -44,7 +44,7 @@ const Home = () => {
       .limit(6);
     if (featuredData) setFeaturedCars(featuredData);
 
-    // Hero cars for slideshow
+    // Fetch hero cars for slideshow (one from each category)
     const { data: luxury } = await supabase
       .from("cars")
       .select("*")
@@ -66,10 +66,14 @@ const Home = () => {
       .or("make.ilike.%BMW%,make.ilike.%Range Rover%")
       .limit(1);
 
-    const heroData = [...(luxury || []), ...(suv || []), ...(sports || [])];
+    const heroData = [
+      ...(luxury || []),
+      ...(suv || []),
+      ...(sports || []),
+    ];
     setHeroCars(heroData.slice(0, 4));
 
-    // Available cars
+    // Fetch available cars
     const { data: available } = await supabase
       .from("cars")
       .select("*")
@@ -78,7 +82,7 @@ const Home = () => {
       .limit(6);
     if (available) setAvailableCars(available);
 
-    // Upcoming cars
+    // Fetch upcoming cars (recently added)
     const { data: upcoming } = await supabase
       .from("cars")
       .select("*")
@@ -86,7 +90,7 @@ const Home = () => {
       .limit(4);
     if (upcoming) setUpcomingCars(upcoming);
 
-    // Brands
+    // Fetch brands
     const { data: brandsData } = await supabase
       .from("brands")
       .select("*")
@@ -114,7 +118,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen animate-fade-in">
-      {/* Featured Cars Section */}
+      {/* Featured Cars Section - Just below header */}
       {featuredCars.length > 0 && (
         <section className="bg-gradient-to-br from-primary/10 to-accent/10 py-8 animate-fade-in">
           <div className="container mx-auto px-4">
@@ -124,7 +128,11 @@ const Home = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {featuredCars.map((car) => (
-                <Link key={car.id} to={`/car/${car.stock_id || car.id}`} className="flip-card h-80">
+                <Link 
+                  key={car.id} 
+                  to={`/car/${car.stock_id || car.id}`}
+                  className="flip-card h-80"
+                >
                   <div className="flip-card-inner">
                     <div className="flip-card-front bg-card border border-border rounded-xl overflow-hidden">
                       <div className="h-48">
@@ -169,13 +177,15 @@ const Home = () => {
         </section>
       )}
 
-      {/* Hero Section */}
+      {/* Hero Section with Slideshow */}
       <section className="relative h-[600px] overflow-hidden">
         <div className="absolute inset-0">
           {heroCars.map((car, index) => (
             <div
               key={car.id}
-              className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? "opacity-100" : "opacity-0"}`}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                index === currentSlide ? "opacity-100" : "opacity-0"
+              }`}
             >
               {getImageUrl(car.images) && (
                 <img
@@ -268,13 +278,88 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Featured / Priority Cars Section */}
+      {featuredCars.length > 0 && (
+        <section className="py-16 bg-accent/5">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-2">Featured Vehicles</h2>
+              <p className="text-muted-foreground">Our handpicked selection of premium vehicles</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredCars.map((car) => {
+                const imageUrl = getImageUrl(car.images) || getImageUrl(car.main_images);
+                return (
+                  <Link 
+                    key={car.id} 
+                    to={`/car/${car.stock_id || car.id}`}
+                    className="flip-card h-96 cursor-pointer"
+                  >
+                    <div className="flip-card-inner">
+                      {/* Front */}
+                      <div className="flip-card-front relative">
+                        <img
+                          src={imageUrl || "/placeholder.svg"}
+                          alt={`${car.make} ${car.model}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
+                          <Badge className="absolute top-4 left-4 bg-accent text-accent-foreground">
+                            FEATURED
+                          </Badge>
+                          <h3 className="text-2xl font-bold text-white">{car.make} {car.model}</h3>
+                          <p className="text-white/80">{car.year}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Back */}
+                      <div className="flip-card-back glass-strong flex flex-col justify-between p-6">
+                        <div>
+                          <h3 className="text-2xl font-bold mb-4">{car.make} {car.model}</h3>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Car className="h-4 w-4 text-accent" />
+                              <span>{car.year} • {car.transmission || "N/A"}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Settings className="h-4 w-4 text-accent" />
+                              <span>{car.fuel_type || "N/A"} • {car.mileage || "N/A"} km</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Gauge className="h-4 w-4 text-accent" />
+                              <span>{car.engine || "N/A"}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="text-3xl font-bold text-accent">
+                            KSh {car.price?.toLocaleString()}
+                          </div>
+                          <Button className="w-full" size="lg">
+                            View Details <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Available Cars Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-12">Available Cars in Our Stock</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {availableCars.map((car) => (
-              <Link key={car.id} to={`/car/${car.stock_id || car.id}`} className="flip-card h-96">
+              <Link 
+                key={car.id} 
+                to={`/car/${car.stock_id || car.id}`}
+                className="flip-card h-96"
+              >
                 <div className="flip-card-inner">
                   <div className="flip-card-front bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="h-56">
@@ -390,26 +475,81 @@ const Home = () => {
             Why Choose Justice Ultimate Automobiles?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { icon: Globe, title: "Wide Brand Variety", desc: "Access Toyota, BMW, Mercedes, and more – all verified imports", backTitle: "Global Network", backDesc: "We source vehicles from trusted dealers worldwide, ensuring you get the best selection and quality available in the market." },
-              { icon: Users, title: "Trusted by Clients", desc: "Transparent process and customer-first service", backTitle: "Customer Satisfaction", backDesc: "Over 5,000+ satisfied customers across Kenya. We prioritize your experience from browsing to ownership." },
-              { icon: DollarSign, title: "Hire Purchase", desc: "Flexible payment plans tailored to your needs", backTitle: "Flexible Financing", backDesc: "We work with major financial institutions to provide you with affordable payment options that fit your budget." },
-              { icon: Shield, title: "Secure & Verified", desc: "Biometric booking, 2FA logins, and verified car sources", backTitle: "Security First", backDesc: "Your data and transactions are protected with enterprise-grade security. Every vehicle is thoroughly verified." }
-            ].map((item, idx) => (
-              <div key={idx} className="flip-card h-80">
-                <div className="flip-card-inner">
-                  <div className="flip-card-front bg-card border border-border rounded-xl p-6 flex flex-col items-center justify-center text-center">
-                    <item.icon className="h-16 w-16 text-primary mb-4" />
-                    <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
-                  </div>
-                  <div className="flip-card-back bg-gradient-to-br from-primary to-secondary p-6 flex flex-col justify-center text-primary-foreground">
-                    <h4 className="text-lg font-bold mb-3">{item.backTitle}</h4>
-                    <p className="text-sm">{item.backDesc}</p>
-                  </div>
+            <div className="flip-card h-80">
+              <div className="flip-card-inner">
+                <div className="flip-card-front bg-card border border-border rounded-xl p-6 flex flex-col items-center justify-center text-center">
+                  <Globe className="h-16 w-16 text-primary mb-4" />
+                  <h3 className="text-xl font-bold mb-2">Wide Brand Variety</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Access Toyota, BMW, Mercedes, and more – all verified imports
+                  </p>
+                </div>
+                <div className="flip-card-back bg-gradient-to-br from-primary to-secondary p-6 flex flex-col justify-center text-primary-foreground">
+                  <h4 className="text-lg font-bold mb-3">Global Network</h4>
+                  <p className="text-sm">
+                    We source vehicles from trusted dealers worldwide, ensuring you get 
+                    the best selection and quality available in the market.
+                  </p>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div className="flip-card h-80">
+              <div className="flip-card-inner">
+                <div className="flip-card-front bg-card border border-border rounded-xl p-6 flex flex-col items-center justify-center text-center">
+                  <Users className="h-16 w-16 text-accent mb-4" />
+                  <h3 className="text-xl font-bold mb-2">Trusted by Clients</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Transparent process and customer-first service
+                  </p>
+                </div>
+                <div className="flip-card-back bg-gradient-to-br from-accent to-primary p-6 flex flex-col justify-center text-primary-foreground">
+                  <h4 className="text-lg font-bold mb-3">Customer Satisfaction</h4>
+                  <p className="text-sm">
+                    Over 5,000+ satisfied customers across Kenya. We prioritize your 
+                    experience from browsing to ownership.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flip-card h-80">
+              <div className="flip-card-inner">
+                <div className="flip-card-front bg-card border border-border rounded-xl p-6 flex flex-col items-center justify-center text-center">
+                  <DollarSign className="h-16 w-16 text-primary mb-4" />
+                  <h3 className="text-xl font-bold mb-2">Hire Purchase</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Flexible payment plans tailored to your needs
+                  </p>
+                </div>
+                <div className="flip-card-back bg-gradient-to-br from-primary to-accent p-6 flex flex-col justify-center text-primary-foreground">
+                  <h4 className="text-lg font-bold mb-3">Flexible Financing</h4>
+                  <p className="text-sm">
+                    We work with major financial institutions to provide you with 
+                    affordable payment options that fit your budget.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flip-card h-80">
+              <div className="flip-card-inner">
+                <div className="flip-card-front bg-card border border-border rounded-xl p-6 flex flex-col items-center justify-center text-center">
+                  <Shield className="h-16 w-16 text-accent mb-4" />
+                  <h3 className="text-xl font-bold mb-2">Secure & Verified</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Biometric booking, 2FA logins, and verified car sources
+                  </p>
+                </div>
+                <div className="flip-card-back bg-gradient-to-br from-accent to-secondary p-6 flex flex-col justify-center text-primary-foreground">
+                  <h4 className="text-lg font-bold mb-3">Security First</h4>
+                  <p className="text-sm">
+                    Your data and transactions are protected with enterprise-grade 
+                    security. Every vehicle is thoroughly verified.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -419,34 +559,73 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-12">What Our Clients Say</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { name: "Sarah Mwangi", location: "Nairobi, Kenya", review: "Outstanding service! Justice Ultimate Automobiles helped me find the perfect Land Rover. The process was smooth, transparent, and professional from start to finish." },
-              { name: "James Kamau", location: "Mombasa, Kenya", review: "Best car dealership in Kenya! Got my Toyota Harrier at a great price with flexible payment options. The team is knowledgeable and genuinely cares about customer satisfaction." },
-              { name: "Grace Achieng", location: "Kisumu, Kenya", review: "Traded in my old car and upgraded to a BMW X5. The valuation was fair, and the entire exchange process was completed in one day. Highly recommended!" }
-            ].map((item, idx) => (
-              <div key={idx} className="bg-card border border-border rounded-xl p-6 space-y-4">
-                <div className="flex gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-accent text-accent" />
-                  ))}
+            <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-accent text-accent" />
+                ))}
+              </div>
+              <p className="text-muted-foreground italic">
+                "Outstanding service! Justice Ultimate Automobiles helped me find the perfect Land Rover. 
+                The process was smooth, transparent, and professional from start to finish."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-muted-foreground italic">{item.review}</p>
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Users className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">{item.location}</p>
-                  </div>
+                <div>
+                  <p className="font-semibold">Sarah Mwangi</p>
+                  <p className="text-sm text-muted-foreground">Nairobi, Kenya</p>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-accent text-accent" />
+                ))}
+              </div>
+              <p className="text-muted-foreground italic">
+                "Best car dealership in Kenya! Got my Toyota Harrier at a great price with flexible payment options. 
+                The team is knowledgeable and genuinely cares about customer satisfaction."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold">James Kamau</p>
+                  <p className="text-sm text-muted-foreground">Mombasa, Kenya</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-accent text-accent" />
+                ))}
+              </div>
+              <p className="text-muted-foreground italic">
+                "Traded in my old car and upgraded to a BMW X5. The valuation was fair, 
+                and the entire exchange process was completed in one day. Highly recommended!"
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold">Grace Achieng</p>
+                  <p className="text-sm text-muted-foreground">Kisumu, Kenya</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
+      {/* Contact Summary Section */}
       <section className="py-16 bg-gradient-to-r from-primary/10 to-accent/10">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-6">
@@ -457,7 +636,9 @@ const Home = () => {
                   <Globe className="h-6 w-6 text-primary" />
                   <div>
                     <p className="font-semibold">Location</p>
-                    <p className="text-sm text-muted-foreground">Mpesi Lane 11, Westlands, Nairobi, Kenya</p>
+                    <p className="text-sm text-muted-foreground">
+                      Mpesi Lane 11, Westlands, Nairobi, Kenya
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -480,7 +661,9 @@ const Home = () => {
                   <Globe className="h-6 w-6 text-primary" />
                   <div>
                     <p className="font-semibold">Website</p>
-                    <p className="text-sm text-muted-foreground">www.justice-ultimate-automobiles.co.ke</p>
+                    <p className="text-sm text-muted-foreground">
+                      www.justice-ultimate-automobiles.co.ke
+                    </p>
                   </div>
                 </div>
               </div>
