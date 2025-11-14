@@ -305,7 +305,7 @@ const Header = () => {
 
       {/* Mobile Drawer Menu */}
       <Drawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <DrawerContent className="h-[80vh]">
+        <DrawerContent className="h-[80vh] max-w-[280px]">
           <DrawerHeader className="border-b border-border">
             <div className="flex items-center justify-between">
               <DrawerTitle className="text-lg font-semibold">Menu</DrawerTitle>
