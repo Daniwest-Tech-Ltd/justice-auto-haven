@@ -32,6 +32,7 @@ const Auth = () => {
   const [show2FADialog, setShow2FADialog] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const [otpTimeLeft, setOtpTimeLeft] = useState(600); // 10 minutes in seconds
   const navigate = useNavigate();
   const { toast } = useToast();
   const { logLoginAttempt, logSuspiciousActivity } = useSecurityLogger();
@@ -60,6 +61,36 @@ const Auth = () => {
       setExactLocation(""); // Reset town when county changes
     }
   }, [countyCity]);
+
+  // OTP countdown timer
+  useEffect(() => {
+    if (show2FADialog && otpTimeLeft > 0) {
+      const timer = setInterval(() => {
+        setOtpTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            toast({
+              title: "OTP Expired",
+              description: "Your verification code has expired. Please request a new one.",
+              variant: "destructive",
+            });
+            setShow2FADialog(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [show2FADialog, otpTimeLeft]);
+
+  // Reset OTP timer when dialog opens
+  useEffect(() => {
+    if (show2FADialog) {
+      setOtpTimeLeft(600); // Reset to 10 minutes
+    }
+  }, [show2FADialog]);
 
   // Password strength checker
   const checkPasswordStrength = (pwd: string) => {
@@ -722,8 +753,16 @@ const Auth = () => {
             <DialogTitle className="text-2xl">Two-Factor Authentication</DialogTitle>
             <DialogDescription className="space-y-4 pt-4">
               <p>A 6-digit verification code has been sent to your email.</p>
-              <p className="text-sm text-muted-foreground">
-                Please enter the code below to complete your login.
+              <div className="flex items-center justify-between text-sm">
+                <p className="text-muted-foreground">
+                  Please enter the code below to complete your login.
+                </p>
+                <p className="text-yellow-600 font-medium">
+                  {Math.floor(otpTimeLeft / 60)}:{String(otpTimeLeft % 60).padStart(2, '0')}
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                OTP expires in 10 minutes
               </p>
               <Input
                 type="text"

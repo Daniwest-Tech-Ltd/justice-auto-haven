@@ -15,6 +15,31 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Password strength checker
+  const checkPasswordStrength = (pwd: string) => {
+    const hasLength = pwd.length >= 8;
+    const hasUpper = /[A-Z]/.test(pwd);
+    const hasLower = /[a-z]/.test(pwd);
+    const hasNumber = /\d/.test(pwd);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+    
+    const strength = [hasLength, hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
+    
+    return {
+      isStrong: strength >= 4,
+      strength,
+      requirements: {
+        length: hasLength,
+        upper: hasUpper,
+        lower: hasLower,
+        number: hasNumber,
+        special: hasSpecial
+      }
+    };
+  };
+
+  const passwordStrength = checkPasswordStrength(newPassword);
+
   useEffect(() => {
     // Check if we have a recovery token in URL
     const type = searchParams.get("type");
@@ -63,10 +88,10 @@ const ResetPassword = () => {
       return;
     }
 
-    if (newPassword.length < 6) {
+    if (!passwordStrength.isStrong) {
       toast({
-        title: "Error",
-        description: "Password must be at least 6 characters long.",
+        title: "Weak Password",
+        description: "Please use a stronger password with at least 8 characters, including uppercase, lowercase, number, and special character.",
         variant: "destructive",
       });
       return;
@@ -83,12 +108,27 @@ const ResetPassword = () => {
 
       toast({
         title: "Success",
-        description: "Your password has been successfully reset.",
+        description: "Your password has been successfully reset. Logging you in...",
       });
 
-      setTimeout(() => {
-        navigate("/auth");
-      }, 2000);
+      // Auto-login: Navigate to appropriate dashboard
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        setTimeout(() => {
+          if (roleData?.role === "admin") {
+            navigate("/admin-dashboard");
+          } else {
+            navigate("/customer-dashboard");
+          }
+        }, 1500);
+      }
     } catch (error) {
       console.error("Error resetting password:", error);
       toast({
@@ -151,7 +191,7 @@ const ResetPassword = () => {
             </p>
 
             <form onSubmit={handlePasswordReset} className="space-y-6">
-              <div>
+              <div className="space-y-2">
                 <Input
                   type="password"
                   placeholder="New Password"
@@ -160,6 +200,43 @@ const ResetPassword = () => {
                   className="w-full"
                   required
                 />
+                {newPassword && (
+                  <div className="space-y-2">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-1 flex-1 rounded-full transition-all ${
+                            level <= passwordStrength.strength
+                              ? passwordStrength.strength <= 2
+                                ? "bg-red-500"
+                                : passwordStrength.strength === 3
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
+                              : "bg-muted"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="text-xs space-y-1 text-muted-foreground">
+                      <p className={passwordStrength.requirements.length ? "text-green-600" : ""}>
+                        ✓ At least 8 characters
+                      </p>
+                      <p className={passwordStrength.requirements.upper ? "text-green-600" : ""}>
+                        ✓ One uppercase letter
+                      </p>
+                      <p className={passwordStrength.requirements.lower ? "text-green-600" : ""}>
+                        ✓ One lowercase letter
+                      </p>
+                      <p className={passwordStrength.requirements.number ? "text-green-600" : ""}>
+                        ✓ One number
+                      </p>
+                      <p className={passwordStrength.requirements.special ? "text-green-600" : ""}>
+                        ✓ One special character (!@#$%^&*...)
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -171,9 +248,16 @@ const ResetPassword = () => {
                   className="w-full"
                   required
                 />
+                {confirmPassword && newPassword !== confirmPassword && (
+                  <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+                )}
               </div>
 
-              <Button className="w-full" size="lg" disabled={loading}>
+              <Button 
+                className="w-full" 
+                size="lg" 
+                disabled={loading || !passwordStrength.isStrong || newPassword !== confirmPassword}
+              >
                 {loading ? "Resetting..." : "Reset Password"}
               </Button>
             </form>
