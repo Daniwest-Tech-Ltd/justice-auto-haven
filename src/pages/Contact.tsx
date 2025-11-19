@@ -250,24 +250,6 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* Departments */}
-          <div className="glass-strong rounded-2xl p-6">
-            <h3 className="text-lg font-semibold mb-4">Departments</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">📩 Sales:</span>
-                <span>sales@justiceultimate.com</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">💁 Support:</span>
-                <span>support@justiceultimate.com</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">🔧 Service:</span>
-                <span>service@justiceultimate.com</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
