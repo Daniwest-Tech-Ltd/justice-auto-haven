@@ -426,12 +426,12 @@ const Auth = () => {
         >
           {/* Sign In Form */}
           <div className="auth-form-container sign-in-container absolute top-0 left-0 w-1/2 h-full flex items-center justify-center z-20 transition-all duration-700">
-            <form onSubmit={handleLogin} className="glass rounded-2xl p-12 flex flex-col items-center justify-center text-center space-y-6 w-full max-w-md">
-              <h1 className="text-4xl font-bold mb-6">Login</h1>
+            <form onSubmit={handleLogin} className="auth-form-glass rounded-2xl p-12 flex flex-col items-center justify-center text-center space-y-6 w-full max-w-md">
+              <h1 className="text-4xl font-bold mb-6 text-white drop-shadow-lg">Login</h1>
               <Input 
                 type="email" 
                 placeholder="Email" 
-                className="w-full" 
+                className="w-full auth-input" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -439,30 +439,30 @@ const Auth = () => {
               <Input 
                 type="password" 
                 placeholder="Password" 
-                className="w-full"
+                className="w-full auth-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <Link to="/reset-password" className="text-sm text-primary hover:underline">
+              <Link to="/reset-password" className="text-sm text-white hover:text-accent transition-colors">
                 Forgot Password?
               </Link>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </Button>
-              <p className="text-sm text-muted-foreground">or login with social platforms</p>
+              <p className="text-sm text-white/80">or login with social platforms</p>
               <div className="flex gap-3">
-                <a href="#" className="w-10 h-10 rounded-full bg-muted hover:bg-primary flex items-center justify-center transition-colors">
-                  <span className="text-xs font-bold">G</span>
+                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
+                  <span className="text-xs font-bold text-white">G</span>
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-muted hover:bg-primary flex items-center justify-center transition-colors">
-                  <Facebook className="h-4 w-4" />
+                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
+                  <Facebook className="h-4 w-4 text-white" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-muted hover:bg-primary flex items-center justify-center transition-colors">
-                  <Instagram className="h-4 w-4" />
+                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
+                  <Instagram className="h-4 w-4 text-white" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-muted hover:bg-primary flex items-center justify-center transition-colors">
-                  <Linkedin className="h-4 w-4" />
+                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
+                  <Linkedin className="h-4 w-4 text-white" />
                 </a>
               </div>
             </form>
@@ -470,13 +470,13 @@ const Auth = () => {
 
           {/* Sign Up Form */}
           <div className="auth-form-container sign-up-container absolute top-0 left-0 w-1/2 h-full flex items-center justify-center z-10 opacity-0 transition-all duration-700 overflow-y-auto">
-            <form onSubmit={handleRegister} className="glass rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4 w-full max-w-md my-8">
-              <h1 className="text-3xl font-bold mb-4">Registration</h1>
+            <form onSubmit={handleRegister} className="auth-form-glass rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4 w-full max-w-md my-8">
+              <h1 className="text-3xl font-bold mb-4 text-white drop-shadow-lg">Registration</h1>
               
               <Input 
                 type="text" 
                 placeholder="Full Name" 
-                className="w-full"
+                className="w-full auth-input"
                 value={regFullName}
                 onChange={(e) => setRegFullName(e.target.value)}
                 required
@@ -484,7 +484,7 @@ const Auth = () => {
               <Input 
                 type="email" 
                 placeholder="Email" 
-                className="w-full"
+                className="w-full auth-input"
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
                 required
@@ -492,7 +492,7 @@ const Auth = () => {
               <Input 
                 type="tel" 
                 placeholder="Phone (e.g., +254...)" 
-                className="w-full"
+                className="w-full auth-input"
                 value={regPhone}
                 onChange={(e) => setRegPhone(e.target.value)}
                 required
@@ -502,13 +502,13 @@ const Auth = () => {
                 <Input 
                   type="password" 
                   placeholder="Password" 
-                  className="w-full"
+                  className="w-full auth-input"
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
                   required
                 />
                 {regPassword && (
-                  <p className={`text-xs ${passwordStrength.isStrong ? 'text-green-500' : 'text-destructive'}`}>
+                  <p className={`text-xs ${passwordStrength.isStrong ? 'text-green-400' : 'text-red-400'}`}>
                     {passwordStrength.message}
                   </p>
                 )}
@@ -517,14 +517,14 @@ const Auth = () => {
               <Input 
                 type="password" 
                 placeholder="Confirm Password" 
-                className="w-full"
+                className="w-full auth-input"
                 value={regConfirmPassword}
                 onChange={(e) => setRegConfirmPassword(e.target.value)}
                 required
               />
 
               <div className="w-full text-left space-y-2">
-                <Label className="text-sm">Gender (Optional)</Label>
+                <Label className="text-sm text-white">Gender (Optional)</Label>
                 <div className="flex flex-wrap gap-4">
                   {["female", "male", "rather_not_say", "other"].map((g) => (
                     <div key={g} className="flex items-center space-x-2">
@@ -539,7 +539,7 @@ const Auth = () => {
                           }
                         }}
                       />
-                      <label htmlFor={g} className="text-sm capitalize">
+                      <label htmlFor={g} className="text-sm capitalize text-white">
                         {g.replace("_", " ")}
                       </label>
                     </div>
@@ -548,9 +548,9 @@ const Auth = () => {
               </div>
 
               <div className="w-full">
-                <Label className="text-sm mb-2">County</Label>
+                <Label className="text-sm mb-2 text-white">County</Label>
                 <Select value={countyCity} onValueChange={setCountyCity}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full auth-select-trigger">
                     <SelectValue placeholder="Select County" />
                   </SelectTrigger>
                   <SelectContent>
@@ -564,13 +564,13 @@ const Auth = () => {
               </div>
               
               <div className="w-full">
-                <Label className="text-sm mb-2">Town / Location</Label>
+                <Label className="text-sm mb-2 text-white">Town / Location</Label>
                 <Select 
                   value={exactLocation} 
                   onValueChange={setExactLocation}
                   disabled={!countyCity}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full auth-select-trigger">
                     <SelectValue placeholder={countyCity ? "Select Town" : "First select a county"} />
                   </SelectTrigger>
                   <SelectContent>
@@ -584,36 +584,36 @@ const Auth = () => {
               </div>
 
               <div className="w-full text-left space-y-2">
-                <Label className="text-sm">Preferred Contact Method</Label>
+                <Label className="text-sm text-white">Preferred Contact Method</Label>
                 <RadioGroup value={preferredContact} onValueChange={setPreferredContact}>
                   <div className="flex gap-4">
                     {["email", "phone", "whatsapp"].map((method) => (
                       <div key={method} className="flex items-center space-x-2">
                         <RadioGroupItem value={method} id={method} />
-                        <Label htmlFor={method} className="capitalize">{method}</Label>
+                        <Label htmlFor={method} className="capitalize text-white">{method}</Label>
                       </div>
                     ))}
                   </div>
                 </RadioGroup>
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" disabled={loading}>
                 {loading ? "Registering..." : "Register"}
               </Button>
               
-              <p className="text-sm text-muted-foreground">or register with social platforms</p>
+              <p className="text-sm text-white/80">or register with social platforms</p>
               <div className="flex gap-3">
-                <a href="#" className="w-10 h-10 rounded-full bg-muted hover:bg-primary flex items-center justify-center transition-colors">
-                  <span className="text-xs font-bold">G</span>
+                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
+                  <span className="text-xs font-bold text-white">G</span>
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-muted hover:bg-primary flex items-center justify-center transition-colors">
-                  <Facebook className="h-4 w-4" />
+                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
+                  <Facebook className="h-4 w-4 text-white" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-muted hover:bg-primary flex items-center justify-center transition-colors">
-                  <Instagram className="h-4 w-4" />
+                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
+                  <Instagram className="h-4 w-4 text-white" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-muted hover:bg-primary flex items-center justify-center transition-colors">
-                  <Linkedin className="h-4 w-4" />
+                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
+                  <Linkedin className="h-4 w-4 text-white" />
                 </a>
               </div>
             </form>
