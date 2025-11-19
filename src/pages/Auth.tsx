@@ -470,7 +470,7 @@ const Auth = () => {
 
           {/* Sign Up Form */}
           <div className="auth-form-container sign-up-container absolute top-0 left-0 w-1/2 h-full flex items-center justify-center z-10 opacity-0 transition-all duration-700 overflow-y-auto bg-gradient-to-br from-background/98 via-card/98 to-background/98">
-            <form onSubmit={handleRegister} className="auth-form-glass rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4 w-full max-w-md my-8">
+            <form onSubmit={handleRegister} className="auth-form-glass rounded-2xl p-8 pt-12 flex flex-col items-center justify-center text-center space-y-4 w-full max-w-md my-12">
               <h1 className="text-3xl font-bold mb-4 text-foreground drop-shadow-lg">Registration</h1>
               
               <Input 
