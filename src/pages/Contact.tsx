@@ -179,13 +179,61 @@ const Contact = () => {
               </div>
             </a>
 
-            <a href="mailto:justicevincentt@gmail.com" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
+            <a href="mailto:info@justiceultimateautomobiles.com" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
               <Mail className="h-5 w-5 text-primary" />
               <div>
-                <div className="text-sm font-medium text-foreground">Email</div>
-                <div>justicevincentt@gmail.com</div>
+                <div className="text-sm font-medium text-foreground">General Inquiries</div>
+                <div>info@justiceultimateautomobiles.com</div>
               </div>
             </a>
+          </div>
+
+          {/* Departments */}
+          <div className="glass-strong rounded-2xl p-6">
+            <h3 className="text-lg font-semibold mb-4">Departments</h3>
+            <div className="space-y-3">
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-3"
+                asChild
+              >
+                <a href="mailto:info@justiceultimateautomobiles.com">
+                  <Mail className="h-4 w-4" />
+                  <div className="text-left flex-1">
+                    <p className="text-sm font-medium">📩 General Inquiries</p>
+                    <p className="text-xs text-muted-foreground">info@justiceultimateautomobiles.com</p>
+                  </div>
+                </a>
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-3"
+                asChild
+              >
+                <a href="mailto:support@justiceultimateautomobiles.com">
+                  <Mail className="h-4 w-4" />
+                  <div className="text-left flex-1">
+                    <p className="text-sm font-medium">💁 Support</p>
+                    <p className="text-xs text-muted-foreground">support@justiceultimateautomobiles.com</p>
+                  </div>
+                </a>
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-3"
+                asChild
+              >
+                <a href="mailto:sales@justiceultimateautomobiles.com">
+                  <Mail className="h-4 w-4" />
+                  <div className="text-left flex-1">
+                    <p className="text-sm font-medium">🔧 Sales</p>
+                    <p className="text-xs text-muted-foreground">sales@justiceultimateautomobiles.com</p>
+                  </div>
+                </a>
+              </Button>
+            </div>
           </div>
 
           {/* Office Hours */}

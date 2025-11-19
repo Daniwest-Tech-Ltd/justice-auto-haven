@@ -326,33 +326,39 @@ export type Database = {
         Row: {
           company_name: string
           created_at: string | null
+          database_status: string | null
           email: string
           environment: string
           id: string
           location: string
           phone: string
+          storage_status: string | null
           system_version: string
           updated_at: string | null
         }
         Insert: {
           company_name?: string
           created_at?: string | null
+          database_status?: string | null
           email?: string
           environment?: string
           id?: string
           location?: string
           phone?: string
+          storage_status?: string | null
           system_version?: string
           updated_at?: string | null
         }
         Update: {
           company_name?: string
           created_at?: string | null
+          database_status?: string | null
           email?: string
           environment?: string
           id?: string
           location?: string
           phone?: string
+          storage_status?: string | null
           system_version?: string
           updated_at?: string | null
         }
@@ -796,6 +802,7 @@ export type Database = {
           preferred_contact: string | null
           suspended_at: string | null
           suspended_reason: string | null
+          theme: string | null
           updated_at: string | null
           user_id: string
         }
@@ -817,6 +824,7 @@ export type Database = {
           preferred_contact?: string | null
           suspended_at?: string | null
           suspended_reason?: string | null
+          theme?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -838,6 +846,7 @@ export type Database = {
           preferred_contact?: string | null
           suspended_at?: string | null
           suspended_reason?: string | null
+          theme?: string | null
           updated_at?: string | null
           user_id?: string
         }
