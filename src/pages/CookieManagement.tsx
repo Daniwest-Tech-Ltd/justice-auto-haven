@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Download, Search, Calendar, Edit } from "lucide-react";
+import { Trash2, Download, Search, Calendar, Edit, ArrowLeft } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -42,6 +43,7 @@ interface CookieLog {
 }
 
 const CookieManagement = () => {
+  const navigate = useNavigate();
   const [logs, setLogs] = useState<CookieLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<CookieLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -199,6 +201,11 @@ const CookieManagement = () => {
     a.href = url;
     a.download = `cookie-logs-${format(new Date(), "yyyy-MM-dd")}.csv`;
     a.click();
+
+    toast({
+      title: "Success",
+      description: "CSV exported successfully",
+    });
   };
 
   const exportToPDF = () => {
@@ -241,6 +248,14 @@ const CookieManagement = () => {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/admin-dashboard")}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Dashboard
+        </Button>
         <h1 className="text-4xl font-bold mb-2">Cookie Consent Management</h1>
         <p className="text-muted-foreground">
           View and manage user cookie consent logs
