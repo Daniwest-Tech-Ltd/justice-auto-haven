@@ -66,6 +66,8 @@ const CustomerOrderStatus = lazy(() => import("./pages/CustomerOrderStatus"));
 const VIPAnalytics = lazy(() => import("./pages/VIPAnalytics"));
 const TrackOrder = lazy(() => import("./pages/TrackOrder"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
+const CookieManagement = lazy(() => import("./pages/CookieManagement"));
+import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +88,7 @@ const AppContent = () => {
           <Route path="/terms" element={<Layout><TermsOfUse /></Layout>} />
           <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
           <Route path="/cookies" element={<Layout><CookiePolicy /></Layout>} />
+          <Route path="/cookie-policy" element={<Layout><CookiePolicy /></Layout>} />
           <Route path="/rental-booking" element={<Layout><RentalBooking /></Layout>} />
           <Route path="/trade-in" element={<Layout><TradeInSubmission /></Layout>} />
           <Route path="/track-order" element={<Layout><TrackOrder /></Layout>} />
@@ -284,6 +287,14 @@ const AppContent = () => {
             } 
           />
           <Route 
+            path="/admin/cookie-management" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <CookieManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/admin/messages" 
             element={
               <ProtectedRoute requiredRole="admin">
@@ -389,6 +400,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AppContent />
+        <CookieConsentBanner />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

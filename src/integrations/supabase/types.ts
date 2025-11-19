@@ -44,6 +44,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_id: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          target_id: string | null
+          target_table: string | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           clock_in: string | null
@@ -400,6 +430,33 @@ export type Database = {
           status?: string | null
           subject?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      cookies_log: {
+        Row: {
+          created_at: string | null
+          decision: string
+          id: string
+          timestamp: string
+          user_agent: string | null
+          user_ip: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          decision: string
+          id?: string
+          timestamp?: string
+          user_agent?: string | null
+          user_ip?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          decision?: string
+          id?: string
+          timestamp?: string
+          user_agent?: string | null
+          user_ip?: string | null
         }
         Relationships: []
       }
