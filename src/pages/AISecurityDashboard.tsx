@@ -1,12 +1,22 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Shield, AlertTriangle, CheckCircle, Ban, Download, TrendingUp, Clock } from "lucide-react";
+import { 
+  ArrowLeft, Shield, AlertTriangle, CheckCircle, Ban, Download, 
+  TrendingUp, Clock, Activity, Database, Lock, Brain, Target,
+  FileText, Zap, Globe, Key, Play, AlertCircleIcon, Users
+} from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SecurityAlert {
   id: string;
@@ -18,15 +28,53 @@ interface SecurityAlert {
   metadata: any;
   acknowledged: boolean;
   created_at: string;
+  user_id: string | null;
 }
 
-interface BlockedIP {
+interface SecurityIncident {
   id: string;
-  ip: string;
-  reason: string;
-  blocked_at: string;
-  expires_at: string | null;
+  incident_number: string;
+  title: string;
+  description: string | null;
+  severity: string;
+  status: string;
+  mitre_tactics: any[];
+  mitre_techniques: any[];
+  affected_assets: any[];
+  iocs: any[];
+  created_at: string;
+}
+
+interface ThreatIntel {
+  id: string;
+  ioc_type: string;
+  ioc_value: string;
+  threat_level: string;
+  source: string;
+  confidence_score: number | null;
   active: boolean;
+  last_seen: string;
+}
+
+interface SecurityPlaybook {
+  id: string;
+  name: string;
+  description: string | null;
+  enabled: boolean;
+  execution_count: number;
+  success_count: number;
+}
+
+interface CryptoAsset {
+  id: string;
+  asset_name: string;
+  asset_type: string;
+  algorithm: string;
+  key_size: number | null;
+  expiry_date: string | null;
+  pqc_ready: boolean;
+  pqc_migration_status: string;
+  risk_level: string | null;
 }
 
 const AISecurityDashboard = () => {
