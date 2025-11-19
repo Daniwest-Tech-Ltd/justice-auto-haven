@@ -65,6 +65,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const CustomerOrderStatus = lazy(() => import("./pages/CustomerOrderStatus"));
 const VIPAnalytics = lazy(() => import("./pages/VIPAnalytics"));
 const TrackOrder = lazy(() => import("./pages/TrackOrder"));
+const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 
 const queryClient = new QueryClient();
 
@@ -271,6 +272,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <AdminSettings />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/system-health" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SystemHealth />
               </ProtectedRoute>
             } 
           />
