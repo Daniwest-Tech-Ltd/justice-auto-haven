@@ -233,6 +233,13 @@ const AdminDashboard = () => {
             <Button 
               variant="ghost" 
               className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/cookie-management")}
+            >
+              🍪 Cookie Management
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
               onClick={() => navigate("/admin/settings")}
             >
               <Settings className="h-5 w-5" />

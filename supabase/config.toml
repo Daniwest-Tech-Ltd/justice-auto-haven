@@ -36,3 +36,9 @@ verify_jwt = false
 [functions.send-order-notification]
 verify_jwt = false
 
+[functions.log-cookie-consent]
+verify_jwt = false
+
+[functions.system-health-check]
+verify_jwt = false
+

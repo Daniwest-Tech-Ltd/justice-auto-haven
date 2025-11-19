@@ -149,11 +149,22 @@ const Footer = () => {
               </li>
               <li>
                 <Link 
-                  to="/cookies" 
+                  to="/cookie-policy" 
                   className="text-muted-foreground hover:text-accent transition-colors"
                 >
                   Cookie Policy
                 </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
+                    document.cookie = "cookie_consent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    window.location.reload();
+                  }}
+                  className="text-muted-foreground hover:text-accent transition-colors text-left"
+                >
+                  🍪 Manage Cookies
+                </button>
               </li>
               <li>
                 <Link 
