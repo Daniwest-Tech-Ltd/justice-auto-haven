@@ -23,11 +23,21 @@ const AdminSettings = () => {
     county_city: "",
     exact_location: "",
   });
+  const [companySettings, setCompanySettings] = useState({
+    id: "",
+    company_name: "",
+    email: "",
+    phone: "",
+    location: "",
+    system_version: "",
+    environment: "",
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchProfile();
+    fetchCompanySettings();
   }, []);
 
   useEffect(() => {
@@ -73,6 +83,30 @@ const AdminSettings = () => {
     }
   };
 
+  const fetchCompanySettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("company_settings")
+        .select("*")
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setCompanySettings({
+          id: data.id,
+          company_name: data.company_name || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          location: data.location || "",
+          system_version: data.system_version || "",
+          environment: data.environment || "",
+        });
+      }
+    } catch (error: any) {
+      console.error("Error fetching company settings:", error);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -89,6 +123,36 @@ const AdminSettings = () => {
       toast({
         title: "Success",
         description: "Settings saved successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveCompanySettings = async () => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("company_settings")
+        .update({
+          company_name: companySettings.company_name,
+          email: companySettings.email,
+          phone: companySettings.phone,
+          location: companySettings.location,
+        })
+        .eq("id", companySettings.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Company settings saved successfully",
       });
     } catch (error: any) {
       toast({
@@ -217,19 +281,56 @@ const AdminSettings = () => {
 
             <TabsContent value="company" className="space-y-6 pt-6">
               <div className="space-y-4">
-                <div className="bg-muted/50 rounded-lg p-6 text-center">
-                  <Building className="h-12 w-12 mx-auto mb-4 text-primary" />
-                  <h3 className="text-xl font-bold mb-2">Company Information</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Manage your company details, contact information, and branding
-                  </p>
-                  <div className="space-y-2 text-left max-w-md mx-auto">
-                    <p><strong>Company:</strong> Justice Ultimate Automobiles</p>
-                    <p><strong>Email:</strong> info@justiceauto.com</p>
-                    <p><strong>Phone:</strong> +254 722 827 458</p>
-                    <p><strong>Location:</strong> Nairobi, Kenya</p>
-                  </div>
+                <div>
+                  <Label htmlFor="company_name">
+                    <Building className="inline h-4 w-4 mr-2" />
+                    Company Name
+                  </Label>
+                  <Input
+                    id="company_name"
+                    value={companySettings.company_name}
+                    onChange={(e) => setCompanySettings({ ...companySettings, company_name: e.target.value })}
+                  />
                 </div>
+
+                <div>
+                  <Label htmlFor="company_email">
+                    <Mail className="inline h-4 w-4 mr-2" />
+                    Email
+                  </Label>
+                  <Input
+                    id="company_email"
+                    type="email"
+                    value={companySettings.email}
+                    onChange={(e) => setCompanySettings({ ...companySettings, email: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="company_phone">
+                    <Phone className="inline h-4 w-4 mr-2" />
+                    Phone
+                  </Label>
+                  <Input
+                    id="company_phone"
+                    value={companySettings.phone}
+                    onChange={(e) => setCompanySettings({ ...companySettings, phone: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="company_location">Location</Label>
+                  <Input
+                    id="company_location"
+                    value={companySettings.location}
+                    onChange={(e) => setCompanySettings({ ...companySettings, location: e.target.value })}
+                  />
+                </div>
+
+                <Button onClick={handleSaveCompanySettings} disabled={saving} className="w-full">
+                  <Save className="mr-2 h-4 w-4" />
+                  {saving ? "Saving..." : "Save Company Settings"}
+                </Button>
               </div>
             </TabsContent>
 
@@ -238,8 +339,8 @@ const AdminSettings = () => {
                 <div className="bg-muted/50 rounded-lg p-6">
                   <h3 className="text-lg font-bold mb-4">System Information</h3>
                   <div className="space-y-2 text-sm">
-                    <p><strong>Version:</strong> 1.0.0</p>
-                    <p><strong>Environment:</strong> Production</p>
+                    <p><strong>Version:</strong> {companySettings.system_version}</p>
+                    <p><strong>Environment:</strong> {companySettings.environment}</p>
                     <p><strong>Database:</strong> Connected</p>
                     <p><strong>Storage:</strong> Active</p>
                   </div>

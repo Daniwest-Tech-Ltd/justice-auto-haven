@@ -52,6 +52,7 @@ const Auth = () => {
   const [exactLocation, setExactLocation] = useState("");
   const [preferredContact, setPreferredContact] = useState("email");
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     // Update available towns when county changes
@@ -379,6 +380,15 @@ const Auth = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!termsAccepted) {
+      toast({
+        title: "Terms Required",
+        description: "You must agree to the Terms and Conditions to register",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (regPassword !== regConfirmPassword) {
       toast({
@@ -638,6 +648,26 @@ const Auth = () => {
                     ))}
                   </div>
                 </RadioGroup>
+              </div>
+
+              <div className="w-full flex items-start space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={termsAccepted}
+                  onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                  required
+                />
+                <Label htmlFor="terms" className="text-sm text-foreground cursor-pointer leading-relaxed">
+                  I agree to the{" "}
+                  <a 
+                    href="https://www.justiceultimateautomobiles.com/terms" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Terms and Conditions
+                  </a>
+                </Label>
               </div>
 
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" disabled={loading}>
