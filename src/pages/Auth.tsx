@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Facebook, Instagram, Linkedin, ArrowLeft, Mail } from "lucide-react";
+import { Facebook, Instagram, Linkedin, ArrowLeft, Mail, Chrome } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -102,29 +102,53 @@ const Auth = () => {
     }
   }, [isSignUp]);
 
+  // Google OAuth login
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'https://www.justiceultimateautomobiles.com'
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Google Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Google Login Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Password strength checker
   const checkPasswordStrength = (pwd: string) => {
-    const hasLength = pwd.length >= 8;
-    const hasUpper = /[A-Z]/.test(pwd);
-    const hasLower = /[a-z]/.test(pwd);
+    const minLength = pwd.length >= 8;
+    const hasUpperCase = /[A-Z]/.test(pwd);
+    const hasLowerCase = /[a-z]/.test(pwd);
     const hasNumber = /\d/.test(pwd);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
-    
-    const strength = [hasLength, hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
-    
-    return {
-      isStrong: strength >= 4,
-      message: strength >= 4 
-        ? "Strong password" 
-        : "Password must have: 8+ chars, uppercase, lowercase, number, special char",
-      requirements: {
-        length: hasLength,
-        upper: hasUpper,
-        lower: hasLower,
-        number: hasNumber,
-        special: hasSpecial
-      }
-    };
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
+
+    const score =
+      Number(minLength) +
+      Number(hasUpperCase) +
+      Number(hasLowerCase) +
+      Number(hasNumber) +
+      Number(hasSpecialChar);
+
+    if (score < 3) return "weak";
+    if (score < 5) return "medium";
+    return "strong";
   };
 
   const passwordStrength = checkPasswordStrength(regPassword);
@@ -365,10 +389,10 @@ const Auth = () => {
       return;
     }
 
-    if (!passwordStrength.isStrong) {
+    if (passwordStrength === "weak") {
       toast({
         title: "Weak Password",
-        description: passwordStrength.message,
+        description: "Password must be at least 8 characters with uppercase, lowercase, numbers, and special characters",
         variant: "destructive",
       });
       return;
@@ -460,21 +484,26 @@ const Auth = () => {
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </Button>
-              <p className="text-sm text-white/80">or login with social platforms</p>
-              <div className="flex gap-3">
-                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
-                  <span className="text-xs font-bold text-white">G</span>
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
-                  <Facebook className="h-4 w-4 text-white" />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
-                  <Instagram className="h-4 w-4 text-white" />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
-                  <Linkedin className="h-4 w-4 text-white" />
-                </a>
+              
+              <div className="relative w-full my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-white/30" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-transparent px-2 text-white/80">Or continue with</span>
+                </div>
               </div>
+
+              <Button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+                variant="outline"
+                className="w-full border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300"
+              >
+                <Chrome className="mr-2 h-5 w-5 text-[#4285F4]" />
+                Continue with Google
+              </Button>
             </form>
           </div>
 
@@ -518,8 +547,12 @@ const Auth = () => {
                   required
                 />
                 {regPassword && (
-                  <p className={`text-xs ${passwordStrength.isStrong ? 'text-green-400' : 'text-red-400'}`}>
-                    {passwordStrength.message}
+                  <p className={`text-xs ${
+                    passwordStrength === "strong" ? 'text-green-400' : 
+                    passwordStrength === "medium" ? 'text-yellow-400' : 
+                    'text-red-400'
+                  }`}>
+                    Password strength: {passwordStrength}
                   </p>
                 )}
               </div>
@@ -611,21 +644,25 @@ const Auth = () => {
                 {loading ? "Registering..." : "Register"}
               </Button>
               
-              <p className="text-sm text-muted-foreground">or register with social platforms</p>
-              <div className="flex gap-3">
-                <a href="#" className="w-10 h-10 rounded-full bg-primary/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110 border border-border">
-                  <span className="text-xs font-bold text-foreground">G</span>
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-primary/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110 border border-border">
-                  <Facebook className="h-4 w-4 text-foreground" />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-primary/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110 border border-border">
-                  <Instagram className="h-4 w-4 text-foreground" />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-primary/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110 border border-border">
-                  <Linkedin className="h-4 w-4 text-foreground" />
-                </a>
+              <div className="relative w-full my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/50" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                </div>
               </div>
+
+              <Button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+                variant="outline"
+                className="w-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300"
+              >
+                <Chrome className="mr-2 h-5 w-5 text-[#4285F4]" />
+                Continue with Google
+              </Button>
             </form>
           </div>
 
