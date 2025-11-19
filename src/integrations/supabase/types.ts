@@ -555,6 +555,33 @@ export type Database = {
         }
         Relationships: []
       }
+      failed_logins: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          ip: string | null
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          ip?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          ip?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       featured_cars: {
         Row: {
           car_id: string
@@ -1118,6 +1145,96 @@ export type Database = {
           last_number?: number
           prefix?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      system_health_metrics: {
+        Row: {
+          category: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          metric_name: string
+          metric_value: number | null
+          status: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          metric_name: string
+          metric_value?: number | null
+          status: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          metric_name?: string
+          metric_value?: number | null
+          status?: string
+        }
+        Relationships: []
+      }
+      system_jobs: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          execution_time: number | null
+          job_name: string
+          last_run: string | null
+          next_run: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          execution_time?: number | null
+          job_name: string
+          last_run?: string | null
+          next_run?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          execution_time?: number | null
+          job_name?: string
+          last_run?: string | null
+          next_run?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      system_logs: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          severity: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          severity?: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          severity?: string
+          type?: string
         }
         Relationships: []
       }
