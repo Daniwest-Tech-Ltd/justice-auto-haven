@@ -264,6 +264,8 @@ export type Database = {
           stock_id: string | null
           transmission: string | null
           updated_at: string | null
+          vin: string | null
+          vin_history: string | null
           year: number
         }
         Insert: {
@@ -288,6 +290,8 @@ export type Database = {
           stock_id?: string | null
           transmission?: string | null
           updated_at?: string | null
+          vin?: string | null
+          vin_history?: string | null
           year: number
         }
         Update: {
@@ -312,6 +316,8 @@ export type Database = {
           stock_id?: string | null
           transmission?: string | null
           updated_at?: string | null
+          vin?: string | null
+          vin_history?: string | null
           year?: number
         }
         Relationships: []
