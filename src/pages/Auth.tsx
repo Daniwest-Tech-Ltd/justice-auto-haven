@@ -469,9 +469,9 @@ const Auth = () => {
           </div>
 
           {/* Sign Up Form */}
-          <div className="auth-form-container sign-up-container absolute top-0 left-0 w-1/2 h-full flex items-center justify-center z-10 opacity-0 transition-all duration-700 overflow-y-auto">
+          <div className="auth-form-container sign-up-container absolute top-0 left-0 w-1/2 h-full flex items-center justify-center z-10 opacity-0 transition-all duration-700 overflow-y-auto bg-gradient-to-br from-background/98 via-card/98 to-background/98">
             <form onSubmit={handleRegister} className="auth-form-glass rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4 w-full max-w-md my-8">
-              <h1 className="text-3xl font-bold mb-4 text-white drop-shadow-lg">Registration</h1>
+              <h1 className="text-3xl font-bold mb-4 text-foreground drop-shadow-lg">Registration</h1>
               
               <Input 
                 type="text" 
@@ -524,7 +524,7 @@ const Auth = () => {
               />
 
               <div className="w-full text-left space-y-2">
-                <Label className="text-sm text-white">Gender (Optional)</Label>
+                <Label className="text-sm text-foreground font-medium">Gender (Optional)</Label>
                 <div className="flex flex-wrap gap-4">
                   {["female", "male", "rather_not_say", "other"].map((g) => (
                     <div key={g} className="flex items-center space-x-2">
@@ -539,7 +539,7 @@ const Auth = () => {
                           }
                         }}
                       />
-                      <label htmlFor={g} className="text-sm capitalize text-white">
+                      <label htmlFor={g} className="text-sm capitalize text-foreground cursor-pointer">
                         {g.replace("_", " ")}
                       </label>
                     </div>
@@ -548,7 +548,7 @@ const Auth = () => {
               </div>
 
               <div className="w-full">
-                <Label className="text-sm mb-2 text-white">County</Label>
+                <Label className="text-sm mb-2 text-foreground font-medium">County</Label>
                 <Select value={countyCity} onValueChange={setCountyCity}>
                   <SelectTrigger className="w-full auth-select-trigger">
                     <SelectValue placeholder="Select County" />
@@ -564,7 +564,7 @@ const Auth = () => {
               </div>
               
               <div className="w-full">
-                <Label className="text-sm mb-2 text-white">Town / Location</Label>
+                <Label className="text-sm mb-2 text-foreground font-medium">Town / Location</Label>
                 <Select 
                   value={exactLocation} 
                   onValueChange={setExactLocation}
@@ -584,13 +584,13 @@ const Auth = () => {
               </div>
 
               <div className="w-full text-left space-y-2">
-                <Label className="text-sm text-white">Preferred Contact Method</Label>
+                <Label className="text-sm text-foreground font-medium">Preferred Contact Method</Label>
                 <RadioGroup value={preferredContact} onValueChange={setPreferredContact}>
                   <div className="flex gap-4">
                     {["email", "phone", "whatsapp"].map((method) => (
                       <div key={method} className="flex items-center space-x-2">
                         <RadioGroupItem value={method} id={method} />
-                        <Label htmlFor={method} className="capitalize text-white">{method}</Label>
+                        <Label htmlFor={method} className="capitalize text-foreground cursor-pointer">{method}</Label>
                       </div>
                     ))}
                   </div>
@@ -601,19 +601,19 @@ const Auth = () => {
                 {loading ? "Registering..." : "Register"}
               </Button>
               
-              <p className="text-sm text-white/80">or register with social platforms</p>
+              <p className="text-sm text-muted-foreground">or register with social platforms</p>
               <div className="flex gap-3">
-                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
-                  <span className="text-xs font-bold text-white">G</span>
+                <a href="#" className="w-10 h-10 rounded-full bg-primary/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110 border border-border">
+                  <span className="text-xs font-bold text-foreground">G</span>
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
-                  <Facebook className="h-4 w-4 text-white" />
+                <a href="#" className="w-10 h-10 rounded-full bg-primary/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110 border border-border">
+                  <Facebook className="h-4 w-4 text-foreground" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
-                  <Instagram className="h-4 w-4 text-white" />
+                <a href="#" className="w-10 h-10 rounded-full bg-primary/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110 border border-border">
+                  <Instagram className="h-4 w-4 text-foreground" />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-white/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110">
-                  <Linkedin className="h-4 w-4 text-white" />
+                <a href="#" className="w-10 h-10 rounded-full bg-primary/20 hover:bg-accent backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110 border border-border">
+                  <Linkedin className="h-4 w-4 text-foreground" />
                 </a>
               </div>
             </form>

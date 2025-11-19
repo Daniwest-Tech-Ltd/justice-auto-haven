@@ -155,6 +155,20 @@ All colors MUST be HSL.
     box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.4);
   }
 
+  /* Register form specific - more opaque for better visibility */
+  .sign-up-container .auth-form-glass {
+    background: rgba(30, 40, 60, 0.95) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  /* Ensure text is visible in register form */
+  .sign-up-container h1,
+  .sign-up-container label,
+  .sign-up-container p {
+    color: hsl(var(--foreground)) !important;
+  }
+
   .auth-input {
     background: rgba(255, 255, 255, 0.25) !important;
     border: 1px solid rgba(255, 255, 255, 0.4) !important;
@@ -163,14 +177,31 @@ All colors MUST be HSL.
     transition: all 0.3s ease;
   }
 
+  /* Register form inputs - higher contrast */
+  .sign-up-container .auth-input {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
   .auth-input::placeholder {
     color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  .sign-up-container .auth-input::placeholder {
+    color: rgba(0, 0, 0, 0.5) !important;
   }
 
   .auth-input:focus {
     background: rgba(255, 255, 255, 0.35) !important;
     border-color: rgba(255, 255, 255, 0.6) !important;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  .sign-up-container .auth-input:focus {
+    background: rgba(255, 255, 255, 1) !important;
+    border-color: hsl(var(--primary)) !important;
+    box-shadow: 0 0 20px hsla(var(--primary) / 0.3);
   }
 
   .auth-select-trigger {
@@ -180,8 +211,18 @@ All colors MUST be HSL.
     backdrop-filter: blur(8px);
   }
 
+  .sign-up-container .auth-select-trigger {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
   .auth-select-trigger:hover {
     background: rgba(255, 255, 255, 0.3) !important;
+  }
+
+  .sign-up-container .auth-select-trigger:hover {
+    background: rgba(255, 255, 255, 1) !important;
   }
 }
 
