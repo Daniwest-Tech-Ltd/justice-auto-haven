@@ -63,7 +63,13 @@ const Catalogue = () => {
     fetchCars();
     fetchBrands();
     fetchWishlist();
-  }, []);
+    
+    // Check for brand filter from URL
+    const brandParam = searchParams.get("brand");
+    if (brandParam) {
+      setFilters(prev => ({ ...prev, brand: brandParam }));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     filterCars();

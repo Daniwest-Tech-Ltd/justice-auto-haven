@@ -11,10 +11,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Save, User, Building, Mail, Phone } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import kenyaLocations from "@/data/kenya-locations.json";
+import { setTheme } from "@/lib/theme";
+import type { Theme } from "@/lib/theme";
 
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingCompany, setSavingCompany] = useState(false);
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [profile, setProfile] = useState({
     full_name: "",
@@ -22,6 +25,7 @@ const AdminSettings = () => {
     phone: "",
     county_city: "",
     exact_location: "",
+    theme: "system" as Theme,
   });
   const [companySettings, setCompanySettings] = useState({
     id: "",
@@ -31,6 +35,8 @@ const AdminSettings = () => {
     location: "",
     system_version: "",
     environment: "",
+    database_status: "",
+    storage_status: "",
   });
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -70,6 +76,7 @@ const AdminSettings = () => {
           phone: data.phone || "",
           county_city: data.county_city || "",
           exact_location: data.exact_location || "",
+          theme: (data.theme || "system") as Theme,
         });
       }
     } catch (error: any) {
@@ -100,6 +107,8 @@ const AdminSettings = () => {
           location: data.location || "",
           system_version: data.system_version || "",
           environment: data.environment || "",
+          database_status: data.database_status || "Connected",
+          storage_status: data.storage_status || "Active",
         });
       }
     } catch (error: any) {
@@ -135,8 +144,28 @@ const AdminSettings = () => {
     }
   };
 
+  const handleThemeChange = async (newTheme: Theme) => {
+    const session = await supabase.auth.getSession();
+    if (!session.data.session) return;
+
+    try {
+      await setTheme(newTheme, session.data.session.user.id);
+      setProfile({ ...profile, theme: newTheme });
+      toast({
+        title: "Theme Updated",
+        description: "Your theme preference has been saved.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSaveCompanySettings = async () => {
-    setSaving(true);
+    setSavingCompany(true);
     try {
       const { error } = await supabase
         .from("company_settings")
@@ -145,6 +174,10 @@ const AdminSettings = () => {
           email: companySettings.email,
           phone: companySettings.phone,
           location: companySettings.location,
+          system_version: companySettings.system_version,
+          environment: companySettings.environment,
+          database_status: companySettings.database_status,
+          storage_status: companySettings.storage_status,
         })
         .eq("id", companySettings.id);
 
@@ -161,7 +194,7 @@ const AdminSettings = () => {
         variant: "destructive",
       });
     } finally {
-      setSaving(false);
+      setSavingCompany(false);
     }
   };
 
