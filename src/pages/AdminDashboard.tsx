@@ -298,7 +298,10 @@ const AdminDashboard = () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="glass-strong">
+            <Card 
+              className="glass-strong cursor-pointer hover:border-primary transition-colors"
+              onClick={() => navigate("/admin/cars")}
+            >
               <CardHeader>
                 <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
               </CardHeader>
@@ -308,7 +311,10 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass-strong">
+            <Card 
+              className="glass-strong cursor-pointer hover:border-primary transition-colors"
+              onClick={() => navigate("/admin/customers")}
+            >
               <CardHeader>
                 <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
               </CardHeader>
@@ -318,7 +324,10 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass-strong">
+            <Card 
+              className="glass-strong cursor-pointer hover:border-primary transition-colors"
+              onClick={() => navigate("/admin/sales")}
+            >
               <CardHeader>
                 <CardTitle className="text-sm font-medium">Monthly Sales</CardTitle>
               </CardHeader>
