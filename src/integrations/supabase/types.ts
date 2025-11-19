@@ -74,6 +74,33 @@ export type Database = {
         }
         Relationships: []
       }
+      anomaly_baselines: {
+        Row: {
+          baseline_data: Json
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          last_updated: string | null
+        }
+        Insert: {
+          baseline_data: Json
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          last_updated?: string | null
+        }
+        Update: {
+          baseline_data?: Json
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          last_updated?: string | null
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           clock_in: string | null
@@ -555,6 +582,54 @@ export type Database = {
           },
         ]
       }
+      crypto_inventory: {
+        Row: {
+          algorithm: string
+          asset_name: string
+          asset_type: string
+          created_at: string | null
+          expiry_date: string | null
+          id: string
+          key_size: number | null
+          notes: string | null
+          owner: string | null
+          pqc_migration_status: string | null
+          pqc_ready: boolean | null
+          risk_level: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          algorithm: string
+          asset_name: string
+          asset_type: string
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          key_size?: number | null
+          notes?: string | null
+          owner?: string | null
+          pqc_migration_status?: string | null
+          pqc_ready?: boolean | null
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          algorithm?: string
+          asset_name?: string
+          asset_type?: string
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          key_size?: number | null
+          notes?: string | null
+          owner?: string | null
+          pqc_migration_status?: string | null
+          pqc_ready?: boolean | null
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       daily_reports: {
         Row: {
           date: string
@@ -748,6 +823,42 @@ export type Database = {
           sender_id?: string
           subject?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      mitre_mappings: {
+        Row: {
+          created_at: string | null
+          detection_rules: Json | null
+          event_type: string
+          id: string
+          mitigation_steps: Json | null
+          tactic_id: string
+          tactic_name: string
+          technique_id: string
+          technique_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          detection_rules?: Json | null
+          event_type: string
+          id?: string
+          mitigation_steps?: Json | null
+          tactic_id: string
+          tactic_name: string
+          technique_id: string
+          technique_name: string
+        }
+        Update: {
+          created_at?: string | null
+          detection_rules?: Json | null
+          event_type?: string
+          id?: string
+          mitigation_steps?: Json | null
+          tactic_id?: string
+          tactic_name?: string
+          technique_id?: string
+          technique_name?: string
         }
         Relationships: []
       }
@@ -1092,6 +1203,123 @@ export type Database = {
         }
         Relationships: []
       }
+      security_incidents: {
+        Row: {
+          affected_assets: Json | null
+          affected_users: Json | null
+          assigned_to: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          impact_assessment: string | null
+          incident_number: string
+          iocs: Json | null
+          mitre_tactics: Json | null
+          mitre_techniques: Json | null
+          remediation_steps: Json | null
+          resolved_at: string | null
+          severity: string
+          status: string
+          timeline: Json | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          affected_assets?: Json | null
+          affected_users?: Json | null
+          assigned_to?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          impact_assessment?: string | null
+          incident_number: string
+          iocs?: Json | null
+          mitre_tactics?: Json | null
+          mitre_techniques?: Json | null
+          remediation_steps?: Json | null
+          resolved_at?: string | null
+          severity: string
+          status?: string
+          timeline?: Json | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          affected_assets?: Json | null
+          affected_users?: Json | null
+          assigned_to?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          impact_assessment?: string | null
+          incident_number?: string
+          iocs?: Json | null
+          mitre_tactics?: Json | null
+          mitre_techniques?: Json | null
+          remediation_steps?: Json | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          timeline?: Json | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      security_playbooks: {
+        Row: {
+          actions: Json
+          approval_required: boolean | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          enabled: boolean | null
+          execution_count: number | null
+          failure_count: number | null
+          id: string
+          last_executed: string | null
+          name: string
+          success_count: number | null
+          trigger_conditions: Json
+          updated_at: string | null
+        }
+        Insert: {
+          actions: Json
+          approval_required?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          enabled?: boolean | null
+          execution_count?: number | null
+          failure_count?: number | null
+          id?: string
+          last_executed?: string | null
+          name: string
+          success_count?: number | null
+          trigger_conditions: Json
+          updated_at?: string | null
+        }
+        Update: {
+          actions?: Json
+          approval_required?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          enabled?: boolean | null
+          execution_count?: number | null
+          failure_count?: number | null
+          id?: string
+          last_executed?: string | null
+          name?: string
+          success_count?: number | null
+          trigger_conditions?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           client_info: Json | null
@@ -1301,6 +1529,54 @@ export type Database = {
           metadata?: Json | null
           severity?: string
           type?: string
+        }
+        Relationships: []
+      }
+      threat_intelligence: {
+        Row: {
+          active: boolean | null
+          confidence_score: number | null
+          created_at: string | null
+          description: string | null
+          first_seen: string | null
+          id: string
+          ioc_type: string
+          ioc_value: string
+          last_seen: string | null
+          metadata: Json | null
+          source: string
+          threat_category: string | null
+          threat_level: string
+        }
+        Insert: {
+          active?: boolean | null
+          confidence_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          first_seen?: string | null
+          id?: string
+          ioc_type: string
+          ioc_value: string
+          last_seen?: string | null
+          metadata?: Json | null
+          source: string
+          threat_category?: string | null
+          threat_level: string
+        }
+        Update: {
+          active?: boolean | null
+          confidence_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          first_seen?: string | null
+          id?: string
+          ioc_type?: string
+          ioc_value?: string
+          last_seen?: string | null
+          metadata?: Json | null
+          source?: string
+          threat_category?: string | null
+          threat_level?: string
         }
         Relationships: []
       }
