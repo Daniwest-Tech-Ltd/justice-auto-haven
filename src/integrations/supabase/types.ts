@@ -322,6 +322,42 @@ export type Database = {
         }
         Relationships: []
       }
+      company_settings: {
+        Row: {
+          company_name: string
+          created_at: string | null
+          email: string
+          environment: string
+          id: string
+          location: string
+          phone: string
+          system_version: string
+          updated_at: string | null
+        }
+        Insert: {
+          company_name?: string
+          created_at?: string | null
+          email?: string
+          environment?: string
+          id?: string
+          location?: string
+          phone?: string
+          system_version?: string
+          updated_at?: string | null
+        }
+        Update: {
+          company_name?: string
+          created_at?: string | null
+          email?: string
+          environment?: string
+          id?: string
+          location?: string
+          phone?: string
+          system_version?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           admin_reply: string | null
