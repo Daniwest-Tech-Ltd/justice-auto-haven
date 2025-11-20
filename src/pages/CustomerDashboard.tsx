@@ -39,6 +39,9 @@ const CustomerDashboard = () => {
   const [rentalsCars, setRentalsCars] = useState<any[]>([]);
   const [purchasedCars, setPurchasedCars] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [filteredWishlist, setFilteredWishlist] = useState<any[]>([]);
+  const [filteredRentals, setFilteredRentals] = useState<any[]>([]);
+  const [filteredPurchases, setFilteredPurchases] = useState<any[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -62,6 +65,7 @@ const CustomerDashboard = () => {
       
       setWishlistCount(wishlist?.length || 0);
       setWishlistCars(wishlist || []);
+      setFilteredWishlist(wishlist || []);
 
       // Fetch rentals
       const { data: rentals } = await supabase
@@ -71,6 +75,7 @@ const CustomerDashboard = () => {
       
       setRentalsCount(rentals?.length || 0);
       setRentalsCars(rentals || []);
+      setFilteredRentals(rentals || []);
 
       // Fetch purchases
       const { data: sales } = await supabase
@@ -80,12 +85,45 @@ const CustomerDashboard = () => {
       
       setPurchasesCount(sales?.length || 0);
       setPurchasedCars(sales || []);
+      setFilteredPurchases(sales || []);
     } catch (error) {
       console.error("Error fetching customer data:", error);
     } finally {
       setDataLoading(false);
     }
   };
+
+  // Search functionality
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredWishlist(wishlistCars);
+      setFilteredRentals(rentalsCars);
+      setFilteredPurchases(purchasedCars);
+    } else {
+      const query = searchQuery.toLowerCase();
+      
+      const filteredW = wishlistCars.filter(item =>
+        item.cars?.make?.toLowerCase().includes(query) ||
+        item.cars?.model?.toLowerCase().includes(query) ||
+        item.cars?.year?.toString().includes(query)
+      );
+      setFilteredWishlist(filteredW);
+
+      const filteredR = rentalsCars.filter(item =>
+        item.cars?.make?.toLowerCase().includes(query) ||
+        item.cars?.model?.toLowerCase().includes(query) ||
+        item.cars?.year?.toString().includes(query)
+      );
+      setFilteredRentals(filteredR);
+
+      const filteredP = purchasedCars.filter(item =>
+        item.cars?.make?.toLowerCase().includes(query) ||
+        item.cars?.model?.toLowerCase().includes(query) ||
+        item.cars?.year?.toString().includes(query)
+      );
+      setFilteredPurchases(filteredP);
+    }
+  }, [searchQuery, wishlistCars, rentalsCars, purchasedCars]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -242,16 +280,22 @@ const CustomerDashboard = () => {
             </TabsList>
 
             <TabsContent value="wishlist" className="space-y-4">
-              {wishlistCars.length === 0 ? (
+              {filteredWishlist.length === 0 && !searchQuery ? (
                 <Card className="glass-strong">
                   <CardContent className="pt-6">
                     <p className="text-muted-foreground text-center">Your wishlist is empty. Start browsing our catalogue!</p>
                     <Button onClick={() => navigate("/catalogue")} className="mt-4 mx-auto block">Browse Cars</Button>
                   </CardContent>
                 </Card>
+              ) : filteredWishlist.length === 0 && searchQuery ? (
+                <Card className="glass-strong">
+                  <CardContent className="pt-6">
+                    <p className="text-muted-foreground text-center">No vehicles found matching "{searchQuery}"</p>
+                  </CardContent>
+                </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {wishlistCars.map((item: any) => (
+                  {filteredWishlist.map((item: any) => (
                     <Card key={item.id} className="glass-strong">
                       <CardContent className="p-4">
                         <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
@@ -271,15 +315,21 @@ const CustomerDashboard = () => {
             </TabsContent>
 
             <TabsContent value="bookings" className="space-y-4">
-              {rentalsCars.length === 0 ? (
+              {filteredRentals.length === 0 && !searchQuery ? (
                 <Card className="glass-strong">
                   <CardContent className="pt-6">
                     <p className="text-muted-foreground text-center">No active rentals</p>
                   </CardContent>
                 </Card>
+              ) : filteredRentals.length === 0 && searchQuery ? (
+                <Card className="glass-strong">
+                  <CardContent className="pt-6">
+                    <p className="text-muted-foreground text-center">No rentals found matching "{searchQuery}"</p>
+                  </CardContent>
+                </Card>
               ) : (
                 <div className="space-y-4">
-                  {rentalsCars.map((rental: any) => (
+                  {filteredRentals.map((rental: any) => (
                     <Card key={rental.id} className="glass-strong">
                       <CardContent className="p-4">
                         <div className="flex gap-4">
@@ -299,15 +349,21 @@ const CustomerDashboard = () => {
             </TabsContent>
 
             <TabsContent value="vehicles" className="space-y-4">
-              {purchasedCars.length === 0 ? (
+              {filteredPurchases.length === 0 && !searchQuery ? (
                 <Card className="glass-strong">
                   <CardContent className="pt-6">
                     <p className="text-muted-foreground text-center">No purchased vehicles yet</p>
                   </CardContent>
                 </Card>
+              ) : filteredPurchases.length === 0 && searchQuery ? (
+                <Card className="glass-strong">
+                  <CardContent className="pt-6">
+                    <p className="text-muted-foreground text-center">No vehicles found matching "{searchQuery}"</p>
+                  </CardContent>
+                </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {purchasedCars.map((sale: any) => (
+                  {filteredPurchases.map((sale: any) => (
                     <Card key={sale.id} className="glass-strong">
                       <CardContent className="p-4">
                         <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
