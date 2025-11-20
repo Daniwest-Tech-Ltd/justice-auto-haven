@@ -21,6 +21,7 @@ import "jspdf-autotable";
 import { PQCMigrationWizard } from "@/components/PQCMigrationWizard";
 import { RealtimeAlertSystem } from "@/components/RealtimeAlertSystem";
 import { AutoResponseWorkflows } from "@/components/AutoResponseWorkflows";
+import { IncidentTimeline } from "@/components/IncidentTimeline";
 
 const AISecurityDashboard = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -37,6 +38,7 @@ const AISecurityDashboard = () => {
   const [aiThreatScore, setAiThreatScore] = useState<any>(null);
   const [aiAnomalies, setAiAnomalies] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -417,9 +419,10 @@ const AISecurityDashboard = () => {
         <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
+          <TabsTrigger value="incidents">Incidents</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="realtime">Real-time</TabsTrigger>
           <TabsTrigger value="workflows">Auto-Response</TabsTrigger>
-          <TabsTrigger value="incidents">Incidents</TabsTrigger>
           <TabsTrigger value="playbooks">Playbooks</TabsTrigger>
           <TabsTrigger value="pqc">PQC Wizard</TabsTrigger>
         </TabsList>

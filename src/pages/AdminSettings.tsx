@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Save, User, Building, Mail, Phone } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
+import { Textarea } from "@/components/ui/textarea";
 import kenyaLocations from "@/data/kenya-locations.json";
 import { setTheme } from "@/lib/theme";
 import type { Theme } from "@/lib/theme";
@@ -38,13 +39,97 @@ const AdminSettings = () => {
     database_status: "",
     storage_status: "",
   });
+  const [maintenanceMode, setMaintenanceMode] = useState({
+    is_active: false,
+    hours: 1,
+    message: "System under maintenance. Please check back later."
+  });
+  const [maintenanceId, setMaintenanceId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchProfile();
     fetchCompanySettings();
+    fetchMaintenanceStatus();
   }, []);
+
+  const fetchMaintenanceStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("system_maintenance")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (data) {
+        setMaintenanceId(data.id);
+        const endTime = new Date(data.end_time);
+        const now = new Date();
+        setMaintenanceMode({
+          is_active: data.is_active && endTime > now,
+          hours: Math.round((endTime.getTime() - now.getTime()) / (1000 * 60 * 60)),
+          message: data.message || "System under maintenance. Please check back later."
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching maintenance:", error);
+    }
+  };
+
+  const toggleMaintenance = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      if (maintenanceMode.is_active) {
+        // Deactivate maintenance
+        if (maintenanceId) {
+          await supabase
+            .from("system_maintenance")
+            .update({ is_active: false })
+            .eq("id", maintenanceId);
+        }
+        setMaintenanceMode({ ...maintenanceMode, is_active: false });
+        toast({
+          title: "Success",
+          description: "System maintenance mode disabled",
+        });
+      } else {
+        // Activate maintenance
+        const startTime = new Date();
+        const endTime = new Date(startTime.getTime() + maintenanceMode.hours * 60 * 60 * 1000);
+
+        const { data, error } = await supabase
+          .from("system_maintenance")
+          .insert({
+            is_active: true,
+            start_time: startTime.toISOString(),
+            end_time: endTime.toISOString(),
+            message: maintenanceMode.message,
+            created_by: user.id
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        
+        setMaintenanceId(data.id);
+        setMaintenanceMode({ ...maintenanceMode, is_active: true });
+        toast({
+          title: "Success",
+          description: "System maintenance mode enabled",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     // Update available towns when county changes
@@ -221,10 +306,11 @@ const AdminSettings = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="company">Company Info</TabsTrigger>
               <TabsTrigger value="system">System</TabsTrigger>
+              <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6 pt-6">
