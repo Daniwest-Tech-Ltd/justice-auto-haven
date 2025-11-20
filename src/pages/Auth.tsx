@@ -73,6 +73,26 @@ const Auth = () => {
 
   useEffect(() => {
     checkMaintenanceMode();
+    
+    // Set up realtime subscription for maintenance mode changes
+    const channel = supabase
+      .channel('maintenance-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'system_maintenance'
+        },
+        () => {
+          checkMaintenanceMode();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
