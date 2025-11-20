@@ -107,7 +107,16 @@ export const ReviewsSection = ({ carId, carName }: ReviewsSectionProps) => {
   };
 
   if (loading) {
-    return <div className="py-8 text-center">Loading reviews...</div>;
+    return (
+      <div className="py-8 flex flex-col items-center justify-center gap-4">
+        <p className="text-xl font-semibold">Loading reviews...</p>
+        <img 
+          src="/src/assets/loading-animation.gif" 
+          alt="Loading animation" 
+          className="h-24 w-24 object-contain"
+        />
+      </div>
+    );
   }
 
   return (

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useActivityTracker } from "./hooks/useActivityTracker";
+import LoadingScreen from "./components/LoadingScreen";
 
 // Lazy load pages
 const Home = lazy(() => import("./pages/Home"));
@@ -64,6 +65,7 @@ const AISecurityDashboard = lazy(() => import("./pages/AISecurityDashboard"));
 const Orders = lazy(() => import("./pages/Orders"));
 const CustomerOrderStatus = lazy(() => import("./pages/CustomerOrderStatus"));
 const VIPAnalytics = lazy(() => import("./pages/VIPAnalytics"));
+const OTPManagement = lazy(() => import("./pages/OTPManagement"));
 const TrackOrder = lazy(() => import("./pages/TrackOrder"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const CookieManagement = lazy(() => import("./pages/CookieManagement"));
@@ -75,7 +77,7 @@ const AppContent = () => {
   const { logActivity } = useActivityTracker();
 
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<LoadingScreen />}>
       <Routes>
           {/* Public Routes with Layout */}
           <Route path="/" element={<Layout><Home /></Layout>} />
@@ -169,6 +171,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <VIPAnalytics />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/otp-management" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <OTPManagement />
               </ProtectedRoute>
             } 
           />
