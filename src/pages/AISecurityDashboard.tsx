@@ -18,6 +18,9 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { PQCMigrationWizard } from "@/components/PQCMigrationWizard";
+import { RealtimeAlertSystem } from "@/components/RealtimeAlertSystem";
+import { AutoResponseWorkflows } from "@/components/AutoResponseWorkflows";
 
 const AISecurityDashboard = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -411,13 +414,14 @@ const AISecurityDashboard = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
+          <TabsTrigger value="realtime">Real-time</TabsTrigger>
+          <TabsTrigger value="workflows">Auto-Response</TabsTrigger>
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
-          <TabsTrigger value="threats">Threats</TabsTrigger>
           <TabsTrigger value="playbooks">Playbooks</TabsTrigger>
-          <TabsTrigger value="pqc">PQC</TabsTrigger>
+          <TabsTrigger value="pqc">PQC Wizard</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -506,6 +510,16 @@ const AISecurityDashboard = () => {
               ))}
             </div>
           </ScrollArea>
+        </TabsContent>
+
+        {/* Real-time Alert System Tab */}
+        <TabsContent value="realtime" className="space-y-4">
+          <RealtimeAlertSystem />
+        </TabsContent>
+
+        {/* Auto-Response Workflows Tab */}
+        <TabsContent value="workflows" className="space-y-4">
+          <AutoResponseWorkflows />
         </TabsContent>
 
         <TabsContent value="incidents" className="space-y-4">
@@ -607,14 +621,16 @@ const AISecurityDashboard = () => {
         </TabsContent>
 
         <TabsContent value="pqc" className="space-y-4">
+          <PQCMigrationWizard />
+          
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Key className="h-5 w-5" />
-                Post-Quantum Cryptography Migration
+                Post-Quantum Cryptography Inventory
               </CardTitle>
               <CardDescription>
-                Monitor cryptographic assets and prepare for quantum-resistant algorithms
+                Monitor cryptographic assets and track PQC migration status
               </CardDescription>
             </CardHeader>
             <CardContent>
