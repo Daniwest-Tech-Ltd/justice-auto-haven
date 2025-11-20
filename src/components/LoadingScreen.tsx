@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import loadingGif from "@/assets/loading-animation.gif";
 
 const LoadingScreen = () => {
   const [dots, setDots] = useState("");
@@ -20,8 +21,13 @@ const LoadingScreen = () => {
           </span>
         </div>
         
-        <div className="relative mx-auto h-16 w-16">
-          <div className="absolute inset-0 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-2xl font-semibold text-white">Loading...</p>
+          <img 
+            src={loadingGif} 
+            alt="Loading animation" 
+            className="h-32 w-32 object-contain"
+          />
         </div>
         
         <p className="mt-6 text-lg text-white/90">With you every step of the way</p>
