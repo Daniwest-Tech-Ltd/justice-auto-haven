@@ -31,10 +31,28 @@ serve(async (req) => {
     // Store code in database (expires in 10 minutes)
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
     
-    await supabase.from("two_factor_auth").insert({
+    const { data: otpData, error: insertError } = await supabase
+      .from("two_factor_auth")
+      .insert({
+        user_id: userId,
+        code,
+        expires_at: expiresAt,
+      })
+      .select()
+      .single();
+
+    if (insertError) throw insertError;
+
+    // Log audit trail
+    await supabase.from("otp_audit_trail").insert({
+      otp_id: otpData.id,
       user_id: userId,
-      code,
-      expires_at: expiresAt,
+      action: "generated",
+      performed_by: userId,
+      metadata: {
+        expires_in: "10 minutes",
+        generation_time: new Date().toISOString()
+      }
     });
 
     // Send email with code via Resend API
@@ -69,6 +87,17 @@ serve(async (req) => {
       console.error("Resend API error:", emailResponse.status, errorData);
       throw new Error(`Failed to send email: ${emailResponse.status} - ${errorData}`);
     }
+
+    // Call notification function in background
+    supabase.functions.invoke("otp-notification", {
+      body: {
+        email,
+        userId,
+        code,
+        action: "generated",
+        expiresIn: "10 minutes"
+      }
+    }).catch(err => console.error("Notification error:", err));
 
     return new Response(
       JSON.stringify({ success: true, message: "2FA code sent successfully" }),

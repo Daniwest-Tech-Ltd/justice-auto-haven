@@ -895,6 +895,50 @@ export type Database = {
         }
         Relationships: []
       }
+      otp_audit_trail: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          otp_id: string | null
+          performed_by: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          otp_id?: string | null
+          performed_by?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          otp_id?: string | null
+          performed_by?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "otp_audit_trail_otp_id_fkey"
+            columns: ["otp_id"]
+            isOneToOne: false
+            referencedRelation: "two_factor_auth"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payroll: {
         Row: {
           allowances: number | null
@@ -1835,7 +1879,17 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      otp_statistics: {
+        Row: {
+          active_unverified: number | null
+          expired_total: number | null
+          generated_last_24h: number | null
+          total_verified: number | null
+          verification_rate: number | null
+          verified_last_24h: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       create_daily_attendance: {
