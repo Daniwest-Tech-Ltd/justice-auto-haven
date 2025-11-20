@@ -210,24 +210,35 @@ const AISecurityDashboard = () => {
           <h1 className="text-3xl font-bold mb-2">AI Security Dashboard</h1>
           <p className="text-muted-foreground">Real-time security monitoring and AI-powered threat detection</p>
         </div>
-        <Button
-          onClick={runAIAnalysis}
-          disabled={isAnalyzing}
-          size="lg"
-          className="gap-2"
-        >
-          {isAnalyzing ? (
-            <>
-              <RefreshCw className="h-5 w-5 animate-spin" />
-              Analyzing...
-            </>
-          ) : (
-            <>
-              <Brain className="h-5 w-5" />
-              Run AI Analysis
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={exportToPDF}
+            variant="outline"
+            size="lg"
+            className="gap-2"
+          >
+            <Download className="h-5 w-5" />
+            Export PDF
+          </Button>
+          <Button
+            onClick={runAIAnalysis}
+            disabled={isAnalyzing}
+            size="lg"
+            className="gap-2"
+          >
+            {isAnalyzing ? (
+              <>
+                <RefreshCw className="h-5 w-5 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Brain className="h-5 w-5" />
+                Run AI Analysis
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* AI Analysis Results */}
@@ -420,7 +431,6 @@ const AISecurityDashboard = () => {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="realtime">Real-time</TabsTrigger>
           <TabsTrigger value="workflows">Auto-Response</TabsTrigger>
           <TabsTrigger value="playbooks">Playbooks</TabsTrigger>
@@ -526,39 +536,59 @@ const AISecurityDashboard = () => {
         </TabsContent>
 
         <TabsContent value="incidents" className="space-y-4">
-          <ScrollArea className="h-[600px]">
-            <div className="grid gap-4">
-              {incidents.map((incident) => (
-                <Card key={incident.id}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{incident.title}</CardTitle>
-                      <div className="flex gap-2">
-                        <Badge variant={
-                          incident.severity === 'critical' ? 'destructive' :
-                          incident.severity === 'high' ? 'destructive' :
-                          'default'
-                        }>
-                          {incident.severity}
-                        </Badge>
-                        <Badge variant={incident.status === 'resolved' ? 'secondary' : 'default'}>
-                          {incident.status}
-                        </Badge>
-                      </div>
-                    </div>
-                    <CardDescription>Incident #{incident.incident_number}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-3">{incident.description}</p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <p>Created: {new Date(incident.created_at).toLocaleString()}</p>
-                      {incident.resolved_at && <p>Resolved: {new Date(incident.resolved_at).toLocaleString()}</p>}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
+          <Card>
+            <CardHeader>
+              <CardTitle>Security Incidents</CardTitle>
+              <CardDescription>Active and resolved security incidents</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[600px]">
+                {incidents.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-[400px] text-center">
+                    <Shield className="h-16 w-16 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Security Incidents</h3>
+                    <p className="text-sm text-muted-foreground">
+                      No security incidents have been recorded yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {incidents.map((incident) => (
+                      <Card key={incident.id} className="border-2">
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-lg">{incident.title}</CardTitle>
+                            <div className="flex gap-2">
+                              <Badge variant={
+                                incident.severity === 'critical' ? 'destructive' :
+                                incident.severity === 'high' ? 'destructive' :
+                                'default'
+                              }>
+                                {incident.severity}
+                              </Badge>
+                              <Badge variant={incident.status === 'resolved' ? 'secondary' : 'default'}>
+                                {incident.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <CardDescription>Incident #{incident.incident_number}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm mb-3">{incident.description}</p>
+                          <div className="text-xs text-muted-foreground space-y-1">
+                            <p>Created: {new Date(incident.created_at).toLocaleString()}</p>
+                            {incident.resolved_at && <p>Resolved: {new Date(incident.resolved_at).toLocaleString()}</p>}
+                            {incident.assigned_to && <p>Assigned To: {incident.assigned_to}</p>}
+                            {incident.impact_assessment && <p>Impact: {incident.impact_assessment}</p>}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="threats" className="space-y-4">
