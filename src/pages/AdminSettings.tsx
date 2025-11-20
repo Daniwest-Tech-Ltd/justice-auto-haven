@@ -466,6 +466,113 @@ const AdminSettings = () => {
                 </div>
               </div>
             </TabsContent>
+
+            <TabsContent value="maintenance" className="space-y-6 pt-6">
+              <div className="space-y-6">
+                {/* Current Status */}
+                <div className={`rounded-lg p-6 border-2 ${
+                  maintenanceMode.is_active 
+                    ? 'bg-destructive/10 border-destructive' 
+                    : 'bg-green-500/10 border-green-500'
+                }`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold">Current Status</h3>
+                    <div className={`px-4 py-2 rounded-full font-bold ${
+                      maintenanceMode.is_active 
+                        ? 'bg-destructive text-destructive-foreground' 
+                        : 'bg-green-500 text-white'
+                    }`}>
+                      {maintenanceMode.is_active ? 'MAINTENANCE MODE ACTIVE' : 'SYSTEM OPERATIONAL'}
+                    </div>
+                  </div>
+                  
+                  {maintenanceMode.is_active && (
+                    <div className="text-sm text-muted-foreground">
+                      <p className="mb-2">Users will see a maintenance screen when attempting to access the authentication page.</p>
+                      <p className="font-medium">Message: "{maintenanceMode.message}"</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Maintenance Controls */}
+                <div className="bg-muted/50 rounded-lg p-6">
+                  <h3 className="text-lg font-bold mb-4">Maintenance Mode Controls</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="maintenance-duration">Duration</Label>
+                      <Select
+                        value={maintenanceMode.hours.toString()}
+                        onValueChange={(value) => setMaintenanceMode({ ...maintenanceMode, hours: parseInt(value) })}
+                      >
+                        <SelectTrigger id="maintenance-duration">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1 Hour</SelectItem>
+                          <SelectItem value="6">6 Hours</SelectItem>
+                          <SelectItem value="24">1 Day</SelectItem>
+                          <SelectItem value="72">3 Days</SelectItem>
+                          <SelectItem value="168">1 Week</SelectItem>
+                          <SelectItem value="336">2 Weeks</SelectItem>
+                          <SelectItem value="720">1 Month</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Select how long the system will remain under maintenance
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="maintenance-message">Custom Message</Label>
+                      <Textarea
+                        id="maintenance-message"
+                        value={maintenanceMode.message}
+                        onChange={(e) => setMaintenanceMode({ ...maintenanceMode, message: e.target.value })}
+                        placeholder="Enter a message to display to users during maintenance..."
+                        rows={3}
+                        className="resize-none"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        This message will be shown to users on the maintenance screen
+                      </p>
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                      {!maintenanceMode.is_active ? (
+                        <Button
+                          onClick={toggleMaintenance}
+                          variant="destructive"
+                          className="flex-1"
+                        >
+                          Enable Maintenance Mode
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={toggleMaintenance}
+                          variant="default"
+                          className="flex-1"
+                        >
+                          Disable Maintenance Mode
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Warning Notice */}
+                <div className="bg-yellow-500/10 border border-yellow-500/50 rounded-lg p-4">
+                  <h4 className="font-bold text-yellow-600 dark:text-yellow-400 mb-2">⚠️ Important Notice</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Users will not be able to login or signup during maintenance</li>
+                    <li>A countdown timer will be displayed showing time remaining</li>
+                    <li>Logged-in users can continue using the system</li>
+                    <li>You can disable maintenance mode at any time</li>
+                    <li>Maintenance mode will automatically end after the selected duration</li>
+                  </ul>
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
