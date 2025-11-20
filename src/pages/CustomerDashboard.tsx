@@ -22,9 +22,11 @@ import { useToast } from "@/hooks/use-toast";
 import SessionTimeoutModal from "@/components/SessionTimeoutModal";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { supabase } from "@/integrations/supabase/client";
+import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import { CustomerLoyaltyBadge } from "@/components/CustomerLoyaltyBadge";
 import { LiveChatWidget } from "@/components/LiveChatWidget";
+import logo from "@/assets/logo.png";
 
 const CustomerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,6 +44,7 @@ const CustomerDashboard = () => {
   const [filteredWishlist, setFilteredWishlist] = useState<any[]>([]);
   const [filteredRentals, setFilteredRentals] = useState<any[]>([]);
   const [filteredPurchases, setFilteredPurchases] = useState<any[]>([]);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -57,7 +60,6 @@ const CustomerDashboard = () => {
     
     setDataLoading(true);
     try {
-      // Fetch wishlist
       const { data: wishlist } = await supabase
         .from("wishlist")
         .select("*, cars(*)")
@@ -67,7 +69,6 @@ const CustomerDashboard = () => {
       setWishlistCars(wishlist || []);
       setFilteredWishlist(wishlist || []);
 
-      // Fetch rentals
       const { data: rentals } = await supabase
         .from("rentals")
         .select("*, cars(*)")
@@ -77,7 +78,6 @@ const CustomerDashboard = () => {
       setRentalsCars(rentals || []);
       setFilteredRentals(rentals || []);
 
-      // Fetch purchases
       const { data: sales } = await supabase
         .from("sales")
         .select("*, cars(*)")
@@ -93,7 +93,6 @@ const CustomerDashboard = () => {
     }
   };
 
-  // Search functionality
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredWishlist(wishlistCars);
@@ -162,7 +161,6 @@ const CustomerDashboard = () => {
           onLogout={handleLogout}
         />
         
-        {/* Sidebar */}
         <Sidebar collapsible="icon">
           <SidebarContent>
             <SidebarGroup>
@@ -178,7 +176,7 @@ const CustomerDashboard = () => {
                     </SidebarMenuItem>
                   ))}
                   <SidebarMenuItem>
-                    <SidebarMenuButton onClick={handleSignOut} className="text-destructive">
+                    <SidebarMenuButton onClick={() => setShowLogoutModal(true)} className="text-destructive">
                       <LogOut className="h-4 w-4" />
                       <span>Logout</span>
                     </SidebarMenuButton>
@@ -189,12 +187,22 @@ const CustomerDashboard = () => {
           </SidebarContent>
         </Sidebar>
 
-        {/* Main Content */}
         <main className="flex-1 w-full">
-          {/* Top Bar */}
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
-            <SidebarTrigger />
-            <div className="flex-1 flex items-center gap-4">
+          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger />
+                <img src={logo} alt="Justice Ultimate Automobiles" className="h-10 w-auto" />
+                <h1 className="text-xl font-bold">Justice Ultimate Automobiles Customer Dashboard</h1>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+                  <Home className="h-5 w-5" />
+                </Button>
+                <Button onClick={() => navigate("/catalogue")} size="sm">Browse Catalogue</Button>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -206,12 +214,6 @@ const CustomerDashboard = () => {
                 />
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-                <Home className="h-5 w-5" />
-              </Button>
-              <Button onClick={() => navigate("/catalogue")} size="sm">Browse Catalogue</Button>
-            </div>
           </header>
 
           <div className="p-6 space-y-6">
@@ -220,10 +222,8 @@ const CustomerDashboard = () => {
               <p className="text-muted-foreground">Manage your vehicles and bookings</p>
             </div>
 
-            {/* Loyalty Badge */}
             <CustomerLoyaltyBadge />
 
-            {/* Colorful Widget Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900 border-pink-200 dark:border-pink-800">
                 <CardContent className="p-6">
@@ -271,7 +271,6 @@ const CustomerDashboard = () => {
               </Card>
             </div>
 
-          {/* Tabs */}
           <Tabs defaultValue="wishlist" className="space-y-6">
             <TabsList className="glass-strong">
               <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
@@ -382,6 +381,12 @@ const CustomerDashboard = () => {
           </div>
         </main>
       </div>
+      
+      <LogoutConfirmModal
+        isOpen={showLogoutModal}
+        onConfirm={handleSignOut}
+        onCancel={() => setShowLogoutModal(false)}
+      />
       
       <LiveChatWidget />
     </SidebarProvider>
