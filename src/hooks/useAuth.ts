@@ -12,6 +12,8 @@ export interface UserProfile {
   county_city?: string;
   exact_location?: string;
   preferred_contact?: string;
+  account_status?: "active" | "suspended" | "blocked";
+  is_suspended?: boolean;
 }
 
 export interface UserRole {
@@ -66,7 +68,7 @@ export const useAuth = () => {
         .eq("user_id", userId)
         .single();
 
-      setProfile(profileData);
+      setProfile(profileData as UserProfile);
       setRole(roleData);
     } catch (error) {
       console.error("Error fetching user data:", error);

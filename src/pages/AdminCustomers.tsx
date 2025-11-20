@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Ban, Trash2, Edit, CheckCircle, Copy } from "lucide-react";
+import { ArrowLeft, Ban, Trash2, Edit, CheckCircle, Copy, Shield } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { 
   AlertDialog, 
@@ -37,6 +37,7 @@ interface Customer {
   email: string;
   phone: string;
   is_suspended: boolean;
+  account_status: "active" | "suspended" | "blocked";
   activation_code: string | null;
   created_at: string;
   role: string;
@@ -87,11 +88,12 @@ const AdminCustomers = () => {
         const userRole = rolesData?.find(r => r.user_id === profile.user_id);
         return {
           ...profile,
-          role: userRole?.role || "customer"
+          role: userRole?.role || "customer",
+          account_status: (profile.account_status || "active") as "active" | "suspended" | "blocked"
         };
       }) || [];
 
-      setCustomers(customersWithRoles);
+      setCustomers(customersWithRoles as Customer[]);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -108,7 +110,7 @@ const AdminCustomers = () => {
       // Get user email first
       const { data: profile } = await supabase
         .from("profiles")
-        .select("email")
+        .select("email, full_name")
         .eq("user_id", userId)
         .single();
 
@@ -120,6 +122,7 @@ const AdminCustomers = () => {
         .from("profiles")
         .update({ 
           is_suspended: true,
+          account_status: "suspended",
           suspended_at: new Date().toISOString(),
           suspended_reason: "Suspended by admin",
           activation_code: activationCode
@@ -159,6 +162,7 @@ const AdminCustomers = () => {
         .from("profiles")
         .update({ 
           is_suspended: false,
+          account_status: "active",
           suspended_at: null,
           suspended_reason: null,
           activation_code: null,
@@ -171,6 +175,57 @@ const AdminCustomers = () => {
       toast({
         title: "Customer Activated",
         description: "Customer account has been reactivated successfully",
+      });
+      fetchCustomers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const blockCustomer = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email, full_name")
+        .eq("user_id", userId)
+        .single();
+
+      // Generate activation code
+      const { data: codeData } = await supabase.rpc('generate_activation_code');
+      const activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ 
+          is_suspended: true,
+          account_status: "blocked",
+          suspended_at: new Date().toISOString(),
+          suspended_reason: "Blocked by admin",
+          activation_code: activationCode
+        })
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      // Send suspension notification email
+      if (profile?.email) {
+        await supabase.functions.invoke('send-suspension-notification', {
+          body: {
+            email: profile.email,
+            name: profile.full_name,
+            reason: "Your account has been blocked by an administrator.",
+            activationCode: activationCode
+          }
+        });
+      }
+
+      toast({
+        title: "Success",
+        description: "Customer blocked successfully",
       });
       fetchCustomers();
     } catch (error: any) {
@@ -329,8 +384,14 @@ const AdminCustomers = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={customer.is_suspended ? "destructive" : "default"}>
-                          {customer.is_suspended ? "Suspended" : "Active"}
+                        <Badge variant={
+                          customer.account_status === "blocked" ? "destructive" : 
+                          customer.account_status === "suspended" ? "destructive" : 
+                          "default"
+                        }>
+                          {customer.account_status === "blocked" ? "Blocked" : 
+                           customer.account_status === "suspended" ? "Suspended" : 
+                           "Active"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -405,7 +466,7 @@ const AdminCustomers = () => {
                                 </DialogContent>
                               </Dialog>
 
-                              {customer.is_suspended ? (
+                              {customer.account_status === "suspended" || customer.account_status === "blocked" ? (
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -415,27 +476,54 @@ const AdminCustomers = () => {
                                   <CheckCircle className="h-4 w-4" />
                                 </Button>
                               ) : (
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button size="sm" variant="outline" className="text-orange-600 hover:text-orange-700">
-                                      <Ban className="h-4 w-4" />
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Suspend Customer</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Are you sure you want to suspend this customer? An activation code will be generated.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => suspendCustomer(customer.user_id)}>
-                                        Suspend
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
+                                <>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button size="sm" variant="outline" className="text-orange-600 hover:text-orange-700">
+                                        <Ban className="h-4 w-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Suspend Customer</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Are you sure you want to suspend this customer? An activation code will be generated.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => suspendCustomer(customer.user_id)}>
+                                          Suspend
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                                        <Shield className="h-4 w-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Block Customer</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Are you sure you want to block this customer? They will not be able to access their account until activated.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction 
+                                          onClick={() => blockCustomer(customer.user_id)}
+                                          className="bg-red-600 hover:bg-red-700"
+                                        >
+                                          Block
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </>
                               )}
 
                               <AlertDialog>

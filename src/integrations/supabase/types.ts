@@ -1044,6 +1044,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string | null
           activation_code: string | null
           county_city: string | null
           created_at: string | null
@@ -1066,6 +1067,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_status?: string | null
           activation_code?: string | null
           county_city?: string | null
           created_at?: string | null
@@ -1088,6 +1090,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_status?: string | null
           activation_code?: string | null
           county_city?: string | null
           created_at?: string | null
