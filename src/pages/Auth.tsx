@@ -34,6 +34,7 @@ const Auth = () => {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showSuspendedModal, setShowSuspendedModal] = useState(false);
   const [suspensionReason, setSuspensionReason] = useState("");
+  const [suspendedUntil, setSuspendedUntil] = useState<string>();
   const [show2FADialog, setShow2FADialog] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
@@ -334,6 +335,25 @@ const Auth = () => {
     }
   };
 
+  const getSuspensionDuration = (attempts: number): number => {
+    const stage = Math.floor(attempts / 3);
+    switch (stage) {
+      case 1: return 30;   // 30 minutes
+      case 2: return 60;   // 1 hour
+      case 3: return 120;  // 2 hours
+      default: return 180; // 3 hours (blocked)
+    }
+  };
+
+  const getEscalationReason = (stage: number): string => {
+    switch (stage) {
+      case 1: return "Account suspended for 30 minutes due to multiple failed login attempts.";
+      case 2: return "Account suspended for 1 hour due to repeated failed login attempts.";
+      case 3: return "Account suspended for 2 hours due to continued failed login attempts.";
+      default: return "Account blocked due to excessive failed login attempts. Please contact administrator.";
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -360,10 +380,40 @@ const Auth = () => {
         .maybeSingle();
 
       if (profileData?.is_suspended) {
-        setShowSuspendedModal(true);
-        setSuspensionReason(profileData.suspended_reason || "Account suspended");
-        setLoading(false);
-        return;
+        // Calculate suspension expiry time
+        if (profileData.suspended_at) {
+          const suspendedAt = new Date(profileData.suspended_at);
+          const attempts = profileData.login_attempts || 0;
+          const suspensionMinutes = getSuspensionDuration(attempts);
+          const until = new Date(suspendedAt.getTime() + suspensionMinutes * 60000);
+          
+          // Check if suspension has expired
+          if (new Date() < until) {
+            setSuspendedUntil(until.toISOString());
+            setShowSuspendedModal(true);
+            setSuspensionReason(profileData.suspended_reason || "Account suspended");
+            setLoading(false);
+            return;
+          } else {
+            // Suspension expired, auto-reactivate
+            await supabase
+              .from("profiles")
+              .update({
+                is_suspended: false,
+                suspended_reason: null,
+                suspended_at: null,
+                login_attempts: 0,
+                activation_code: null
+              })
+              .eq("user_id", profileData.user_id);
+          }
+        } else {
+          // No suspended_at timestamp, show modal anyway
+          setShowSuspendedModal(true);
+          setSuspensionReason(profileData.suspended_reason || "Account suspended");
+          setLoading(false);
+          return;
+        }
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -381,30 +431,49 @@ const Auth = () => {
         // Track failed login attempt
         if (profileData) {
           const newAttempts = (profileData.login_attempts || 0) + 1;
+          const now = new Date().toISOString();
           
           if (newAttempts >= 3) {
-            // Auto-suspend after 3 failed attempts
-            const { data: codeData } = await supabase.rpc('generate_activation_code');
-            const activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
+            // Calculate escalation stage
+            const stage = Math.floor(newAttempts / 3);
+            const suspensionMinutes = getSuspensionDuration(newAttempts);
+            const until = new Date(new Date(now).getTime() + suspensionMinutes * 60000);
+            
+            let updateData: any = {
+              login_attempts: newAttempts,
+              last_login_attempt: now,
+              suspended_at: now,
+            };
+            
+            if (stage >= 4) {
+              // Block account after 4th escalation (12+ failed attempts)
+              const { data: codeData } = await supabase.rpc('generate_activation_code');
+              const activationCode = codeData || Array.from({ length: 16 }, () => 
+                Math.floor(Math.random() * 16).toString(16)
+              ).join('').toUpperCase();
+              
+              updateData.is_suspended = true;
+              updateData.suspended_reason = "Account blocked due to repeated failed login attempts. Contact administrator for assistance.";
+              updateData.activation_code = activationCode;
+            } else {
+              // Escalating suspension
+              const reason = getEscalationReason(stage);
+              updateData.is_suspended = true;
+              updateData.suspended_reason = reason;
+            }
             
             await supabase
               .from("profiles")
-              .update({
-                is_suspended: true,
-                suspended_at: new Date().toISOString(),
-                suspended_reason: "Too many failed login attempts",
-                activation_code: activationCode,
-                login_attempts: newAttempts
-              })
+              .update(updateData)
               .eq("user_id", profileData.user_id);
-
-            toast({
-              title: "Account Suspended",
-              description: "Too many failed login attempts. Contact admin for activation code.",
-              variant: "destructive",
-            });
+            
+            setSuspensionReason(updateData.suspended_reason);
+            setSuspendedUntil(until.toISOString());
             setShowSuspendedModal(true);
-            setSuspensionReason("Too many failed login attempts");
+            sonnerToast.error(stage >= 4 
+              ? "Account blocked. Please contact administrator." 
+              : `Account suspended for ${suspensionMinutes} minutes.`
+            );
           } else {
             await supabase
               .from("profiles")
@@ -992,8 +1061,11 @@ const Auth = () => {
       <SuspendedUserModal 
         isOpen={showSuspendedModal}
         reason={suspensionReason}
+        suspendedUntil={suspendedUntil}
         onSuccess={() => {
           setShowSuspendedModal(false);
+          setSuspensionReason("");
+          setSuspendedUntil(undefined);
           sonnerToast.success("Account reactivated successfully! Please login again.");
         }}
       />
