@@ -69,10 +69,24 @@ Deno.serve(async (req) => {
       overallStatus = 'degraded';
     }
 
+    // Generate intelligent suggestions
+    const suggestions = generateSuggestions({
+      auth: authHealth,
+      database: databaseHealth,
+      api: apiHealth,
+      storage: storageHealth,
+      cron: cronHealth,
+      logs: logsHealth,
+      security: securityHealth,
+      uptime: uptimeHealth,
+      totalTime,
+    });
+
     const healthData = {
       overall_status: overallStatus,
       last_updated: new Date().toISOString(),
       check_duration_ms: totalTime,
+      suggestions,
       auth: authHealth,
       database: databaseHealth,
       api: apiHealth,
@@ -85,6 +99,18 @@ Deno.serve(async (req) => {
 
     // Store health metrics
     await storeHealthMetrics(supabase, healthData);
+
+    // Update main system_health table
+    await supabase.from('system_health').upsert({
+      id: 'system',
+      status: overallStatus,
+      latency_ms: totalTime,
+      message: overallStatus === 'healthy' 
+        ? 'All systems operational' 
+        : `System ${overallStatus}: ${suggestions.slice(0, 2).join('; ')}`,
+      suggestions,
+      last_checked: new Date().toISOString(),
+    });
 
     // Create notification if system is degraded or down
     if (overallStatus !== 'healthy') {
@@ -335,12 +361,22 @@ async function storeHealthMetrics(supabase: any, healthData: any) {
     const categoryData = healthData[category];
     if (!categoryData) continue;
 
+    // Store in system_health_metrics
     await supabase.from('system_health_metrics').insert({
       category,
       metric_name: 'health_check',
       metric_value: categoryData.status === 'healthy' ? 100 : categoryData.status === 'degraded' ? 50 : 0,
       status: categoryData.status,
       details: categoryData,
+    });
+
+    // Store in system_health_logs
+    await supabase.from('system_health_logs').insert({
+      status: categoryData.status,
+      service_name: category,
+      details: categoryData.error || `Status: ${categoryData.status}`,
+      latency_ms: categoryData.latency_ms || categoryData.query_latency_ms || null,
+      metadata: categoryData,
     });
   }
 
@@ -352,8 +388,74 @@ async function storeHealthMetrics(supabase: any, healthData: any) {
     metadata: {
       duration_ms: healthData.check_duration_ms,
       overall_status: healthData.overall_status,
+      suggestions: healthData.suggestions,
     },
   });
+}
+
+function generateSuggestions(data: any): string[] {
+  const suggestions: string[] = [];
+
+  // Database latency suggestions
+  if (data.database.query_latency_ms > 700) {
+    suggestions.push('🔴 Critical: Database latency is very high (>700ms). Consider upgrading Supabase compute or optimizing queries.');
+  } else if (data.database.query_latency_ms > 400) {
+    suggestions.push('⚠️ Database latency is elevated (>400ms). Review query performance and database indexes.');
+  }
+
+  // Storage suggestions
+  if (data.storage.status === 'down') {
+    suggestions.push('🔴 Storage service is down. Check Supabase Storage service status and RLS policies.');
+  } else if (data.storage.latency_ms > 500) {
+    suggestions.push('⚠️ Storage response time is slow. Consider reviewing storage bucket policies.');
+  }
+
+  // Auth suggestions
+  if (data.auth.status === 'down') {
+    suggestions.push('🔴 Authentication service failed. Verify Supabase Auth service role key and service status.');
+  } else if (data.auth.suspended_users > data.auth.total_users * 0.1) {
+    suggestions.push('⚠️ High number of suspended users detected. Review user management policies.');
+  }
+
+  // Security suggestions
+  if (data.security.failed_logins_24h > 20) {
+    suggestions.push('🔴 High failed login attempts detected (>20 in 24h). Possible brute force attack - enable rate limiting.');
+  } else if (data.security.failed_logins_24h > 10) {
+    suggestions.push('⚠️ Elevated failed login attempts. Monitor for suspicious activity.');
+  }
+
+  // Error log suggestions
+  if (data.logs.errors_count > 10) {
+    suggestions.push('🔴 High error count in logs (>10 recent errors). Review system logs immediately.');
+  } else if (data.logs.warnings_count > 15) {
+    suggestions.push('⚠️ Multiple warnings detected. Review system logs for potential issues.');
+  }
+
+  // Cron job suggestions
+  if (data.cron.failed_jobs > 0) {
+    suggestions.push(`⚠️ ${data.cron.failed_jobs} cron job(s) failed. Check job configurations and logs.`);
+  }
+
+  // Overall performance
+  if (data.totalTime > 3000) {
+    suggestions.push('🔴 Health check took >3 seconds. System performance is severely degraded.');
+  } else if (data.totalTime > 1500) {
+    suggestions.push('⚠️ Health check is slow (>1.5s). Monitor system resources.');
+  }
+
+  // Uptime suggestions
+  if (data.uptime.uptime_percentage_30d < 95) {
+    suggestions.push('🔴 System uptime below 95%. Investigate recurring issues and implement redundancy.');
+  } else if (data.uptime.uptime_percentage_30d < 99) {
+    suggestions.push('⚠️ System uptime below 99%. Review reliability improvements.');
+  }
+
+  // Add positive message if no issues
+  if (suggestions.length === 0) {
+    suggestions.push('✅ All systems operating normally. No action required.');
+  }
+
+  return suggestions;
 }
 
 async function createHealthNotification(supabase: any, status: string, healthData: any) {
@@ -388,6 +490,7 @@ async function createHealthNotification(supabase: any, status: string, healthDat
         metadata: {
           status,
           problem_areas: problemAreas,
+          suggestions: healthData.suggestions,
           timestamp: new Date().toISOString(),
         },
       });

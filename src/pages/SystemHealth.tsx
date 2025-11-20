@@ -40,7 +40,26 @@ const SystemHealth = () => {
       fetchHealthData();
     }, 30000);
 
-    return () => clearInterval(interval);
+    // Set up realtime subscription for health updates
+    const channel = supabase
+      .channel('health-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'system_health'
+        },
+        () => {
+          fetchHealthData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchHealthData = async () => {
@@ -166,6 +185,40 @@ const SystemHealth = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* AI Suggestions */}
+      {healthData?.suggestions && healthData.suggestions.length > 0 && (
+        <Card className="glass-strong mb-6 border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-primary" />
+              System Recommendations
+            </CardTitle>
+            <CardDescription>
+              Intelligent suggestions based on current system status
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {healthData.suggestions.map((suggestion: string, index: number) => (
+                <div
+                  key={index}
+                  className={`p-3 rounded-lg border ${
+                    suggestion.includes('🔴') 
+                      ? 'bg-destructive/10 border-destructive/50' 
+                      : suggestion.includes('⚠️')
+                      ? 'bg-yellow-500/10 border-yellow-500/50'
+                      : 'bg-green-500/10 border-green-500/50'
+                  }`}
+                >
+                  <p className="text-sm">{suggestion}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
 
       {/* Health Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
