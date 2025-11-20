@@ -1,8 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import ceoImage from "@/assets/ceo.jpg";
+import danielImage from "@/assets/daniel-maina.jpg";
+import { useState } from "react";
 
 const About = () => {
+  const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>({});
+
+  const toggleCard = (cardId: string) => {
+    setFlippedCards(prev => ({ ...prev, [cardId]: !prev[cardId] }));
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 space-y-20">
       {/* Hero */}
@@ -12,14 +20,15 @@ const About = () => {
             Driving Excellence <span className="bg-gradient-accent bg-clip-text text-transparent">Beyond Borders</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Connecting Kenya to the world, one car at a time. From Nairobi to New York, we deliver unmatched value in vehicle sourcing, export, import, and sales.
+            At Justice Ultimate Automobiles, we connect Kenya to the world—one vehicle at a time. 
+            From Nairobi to Tokyo, Dubai to New York, we deliver unmatched value in vehicle sourcing, exports, imports, and global automotive logistics.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link to="/services">
               <Button size="lg">Explore Our Global Services</Button>
             </Link>
             <Link to="/contact">
-              <Button size="lg" variant="outline">Visit Showroom</Button>
+              <Button size="lg" variant="outline">Visit Our Showroom</Button>
             </Link>
           </div>
         </div>
@@ -28,34 +37,38 @@ const About = () => {
       {/* Mission & Vision */}
       <section className="grid md:grid-cols-2 gap-8">
         <div className="glass-strong rounded-2xl p-8">
-          <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
+          <h2 className="text-3xl font-bold mb-4">🎯 Our Mission</h2>
           <p className="text-muted-foreground">
-            Our mission is to redefine trust in vehicle acquisition by connecting global customers with high-quality, affordable cars from Kenya and across the world.
+            To redefine trust and transparency in vehicle acquisition by connecting customers worldwide with high-quality, affordable cars sourced from Kenya and global markets.
           </p>
         </div>
         <div className="glass-strong rounded-2xl p-8">
-          <h2 className="text-3xl font-bold mb-4">Our Vision</h2>
+          <h2 className="text-3xl font-bold mb-4">🌟 Our Vision</h2>
           <p className="text-muted-foreground">
-            To be Africa's most trusted and internationally recognized automobile dealer, delivering cars across continents with precision, professionalism, and pride.
+            To become Africa's most trusted and internationally recognized automobile brand, delivering vehicles across continents with professionalism, precision, and pride.
           </p>
         </div>
       </section>
 
       {/* Core Values */}
       <section className="glass-strong rounded-3xl p-12">
-        <h2 className="text-4xl font-bold mb-8 text-center">💎 Core Values</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        <h2 className="text-4xl font-bold mb-8 text-center">💎 Our Core Values</h2>
+        <p className="text-lg text-muted-foreground text-center mb-8">
+          These principles guide our daily operations and define how we serve every customer
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
-            { icon: "🌐", title: "Global Reach" },
-            { icon: "🤝", title: "Integrity" },
-            { icon: "🚗", title: "Quality Assurance" },
-            { icon: "📦", title: "Seamless Logistics" },
-            { icon: "🌟", title: "Customer Success" },
-            { icon: "⚙️", title: "Innovation & Tech" },
+            { icon: "🌐", title: "Global Reach", desc: "We export vehicles to over 60+ countries through a seamless international network." },
+            { icon: "🤝", title: "Integrity", desc: "We maintain honesty, ethics, and transparency in every transaction." },
+            { icon: "🚗", title: "Quality Assurance", desc: "Every vehicle undergoes strict inspection and verification before delivery." },
+            { icon: "📦", title: "Seamless Logistics", desc: "From port handling to customs clearance—our logistics are flawless." },
+            { icon: "🌟", title: "Customer Success", desc: "Your satisfaction is our measure of excellence." },
+            { icon: "⚙️", title: "Innovation & Tech", desc: "We integrate modern tools, AI systems, and digital dashboards to optimize our services." },
           ].map((value) => (
-            <div key={value.title} className="text-center">
-              <div className="text-4xl mb-2">{value.icon}</div>
-              <p className="text-sm font-medium">{value.title}</p>
+            <div key={value.title} className="text-center glass rounded-xl p-6">
+              <div className="text-4xl mb-4">{value.icon}</div>
+              <h3 className="text-lg font-bold mb-2">{value.title}</h3>
+              <p className="text-sm text-muted-foreground">{value.desc}</p>
             </div>
           ))}
         </div>
@@ -65,15 +78,18 @@ const About = () => {
       <section className="glass-strong rounded-3xl p-12">
         <h2 className="text-4xl font-bold mb-8 text-center">📖 Our Story</h2>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-12 text-center">
-          Justice Ultimate Automobiles began in Nyeri, Kenya, with a bold vision — to give every customer, no matter their location, access to world-class vehicles. From humble beginnings to global exports, we've built a company driven by passion, purpose, and people.
+          Justice Ultimate Automobiles began in Nyeri, Kenya, with a bold mission—to make premium vehicles accessible to every customer, anywhere in the world. 
+          From humble beginnings to global operations, our journey reflects dedication, growth, and a passion for excellence.
         </p>
+        
+        <h3 className="text-2xl font-bold mb-6 text-center">🕰 Our Milestones</h3>
         <div className="grid md:grid-cols-5 gap-6">
           {[
-            { year: "2020", event: "Founded in Nyeri" },
-            { year: "2021", event: "First cross-border sale to Uganda" },
-            { year: "2022", event: "Europe export expansion" },
-            { year: "2023", event: "Over 1,000 cars sold" },
-            { year: "2024", event: "Global logistics hub opened in Mombasa" },
+            { year: "2015", event: "Founded in Nairobi – Karen" },
+            { year: "2021", event: "First cross-border sale to Westlands International Client" },
+            { year: "2022", event: "Expanded sourcing and exports to Japan" },
+            { year: "2023", event: "Surpassed 10,000 vehicles sold globally" },
+            { year: "2025", event: "Opened Global Logistics Hub in Mombasa Port" },
           ].map((milestone) => (
             <div key={milestone.year} className="glass rounded-xl p-6 text-center">
               <div className="text-3xl font-bold text-primary mb-2">{milestone.year}</div>
@@ -85,47 +101,217 @@ const About = () => {
 
       {/* Team */}
       <section className="space-y-12">
-        <h2 className="text-4xl font-bold text-center">Meet the Team</h2>
+        <h2 className="text-4xl font-bold text-center">👥 Meet Our Leadership & Global Team</h2>
         
-        <div className="glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <img
-              src={ceoImage}
-              alt="Justice Vincent - CEO"
-              className="w-48 h-48 rounded-full object-cover border-4 border-primary"
-            />
-            <div className="flex-1">
-              <div className="text-sm text-primary font-semibold mb-2">C.E.O</div>
-              <h3 className="text-3xl font-bold mb-4">Justice Vincent</h3>
-              <p className="text-lg mb-4">Chief Executive Officer (C.E.O)</p>
-              <p className="text-muted-foreground">
-                Justice Ultimate Automobiles was built from a relentless drive to deliver world-class vehicles with honesty, excellence, and a customer-first culture. We are proud to serve clients across continents, one successful handover at a time.
-              </p>
+        {/* Team Flip Cards */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          
+          {/* CEO Card */}
+          <div className="relative h-80 perspective-1000">
+            <div 
+              className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
+                flippedCards['ceo'] ? 'rotate-y-180' : ''
+              }`}
+              onClick={() => toggleCard('ceo')}
+            >
+              {/* Front */}
+              <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center">
+                <img
+                  src={ceoImage}
+                  alt="Justice Vincent - CEO"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-primary mb-4"
+                />
+                <h3 className="text-xl font-bold mb-2">Justice Vincent</h3>
+                <p className="text-sm text-primary font-semibold mb-2">Chief Executive Officer (CEO)</p>
+                <p className="text-xs text-muted-foreground">📍 Kenya / Global Operations</p>
+                <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
+              </div>
+              
+              {/* Back */}
+              <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-bold mb-3">Justice Vincent</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Justice Vincent leads Justice Ultimate Automobiles with a passion for excellence, integrity, and world-class customer service. 
+                    With years of experience in global automotive sourcing, he has transformed the company into a trusted international brand.
+                  </p>
+                  <p className="text-xs italic text-muted-foreground mb-4">
+                    "Committed to delivering vehicles across continents—safely and professionally."
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <a 
+                    href="https://wa.me/254722827458" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg text-center transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    📞 WhatsApp: 0722 827 458
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { name: "Daniel Maina W.", role: "System Administrator 🇰🇪" },
-            { name: "******", role: "Head of Exports 🇺🇸" },
-            { name: "******", role: "Logistics Lead 🇦🇪" },
-            { name: "******", role: "Sales Rep 🇰🇪" },
-          ].map((member) => (
-            <div key={member.name} className="glass-strong rounded-2xl p-6 text-center">
-              <div className="w-20 h-20 rounded-full bg-primary/20 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-2xl">👤</span>
+          {/* System Admin Card */}
+          <div className="relative h-80 perspective-1000">
+            <div 
+              className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
+                flippedCards['admin'] ? 'rotate-y-180' : ''
+              }`}
+              onClick={() => toggleCard('admin')}
+            >
+              {/* Front */}
+              <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center">
+                <img
+                  src={danielImage}
+                  alt="Daniel Maina W. - System Administrator"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-primary mb-4"
+                />
+                <h3 className="text-xl font-bold mb-2">Daniel Maina W.</h3>
+                <p className="text-sm text-primary font-semibold mb-2">System Administrator & DevOps Engineer</p>
+                <p className="text-xs text-muted-foreground">📍 Kenya</p>
+                <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
               </div>
-              <h4 className="font-bold mb-2">{member.name}</h4>
-              <p className="text-sm text-muted-foreground">{member.role}</p>
+              
+              {/* Back */}
+              <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-bold mb-3">Daniel Maina W.</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Software DevOps Engineer, Cybersecurity Specialist, Programmer, and Graphics Designer with over 2 years of professional experience.
+                  </p>
+                  <div className="text-xs text-muted-foreground mb-4">
+                    <p className="mb-1">🛡 Responsibilities:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>System Security</li>
+                      <li>AI Integrations</li>
+                      <li>Web & App Development</li>
+                      <li>Technical Support</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <a 
+                    href="https://wa.me/254701460110" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg text-center transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    📞 WhatsApp: 0701 460 110
+                  </a>
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
+
+          {/* Head of Exports Card */}
+          <div className="relative h-80 perspective-1000">
+            <div 
+              className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
+                flippedCards['exports'] ? 'rotate-y-180' : ''
+              }`}
+              onClick={() => toggleCard('exports')}
+            >
+              {/* Front */}
+              <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center">
+                <div className="w-32 h-32 rounded-full bg-primary/20 border-4 border-primary mb-4 flex items-center justify-center">
+                  <span className="text-4xl">👤</span>
+                </div>
+                <h3 className="text-xl font-bold mb-2">Name Hidden</h3>
+                <p className="text-sm text-primary font-semibold mb-2">Head of Exports – Japan Division</p>
+                <p className="text-xs text-muted-foreground">📍 Japan</p>
+                <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
+              </div>
+              
+              {/* Back */}
+              <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-center">
+                <div>
+                  <h3 className="text-lg font-bold mb-3">Head of Exports</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Oversees sourcing, inspection, and vehicle verification across Japan's largest auction networks. 
+                    Ensures clients receive the best quality vehicles at competitive prices.
+                  </p>
+                  <p className="text-xs text-primary font-semibold">📍 Japan Division</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Logistics Lead Card */}
+          <div className="relative h-80 perspective-1000">
+            <div 
+              className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
+                flippedCards['logistics'] ? 'rotate-y-180' : ''
+              }`}
+              onClick={() => toggleCard('logistics')}
+            >
+              {/* Front */}
+              <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center">
+                <div className="w-32 h-32 rounded-full bg-primary/20 border-4 border-primary mb-4 flex items-center justify-center">
+                  <span className="text-4xl">👤</span>
+                </div>
+                <h3 className="text-xl font-bold mb-2">Name Hidden</h3>
+                <p className="text-sm text-primary font-semibold mb-2">Global Logistics Lead</p>
+                <p className="text-xs text-muted-foreground">📍 Global</p>
+                <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
+              </div>
+              
+              {/* Back */}
+              <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-center">
+                <div>
+                  <h3 className="text-lg font-bold mb-3">Logistics Lead</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Coordinates international shipping, port operations, customs procedures, and delivery timelines 
+                    to ensure smooth end-to-end logistics for all exported vehicles.
+                  </p>
+                  <p className="text-xs text-primary font-semibold">📍 Global Operations</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sales Rep Card */}
+          <div className="relative h-80 perspective-1000">
+            <div 
+              className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
+                flippedCards['sales'] ? 'rotate-y-180' : ''
+              }`}
+              onClick={() => toggleCard('sales')}
+            >
+              {/* Front */}
+              <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center">
+                <div className="w-32 h-32 rounded-full bg-primary/20 border-4 border-primary mb-4 flex items-center justify-center">
+                  <span className="text-4xl">👤</span>
+                </div>
+                <h3 className="text-xl font-bold mb-2">Name Hidden 🇰🇪</h3>
+                <p className="text-sm text-primary font-semibold mb-2">Regional Sales Representative</p>
+                <p className="text-xs text-muted-foreground">📍 Kenya</p>
+                <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
+              </div>
+              
+              {/* Back */}
+              <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-center">
+                <div>
+                  <h3 className="text-lg font-bold mb-3">Sales Representative</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Supports customers across Kenya with vehicle sales, showroom assistance, documentation, 
+                    and comprehensive after-sales services.
+                  </p>
+                  <p className="text-xs text-primary font-semibold">📍 Kenya Region</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
         </div>
       </section>
 
       {/* CTA */}
       <section className="glass-strong rounded-3xl p-12 text-center">
-        <h2 className="text-4xl font-bold mb-6">Ready to Drive With Us?</h2>
+        <h2 className="text-4xl font-bold mb-6">🚀 Ready to Drive With Us?</h2>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link to="/contact">
             <Button size="lg">Contact Our Global Sales Team</Button>
