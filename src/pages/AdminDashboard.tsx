@@ -114,22 +114,17 @@ const AdminDashboard = () => {
   if (!user || !profile || role?.role !== "admin") return null;
 
   const menuItems = [
-    { title: "Overview", icon: Grid3x3, onClick: () => {} },
+    { title: "Overview", icon: Home, onClick: () => {} },
     { title: "Vehicles", icon: Car, onClick: () => navigate("/admin/cars") },
     { title: "Orders", icon: Package, onClick: () => navigate("/admin/orders") },
     { title: "Customers", icon: Users, onClick: () => navigate("/admin/customers") },
-    { title: "Sales", icon: DollarSign, onClick: () => navigate("/admin/sales") },
-    { title: "Sales Forecasting", icon: TrendingUp, onClick: () => navigate("/admin/sales/forecasting") },
-    { title: "AI Security", icon: Shield, onClick: () => navigate("/admin/security") },
+    { title: "Sales", icon: DollarSign, onClick: () => navigate("/admin/sales-analytics") },
+    { title: "Sales Forecasting", icon: TrendingUp, onClick: () => navigate("/admin/sales-forecasting") },
+    { title: "AI Security", icon: Shield, onClick: () => navigate("/admin/ai-security") },
     { title: "OTP Management", icon: Key, onClick: () => navigate("/admin/otp-management") },
-    { title: "HR Management", icon: Users, onClick: () => navigate("/admin/hr") },
-    { title: "Daily Reports", icon: BarChart3, onClick: () => navigate("/admin/reports") },
-    { title: "Live Attendance", icon: Clock, onClick: () => navigate("/admin/live-attendance") },
-    { title: "Staff Performance", icon: TrendingUp, onClick: () => navigate("/admin/performance") },
-    { title: "CRM", icon: Users, onClick: () => navigate("/admin/crm") },
-    { title: "System Health", icon: Activity, onClick: () => navigate("/system-health") },
-    { title: "Settings", icon: Settings, onClick: () => navigate("/admin/settings") },
+    { title: "HR Management", icon: Users, onClick: () => navigate("/admin/hr-management") },
     { title: "Messages", icon: MessageSquare, onClick: () => navigate("/admin/messages") },
+    { title: "Settings", icon: Settings, onClick: () => navigate("/admin/settings") },
   ];
 
   return (
