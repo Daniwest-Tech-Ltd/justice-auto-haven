@@ -146,14 +146,14 @@ const AdminDashboard = () => {
                 <SidebarMenu>
                   {menuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton onClick={item.onClick} tooltip={item.title}>
+                      <SidebarMenuButton onClick={item.onClick}>
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
                   <SidebarMenuItem>
-                    <SidebarMenuButton onClick={handleSignOut} tooltip="Logout" className="text-destructive">
+                    <SidebarMenuButton onClick={handleSignOut} className="text-destructive">
                       <LogOut className="h-4 w-4" />
                       <span>Logout</span>
                     </SidebarMenuButton>
