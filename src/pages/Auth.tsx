@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,7 @@ import { useSecurityLogger } from "@/hooks/useSecurityLogger";
 import { useTurnstile } from "@/hooks/useTurnstile";
 import authBg from "@/assets/auth-bg.jpg";
 import carLotOverlay from "@/assets/car-lot-overlay.jpg";
+import maintenanceGif from "@/assets/maintenance.gif";
 import kenyaLocations from "@/data/kenya-locations.json";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
@@ -60,6 +62,72 @@ const Auth = () => {
   const [preferredContact, setPreferredContact] = useState("email");
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [termsAccepted, setTermsAccepted] = useState(false);
+
+  const [maintenanceMode, setMaintenanceMode] = useState<{
+    is_active: boolean;
+    end_time: string | null;
+    message: string;
+  } | null>(null);
+  const [maintenanceCountdown, setMaintenanceCountdown] = useState("");
+
+  useEffect(() => {
+    checkMaintenanceMode();
+  }, []);
+
+  useEffect(() => {
+    if (maintenanceMode?.is_active && maintenanceMode.end_time) {
+      const interval = setInterval(() => {
+        const now = new Date().getTime();
+        const end = new Date(maintenanceMode.end_time!).getTime();
+        const distance = end - now;
+
+        if (distance < 0) {
+          clearInterval(interval);
+          setMaintenanceCountdown("System is back online!");
+          checkMaintenanceMode();
+          return;
+        }
+
+        const hours = Math.floor(distance / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        setMaintenanceCountdown(`${hours}h ${minutes}m ${seconds}s`);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [maintenanceMode]);
+
+  const checkMaintenanceMode = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("system_maintenance")
+        .select("*")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (data) {
+        const endTime = new Date(data.end_time);
+        const now = new Date();
+        if (endTime > now) {
+          setMaintenanceMode({
+            is_active: true,
+            end_time: data.end_time,
+            message: data.message || "System under maintenance. Please check back later."
+          });
+        } else {
+          setMaintenanceMode(null);
+        }
+      } else {
+        setMaintenanceMode(null);
+      }
+    } catch (error) {
+      setMaintenanceMode(null);
+    }
+  };
 
   useEffect(() => {
     // Update available towns when county changes
@@ -505,6 +573,49 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  if (maintenanceMode?.is_active) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 space-y-6">
+            <div className="text-center space-y-4">
+              <img 
+                src={maintenanceGif} 
+                alt="System under maintenance" 
+                className="w-32 h-32 mx-auto object-contain"
+              />
+              <h2 className="text-2xl font-bold">System Under Maintenance</h2>
+              <p className="text-muted-foreground">{maintenanceMode.message}</p>
+              
+              {maintenanceCountdown && (
+                <div className="bg-muted p-4 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Back online in:</p>
+                  <p className="text-2xl font-bold text-primary">{maintenanceCountdown}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => navigate("/")} 
+                variant="outline" 
+                className="flex-1"
+              >
+                Back to Home
+              </Button>
+              <Button 
+                onClick={() => navigate("/catalogue")} 
+                className="flex-1"
+              >
+                See Catalogue
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <>

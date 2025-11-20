@@ -790,6 +790,53 @@ export type Database = {
           },
         ]
       }
+      incident_timeline: {
+        Row: {
+          created_at: string | null
+          description: string
+          event_type: string
+          evidence: Json | null
+          forensic_data: Json | null
+          id: string
+          incident_id: string | null
+          is_critical: boolean | null
+          performed_by: string | null
+          timestamp: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          event_type: string
+          evidence?: Json | null
+          forensic_data?: Json | null
+          id?: string
+          incident_id?: string | null
+          is_critical?: boolean | null
+          performed_by?: string | null
+          timestamp?: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          event_type?: string
+          evidence?: Json | null
+          forensic_data?: Json | null
+          id?: string
+          incident_id?: string | null
+          is_critical?: boolean | null
+          performed_by?: string | null
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_timeline_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "security_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           created_at: string
@@ -1573,6 +1620,39 @@ export type Database = {
           metadata?: Json | null
           severity?: string
           type?: string
+        }
+        Relationships: []
+      }
+      system_maintenance: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          end_time: string
+          id: string
+          is_active: boolean
+          message: string | null
+          start_time: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          end_time: string
+          id?: string
+          is_active?: boolean
+          message?: string | null
+          start_time: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          message?: string | null
+          start_time?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
