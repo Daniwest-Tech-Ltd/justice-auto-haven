@@ -17,7 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import { PQCMigrationWizard } from "@/components/PQCMigrationWizard";
 import { RealtimeAlertSystem } from "@/components/RealtimeAlertSystem";
 import { AutoResponseWorkflows } from "@/components/AutoResponseWorkflows";
@@ -137,7 +137,7 @@ const AISecurityDashboard = () => {
       alert.event_type,
       new Date(alert.created_at).toLocaleDateString()
     ]);
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 50,
       head: [['Title', 'Severity', 'Type', 'Date']],
       body: eventData
@@ -152,7 +152,7 @@ const AISecurityDashboard = () => {
       incident.severity,
       incident.status
     ]);
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: yPos + 5,
       head: [['Number', 'Title', 'Severity', 'Status']],
       body: incidentData
