@@ -1091,7 +1091,20 @@ const Auth = () => {
       />
 
       {/* 2FA Verification Dialog */}
-      <Dialog open={show2FADialog} onOpenChange={setShow2FADialog}>
+      <Dialog open={show2FADialog} onOpenChange={async (open) => {
+        if (!open) {
+          // User closed or cancelled - log them out
+          await supabase.auth.signOut();
+          setShow2FADialog(false);
+          setPendingUserId(null);
+          setTwoFactorCode("");
+          toast({
+            title: "Login Cancelled",
+            description: "You must complete 2FA verification to login.",
+            variant: "destructive",
+          });
+        }
+      }}>
         <DialogContent className="glass-strong">
           <DialogHeader>
             <DialogTitle className="text-2xl">Two-Factor Authentication</DialogTitle>
@@ -1120,10 +1133,16 @@ const Auth = () => {
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={() => {
+                  onClick={async () => {
+                    await supabase.auth.signOut();
                     setShow2FADialog(false);
                     setPendingUserId(null);
                     setTwoFactorCode("");
+                    toast({
+                      title: "Login Cancelled",
+                      description: "You must complete 2FA verification to login.",
+                      variant: "destructive",
+                    });
                   }}
                 >
                   Cancel

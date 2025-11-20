@@ -26,13 +26,16 @@ import { supabase } from "@/integrations/supabase/client";
 import NotificationsPanel from "@/components/NotificationsPanel";
 import { SessionTimeoutModal } from "@/components/SessionTimeoutModal";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
+import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
+import logo from "@/assets/logo.png";
 
 const AdminDashboard = () => {
   const [customers, setCustomers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredCustomers, setFilteredCustomers] = useState<any[]>([]);
   const [openGroups, setOpenGroups] = useState<string[]>(["dashboard"]);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { user, profile, role, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -60,7 +63,6 @@ const AdminDashboard = () => {
 
   const fetchCustomers = async () => {
     try {
-      // Fetch profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
@@ -68,14 +70,12 @@ const AdminDashboard = () => {
 
       if (profilesError) throw profilesError;
 
-      // Fetch user roles
       const { data: rolesData, error: rolesError } = await supabase
         .from("user_roles")
         .select("user_id, role");
 
       if (rolesError) throw rolesError;
 
-      // Merge profiles with roles
       const customersWithRoles = (profilesData || []).map(profile => ({
         ...profile,
         user_roles: rolesData?.filter(role => role.user_id === profile.user_id) || []
@@ -88,7 +88,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Search functionality
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredCustomers(customers);
@@ -150,7 +149,6 @@ const AdminDashboard = () => {
         { title: "Activity Analytics", icon: Activity, path: "/admin/analytics" },
         { title: "Sales Analytics", icon: DollarSign, path: "/admin/sales" },
         { title: "Sales Forecasting", icon: TrendingUp, path: "/admin/sales/forecasting" },
-        { title: "VIP Analytics", icon: Grid3x3, path: "/admin/vip-analytics" },
       ]
     },
     {
@@ -194,7 +192,6 @@ const AdminDashboard = () => {
       label: "HR & Internal Systems",
       items: [
         { title: "HR Management", icon: UserCog, path: "/admin/hr" },
-        { title: "OTP Management", icon: Key, path: "/admin/otp-management" },
         { title: "Cookie Management", icon: Cookie, path: "/admin/cookie-management" },
       ]
     },
@@ -222,7 +219,6 @@ const AdminDashboard = () => {
           onLogout={handleLogout}
         />
         
-        {/* Sidebar */}
         <Sidebar collapsible="icon">
           <SidebarContent>
             <div className="px-3 py-2">
@@ -265,12 +261,11 @@ const AdminDashboard = () => {
               </Collapsible>
             ))}
 
-            {/* Logout at the bottom */}
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton onClick={handleSignOut} className="text-destructive">
+                    <SidebarMenuButton onClick={() => setShowLogoutModal(true)} className="text-destructive">
                       <LogOut className="h-4 w-4" />
                       <span>Logout</span>
                     </SidebarMenuButton>
@@ -281,12 +276,26 @@ const AdminDashboard = () => {
           </SidebarContent>
         </Sidebar>
 
-        {/* Main Content */}
         <main className="flex-1 w-full">
-          {/* Top Bar */}
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
-            <SidebarTrigger />
-            <div className="flex-1 flex items-center gap-4">
+          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger />
+                <img src={logo} alt="Justice Ultimate Automobiles" className="h-10 w-auto" />
+                <h1 className="text-xl font-bold">Justice Ultimate Automobiles Admin Dashboard</h1>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+                  <Home className="h-5 w-5" />
+                </Button>
+                <NotificationsPanel />
+                <Button variant="ghost" size="icon" onClick={() => navigate("/admin/messages")}>
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+                <Button onClick={() => navigate("/admin/cars/add")} size="sm">Add Vehicle</Button>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -298,16 +307,6 @@ const AdminDashboard = () => {
                 />
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-                <Home className="h-5 w-5" />
-              </Button>
-              <NotificationsPanel />
-              <Button variant="ghost" size="icon" onClick={() => navigate("/admin/messages")}>
-                <MessageSquare className="h-5 w-5" />
-              </Button>
-              <Button onClick={() => navigate("/admin/cars/add")} size="sm">Add Vehicle</Button>
-            </div>
           </header>
 
           <div className="p-6 space-y-6">
@@ -316,7 +315,6 @@ const AdminDashboard = () => {
               <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
             </div>
 
-            {/* Colorful Widget Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card 
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800"
@@ -393,7 +391,6 @@ const AdminDashboard = () => {
               </Card>
             </div>
 
-          {/* Tabs */}
           <Tabs defaultValue="vehicles" className="space-y-6">
             <TabsList className="glass-strong">
               <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
@@ -529,6 +526,12 @@ const AdminDashboard = () => {
           </div>
         </main>
       </div>
+
+      <LogoutConfirmModal
+        isOpen={showLogoutModal}
+        onConfirm={handleSignOut}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </SidebarProvider>
   );
 };
