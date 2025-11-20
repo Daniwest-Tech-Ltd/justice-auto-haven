@@ -170,7 +170,7 @@ const SystemHealth = () => {
       {/* Health Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Authentication */}
-        <Card className="glass">
+        <Card className="glass cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/system-auth-details")}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <Activity className="h-5 w-5 text-primary" />
@@ -188,7 +188,7 @@ const SystemHealth = () => {
         </Card>
 
         {/* Database */}
-        <Card className="glass">
+        <Card className="glass cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/system-database-details")}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <Database className="h-5 w-5 text-primary" />
@@ -224,7 +224,7 @@ const SystemHealth = () => {
         </Card>
 
         {/* Storage */}
-        <Card className="glass">
+        <Card className="glass cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/system-storage-details")}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <HardDrive className="h-5 w-5 text-primary" />
@@ -279,7 +279,7 @@ const SystemHealth = () => {
         </Card>
 
         {/* Security */}
-        <Card className="glass">
+        <Card className="glass cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/system-security-details")}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <Shield className="h-5 w-5 text-primary" />
