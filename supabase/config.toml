@@ -42,3 +42,8 @@ verify_jwt = false
 [functions.system-health-check]
 verify_jwt = false
 
+[functions.ai-threat-scoring]
+verify_jwt = false
+
+[functions.ai-anomaly-detection]
+verify_jwt = false
