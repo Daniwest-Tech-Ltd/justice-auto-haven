@@ -18,7 +18,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package } from "lucide-react";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +31,8 @@ import LoadingScreen from "@/components/LoadingScreen";
 const AdminDashboard = () => {
   const [customers, setCustomers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filteredCustomers, setFilteredCustomers] = useState<any[]>([]);
+  const [openGroups, setOpenGroups] = useState<string[]>(["dashboard"]);
   const { user, profile, role, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -79,9 +82,34 @@ const AdminDashboard = () => {
       }));
 
       setCustomers(customersWithRoles);
+      setFilteredCustomers(customersWithRoles);
     } catch (error) {
       console.error("Error fetching customers:", error);
     }
+  };
+
+  // Search functionality
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredCustomers(customers);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = customers.filter(customer => 
+        customer.full_name?.toLowerCase().includes(query) ||
+        customer.email?.toLowerCase().includes(query) ||
+        customer.phone?.includes(query) ||
+        customer.county_city?.toLowerCase().includes(query)
+      );
+      setFilteredCustomers(filtered);
+    }
+  }, [searchQuery, customers]);
+
+  const toggleGroup = (groupName: string) => {
+    setOpenGroups(prev => 
+      prev.includes(groupName) 
+        ? prev.filter(g => g !== groupName)
+        : [...prev, groupName]
+    );
   };
 
   const fetchRealStats = async () => {
@@ -113,33 +141,75 @@ const AdminDashboard = () => {
 
   if (!user || !profile || role?.role !== "admin") return null;
 
-  const menuItems = [
-    { title: "Overview", icon: Home, onClick: () => navigate("/admin-dashboard") },
-    { title: "Vehicles", icon: Car, onClick: () => navigate("/admin/cars") },
-    { title: "Orders", icon: Package, onClick: () => navigate("/admin/orders") },
-    { title: "Customers", icon: Users, onClick: () => navigate("/admin/customers") },
-    { title: "Sales Analytics", icon: DollarSign, onClick: () => navigate("/admin/sales") },
-    { title: "Sales Forecasting", icon: TrendingUp, onClick: () => navigate("/admin/sales/forecasting") },
-    { title: "Reports", icon: BarChart3, onClick: () => navigate("/admin/reports") },
-    { title: "Activity Analytics", icon: Activity, onClick: () => navigate("/admin/analytics") },
-    { title: "VIP Analytics", icon: Grid3x3, onClick: () => navigate("/admin/vip-analytics") },
-    { title: "AI Security", icon: Shield, onClick: () => navigate("/admin/security") },
-    { title: "Rentals", icon: Clock, onClick: () => navigate("/admin/rentals") },
-    { title: "Trade-Ins", icon: Package, onClick: () => navigate("/admin/trade-ins") },
-    { title: "Brands", icon: Grid3x3, onClick: () => navigate("/admin/brands") },
-    { title: "Videos", icon: Activity, onClick: () => navigate("/admin/videos") },
-    { title: "Blogs", icon: BarChart3, onClick: () => navigate("/admin/blogs") },
-    { title: "HR Management", icon: Users, onClick: () => navigate("/admin/hr") },
-    { title: "CRM", icon: Activity, onClick: () => navigate("/admin/crm") },
-    { title: "OTP Management", icon: Key, onClick: () => navigate("/admin/otp-management") },
-    { title: "Cookie Management", icon: Package, onClick: () => navigate("/admin/cookie-management") },
-    { title: "System Health", icon: Activity, onClick: () => navigate("/system-health") },
-    { title: "Auth Details", icon: Key, onClick: () => navigate("/system-auth-details") },
-    { title: "Database Details", icon: Grid3x3, onClick: () => navigate("/system-database-details") },
-    { title: "Storage Details", icon: Package, onClick: () => navigate("/system-storage-details") },
-    { title: "Security Details", icon: Shield, onClick: () => navigate("/system-security-details") },
-    { title: "Messages", icon: MessageSquare, onClick: () => navigate("/admin/messages") },
-    { title: "Settings", icon: Settings, onClick: () => navigate("/admin/settings") },
+  const menuGroups = [
+    {
+      name: "dashboard",
+      label: "Dashboard",
+      items: [
+        { title: "Overview", icon: Home, path: "/admin-dashboard" },
+        { title: "Activity Analytics", icon: Activity, path: "/admin/analytics" },
+        { title: "Sales Analytics", icon: DollarSign, path: "/admin/sales" },
+        { title: "Sales Forecasting", icon: TrendingUp, path: "/admin/sales/forecasting" },
+        { title: "VIP Analytics", icon: Grid3x3, path: "/admin/vip-analytics" },
+      ]
+    },
+    {
+      name: "vehicle-management",
+      label: "Vehicle Management",
+      items: [
+        { title: "Vehicles", icon: Car, path: "/admin/cars" },
+        { title: "Brands", icon: Grid3x3, path: "/admin/brands" },
+        { title: "Trade-Ins", icon: Package, path: "/admin/trade-ins" },
+        { title: "Rentals", icon: Clock, path: "/admin/rentals" },
+      ]
+    },
+    {
+      name: "orders-customers",
+      label: "Orders & Customers",
+      items: [
+        { title: "Orders", icon: Package, path: "/admin/orders" },
+        { title: "Customers", icon: Users, path: "/admin/customers" },
+        { title: "CRM", icon: Activity, path: "/admin/crm" },
+        { title: "Messages", icon: MessageSquare, path: "/admin/messages" },
+      ]
+    },
+    {
+      name: "content-management",
+      label: "Content Management",
+      items: [
+        { title: "Videos", icon: Video, path: "/admin/videos" },
+        { title: "Blogs", icon: BookOpen, path: "/admin/blogs" },
+      ]
+    },
+    {
+      name: "business-intelligence",
+      label: "Business Intelligence",
+      items: [
+        { title: "Reports", icon: BarChart3, path: "/admin/reports" },
+        { title: "AI Security", icon: Shield, path: "/admin/security" },
+      ]
+    },
+    {
+      name: "hr-internal",
+      label: "HR & Internal Systems",
+      items: [
+        { title: "HR Management", icon: UserCog, path: "/admin/hr" },
+        { title: "OTP Management", icon: Key, path: "/admin/otp-management" },
+        { title: "Cookie Management", icon: Cookie, path: "/admin/cookie-management" },
+      ]
+    },
+    {
+      name: "system-settings",
+      label: "System Settings",
+      items: [
+        { title: "Settings", icon: Settings, path: "/admin/settings" },
+        { title: "System Health", icon: Activity, path: "/system-health" },
+        { title: "Auth Details", icon: Key, path: "/system-auth-details" },
+        { title: "Database Details", icon: Database, path: "/system-database-details" },
+        { title: "Storage Details", icon: Server, path: "/system-storage-details" },
+        { title: "Security Details", icon: Shield, path: "/system-security-details" },
+      ]
+    },
   ];
 
   return (
@@ -155,18 +225,50 @@ const AdminDashboard = () => {
         {/* Sidebar */}
         <Sidebar collapsible="icon">
           <SidebarContent>
+            <div className="px-3 py-2">
+              <h2 className="mb-2 text-lg font-semibold">Admin Dashboard</h2>
+            </div>
+            
+            {menuGroups.map((group) => (
+              <Collapsible
+                key={group.name}
+                open={openGroups.includes(group.name)}
+                onOpenChange={() => toggleGroup(group.name)}
+                className="mb-1"
+              >
+                <SidebarGroup>
+                  <CollapsibleTrigger className="w-full">
+                    <SidebarGroupLabel className="flex items-center justify-between hover:bg-accent/50 rounded-md px-2 py-1.5 cursor-pointer group">
+                      <span>{group.label}</span>
+                      <ChevronRight 
+                        className={`h-4 w-4 transition-transform duration-200 ${
+                          openGroups.includes(group.name) ? 'rotate-90' : ''
+                        }`} 
+                      />
+                    </SidebarGroupLabel>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {group.items.map((item) => (
+                          <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton onClick={() => navigate(item.path)}>
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </CollapsibleContent>
+                </SidebarGroup>
+              </Collapsible>
+            ))}
+
+            {/* Logout at the bottom */}
             <SidebarGroup>
-              <SidebarGroupLabel>Admin Dashboard</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {menuItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton onClick={item.onClick}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
                   <SidebarMenuItem>
                     <SidebarMenuButton onClick={handleSignOut} className="text-destructive">
                       <LogOut className="h-4 w-4" />
@@ -359,7 +461,14 @@ const AdminDashboard = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {customers.map((customer) => (
+                      {filteredCustomers.length === 0 && searchQuery ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center text-muted-foreground">
+                            No customers found matching "{searchQuery}"
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredCustomers.map((customer) => (
                         <TableRow key={customer.id}>
                           <TableCell className="font-medium">{customer.full_name}</TableCell>
                           <TableCell>{customer.email}</TableCell>
@@ -384,7 +493,7 @@ const AdminDashboard = () => {
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      )))}
                     </TableBody>
                   </Table>
                 </CardContent>
