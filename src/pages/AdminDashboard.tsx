@@ -5,13 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity } from "lucide-react";
+import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationsPanel from "@/components/NotificationsPanel";
 import { SessionTimeoutModal } from "@/components/SessionTimeoutModal";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -94,11 +95,7 @@ const AdminDashboard = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!user || !profile || role?.role !== "admin") return null;
@@ -181,6 +178,14 @@ const AdminDashboard = () => {
             >
               <Shield className="h-5 w-5" />
               AI Security
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2"
+              onClick={() => navigate("/admin/otp-management")}
+            >
+              <Key className="h-5 w-5" />
+              OTP Management
             </Button>
             <Button 
               variant="ghost" 
