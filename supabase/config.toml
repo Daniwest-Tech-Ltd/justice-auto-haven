@@ -47,9 +47,3 @@ verify_jwt = false
 
 [functions.ai-anomaly-detection]
 verify_jwt = false
-
-[functions.otp-cleanup]
-verify_jwt = false
-
-[functions.otp-notification]
-verify_jwt = false
