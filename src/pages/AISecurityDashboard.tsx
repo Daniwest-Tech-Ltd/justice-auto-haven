@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, Shield, AlertTriangle, CheckCircle, Ban,
-  Activity, Lock, Brain, Target, FileText, Zap, Globe, Key, Users, Clock, RefreshCw
+  Activity, Lock, Brain, Target, FileText, Zap, Globe, Key, Users, Clock, RefreshCw, Download, Play, Pause, Settings
 } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const AISecurityDashboard = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -110,6 +112,74 @@ const AISecurityDashboard = () => {
       toast({ title: "Analysis Error", description: "Failed to complete AI analysis", variant: "destructive" });
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(20);
+    doc.text("AI Security Dashboard Report", 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30);
+    
+    // Security Events
+    doc.setFontSize(14);
+    doc.text("Security Events", 14, 45);
+    const eventData = alerts.slice(0, 10).map((alert) => [
+      alert.title,
+      alert.severity,
+      alert.event_type,
+      new Date(alert.created_at).toLocaleDateString()
+    ]);
+    (doc as any).autoTable({
+      startY: 50,
+      head: [['Title', 'Severity', 'Type', 'Date']],
+      body: eventData
+    });
+
+    // Incidents
+    let yPos = (doc as any).lastAutoTable.finalY + 15;
+    doc.text("Security Incidents", 14, yPos);
+    const incidentData = incidents.slice(0, 5).map((incident) => [
+      incident.incident_number,
+      incident.title,
+      incident.severity,
+      incident.status
+    ]);
+    (doc as any).autoTable({
+      startY: yPos + 5,
+      head: [['Number', 'Title', 'Severity', 'Status']],
+      body: incidentData
+    });
+
+    // AI Threat Score
+    if (aiThreatScore) {
+      yPos = (doc as any).lastAutoTable.finalY + 15;
+      doc.text(`AI Threat Score: ${aiThreatScore.overallThreatScore}/100`, 14, yPos);
+      doc.text(`Risk Level: ${aiThreatScore.riskLevel}`, 14, yPos + 7);
+    }
+
+    doc.save(`security-report-${new Date().toISOString().split('T')[0]}.pdf`);
+    toast({ title: "PDF Exported", description: "Security report has been downloaded" });
+  };
+
+  const togglePlaybook = async (playbookId: string, enabled: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("security_playbooks")
+        .update({ enabled: !enabled })
+        .eq("id", playbookId);
+
+      if (error) throw error;
+
+      setPlaybooks(playbooks.map(p => p.id === playbookId ? { ...p, enabled: !enabled } : p));
+      toast({ 
+        title: enabled ? "Playbook Disabled" : "Playbook Enabled", 
+        description: `Security playbook has been ${enabled ? 'disabled' : 'enabled'}` 
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: "Failed to toggle playbook", variant: "destructive" });
     }
   };
 

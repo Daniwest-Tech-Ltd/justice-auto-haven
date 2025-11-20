@@ -68,6 +68,10 @@ const VIPAnalytics = lazy(() => import("./pages/VIPAnalytics"));
 const OTPManagement = lazy(() => import("./pages/OTPManagement"));
 const TrackOrder = lazy(() => import("./pages/TrackOrder"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
+const SystemAuthDetails = lazy(() => import("./pages/SystemAuthDetails"));
+const SystemDatabaseDetails = lazy(() => import("./pages/SystemDatabaseDetails"));
+const SystemStorageDetails = lazy(() => import("./pages/SystemStorageDetails"));
+const SystemSecurityDetails = lazy(() => import("./pages/SystemSecurityDetails"));
 const CookieManagement = lazy(() => import("./pages/CookieManagement"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
@@ -387,6 +391,40 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <CRMManagement />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* System Health Detail Routes */}
+          <Route 
+            path="/system-auth-details" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SystemAuthDetails />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/system-database-details" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SystemDatabaseDetails />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/system-storage-details" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SystemStorageDetails />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/system-security-details" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SystemSecurityDetails />
               </ProtectedRoute>
             } 
           />
