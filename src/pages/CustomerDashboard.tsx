@@ -3,7 +3,20 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Car, Calendar, User, Settings, Menu, X, LogOut, Award, Home } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { 
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingBag } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import SessionTimeoutModal from "@/components/SessionTimeoutModal";
@@ -14,7 +27,7 @@ import { CustomerLoyaltyBadge } from "@/components/CustomerLoyaltyBadge";
 import { LiveChatWidget } from "@/components/LiveChatWidget";
 
 const CustomerDashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -89,129 +102,133 @@ const CustomerDashboard = () => {
 
   if (!user || !profile) return null;
 
+  const menuItems = [
+    { title: "Profile", icon: User, onClick: () => navigate("/customer/profile") },
+    { title: "Wishlist", icon: Heart, onClick: () => {} },
+    { title: "My Vehicles", icon: Car, onClick: () => {} },
+    { title: "Bookings", icon: Calendar, onClick: () => {} },
+    { title: "My Badge", icon: Award, onClick: () => navigate("/customer/badge") },
+    { title: "Settings", icon: Settings, onClick: () => navigate("/customer/profile") },
+  ];
+
   return (
-    <div className="min-h-screen relative">
-      <SessionTimeoutModal
-        isOpen={showWarning}
-        timeLeft={timeLeft}
-        onExtend={extendSession}
-        onLogout={handleLogout}
-      />
-      {/* Mobile Menu Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-50 lg:hidden glass"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <X /> : <Menu />}
-      </Button>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <SessionTimeoutModal
+          isOpen={showWarning}
+          timeLeft={timeLeft}
+          onExtend={extendSession}
+          onLogout={handleLogout}
+        />
+        
+        {/* Sidebar */}
+        <Sidebar collapsible="icon">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>My Dashboard</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {menuItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton onClick={item.onClick} tooltip={item.title}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton onClick={handleSignOut} tooltip="Logout" className="text-destructive">
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 h-full w-64 glass-strong border-r border-white/10 z-40 transition-transform lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-8">My Dashboard</h2>
-          <nav className="space-y-2">
-            <Button variant="ghost" className="w-full justify-start gap-2">
-              <User className="h-5 w-5" />
-              Profile
-            </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
-              <Heart className="h-5 w-5" />
-              Wishlist
-            </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
-              <Car className="h-5 w-5" />
-              My Vehicles
-            </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
-              <Calendar className="h-5 w-5" />
-              Bookings
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/customer/badge")}
-            >
-              <Award className="h-5 w-5" />
-              My Badge
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/customer/profile")}
-            >
-              <Settings className="h-5 w-5" />
-              Edit Profile
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2 text-destructive"
-              onClick={handleSignOut}
-            >
-              <LogOut className="h-5 w-5" />
-              Logout
-            </Button>
-          </nav>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="lg:ml-64 p-4 lg:p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold">{getGreeting(profile.full_name)}</h1>
-              <p className="text-muted-foreground">Welcome to Customer Dashboard</p>
-              <p className="text-sm text-muted-foreground mt-1">Manage your vehicles and bookings</p>
+        {/* Main Content */}
+        <main className="flex-1 w-full">
+          {/* Top Bar */}
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
+            <SidebarTrigger />
+            <div className="flex-1 flex items-center gap-4">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search vehicles..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="icon" onClick={() => navigate("/")}>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
                 <Home className="h-5 w-5" />
               </Button>
-              <Button onClick={() => navigate("/catalogue")}>Browse Catalogue</Button>
+              <Button onClick={() => navigate("/catalogue")} size="sm">Browse Catalogue</Button>
             </div>
-          </div>
+          </header>
 
-          {/* Loyalty Badge */}
-          <CustomerLoyaltyBadge />
+          <div className="p-6 space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
+              <p className="text-muted-foreground">Manage your vehicles and bookings</p>
+            </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="glass-strong">
-              <CardHeader>
-                <CardTitle className="text-sm font-medium">Wishlist Items</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{wishlistCount}</div>
-                <p className="text-sm text-muted-foreground">Vehicles saved</p>
-              </CardContent>
-            </Card>
+            {/* Loyalty Badge */}
+            <CustomerLoyaltyBadge />
 
-            <Card className="glass-strong">
-              <CardHeader>
-                <CardTitle className="text-sm font-medium">Active Rentals</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{rentalsCount}</div>
-                <p className="text-sm text-muted-foreground">Car rentals</p>
-              </CardContent>
-            </Card>
+            {/* Colorful Widget Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900 border-pink-200 dark:border-pink-800">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-pink-600 dark:text-pink-400">Wishlist Items</p>
+                      <h3 className="text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">{wishlistCount}</h3>
+                      <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Vehicles saved</p>
+                    </div>
+                    <div className="h-16 w-16 rounded-full bg-pink-200 dark:bg-pink-800 flex items-center justify-center">
+                      <Heart className="h-8 w-8 text-pink-600 dark:text-pink-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card className="glass-strong">
-              <CardHeader>
-                <CardTitle className="text-sm font-medium">My Purchases</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{purchasesCount}</div>
-                <p className="text-sm text-muted-foreground">Vehicles owned</p>
-              </CardContent>
-            </Card>
-          </div>
+              <Card className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Active Rentals</p>
+                      <h3 className="text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">{rentalsCount}</h3>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Car rentals</p>
+                    </div>
+                    <div className="h-16 w-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                      <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200 dark:border-green-800">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-600 dark:text-green-400">My Purchases</p>
+                      <h3 className="text-4xl font-bold mt-2 text-green-900 dark:text-green-100">{purchasesCount}</h3>
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">Vehicles owned</p>
+                    </div>
+                    <div className="h-16 w-16 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
+                      <ShoppingBag className="h-8 w-8 text-green-600 dark:text-green-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
           {/* Tabs */}
           <Tabs defaultValue="wishlist" className="space-y-6">
@@ -303,11 +320,12 @@ const CustomerDashboard = () => {
               )}
             </TabsContent>
           </Tabs>
-        </div>
-      </main>
+          </div>
+        </main>
+      </div>
       
       <LiveChatWidget />
-    </div>
+    </SidebarProvider>
   );
 };
 
