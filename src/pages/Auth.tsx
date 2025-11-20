@@ -19,12 +19,9 @@ import {
 } from "@/components/ui/dialog";
 import { SuspendedUserModal } from "@/components/SuspendedUserModal";
 import { useSecurityLogger } from "@/hooks/useSecurityLogger";
-import { useTurnstile } from "@/hooks/useTurnstile";
 import authBg from "@/assets/auth-bg.jpg";
 import carLotOverlay from "@/assets/car-lot-overlay.jpg";
 import kenyaLocations from "@/data/kenya-locations.json";
-
-const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -39,10 +36,6 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { logLoginAttempt, logSuspiciousActivity } = useSecurityLogger();
-  
-  // Turnstile CAPTCHA hooks for login and signup
-  const loginTurnstile = useTurnstile(TURNSTILE_SITE_KEY);
-  const signupTurnstile = useTurnstile(TURNSTILE_SITE_KEY);
 
   // Login form
   const [email, setEmail] = useState("");
@@ -268,19 +261,6 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Get Turnstile CAPTCHA token
-    const captchaToken = loginTurnstile.getToken();
-    
-    if (!captchaToken) {
-      toast({
-        title: "CAPTCHA Required",
-        description: "Please complete the CAPTCHA verification",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     setLoading(true);
 
     try {
@@ -301,15 +281,9 @@ const Auth = () => {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          captchaToken,
-        },
       });
 
       if (error) {
-        // Reset CAPTCHA on error
-        loginTurnstile.reset();
-        
         // Track failed login attempt
         if (profileData) {
           const newAttempts = (profileData.login_attempts || 0) + 1;
@@ -356,15 +330,9 @@ const Auth = () => {
           // Log failed attempt
           await logLoginAttempt(email, false);
           
-          // Check if error is CAPTCHA related
-          const isCaptchaError = error.message.toLowerCase().includes('captcha') || 
-                                 error.message.toLowerCase().includes('turnstile');
-          
           toast({
-            title: isCaptchaError ? "CAPTCHA Verification Failed" : "Login Failed",
-            description: isCaptchaError 
-              ? "CAPTCHA verification failed. Please try again." 
-              : error.message,
+            title: "Login Failed",
+            description: error.message,
             variant: "destructive",
           });
         }
@@ -400,9 +368,6 @@ const Auth = () => {
         await completeLogin(data.user.id);
       }
     } catch (error: any) {
-      // Reset CAPTCHA on error
-      loginTurnstile.reset();
-      
       toast({
         title: "Login Failed",
         description: error.message,
@@ -416,18 +381,6 @@ const Auth = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Get Turnstile CAPTCHA token
-    const captchaToken = signupTurnstile.getToken();
-    
-    if (!captchaToken) {
-      toast({
-        title: "CAPTCHA Required",
-        description: "Please complete the CAPTCHA verification",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!termsAccepted) {
       toast({
         title: "Terms Required",
@@ -465,7 +418,6 @@ const Auth = () => {
         password: regPassword,
         options: {
           emailRedirectTo: redirectUrl,
-          captchaToken,
           data: {
             full_name: regFullName,
             phone: regPhone,
@@ -487,18 +439,9 @@ const Auth = () => {
         setShowSuccessDialog(true);
       }
     } catch (error: any) {
-      // Reset CAPTCHA on error
-      signupTurnstile.reset();
-      
-      // Check if error is CAPTCHA related
-      const isCaptchaError = error.message.toLowerCase().includes('captcha') || 
-                             error.message.toLowerCase().includes('turnstile');
-      
       toast({
-        title: isCaptchaError ? "CAPTCHA Verification Failed" : "Registration Failed",
-        description: isCaptchaError 
-          ? "CAPTCHA verification failed. Please try again." 
-          : error.message,
+        title: "Registration Failed",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -545,9 +488,6 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              
-              {/* Cloudflare Turnstile CAPTCHA */}
-              <div ref={loginTurnstile.containerRef} className="w-full flex justify-center" />
               
               <Link to="/reset-password" className="text-sm text-white hover:text-accent transition-colors">
                 Forgot Password?
@@ -730,9 +670,6 @@ const Auth = () => {
                   </a>
                 </Label>
               </div>
-              
-              {/* Cloudflare Turnstile CAPTCHA */}
-              <div ref={signupTurnstile.containerRef} className="w-full flex justify-center" />
 
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" disabled={loading}>
                 {loading ? "Registering..." : "Register"}
