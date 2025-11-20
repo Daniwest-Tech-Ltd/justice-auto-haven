@@ -1536,6 +1536,66 @@ export type Database = {
         }
         Relationships: []
       }
+      system_health: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_checked: string | null
+          latency_ms: number | null
+          message: string | null
+          status: string
+          suggestions: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_checked?: string | null
+          latency_ms?: number | null
+          message?: string | null
+          status: string
+          suggestions?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_checked?: string | null
+          latency_ms?: number | null
+          message?: string | null
+          status?: string
+          suggestions?: Json | null
+        }
+        Relationships: []
+      }
+      system_health_logs: {
+        Row: {
+          created_at: string | null
+          details: string | null
+          id: string
+          latency_ms: number | null
+          metadata: Json | null
+          service_name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          service_name: string
+          status: string
+        }
+        Update: {
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          service_name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       system_health_metrics: {
         Row: {
           category: string
