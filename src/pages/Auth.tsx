@@ -721,7 +721,7 @@ const Auth = () => {
         </Link>
 
         <div
-          className={`glass-strong rounded-3xl shadow-2xl max-w-4xl w-full min-h-[600px] max-h-[95vh] overflow-hidden relative transition-all duration-700 z-10 ${
+          className={`glass-strong rounded-lg shadow-2xl max-w-4xl w-full min-h-[600px] max-h-[95vh] overflow-hidden relative transition-all duration-700 z-10 ${
             isSignUp ? "auth-panel-active" : ""
           }`}
         >
@@ -779,8 +779,8 @@ const Auth = () => {
           </div>
 
           {/* Sign Up Form */}
-          <div className="auth-form-container sign-up-container absolute top-0 left-0 w-1/2 h-full flex items-center justify-center z-10 opacity-0 transition-all duration-700 overflow-y-auto bg-gradient-to-br from-background/98 via-card/98 to-background/98">
-            <form onSubmit={handleRegister} className="auth-form-glass rounded-2xl p-8 pt-6 pb-12 flex flex-col items-center justify-center text-center space-y-3 w-full max-w-md my-8">
+          <div className="auth-form-container sign-up-container absolute top-0 left-0 w-1/2 h-full z-10 opacity-0 transition-all duration-700 overflow-y-auto bg-gradient-to-br from-background/98 via-card/98 to-background/98">
+            <form onSubmit={handleRegister} className="auth-form-glass p-6 flex flex-col text-center space-y-3 w-full max-w-md mt-4 mb-4">
               <h1 className="text-2xl font-bold mb-2 text-foreground drop-shadow-lg">Registration</h1>
               
               <Input 
