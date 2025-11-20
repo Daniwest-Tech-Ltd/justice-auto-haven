@@ -5,7 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, Car, Users, DollarSign, Settings, Menu, X, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { 
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,8 +28,8 @@ import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import LoadingScreen from "@/components/LoadingScreen";
 
 const AdminDashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [customers, setCustomers] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const { user, profile, role, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -100,263 +113,173 @@ const AdminDashboard = () => {
 
   if (!user || !profile || role?.role !== "admin") return null;
 
+  const menuItems = [
+    { title: "Overview", icon: Grid3x3, onClick: () => {} },
+    { title: "Vehicles", icon: Car, onClick: () => navigate("/admin/cars") },
+    { title: "Orders", icon: Package, onClick: () => navigate("/admin/orders") },
+    { title: "Customers", icon: Users, onClick: () => navigate("/admin/customers") },
+    { title: "Sales", icon: DollarSign, onClick: () => navigate("/admin/sales") },
+    { title: "Sales Forecasting", icon: TrendingUp, onClick: () => navigate("/admin/sales/forecasting") },
+    { title: "AI Security", icon: Shield, onClick: () => navigate("/admin/security") },
+    { title: "OTP Management", icon: Key, onClick: () => navigate("/admin/otp-management") },
+    { title: "HR Management", icon: Users, onClick: () => navigate("/admin/hr") },
+    { title: "Daily Reports", icon: BarChart3, onClick: () => navigate("/admin/reports") },
+    { title: "Live Attendance", icon: Clock, onClick: () => navigate("/admin/live-attendance") },
+    { title: "Staff Performance", icon: TrendingUp, onClick: () => navigate("/admin/performance") },
+    { title: "CRM", icon: Users, onClick: () => navigate("/admin/crm") },
+    { title: "System Health", icon: Activity, onClick: () => navigate("/system-health") },
+    { title: "Settings", icon: Settings, onClick: () => navigate("/admin/settings") },
+    { title: "Messages", icon: MessageSquare, onClick: () => navigate("/admin/messages") },
+  ];
+
   return (
-    <div className="min-h-screen relative">
-      <SessionTimeoutModal
-        isOpen={showWarning}
-        timeLeft={timeLeft}
-        onExtend={extendSession}
-        onLogout={handleLogout}
-      />
-      {/* Mobile Menu Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-50 lg:hidden glass"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <X /> : <Menu />}
-      </Button>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <SessionTimeoutModal
+          isOpen={showWarning}
+          timeLeft={timeLeft}
+          onExtend={extendSession}
+          onLogout={handleLogout}
+        />
+        
+        {/* Sidebar */}
+        <Sidebar collapsible="icon">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Admin Dashboard</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {menuItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton onClick={item.onClick} tooltip={item.title}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton onClick={handleSignOut} tooltip="Logout" className="text-destructive">
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 h-full w-64 glass-strong border-r border-white/10 z-40 transition-transform lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-8">Admin Dashboard</h2>
-          <nav className="space-y-2 overflow-y-auto max-h-[calc(100vh-200px)] pr-2">
-            <Button variant="ghost" className="w-full justify-start gap-2">
-              <Home className="h-5 w-5" />
-              Overview
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/cars")}
-            >
-              <Car className="h-5 w-5" />
-              Vehicles
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/orders")}
-            >
-              <Clock className="h-5 w-5" />
-              Orders
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/customers")}
-            >
-              <Users className="h-5 w-5" />
-              Customers
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/sales")}
-            >
-              <DollarSign className="h-5 w-5" />
-              Sales
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/sales/forecasting")}
-            >
-              <TrendingUp className="h-5 w-5" />
-              Sales Forecasting
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/security")}
-            >
-              <Shield className="h-5 w-5" />
-              AI Security
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/otp-management")}
-            >
-              <Key className="h-5 w-5" />
-              OTP Management
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/hr")}
-            >
-              <Users className="h-5 w-5" />
-              HR Management
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/reports")}
-            >
-              <BarChart3 className="h-5 w-5" />
-              Daily Reports
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/live-attendance")}
-            >
-              <Clock className="h-5 w-5" />
-              Live Attendance
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/performance")}
-            >
-              <TrendingUp className="h-5 w-5" />
-              Staff Performance
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/crm")}
-            >
-              <Users className="h-5 w-5" />
-              CRM
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/system-health")}
-            >
-              <Activity className="h-5 w-5" />
-              System Health
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/cookie-management")}
-            >
-              🍪 Cookie Management
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/settings")}
-            >
-              <Settings className="h-5 w-5" />
-              Settings
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2"
-              onClick={() => navigate("/admin/messages")}
-            >
-              <MessageSquare className="h-5 w-5" />
-              Messages
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2 text-destructive"
-              onClick={handleSignOut}
-            >
-              <LogOut className="h-5 w-5" />
-              Logout
-            </Button>
-          </nav>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="lg:ml-64 p-4 lg:p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold">{getGreeting(profile.full_name)}</h1>
-              <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
+        {/* Main Content */}
+        <main className="flex-1 w-full">
+          {/* Top Bar */}
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
+            <SidebarTrigger />
+            <div className="flex-1 flex items-center gap-4">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="flex gap-2 items-center">
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={() => navigate("/")}
-              >
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
                 <Home className="h-5 w-5" />
               </Button>
               <NotificationsPanel />
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => navigate("/admin/messages")}
-                className="relative"
-              >
+              <Button variant="ghost" size="icon" onClick={() => navigate("/admin/messages")}>
                 <MessageSquare className="h-5 w-5" />
               </Button>
-              <Button onClick={() => navigate("/admin/cars/add")}>Add Vehicle</Button>
-              <Button variant="outline" onClick={() => navigate("/admin/videos")}>Manage Videos</Button>
-              <Button variant="outline" onClick={() => navigate("/admin/brands")}>Brands</Button>
+              <Button onClick={() => navigate("/admin/cars/add")} size="sm">Add Vehicle</Button>
             </div>
-          </div>
+          </header>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card 
-              className="glass-strong cursor-pointer hover:border-primary transition-colors"
-              onClick={() => navigate("/admin/cars")}
-            >
-              <CardHeader>
-                <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.totalVehicles}</div>
-                <p className="text-sm text-muted-foreground">Total inventory</p>
-              </CardContent>
-            </Card>
+          <div className="p-6 space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
+              <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
+            </div>
 
-            <Card 
-              className="glass-strong cursor-pointer hover:border-primary transition-colors"
-              onClick={() => navigate("/admin/customers")}
-            >
-              <CardHeader>
-                <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.activeCustomers}</div>
-                <p className="text-sm text-muted-foreground">Registered users</p>
-              </CardContent>
-            </Card>
+            {/* Colorful Widget Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800"
+                onClick={() => navigate("/admin/cars")}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Total Vehicles</p>
+                      <h3 className="text-4xl font-bold mt-2 text-orange-900 dark:text-orange-100">{stats.totalVehicles}</h3>
+                      <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">In inventory</p>
+                    </div>
+                    <div className="h-16 w-16 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center">
+                      <Car className="h-8 w-8 text-orange-600 dark:text-orange-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card 
-              className="glass-strong cursor-pointer hover:border-primary transition-colors"
-              onClick={() => navigate("/admin/sales")}
-            >
-              <CardHeader>
-                <CardTitle className="text-sm font-medium">Monthly Sales</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">KSh {stats.monthlySales.toLocaleString()}</div>
-                <p className="text-sm text-muted-foreground">Total revenue</p>
-              </CardContent>
-            </Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800"
+                onClick={() => navigate("/admin/customers")}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Active Customers</p>
+                      <h3 className="text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">{stats.activeCustomers}</h3>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Registered users</p>
+                    </div>
+                    <div className="h-16 w-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                      <Users className="h-8 w-8 text-blue-600 dark:text-blue-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card 
-              className="glass-strong cursor-pointer hover:border-primary transition-colors" 
-              onClick={() => navigate("/admin/orders")}
-            >
-              <CardHeader>
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  Orders 📦
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.whitelistOrders}</div>
-                <p className="text-sm text-muted-foreground">Pending orders</p>
-              </CardContent>
-            </Card>
-          </div>
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200 dark:border-green-800"
+                onClick={() => navigate("/admin/sales")}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-600 dark:text-green-400">Monthly Sales</p>
+                      <h3 className="text-4xl font-bold mt-2 text-green-900 dark:text-green-100">
+                        {(stats.monthlySales / 1000).toFixed(0)}K
+                      </h3>
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">Total revenue</p>
+                    </div>
+                    <div className="h-16 w-16 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
+                      <DollarSign className="h-8 w-8 text-green-600 dark:text-green-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900 border-pink-200 dark:border-pink-800"
+                onClick={() => navigate("/admin/orders")}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-pink-600 dark:text-pink-400">Pending Orders</p>
+                      <h3 className="text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">{stats.whitelistOrders}</h3>
+                      <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Awaiting review</p>
+                    </div>
+                    <div className="h-16 w-16 rounded-full bg-pink-200 dark:bg-pink-800 flex items-center justify-center">
+                      <Package className="h-8 w-8 text-pink-600 dark:text-pink-300" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
           {/* Tabs */}
           <Tabs defaultValue="vehicles" className="space-y-6">
@@ -484,9 +407,10 @@ const AdminDashboard = () => {
               </Card>
             </TabsContent>
           </Tabs>
-        </div>
-      </main>
-    </div>
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
