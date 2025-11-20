@@ -86,10 +86,20 @@ const AdminCustomers = () => {
 
       const customersWithRoles = profilesData?.map(profile => {
         const userRole = rolesData?.find(r => r.user_id === profile.user_id);
+        // Determine account status - prioritize account_status field, fallback to is_suspended
+        let accountStatus: "active" | "suspended" | "blocked" = "active";
+        if (profile.account_status) {
+          accountStatus = profile.account_status as "active" | "suspended" | "blocked";
+        } else if (profile.is_suspended) {
+          accountStatus = "suspended";
+        }
+        
+        console.log(`Customer ${profile.full_name} - account_status: ${accountStatus}, is_suspended: ${profile.is_suspended}`);
+        
         return {
           ...profile,
           role: userRole?.role || "customer",
-          account_status: (profile.account_status || "active") as "active" | "suspended" | "blocked"
+          account_status: accountStatus
         };
       }) || [];
 
@@ -417,7 +427,22 @@ const AdminCustomers = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          {!isAdmin && !isCurrentUser && (
+                          {/* Show Activate button for suspended/blocked users regardless of role */}
+                          {(customer.account_status === "suspended" || customer.account_status === "blocked") && (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                              onClick={() => activateCustomer(customer.user_id)}
+                              title="Activate Account"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Activate
+                            </Button>
+                          )}
+                          
+                          {/* Show action buttons only for non-admin, non-current users who are active */}
+                          {!isAdmin && !isCurrentUser && customer.account_status === "active" && (
                             <>
                               <Dialog>
                                 <DialogTrigger asChild>
@@ -466,65 +491,52 @@ const AdminCustomers = () => {
                                 </DialogContent>
                               </Dialog>
 
-                              {customer.account_status === "suspended" || customer.account_status === "blocked" ? (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="text-green-600 hover:text-green-700"
-                                  onClick={() => activateCustomer(customer.user_id)}
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                </Button>
-                              ) : (
-                                <>
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button size="sm" variant="outline" className="text-orange-600 hover:text-orange-700">
-                                        <Ban className="h-4 w-4" />
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Suspend Customer</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Are you sure you want to suspend this customer? An activation code will be generated.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => suspendCustomer(customer.user_id)}>
-                                          Suspend
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="outline" className="text-orange-600 hover:text-orange-700">
+                                    <Ban className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Suspend Customer</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to suspend this customer? An activation code will be generated.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => suspendCustomer(customer.user_id)}>
+                                      Suspend
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
 
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
-                                        <Shield className="h-4 w-4" />
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Block Customer</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Are you sure you want to block this customer? They will not be able to access their account until activated.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction 
-                                          onClick={() => blockCustomer(customer.user_id)}
-                                          className="bg-red-600 hover:bg-red-700"
-                                        >
-                                          Block
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                </>
-                              )}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                                    <Shield className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Block Customer</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to block this customer? They will not be able to access their account until activated.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => blockCustomer(customer.user_id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Block
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
 
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -555,7 +567,7 @@ const AdminCustomers = () => {
                           {isAdmin && !isCurrentUser && (
                             <Badge variant="outline">Protected</Badge>
                           )}
-                          {isCurrentUser && (
+                          {isCurrentUser && customer.account_status === "active" && (
                             <Badge variant="outline">You</Badge>
                           )}
                         </div>
