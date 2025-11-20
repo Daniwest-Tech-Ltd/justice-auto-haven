@@ -1,62 +1,74 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Car, Wrench, Package, Building2, Calendar, Search } from "lucide-react";
+import { Car, Wrench, Package, Search, Calendar, Globe } from "lucide-react";
+import { useState } from "react";
 
 const Services = () => {
+  const [flippedCard, setFlippedCard] = useState<number | null>(null);
+
   const services = [
     {
-      icon: <Car className="h-12 w-12" />,
       emoji: "🚗",
       title: "Global Car Rentals",
-      description: "Affordable, luxury, and electric vehicle rentals available across all continents. Seamless online booking with local pickup or delivery.",
+      description: "Affordable, luxury, business-class, and electric vehicle rentals available internationally.",
+      extendedDescription: "Fast online booking with local pickup or door-to-door delivery. Available across major cities worldwide with 24/7 support.",
+      link: "/catalogue",
     },
     {
-      icon: <Car className="h-12 w-12" />,
       emoji: "🏎️",
       title: "Luxury & Exotic Vehicles",
-      description: "Drive the world's finest supercars, from Lamborghinis to Rolls-Royces. Curated for special occasions and elite experiences.",
+      description: "Experience the world's most elite vehicles — Lamborghinis, Ferraris, Bentleys, and Rolls-Royces.",
+      extendedDescription: "Perfect for events, travel, or VIP occasions. Curated collection of supercars with white-glove service and delivery.",
+      link: "/catalogue",
     },
     {
-      icon: <Wrench className="h-12 w-12" />,
       emoji: "🔧",
       title: "Auto Servicing & Maintenance",
-      description: "Top-tier vehicle diagnostics, maintenance plans, and servicing from certified mechanics and AI-powered tools.",
+      description: "Advanced vehicle diagnostics, maintenance plans, and servicing performed by certified mechanics.",
+      extendedDescription: "AI-powered diagnostic systems ensure precision. Scheduled maintenance, repairs, and emergency support available.",
+      link: "https://www.facebook.com/justiceultimatemotors",
     },
     {
-      icon: <Package className="h-12 w-12" />,
       emoji: "📦",
       title: "Auto Parts & Accessories",
-      description: "Order OEM and aftermarket car parts, custom rims, performance upgrades, and tech accessories with global shipping.",
+      description: "Shop OEM and aftermarket car parts, performance upgrades, wheels, rims, and tech accessories.",
+      extendedDescription: "Worldwide delivery with authenticity guarantee. Custom orders and bulk purchasing available.",
+      link: "https://www.facebook.com/justiceultimatemotors",
     },
     {
-      icon: <Search className="h-12 w-12" />,
       emoji: "🧠",
       title: "AI-Powered Vehicle Recommendations",
-      description: "Get intelligent car suggestions based on your preferences, driving habits, and budget powered by machine learning.",
+      description: "Get smart recommendations based on your lifestyle, budget, driving habits, and preference.",
+      extendedDescription: "Machine learning algorithms analyze your needs to suggest the perfect vehicle match from our global inventory.",
+      link: "/catalogue",
     },
     {
-      icon: <Calendar className="h-12 w-12" />,
       emoji: "📲",
       title: "Smart Vehicle Management",
-      description: "Control, track, and schedule your vehicle via the JusticeApp. Real-time GPS, fuel analytics, and driver behavior tracking.",
+      description: "Monitor, track, and control your vehicle through the JusticeApp.",
+      extendedDescription: "Real-time GPS tracking, fuel analytics, smart alerts, security monitoring, and driver behavior scoring.",
+      link: "https://www.facebook.com/justiceultimatemotors",
     },
     {
-      icon: <Package className="h-12 w-12" />,
       emoji: "🌍",
       title: "International Car Export",
-      description: "Export vehicles to 60+ countries with customs handling, VIN checks, and port-to-port logistics.",
+      description: "Export vehicles to 60+ countries with full customs support, port clearance, and VIN verification.",
+      extendedDescription: "Secure logistics with door-to-port or door-to-door delivery. Complete documentation and compliance handling.",
+      link: "/contact",
     },
     {
-      icon: <Search className="h-12 w-12" />,
       emoji: "🛂",
       title: "Sourcing & Importing",
-      description: "We locate, inspect, and import cars based on your exact specs from Japan, UAE, Germany, UK, and more.",
+      description: "We locate, inspect, verify, and import vehicles from Japan, UAE, UK, Germany, South Africa.",
+      extendedDescription: "Pre-purchase inspections, quality assurance, and transparent pricing. Your trusted import partner.",
+      link: "/contact",
     },
     {
-      icon: <Wrench className="h-12 w-12" />,
       emoji: "⚙️",
       title: "Right-Hand to Left-Hand Conversion",
-      description: "Compliant conversions for markets like Europe, India, and the Americas.",
+      description: "Compliant conversions for regions such as Europe, India, USA, South America, and more.",
+      extendedDescription: "Factory-grade safety and precision. Full certification and warranty included with every conversion.",
+      link: "/contact",
     },
   ];
 
@@ -65,10 +77,10 @@ const Services = () => {
       {/* Hero */}
       <section className="text-center glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
         <h1 className="text-5xl font-bold mb-4">
-          <span className="bg-gradient-accent bg-clip-text text-transparent">Global Automotive Services</span>
+          <span className="bg-gradient-accent bg-clip-text text-transparent">Global Automotive Excellence</span>
         </h1>
         <p className="text-xl text-muted-foreground mb-8">
-          🚘 From Nairobi to New York — Justice Ultimate Automobiles provides expert car services, international sourcing, export, import, and logistics.
+          🚘 From Nairobi to Japan — Justice Ultimate Automobiles delivers world-class car services, international sourcing, export, import, and global logistics.
         </p>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link to="/catalogue">
@@ -82,23 +94,59 @@ const Services = () => {
 
       {/* Services Grid */}
       <section>
-        <h2 className="text-4xl font-bold text-center mb-12">Our Premium Services</h2>
+        <h2 className="text-4xl font-bold text-center mb-4">Our Premium Services</h2>
         <p className="text-lg text-muted-foreground text-center max-w-3xl mx-auto mb-12">
-          Discover our comprehensive range of automotive services designed to meet your every need, from luxury rentals to international logistics.
+          Discover our diverse range of automotive solutions designed to meet every customer need — from luxury rentals to global logistics and AI-powered tools.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service, index) => (
             <div
               key={index}
-              className="glass-strong rounded-2xl p-8 hover:scale-105 transition-transform"
+              className="relative h-80 cursor-pointer perspective-1000"
+              onMouseEnter={() => setFlippedCard(index)}
+              onMouseLeave={() => setFlippedCard(null)}
             >
-              <div className="text-5xl mb-4">{service.emoji}</div>
-              <h3 className="text-xl font-bold mb-4">{service.title}</h3>
-              <p className="text-muted-foreground mb-6">{service.description}</p>
-              <Link to="/contact" className="text-primary hover:text-primary/80 font-medium inline-flex items-center gap-2">
-                Explore More →
-              </Link>
+              {/* Card Container */}
+              <div
+                className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
+                  flippedCard === index ? "rotate-y-180" : ""
+                }`}
+              >
+                {/* Front Side */}
+                <div className="absolute inset-0 glass-strong rounded-2xl p-8 backface-hidden flex flex-col items-center justify-center text-center">
+                  <div className="text-6xl mb-4">{service.emoji}</div>
+                  <h3 className="text-xl font-bold mb-4">{service.title}</h3>
+                  <p className="text-muted-foreground text-sm">{service.description}</p>
+                </div>
+
+                {/* Back Side */}
+                <div className="absolute inset-0 glass-strong rounded-2xl p-8 backface-hidden rotate-y-180 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold mb-3">{service.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-4">{service.extendedDescription}</p>
+                  </div>
+                  <div>
+                    {service.link.startsWith("http") ? (
+                      <a
+                        href={service.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium"
+                      >
+                        Explore More →
+                      </a>
+                    ) : (
+                      <Link
+                        to={service.link}
+                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium"
+                      >
+                        Explore More →
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -106,9 +154,9 @@ const Services = () => {
 
       {/* CTA */}
       <section className="glass-strong rounded-3xl p-12 text-center">
-        <h2 className="text-4xl font-bold mb-6">Ready to Experience Premium Automotive Services?</h2>
+        <h2 className="text-4xl font-bold mb-6">Ready for Global Automotive Excellence?</h2>
         <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Join thousands of satisfied customers who trust Justice Ultimate Automobiles for their automotive needs worldwide.
+          Join thousands of clients who trust Justice Ultimate Automobiles for reliable, world-class automotive services worldwide.
         </p>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link to="/auth">
