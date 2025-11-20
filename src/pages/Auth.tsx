@@ -721,7 +721,7 @@ const Auth = () => {
         </Link>
 
         <div
-          className={`glass-strong rounded-3xl shadow-2xl max-w-4xl w-full min-h-[600px] overflow-hidden relative transition-all duration-700 z-10 ${
+          className={`glass-strong rounded-3xl shadow-2xl max-w-4xl w-full min-h-[600px] max-h-[95vh] overflow-hidden relative transition-all duration-700 z-10 ${
             isSignUp ? "auth-panel-active" : ""
           }`}
         >
@@ -780,8 +780,8 @@ const Auth = () => {
 
           {/* Sign Up Form */}
           <div className="auth-form-container sign-up-container absolute top-0 left-0 w-1/2 h-full flex items-center justify-center z-10 opacity-0 transition-all duration-700 overflow-y-auto bg-gradient-to-br from-background/98 via-card/98 to-background/98">
-            <form onSubmit={handleRegister} className="auth-form-glass rounded-2xl p-8 pt-16 pb-12 flex flex-col items-center justify-center text-center space-y-4 w-full max-w-md mt-16 mb-12">
-              <h1 className="text-3xl font-bold mb-4 text-foreground drop-shadow-lg">Registration</h1>
+            <form onSubmit={handleRegister} className="auth-form-glass rounded-2xl p-8 pt-6 pb-12 flex flex-col items-center justify-center text-center space-y-3 w-full max-w-md my-8">
+              <h1 className="text-2xl font-bold mb-2 text-foreground drop-shadow-lg">Registration</h1>
               
               <Input 
                 type="text" 
@@ -861,40 +861,42 @@ const Auth = () => {
                 </div>
               </div>
 
-              <div className="w-full">
-                <Label className="text-sm mb-2 text-foreground font-medium">County</Label>
-                <Select value={countyCity} onValueChange={setCountyCity}>
-                  <SelectTrigger className="w-full auth-select-trigger">
-                    <SelectValue placeholder="Select County" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {kenyaLocations.counties.map((county: any) => (
-                      <SelectItem key={county.name} value={county.name}>
-                        {county.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="w-full">
-                <Label className="text-sm mb-2 text-foreground font-medium">Town / Location</Label>
-                <Select 
-                  value={exactLocation} 
-                  onValueChange={setExactLocation}
-                  disabled={!countyCity}
-                >
-                  <SelectTrigger className="w-full auth-select-trigger">
-                    <SelectValue placeholder={countyCity ? "Select Town" : "First select a county"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableTowns.map((town: string) => (
-                      <SelectItem key={town} value={town}>
-                        {town}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="w-full grid grid-cols-2 gap-3">
+                <div className="w-full">
+                  <Label className="text-sm mb-2 text-foreground font-medium">County</Label>
+                  <Select value={countyCity} onValueChange={setCountyCity}>
+                    <SelectTrigger className="w-full auth-select-trigger">
+                      <SelectValue placeholder="Select County" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {kenyaLocations.counties.map((county: any) => (
+                        <SelectItem key={county.name} value={county.name}>
+                          {county.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="w-full">
+                  <Label className="text-sm mb-2 text-foreground font-medium">Town / Location</Label>
+                  <Select 
+                    value={exactLocation} 
+                    onValueChange={setExactLocation}
+                    disabled={!countyCity}
+                  >
+                    <SelectTrigger className="w-full auth-select-trigger">
+                      <SelectValue placeholder={countyCity ? "Select Town" : "First select a county"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableTowns.map((town: string) => (
+                        <SelectItem key={town} value={town}>
+                          {town}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="w-full text-left space-y-2">
