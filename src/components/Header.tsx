@@ -166,9 +166,16 @@ const Header = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className="px-4 py-2 rounded-md text-sm font-medium text-foreground/90 hover:bg-white/5 hover:text-primary transition-colors"
+                className={`relative px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 overflow-hidden group ${
+                  location.pathname === link.to
+                    ? "text-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+                    : "text-foreground/90 hover:bg-white/5 hover:text-primary"
+                }`}
               >
-                {link.label}
+                {location.pathname === link.to && (
+                  <span className="absolute inset-0 animate-[pulse_2s_ease-in-out_infinite] bg-primary/20 rounded-md" />
+                )}
+                <span className="relative z-10">{link.label}</span>
               </Link>
             ))}
           </nav>
@@ -322,9 +329,16 @@ const Header = () => {
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3 rounded-md text-sm font-medium text-foreground/90 hover:bg-accent hover:text-accent-foreground transition-colors"
+                className={`relative block px-4 py-3 rounded-md text-sm font-medium transition-all duration-300 overflow-hidden ${
+                  location.pathname === link.to
+                    ? "text-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+                    : "text-foreground/90 hover:bg-accent hover:text-accent-foreground"
+                }`}
               >
-                {link.label}
+                {location.pathname === link.to && (
+                  <span className="absolute inset-0 animate-[pulse_2s_ease-in-out_infinite] bg-primary/20 rounded-md" />
+                )}
+                <span className="relative z-10">{link.label}</span>
               </Link>
             ))}
             
