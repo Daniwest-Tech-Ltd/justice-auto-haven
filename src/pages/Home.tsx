@@ -12,6 +12,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import BrandMarquee from "@/components/BrandMarquee";
 import { useToast } from "@/hooks/use-toast";
+import ceoImage from "@/assets/ceo.jpg";
+import danielImage from "@/assets/daniel-maina.jpg";
 
 const Home = () => {
   const [featuredCars, setFeaturedCars] = useState<any[]>([]);
@@ -22,8 +24,13 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [brands, setBrands] = useState<any[]>([]);
+  const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>({});
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const toggleCard = (cardId: string) => {
+    setFlippedCards(prev => ({ ...prev, [cardId]: !prev[cardId] }));
+  };
 
   useEffect(() => {
     fetchAllData();
@@ -491,6 +498,124 @@ const Home = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Meet Our Team Section */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center space-y-4 mb-12">
+            <h2 className="text-4xl font-bold">Meet the Team Behind Justice Ultimate Automobiles</h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Our dedicated leadership team brings transparency, expertise, and world-class customer service to every interaction.
+            </p>
+          </div>
+          
+          {/* Team Flip Cards */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            
+            {/* CEO Card */}
+            <div className="relative h-80 perspective-1000">
+              <div 
+                className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
+                  flippedCards['ceo'] ? 'rotate-y-180' : ''
+                }`}
+                onClick={() => toggleCard('ceo')}
+              >
+                {/* Front */}
+                <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center">
+                  <img
+                    src={ceoImage}
+                    alt="Justice Vincent - CEO"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-primary mb-4"
+                  />
+                  <h3 className="text-xl font-bold mb-2">Justice Vincent</h3>
+                  <p className="text-sm text-primary font-semibold mb-2">Chief Executive Officer (CEO)</p>
+                  <p className="text-xs text-muted-foreground">📍 Kenya / Global Operations</p>
+                  <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
+                </div>
+                
+                {/* Back */}
+                <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold mb-3">Justice Vincent</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Justice Vincent leads Justice Ultimate Automobiles with a passion for excellence, integrity, and world-class customer service. 
+                      With years of experience in global automotive sourcing, he has transformed the company into a trusted international brand.
+                    </p>
+                    <p className="text-xs italic text-muted-foreground mb-4">
+                      "Committed to delivering vehicles across continents—safely and professionally."
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <a 
+                      href="https://wa.me/254722827458" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg text-center transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      📞 WhatsApp: 0722 827 458
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* System Admin Card */}
+            <div className="relative h-80 perspective-1000">
+              <div 
+                className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
+                  flippedCards['admin'] ? 'rotate-y-180' : ''
+                }`}
+                onClick={() => toggleCard('admin')}
+              >
+                {/* Front */}
+                <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center">
+                  <img
+                    src={danielImage}
+                    alt="Daniel Maina W. - System Administrator"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-primary mb-4"
+                  />
+                  <h3 className="text-xl font-bold mb-2">Daniel Maina W.</h3>
+                  <p className="text-sm text-primary font-semibold mb-2">System Administrator & DevOps Engineer</p>
+                  <p className="text-xs text-muted-foreground">📍 Kenya</p>
+                  <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
+                </div>
+                
+                {/* Back */}
+                <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold mb-3">Daniel Maina W.</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Software DevOps Engineer, Cybersecurity Specialist, Programmer, and Graphics Designer with over 2 years of professional experience.
+                    </p>
+                    <div className="text-xs text-muted-foreground mb-4">
+                      <p className="mb-1">🛡 Responsibilities:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>System Security</li>
+                        <li>AI Integrations</li>
+                        <li>Web & App Development</li>
+                        <li>Technical Support</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <a 
+                      href="https://wa.me/254701460110" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg text-center transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      📞 WhatsApp: 0701 460 110
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
           </div>
         </div>
       </section>
