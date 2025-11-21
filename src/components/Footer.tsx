@@ -135,22 +135,6 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <Link 
-                  to="/contact" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/track-order" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Track Order
-                </Link>
-              </li>
-              <li>
-                <Link 
                   to="/faqs" 
                   className="text-muted-foreground hover:text-accent transition-colors"
                 >
@@ -188,16 +172,6 @@ const Footer = () => {
                 >
                   Cookie Policy
                 </Link>
-              </li>
-              <li>
-                <a 
-                  href="https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/Justice%20Ultimate%20Automobiles%20_justice_ultimate_automobiles.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Company Certificate
-                </a>
               </li>
             </ul>
           </div>
