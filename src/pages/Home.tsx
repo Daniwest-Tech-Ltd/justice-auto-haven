@@ -14,6 +14,7 @@ import BrandMarquee from "@/components/BrandMarquee";
 import { useToast } from "@/hooks/use-toast";
 import ceoImage from "@/assets/ceo.jpg";
 import danielImage from "@/assets/daniel-maina.jpg";
+import abigaelImage from "@/assets/abigael-muthoni.jpg";
 
 const Home = () => {
   const [featuredCars, setFeaturedCars] = useState<any[]>([]);
@@ -510,13 +511,16 @@ const Home = () => {
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               Our dedicated leadership team brings transparency, expertise, and world-class customer service to every interaction.
             </p>
+            <p className="text-sm text-muted-foreground">
+              We are fully certified and authorized to operate as a professional automotive dealer in Kenya.
+            </p>
           </div>
           
           {/* Team Flip Cards */}
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
             
             {/* CEO Card */}
-            <div className="relative h-80 perspective-1000">
+            <div className="relative h-96 perspective-1000">
               <div 
                 className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
                   flippedCards['ceo'] ? 'rotate-y-180' : ''
@@ -524,28 +528,28 @@ const Home = () => {
                 onClick={() => toggleCard('ceo')}
               >
                 {/* Front */}
-                <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center">
+                <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center border-2 border-primary/30">
                   <img
                     src={ceoImage}
                     alt="Justice Vincent - CEO"
                     className="w-32 h-32 rounded-full object-cover border-4 border-primary mb-4"
                   />
                   <h3 className="text-xl font-bold mb-2">Justice Vincent</h3>
-                  <p className="text-sm text-primary font-semibold mb-2">Chief Executive Officer (CEO)</p>
+                  <p className="text-sm text-primary font-semibold mb-2">Chief Executive Officer</p>
                   <p className="text-xs text-muted-foreground">📍 Kenya / Global Operations</p>
                   <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
                 </div>
                 
                 {/* Back */}
-                <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-between">
+                <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-between border-2 border-primary/30">
                   <div>
                     <h3 className="text-lg font-bold mb-3">Justice Vincent</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Justice Vincent leads Justice Ultimate Automobiles with a passion for excellence, integrity, and world-class customer service. 
-                      With years of experience in global automotive sourcing, he has transformed the company into a trusted international brand.
+                      Justice Vincent leads Justice Ultimate Automobiles with a passion for excellence, transparency, and global automotive sourcing. 
+                      His dedication to customer satisfaction has transformed the company into a trusted brand across Kenya and beyond.
                     </p>
                     <p className="text-xs italic text-muted-foreground mb-4">
-                      "Committed to delivering vehicles across continents—safely and professionally."
+                      "Committed to delivering vehicles across continents—safely, transparently and professionally."
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -558,13 +562,20 @@ const Home = () => {
                     >
                       📞 WhatsApp: 0722 827 458
                     </a>
+                    <a 
+                      href="mailto:justicevincentt@gmail.com" 
+                      className="block w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm py-2 px-4 rounded-lg text-center transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      📧 Email
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* System Admin Card */}
-            <div className="relative h-80 perspective-1000">
+            <div className="relative h-96 perspective-1000">
               <div 
                 className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
                   flippedCards['admin'] ? 'rotate-y-180' : ''
@@ -572,36 +583,37 @@ const Home = () => {
                 onClick={() => toggleCard('admin')}
               >
                 {/* Front */}
-                <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center">
+                <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center border-2 border-primary/30">
                   <img
                     src={danielImage}
                     alt="Daniel Maina W. - System Administrator"
                     className="w-32 h-32 rounded-full object-cover border-4 border-primary mb-4"
                   />
                   <h3 className="text-xl font-bold mb-2">Daniel Maina W.</h3>
-                  <p className="text-sm text-primary font-semibold mb-2">System Administrator & DevOps Engineer</p>
-                  <p className="text-xs text-muted-foreground">📍 Kenya</p>
+                  <p className="text-sm text-primary font-semibold mb-2">System Administrator</p>
+                  <p className="text-xs text-muted-foreground italic">Secure Systems, Seamless Operations</p>
                   <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
                 </div>
                 
                 {/* Back */}
-                <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-between">
+                <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-between border-2 border-primary/30">
                   <div>
                     <h3 className="text-lg font-bold mb-3">Daniel Maina W.</h3>
                     <p className="text-sm text-muted-foreground mb-3">
-                      Software DevOps Engineer, Cybersecurity Specialist, Programmer, and Graphics Designer with over 2 years of professional experience.
+                      Daniel ensures the digital infrastructure, security, and technology systems of Justice Ultimate Automobiles run smoothly. 
+                      He oversees automation, digital platforms, and customer support systems.
                     </p>
-                    <div className="text-xs text-muted-foreground mb-4">
-                      <p className="mb-1">🛡 Responsibilities:</p>
+                    <div className="text-xs text-muted-foreground">
+                      <p className="mb-1">🛡 Expertise:</p>
                       <ul className="list-disc list-inside space-y-1">
-                        <li>System Security</li>
+                        <li>System Security & DevOps</li>
                         <li>AI Integrations</li>
-                        <li>Web & App Development</li>
+                        <li>Web Development</li>
                         <li>Technical Support</li>
                       </ul>
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <a 
                       href="https://wa.me/254701460110" 
                       target="_blank" 
@@ -615,7 +627,156 @@ const Home = () => {
                 </div>
               </div>
             </div>
+
+            {/* Sales Executive Card - Abigael M. */}
+            <div className="relative h-96 perspective-1000">
+              <div 
+                className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${
+                  flippedCards['sales'] ? 'rotate-y-180' : ''
+                }`}
+                onClick={() => toggleCard('sales')}
+              >
+                {/* Front */}
+                <div className="absolute inset-0 w-full h-full backface-hidden glass-strong rounded-2xl p-6 flex flex-col items-center justify-center border-2 border-primary/30">
+                  <img
+                    src={abigaelImage}
+                    alt="Abigael M. - Sales Executive"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-primary mb-4"
+                  />
+                  <h3 className="text-xl font-bold mb-2">Abigael M.</h3>
+                  <p className="text-sm text-primary font-semibold mb-2">Senior Sales Executive</p>
+                  <p className="text-xs text-muted-foreground italic">Digital Marketing Specialist</p>
+                  <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
+                </div>
+                
+                {/* Back */}
+                <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 flex flex-col justify-between border-2 border-primary/30">
+                  <div>
+                    <h3 className="text-lg font-bold mb-3">Abigael M.</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Abigael leads our sales and digital marketing initiatives, ensuring customers receive personalized service 
+                      and expert guidance throughout their car buying journey. Her passion for customer satisfaction drives our online presence.
+                    </p>
+                    <div className="text-xs text-muted-foreground">
+                      <p className="mb-1">✨ Specialties:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Customer Relations</li>
+                        <li>Digital Marketing</li>
+                        <li>Sales Strategy</li>
+                        <li>Social Media Management</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <button 
+                      className="block w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm py-2 px-4 rounded-lg text-center transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      📞 Contact Sales
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
             
+          </div>
+
+          {/* Information Tiles */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            
+            {/* Company Certification Tile */}
+            <div className="glass-strong rounded-2xl p-6 border-2 border-accent/50 bg-gradient-to-br from-accent/10 to-primary/10">
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="h-8 w-8 text-accent" />
+                <h3 className="text-lg font-bold">Certified Dealer</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                Justice Ultimate Automobiles is officially recognized as a Qualified Automotive Industry Partner in Kenya.
+              </p>
+              <div className="text-xs text-muted-foreground space-y-1 mb-4">
+                <p>📜 Certificate No: ULT-KE-2025-2581</p>
+                <p>📅 Issued: 2025-11-21</p>
+                <p>🏛 Authority: HARAMBEE - Republic of Kenya</p>
+              </div>
+              <a 
+                href="https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/Justice%20Ultimate%20Automobiles%20_justice_ultimate_automobiles.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-accent hover:bg-accent/90 text-accent-foreground text-sm py-2 px-4 rounded-lg text-center transition-colors"
+              >
+                View Certificate
+              </a>
+            </div>
+
+            {/* Safe Payment Policy Tile */}
+            <div className="glass-strong rounded-2xl p-6 border-2 border-primary/50">
+              <div className="flex items-center gap-2 mb-4">
+                <DollarSign className="h-8 w-8 text-primary" />
+                <h3 className="text-lg font-bold">Safe Payment</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                To protect our clients from fraud:
+              </p>
+              <div className="text-xs text-muted-foreground space-y-2 mb-4">
+                <p>✔ NO online payments allowed</p>
+                <p>✔ Visit our yard physically</p>
+                <p>✔ Cash, M-Pesa, Bank Transfer</p>
+                <p>✔ Lipa Mdogo Mdogo available</p>
+              </div>
+              <div className="text-xs font-semibold text-primary">
+                📍 Mpesi Lane 11, Westlands, Nairobi
+              </div>
+            </div>
+
+            {/* Car Purchase Process Tile */}
+            <div className="glass-strong rounded-2xl p-6 border-2 border-primary/50">
+              <div className="flex items-center gap-2 mb-4">
+                <Car className="h-8 w-8 text-primary" />
+                <h3 className="text-lg font-bold">How to Purchase</h3>
+              </div>
+              <div className="text-xs text-muted-foreground space-y-2">
+                <p>1️⃣ Visit Our Yard</p>
+                <p>2️⃣ Vehicle Assessment</p>
+                <p>3️⃣ Test Drive</p>
+                <p>4️⃣ Payment & Agreement</p>
+                <p>5️⃣ Ownership Transfer (NTSA)</p>
+                <p>6️⃣ Logbook Processing (7-21 days)</p>
+                <p>7️⃣ Car Release with Documents</p>
+              </div>
+              <Button 
+                size="sm" 
+                className="w-full mt-4"
+                onClick={() => navigate("/catalogue")}
+              >
+                View Inventory
+              </Button>
+            </div>
+
+            {/* After-Sales Support Tile */}
+            <div className="glass-strong rounded-2xl p-6 border-2 border-accent/50">
+              <div className="flex items-center gap-2 mb-4">
+                <Users className="h-8 w-8 text-accent" />
+                <h3 className="text-lg font-bold">After-Sales</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                We provide comprehensive support:
+              </p>
+              <div className="text-xs text-muted-foreground space-y-2 mb-4">
+                <p>✔ 7-day mechanical check guarantee</p>
+                <p>✔ Road assistance on request</p>
+                <p>✔ Free servicing guidance</p>
+                <p>✔ Spare parts supplier access</p>
+              </div>
+              <a 
+                href="https://wa.me/254722827458"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg text-center transition-colors"
+              >
+                📞 Support: 0722 827 458
+              </a>
+            </div>
+
           </div>
         </div>
       </section>
