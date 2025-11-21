@@ -17,6 +17,7 @@ import type { Theme } from "@/lib/theme";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { TOTPSetup } from "@/components/TOTPSetup";
 import { FingerprintSetup } from "@/components/FingerprintSetup";
+import { TrustedDevices } from "@/components/TrustedDevices";
 
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
@@ -450,6 +451,12 @@ const AdminSettings = () => {
                     onUpdate={loadFingerprintDevices}
                   />
                 </div>
+
+                {userId && (
+                  <div className="border-t pt-6">
+                    <TrustedDevices userId={userId} />
+                  </div>
+                )}
               </div>
             </TabsContent>
 

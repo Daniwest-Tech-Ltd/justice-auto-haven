@@ -20,7 +20,26 @@ export const TOTPSetup = ({ onComplete }: TOTPSetupProps) => {
   const [verificationCode, setVerificationCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
   const { toast } = useToast();
+
+  // Check if TOTP is already enabled
+  const checkTOTPStatus = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data } = await supabase
+        .from("user_totp")
+        .select("enabled")
+        .eq("user_id", session.user.id)
+        .single();
+
+      setIsEnabled(data?.enabled || false);
+    } catch (error) {
+      console.error("Error checking TOTP status:", error);
+    }
+  };
 
   const generateQRCode = async () => {
     setLoading(true);
@@ -78,11 +97,19 @@ export const TOTPSetup = ({ onComplete }: TOTPSetupProps) => {
       if (response.error) throw response.error;
 
       if (response.data.success) {
+        // Log to audit trail
+        await supabase.from("audit_logs").insert({
+          user_id: session.user.id,
+          action: "totp_enabled",
+          user_agent: navigator.userAgent,
+        });
+
         toast({
           title: "Success!",
           description: "Authenticator app has been enabled",
         });
-        setStep('verify');
+        setIsEnabled(true);
+        setStep('intro');
         onComplete?.();
       } else {
         toast({
@@ -91,6 +118,42 @@ export const TOTPSetup = ({ onComplete }: TOTPSetupProps) => {
           variant: "destructive",
         });
       }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const disableTOTP = async () => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
+      const response = await supabase.functions.invoke('setup-totp', {
+        body: { action: 'disable' }
+      });
+
+      if (response.error) throw response.error;
+
+      // Log to audit trail
+      await supabase.from("audit_logs").insert({
+        user_id: session.user.id,
+        action: "totp_disabled",
+        user_agent: navigator.userAgent,
+      });
+
+      toast({
+        title: "Success",
+        description: "Authenticator app has been disabled",
+      });
+      setIsEnabled(false);
+      onComplete?.();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -129,47 +192,62 @@ export const TOTPSetup = ({ onComplete }: TOTPSetupProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Smartphone className="h-5 w-5" />
-            Setup Authenticator App
+            Authenticator App (TOTP)
           </CardTitle>
           <CardDescription>
-            Add an extra layer of security to your account
+            {isEnabled ? "Authenticator app is currently enabled" : "Add an extra layer of security to your account"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <Shield className="h-5 w-5 text-primary mt-1" />
-              <div>
-                <h4 className="font-semibold">More Secure</h4>
-                <p className="text-sm text-muted-foreground">
-                  Time-based codes that change every 30 seconds
+          {isEnabled ? (
+            <div className="space-y-4">
+              <div className="bg-green-500/10 border border-green-500/50 rounded-lg p-4">
+                <p className="text-sm">
+                  ✓ Authenticator app is active and protecting your account
                 </p>
               </div>
+              <Button onClick={disableTOTP} disabled={loading} variant="destructive" className="w-full">
+                {loading ? "Disabling..." : "Disable Authenticator App"}
+              </Button>
             </div>
-            <div className="flex items-start gap-3">
-              <Key className="h-5 w-5 text-primary mt-1" />
-              <div>
-                <h4 className="font-semibold">Works Offline</h4>
-                <p className="text-sm text-muted-foreground">
-                  No internet connection required for code generation
-                </p>
+          ) : (
+            <>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Shield className="h-5 w-5 text-primary mt-1" />
+                  <div>
+                    <h4 className="font-semibold">More Secure</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Time-based codes that change every 30 seconds
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Key className="h-5 w-5 text-primary mt-1" />
+                  <div>
+                    <h4 className="font-semibold">Works Offline</h4>
+                    <p className="text-sm text-muted-foreground">
+                      No internet connection required for code generation
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-            <h4 className="font-semibold text-sm">Compatible Apps:</h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Google Authenticator</li>
-              <li>• Microsoft Authenticator</li>
-              <li>• Authy</li>
-              <li>• LastPass Authenticator</li>
-            </ul>
-          </div>
+              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                <h4 className="font-semibold text-sm">Compatible Apps:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Google Authenticator</li>
+                  <li>• Microsoft Authenticator</li>
+                  <li>• Authy</li>
+                  <li>• LastPass Authenticator</li>
+                </ul>
+              </div>
 
-          <Button onClick={generateQRCode} disabled={loading} className="w-full">
-            {loading ? "Generating..." : "Continue"}
-          </Button>
+              <Button onClick={generateQRCode} disabled={loading} className="w-full">
+                {loading ? "Generating..." : "Setup Authenticator App"}
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     );

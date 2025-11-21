@@ -14,6 +14,7 @@ import kenyaLocations from "@/data/kenya-locations.json";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { TOTPSetup } from "@/components/TOTPSetup";
 import { FingerprintSetup } from "@/components/FingerprintSetup";
+import { TrustedDevices } from "@/components/TrustedDevices";
 
 const CustomerProfile = () => {
   const { user, profile } = useAuth();
@@ -253,6 +254,12 @@ const CustomerProfile = () => {
                       onUpdate={loadFingerprintDevices}
                     />
                   </div>
+
+                  {profile?.user_id && (
+                    <div className="border-t pt-6">
+                      <TrustedDevices userId={profile.user_id} />
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
