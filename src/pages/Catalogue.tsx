@@ -5,7 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard } from "lucide-react";
+import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
@@ -51,6 +52,7 @@ const Catalogue = () => {
     priceRange: "all",
   });
   const [stockFilter, setStockFilter] = useState<string>("all"); // "all", "in-stock", "sold-out"
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -295,6 +297,16 @@ const Catalogue = () => {
                   <p className="text-xs text-muted-foreground">7-21 Days Logbook</p>
                 </div>
               </div>
+              <button 
+                onClick={() => setPaymentModalOpen(true)}
+                className="glass-strong rounded-lg p-4 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer w-full"
+              >
+                <CreditCard className="h-8 w-8 text-primary flex-shrink-0" />
+                <div className="text-left">
+                  <p className="font-semibold text-sm">Lipa Mdogo Mdogo</p>
+                  <p className="text-xs text-muted-foreground">Flexible Payment Plans</p>
+                </div>
+              </button>
             </div>
 
             {/* Contact Buttons */}
@@ -640,6 +652,9 @@ const Catalogue = () => {
           </div>
         </div>
       </div>
+
+      {/* Payment Methods Modal */}
+      <PaymentMethodsModal open={paymentModalOpen} onOpenChange={setPaymentModalOpen} />
     </div>
   );
 };
