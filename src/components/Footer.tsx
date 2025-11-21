@@ -1,9 +1,16 @@
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Youtube } from "lucide-react";
 import BrandMarquee from "./BrandMarquee";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 const Footer = () => {
   return (
+    <TooltipProvider>
     <footer className="bg-secondary/50 backdrop-blur-sm border-t border-border">
       {/* Brand Marquee */}
       <div className="container mx-auto px-4 py-8">
@@ -173,42 +180,70 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-bold mb-4 text-foreground">Connect With Us</h4>
             <div className="flex gap-4 mb-6">
-              <a
-                href="https://www.facebook.com/justiceultimatemotors"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-accent transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="h-6 w-6" />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-accent transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter className="h-6 w-6" />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-accent transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="h-6 w-6" />
-              </a>
-              <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-accent transition-colors"
-                aria-label="YouTube"
-              >
-                <Youtube className="h-6 w-6" />
-              </a>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a
+                    href="https://www.facebook.com/justiceultimatemotors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-accent transition-colors"
+                    aria-label="Facebook"
+                  >
+                    <Facebook className="h-6 w-6" />
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Follow us on Facebook</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a
+                    href="https://twitter.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-accent transition-colors"
+                    aria-label="Twitter"
+                  >
+                    <Twitter className="h-6 w-6" />
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Follow us on Twitter</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-accent transition-colors"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="h-6 w-6" />
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Follow us on Instagram</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a
+                    href="https://youtube.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-accent transition-colors"
+                    aria-label="YouTube"
+                  >
+                    <Youtube className="h-6 w-6" />
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Subscribe on YouTube</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <div className="text-sm text-muted-foreground space-y-1">
               <p>📍 Mpesi Lane 11, Westlands</p>
@@ -243,6 +278,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
+    </TooltipProvider>
   );
 };
 
