@@ -1,10 +1,20 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const RequestSchema = z.object({
+  userId: z.string().uuid("Invalid user ID format").optional(),
+  ip: z.string().ip("Invalid IP address format").max(45, "IP address too long"),
+  action: z.string()
+    .min(1, "Action cannot be empty")
+    .max(50, "Action must be less than 50 characters")
+    .regex(/^[a-z_]+$/, "Action must contain only lowercase letters and underscores")
+});
 
 interface RateLimitRequest {
   userId?: string;
@@ -23,7 +33,24 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { userId, ip, action }: RateLimitRequest = await req.json();
+    const body = await req.json();
+    
+    // Validate input with zod
+    const validationResult = RequestSchema.safeParse(body);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: validationResult.error.errors.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message 
+          }))
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    const { userId, ip, action } = validationResult.data;
     
     console.log('Rate limit check:', { userId, ip, action });
 

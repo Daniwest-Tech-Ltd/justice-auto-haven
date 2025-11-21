@@ -1,10 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const RequestSchema = z.object({
+  decision: z.enum(['accepted', 'declined'], { 
+    errorMap: () => ({ message: 'Decision must be either "accepted" or "declined"' })
+  })
+});
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -17,16 +24,24 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Parse request body
-    const { decision } = await req.json();
-
-    // Validate decision
-    if (!decision || !['accepted', 'declined'].includes(decision)) {
+    // Parse and validate request body
+    const body = await req.json();
+    
+    const validationResult = RequestSchema.safeParse(body);
+    if (!validationResult.success) {
       return new Response(
-        JSON.stringify({ error: 'Invalid decision. Must be "accepted" or "declined".' }),
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: validationResult.error.errors.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message 
+          }))
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { decision } = validationResult.data;
 
     // Get client IP and User-Agent
     const userIp = req.headers.get('x-forwarded-for') || 
