@@ -15,6 +15,8 @@ import kenyaLocations from "@/data/kenya-locations.json";
 import { setTheme } from "@/lib/theme";
 import type { Theme } from "@/lib/theme";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { TOTPSetup } from "@/components/TOTPSetup";
+import { FingerprintSetup } from "@/components/FingerprintSetup";
 
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
@@ -23,6 +25,7 @@ const AdminSettings = () => {
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>("");
+  const [fingerprintDevices, setFingerprintDevices] = useState<any[]>([]);
   const [profile, setProfile] = useState({
     full_name: "",
     email: "",
@@ -56,6 +59,15 @@ const AdminSettings = () => {
     fetchCompanySettings();
     fetchMaintenanceStatus();
   }, []);
+  
+  const loadFingerprintDevices = async () => {
+    if (!userId) return;
+    const { data } = await supabase
+      .from("user_fingerprints")
+      .select("*")
+      .eq("user_id", userId);
+    setFingerprintDevices(data || []);
+  };
 
   const fetchMaintenanceStatus = async () => {
     try {
@@ -151,6 +163,13 @@ const AdminSettings = () => {
       }
 
       setUserId(session.user.id);
+      
+      // Load fingerprint devices
+      const { data: fingerprints } = await supabase
+        .from("user_fingerprints")
+        .select("*")
+        .eq("user_id", session.user.id);
+      setFingerprintDevices(fingerprints || []);
 
       const { data, error } = await supabase
         .from("profiles")
@@ -312,9 +331,10 @@ const AdminSettings = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="company">Company Info</TabsTrigger>
+              <TabsTrigger value="security">Security</TabsTrigger>
+              <TabsTrigger value="company">Company</TabsTrigger>
               <TabsTrigger value="system">System</TabsTrigger>
               <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
             </TabsList>
@@ -410,6 +430,26 @@ const AdminSettings = () => {
                   <Save className="mr-2 h-4 w-4" />
                   {saving ? "Saving..." : "Save Changes"}
                 </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="security" className="space-y-6 pt-6">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Two-Factor Authentication</h3>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Add an extra layer of security to your admin account by enabling two-factor authentication.
+                  </p>
+                  
+                  <TOTPSetup onComplete={loadFingerprintDevices} />
+                </div>
+                
+                <div className="border-t pt-6">
+                  <FingerprintSetup 
+                    devices={fingerprintDevices}
+                    onUpdate={loadFingerprintDevices}
+                  />
+                </div>
               </div>
             </TabsContent>
 
