@@ -1060,10 +1060,12 @@ export type Database = {
           last_seen: string | null
           login_attempts: number | null
           phone: string
+          preferred_2fa: string | null
           preferred_contact: string | null
           suspended_at: string | null
           suspended_reason: string | null
           theme: string | null
+          two_fa_enabled: boolean | null
           updated_at: string | null
           user_id: string
         }
@@ -1084,10 +1086,12 @@ export type Database = {
           last_seen?: string | null
           login_attempts?: number | null
           phone: string
+          preferred_2fa?: string | null
           preferred_contact?: string | null
           suspended_at?: string | null
           suspended_reason?: string | null
           theme?: string | null
+          two_fa_enabled?: boolean | null
           updated_at?: string | null
           user_id: string
         }
@@ -1108,10 +1112,12 @@ export type Database = {
           last_seen?: string | null
           login_attempts?: number | null
           phone?: string
+          preferred_2fa?: string | null
           preferred_contact?: string | null
           suspended_at?: string | null
           suspended_reason?: string | null
           theme?: string | null
+          two_fa_enabled?: boolean | null
           updated_at?: string | null
           user_id?: string
         }
@@ -1848,6 +1854,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_fingerprints: {
+        Row: {
+          counter: number
+          created_at: string | null
+          credential_id: string
+          device_name: string | null
+          id: string
+          last_used: string | null
+          public_key: string
+          user_id: string
+        }
+        Insert: {
+          counter?: number
+          created_at?: string | null
+          credential_id: string
+          device_name?: string | null
+          id?: string
+          last_used?: string | null
+          public_key: string
+          user_id: string
+        }
+        Update: {
+          counter?: number
+          created_at?: string | null
+          credential_id?: string
+          device_name?: string | null
+          id?: string
+          last_used?: string | null
+          public_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -1865,6 +1904,33 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_totp: {
+        Row: {
+          backup_codes: Json | null
+          created_at: string | null
+          enabled: boolean
+          id: string
+          secret_key: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: Json | null
+          created_at?: string | null
+          enabled?: boolean
+          id?: string
+          secret_key: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: Json | null
+          created_at?: string | null
+          enabled?: boolean
+          id?: string
+          secret_key?: string
           user_id?: string
         }
         Relationships: []

@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { SuspendedUserModal } from "@/components/SuspendedUserModal";
+import { TwoFactorDialog } from "@/components/TwoFactorDialog";
 import { useSecurityLogger } from "@/hooks/useSecurityLogger";
 import { useTurnstile } from "@/hooks/useTurnstile";
 import authBg from "@/assets/auth-bg.jpg";
@@ -38,6 +39,9 @@ const Auth = () => {
   const [show2FADialog, setShow2FADialog] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const [pendingUserEmail, setPendingUserEmail] = useState("");
+  const [available2FAMethods, setAvailable2FAMethods] = useState({ email: true, totp: false, fingerprint: false });
+  const [preferred2FAMethod, setPreferred2FAMethod] = useState("email_otp");
   const [otpTimeLeft, setOtpTimeLeft] = useState(600); // 10 minutes in seconds
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -621,7 +625,40 @@ const Auth = () => {
         }
 
         // If 2FA fails, continue with login
-        await completeLogin(data.user.id);
+      // Check for 2FA requirements
+      const { data: profileData2FA } = await supabase
+        .from("profiles")
+        .select("two_fa_enabled, preferred_2fa")
+        .eq("user_id", data.user.id)
+        .single();
+
+      if (profileData2FA?.two_fa_enabled) {
+        // Check available methods
+        const { data: totpData } = await supabase
+          .from("user_totp")
+          .select("enabled")
+          .eq("user_id", data.user.id)
+          .single();
+        
+        const { data: fingerprintData } = await supabase
+          .from("user_fingerprints")
+          .select("id")
+          .eq("user_id", data.user.id);
+
+        setAvailable2FAMethods({
+          email: true,
+          totp: totpData?.enabled || false,
+          fingerprint: (fingerprintData?.length || 0) > 0,
+        });
+        setPreferred2FAMethod(profileData2FA.preferred_2fa || "email_otp");
+        setPendingUserId(data.user.id);
+        setPendingUserEmail(email);
+        setShow2FADialog(true);
+        setLoading(false);
+        return;
+      }
+
+      await completeLogin(data.user.id);
       }
     } catch (error: any) {
       // Reset CAPTCHA on error

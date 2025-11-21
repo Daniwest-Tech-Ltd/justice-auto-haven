@@ -5,12 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import kenyaLocations from "@/data/kenya-locations.json";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { TOTPSetup } from "@/components/TOTPSetup";
+import { FingerprintSetup } from "@/components/FingerprintSetup";
 
 const CustomerProfile = () => {
   const { user, profile } = useAuth();
@@ -19,6 +22,7 @@ const CustomerProfile = () => {
   const [loading, setLoading] = useState(false);
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [fingerprintDevices, setFingerprintDevices] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -46,7 +50,19 @@ const CustomerProfile = () => {
         setAvailableTowns(county?.towns || []);
       }
     }
-  }, [profile]);
+    if (user?.id) {
+      loadFingerprintDevices();
+    }
+  }, [profile, user]);
+  
+  const loadFingerprintDevices = async () => {
+    if (!user?.id) return;
+    const { data } = await supabase
+      .from("user_fingerprints")
+      .select("*")
+      .eq("user_id", user.id);
+    setFingerprintDevices(data || []);
+  };
 
   useEffect(() => {
     // Update available towns when county changes
@@ -103,9 +119,16 @@ const CustomerProfile = () => {
 
         <Card className="glass-strong">
           <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
+            <CardTitle>Settings</CardTitle>
           </CardHeader>
           <CardContent>
+            <Tabs defaultValue="profile" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="profile" className="space-y-6 pt-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="flex justify-center pb-6 border-b">
                 <AvatarUpload
@@ -211,6 +234,28 @@ const CustomerProfile = () => {
                 </Button>
               </div>
             </form>
+              </TabsContent>
+              
+              <TabsContent value="security" className="space-y-6 pt-6">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Two-Factor Authentication</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Add an extra layer of security to your account by enabling two-factor authentication.
+                    </p>
+                    
+                    <TOTPSetup onComplete={loadFingerprintDevices} />
+                  </div>
+                  
+                  <div className="border-t pt-6">
+                    <FingerprintSetup 
+                      devices={fingerprintDevices}
+                      onUpdate={loadFingerprintDevices}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
