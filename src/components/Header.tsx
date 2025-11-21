@@ -212,14 +212,14 @@ const Header = () => {
               </TooltipContent>
             </Tooltip>
 
-            {/* Wishlist Icon - Always visible */}
+            {/* Whitelist Icon - Always visible */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
                   asChild
-                  aria-label="Wishlist"
+                  aria-label="Whitelist"
                   className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
                 >
                   <Link to="/wishlist">
@@ -233,7 +233,7 @@ const Header = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Wishlist</p>
+                <p>Whitelist</p>
               </TooltipContent>
             </Tooltip>
 
