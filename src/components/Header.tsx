@@ -17,6 +17,12 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "./ui/drawer";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -148,6 +154,7 @@ const Header = () => {
   const dashboardPath = userRole === "admin" ? "/admin-dashboard" : "/customer-dashboard";
 
   return (
+    <TooltipProvider>
     <>
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
       <div className="container mx-auto px-4">
@@ -186,118 +193,174 @@ const Header = () => {
             <BusinessHours />
             
             {/* Home Icon - Always visible */}
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              aria-label="Home"
-              className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
-            >
-              <Link to="/">
-                <HomeIcon className="h-5 w-5" />
-              </Link>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  asChild
+                  aria-label="Home"
+                  className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
+                >
+                  <Link to="/">
+                    <HomeIcon className="h-5 w-5" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Home</p>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Wishlist Icon - Always visible */}
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              aria-label="Wishlist"
-              className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
-            >
-              <Link to="/wishlist">
-                <Heart className="h-5 w-5" />
-                {wishlistCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                    {wishlistCount}
-                  </Badge>
-                )}
-              </Link>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  asChild
+                  aria-label="Wishlist"
+                  className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
+                >
+                  <Link to="/wishlist">
+                    <Heart className="h-5 w-5" />
+                    {wishlistCount > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                        {wishlistCount}
+                      </Badge>
+                    )}
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Wishlist</p>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Notifications - Show when authenticated and is customer */}
             {isAuthenticated && userRole === "customer" && (
               <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  asChild
-                  aria-label="Notifications"
-                  className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
-                >
-                  <Link to="/customer/notifications">
-                    <Bell className="h-5 w-5" />
-                    {notificationCount > 0 && (
-                      <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                        {notificationCount}
-                      </Badge>
-                    )}
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  asChild
-                  aria-label="Messages"
-                  className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
-                >
-                  <Link to="/customer/messages">
-                    <Mail className="h-5 w-5" />
-                    {messageCount > 0 && (
-                      <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                        {messageCount}
-                      </Badge>
-                    )}
-                  </Link>
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      aria-label="Notifications"
+                      className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
+                    >
+                      <Link to="/customer/notifications">
+                        <Bell className="h-5 w-5" />
+                        {notificationCount > 0 && (
+                          <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                            {notificationCount}
+                          </Badge>
+                        )}
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Notifications</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      aria-label="Messages"
+                      className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
+                    >
+                      <Link to="/customer/messages">
+                        <Mail className="h-5 w-5" />
+                        {messageCount > 0 && (
+                          <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                            {messageCount}
+                          </Badge>
+                        )}
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Messages</p>
+                  </TooltipContent>
+                </Tooltip>
               </>
             )}
 
             {/* Dashboard Icon - Show when authenticated and not on dashboard */}
             {isAuthenticated && !isDashboard && (
-              <Button
-                variant="ghost"
-                size="icon"
-                asChild
-                aria-label="Dashboard"
-                className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
-              >
-                <Link to={dashboardPath}>
-                  <LayoutDashboard className="h-5 w-5" />
-                </Link>
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    aria-label="Dashboard"
+                    className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
+                  >
+                    <Link to={dashboardPath}>
+                      <LayoutDashboard className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Dashboard</p>
+                </TooltipContent>
+              </Tooltip>
             )}
 
             {/* Auth Buttons */}
             {isAuthenticated ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={initiateLogout}
-                aria-label="Sign Out"
-                className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
-              >
-                <LogOut className="h-5 w-5" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={initiateLogout}
+                    aria-label="Sign Out"
+                    className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Sign Out</p>
+                </TooltipContent>
+              </Tooltip>
             ) : (
               <Link to="/auth" className="hidden sm:block">
-                <Button variant="ghost" size="sm" className="gap-2 border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]">
-                  <User className="h-4 w-4" />
-                  Sign In
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" className="gap-2 border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]">
+                      <User className="h-4 w-4" />
+                      Sign In
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Sign In</p>
+                  </TooltipContent>
+                </Tooltip>
               </Link>
             )}
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleDarkMode}
-              aria-label="Toggle dark mode"
-              className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
-            >
-              {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleDarkMode}
+                  aria-label="Toggle dark mode"
+                  className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
+                >
+                  {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{darkMode ? "Light Mode" : "Dark Mode"}</p>
+              </TooltipContent>
+            </Tooltip>
 
             <Button
               variant="ghost"
@@ -394,6 +457,7 @@ const Header = () => {
       onCancel={() => setShowLogoutConfirm(false)}
     />
     </>
+    </TooltipProvider>
   );
 };
 
