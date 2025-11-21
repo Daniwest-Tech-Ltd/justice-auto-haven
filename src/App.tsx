@@ -8,6 +8,9 @@ import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useActivityTracker } from "./hooks/useActivityTracker";
 import LoadingScreen from "./components/LoadingScreen";
+import { applyTheme } from "./lib/theme";
+import type { Theme } from "./lib/theme";
+import { supabase } from "@/integrations/supabase/client";
 
 // Lazy load pages
 const Home = lazy(() => import("./pages/Home"));
@@ -83,6 +86,32 @@ const AppContent = () => {
   const { logActivity } = useActivityTracker();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Apply user's theme preference on auth state change
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        // Fetch user's theme preference from database
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('theme')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (profile?.theme) {
+          applyTheme(profile.theme as Theme);
+        }
+      } else {
+        // Apply saved theme from localStorage when not logged in
+        const savedTheme = localStorage.getItem('theme') as Theme | null;
+        if (savedTheme) {
+          applyTheme(savedTheme);
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Scroll to top on route change
   useEffect(() => {
