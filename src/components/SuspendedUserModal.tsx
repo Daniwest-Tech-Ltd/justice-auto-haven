@@ -65,16 +65,20 @@ export const SuspendedUserModal = ({ isOpen, reason, suspendedUntil, onSuccess }
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("activation_code")
+        .select("activation_code, account_status, full_name, email")
         .eq("user_id", user.id)
         .single();
 
+      console.log('User attempting activation:', profile?.email);
+      console.log('Entered code:', activationCode.trim());
+      console.log('Expected code:', profile?.activation_code);
+
       if (profile?.activation_code !== activationCode.trim()) {
-        toast.error("Invalid activation code");
+        toast.error("Invalid activation code. Please check and try again.");
         return;
       }
 
-      const { error } = await supabase
+      const { error, data: updateData } = await supabase
         .from("profiles")
         .update({
           is_suspended: false,
@@ -82,16 +86,23 @@ export const SuspendedUserModal = ({ isOpen, reason, suspendedUntil, onSuccess }
           activation_code: null,
           suspended_at: null,
           suspended_reason: null,
+          login_attempts: 0, // Reset login attempts on successful reactivation
         })
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Activation update error:', error);
+        throw error;
+      }
 
-      toast.success("Account reactivated successfully!");
+      console.log('Account reactivated successfully:', updateData);
+
+      toast.success("Account reactivated successfully! You can now log in.");
       onSuccess();
     } catch (error) {
       console.error("Activation error:", error);
-      toast.error("Failed to activate account. Please try again.");
+      toast.error("Failed to activate account. Please try again or contact support.");
     } finally {
       setIsSubmitting(false);
     }

@@ -459,10 +459,22 @@ const Auth = () => {
           const wasPreviouslySuspended = profileData.account_status === "suspended" || profileData.is_suspended;
           
           if (newAttempts >= 3) {
-            const { data: codeData } = await supabase.rpc('generate_activation_code');
-            const activationCode = codeData || Array.from({ length: 16 }, () => 
-              Math.floor(Math.random() * 16).toString(16)
-            ).join('').toUpperCase();
+            // Generate activation code - try RPC first, fallback to random generation
+            let activationCode = '';
+            try {
+              const { data: codeData, error: rpcError } = await supabase.rpc('generate_activation_code');
+              if (rpcError) {
+                console.error('RPC error generating activation code:', rpcError);
+                activationCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+              } else {
+                activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
+              }
+            } catch (err) {
+              console.error('Failed to call RPC for activation code:', err);
+              activationCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+            }
+            
+            console.log('Generated activation code on failed login:', activationCode);
             
             let updateData: any = {
               login_attempts: newAttempts,
@@ -528,10 +540,17 @@ const Auth = () => {
               });
             }
             
-            await supabase
+            const { error: updateError, data: updatedProfile } = await supabase
               .from("profiles")
               .update(updateData)
-              .eq("user_id", profileData.user_id);
+              .eq("user_id", profileData.user_id)
+              .select();
+            
+            if (updateError) {
+              console.error('Failed to update profile with suspension:', updateError);
+            } else {
+              console.log('Profile updated with activation code:', updatedProfile);
+            }
             
             await logLoginAttempt(
               profileData.user_id,
