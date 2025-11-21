@@ -1,7 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+
+const RequestSchema = z.object({
+  email: z.string().email("Invalid email format").max(255, "Email must be less than 255 characters"),
+  userId: z.string().uuid("Invalid user ID format")
+});
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,11 +20,24 @@ serve(async (req) => {
   }
 
   try {
-    const { email, userId } = await req.json();
-
-    if (!email || !userId) {
-      throw new Error("Email and userId are required");
+    const body = await req.json();
+    
+    // Validate input with zod
+    const validationResult = RequestSchema.safeParse(body);
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid input", 
+          details: validationResult.error.errors.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message 
+          }))
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
     }
+
+    const { email, userId } = validationResult.data;
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
