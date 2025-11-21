@@ -1,8 +1,11 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import CertificateModal from "@/components/CertificateModal";
 
 const FAQs = () => {
-  const certificateUrl = "https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/Justice%20Ultimate%20Automobiles%20_justice_ultimate_automobiles.pdf";
+  const [showCertificate, setShowCertificate] = useState(false);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -20,14 +23,13 @@ const FAQs = () => {
               <p className="mb-4">
                 Yes! Justice Ultimate Automobiles is a fully certified automotive dealer in Kenya, operating with officially recognized business credentials. We are registered and compliant with all regulatory requirements.
               </p>
-              <a 
-                href={certificateUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:underline"
+              <Button
+                onClick={() => setShowCertificate(true)}
+                variant="link"
+                className="p-0 h-auto inline-flex items-center gap-2 text-primary hover:underline"
               >
                 View Our Company Certificate <ExternalLink className="w-4 h-4" />
-              </a>
+              </Button>
             </AccordionContent>
           </AccordionItem>
 
@@ -185,14 +187,13 @@ const FAQs = () => {
             <AccordionContent className="text-foreground/80 pt-4">
               You can view and download our official company certificate anytime. The certificate contains our registration details, business permit, and compliance information. Click the link below to view:
               <br /><br />
-              <a 
-                href={certificateUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
+              <Button
+                onClick={() => setShowCertificate(true)}
+                variant="link"
+                className="p-0 h-auto inline-flex items-center gap-2 text-primary hover:underline font-semibold"
               >
                 View Company Certificate <ExternalLink className="w-4 h-4" />
-              </a>
+              </Button>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -209,6 +210,9 @@ const FAQs = () => {
           </a>
         </div>
       </div>
+      
+      {/* Certificate Modal */}
+      <CertificateModal open={showCertificate} onOpenChange={setShowCertificate} />
     </div>
   );
 };

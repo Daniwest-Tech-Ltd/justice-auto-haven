@@ -1,8 +1,11 @@
 import { Phone, Mail, MapPin, MessageCircle, Shield, FileText, AlertCircle, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import CertificateModal from "@/components/CertificateModal";
 
 const HelpSupport = () => {
-  const certificateUrl = "https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/Justice%20Ultimate%20Automobiles%20_justice_ultimate_automobiles.pdf";
+  const [showCertificate, setShowCertificate] = useState(false);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -93,16 +96,14 @@ const HelpSupport = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 View our complete certification including business registration, permits, and compliance documentation.
               </p>
-              <a 
-                href={certificateUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Button
+                onClick={() => setShowCertificate(true)}
                 className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-semibold"
               >
                 <FileText className="w-5 h-5" />
                 View Company Certificate
                 <ExternalLink className="w-4 h-4" />
-              </a>
+              </Button>
             </div>
             <div className="grid md:grid-cols-3 gap-4 mt-6">
               <div className="text-center p-4 bg-background/30 rounded-lg">
@@ -237,6 +238,9 @@ const HelpSupport = () => {
           </div>
         </div>
       </div>
+      
+      {/* Certificate Modal */}
+      <CertificateModal open={showCertificate} onOpenChange={setShowCertificate} />
     </div>
   );
 };
