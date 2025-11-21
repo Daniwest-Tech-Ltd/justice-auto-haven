@@ -12,6 +12,7 @@ export const useSecurityLogger = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
+      // Log to security_events
       const { error } = await supabase.from("security_events").insert({
         event_type: eventType,
         severity,
@@ -25,6 +26,15 @@ export const useSecurityLogger = () => {
       if (error) {
         console.error("Failed to log security event:", error);
       }
+
+      // Also log to audit_logs for comprehensive tracking
+      await supabase.from("audit_logs").insert({
+        user_id: user?.id,
+        action: eventType,
+        ip_address: sourceIp,
+        user_agent: navigator.userAgent,
+        metadata: metadata || {},
+      });
     } catch (error) {
       console.error("Security logging error:", error);
     }

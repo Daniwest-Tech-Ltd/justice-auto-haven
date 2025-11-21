@@ -151,6 +151,36 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           badge_type: string
@@ -1051,6 +1081,7 @@ export type Database = {
           created_at: string | null
           email: string
           exact_location: string | null
+          fingerprint_enabled: boolean | null
           full_name: string
           gender: string | null
           id: string
@@ -1065,6 +1096,8 @@ export type Database = {
           suspended_at: string | null
           suspended_reason: string | null
           theme: string | null
+          theme_mode: string | null
+          totp_enabled: boolean | null
           two_fa_enabled: boolean | null
           updated_at: string | null
           user_id: string
@@ -1077,6 +1110,7 @@ export type Database = {
           created_at?: string | null
           email: string
           exact_location?: string | null
+          fingerprint_enabled?: boolean | null
           full_name: string
           gender?: string | null
           id?: string
@@ -1091,6 +1125,8 @@ export type Database = {
           suspended_at?: string | null
           suspended_reason?: string | null
           theme?: string | null
+          theme_mode?: string | null
+          totp_enabled?: boolean | null
           two_fa_enabled?: boolean | null
           updated_at?: string | null
           user_id: string
@@ -1103,6 +1139,7 @@ export type Database = {
           created_at?: string | null
           email?: string
           exact_location?: string | null
+          fingerprint_enabled?: boolean | null
           full_name?: string
           gender?: string | null
           id?: string
@@ -1117,6 +1154,8 @@ export type Database = {
           suspended_at?: string | null
           suspended_reason?: string | null
           theme?: string | null
+          theme_mode?: string | null
+          totp_enabled?: boolean | null
           two_fa_enabled?: boolean | null
           updated_at?: string | null
           user_id?: string
@@ -1827,6 +1866,36 @@ export type Database = {
         }
         Relationships: []
       }
+      trusted_devices: {
+        Row: {
+          created_at: string | null
+          device_id: string
+          device_name: string | null
+          has_webauthn: boolean | null
+          id: string
+          last_seen: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_id: string
+          device_name?: string | null
+          has_webauthn?: boolean | null
+          id?: string
+          last_seen?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_id?: string
+          device_name?: string | null
+          has_webauthn?: boolean | null
+          id?: string
+          last_seen?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       two_factor_auth: {
         Row: {
           code: string
@@ -1884,6 +1953,36 @@ export type Database = {
           last_used?: string | null
           public_key?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_otps: {
+        Row: {
+          code: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          purpose: string
+          used: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          purpose: string
+          used?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          purpose?: string
+          used?: boolean | null
+          user_id?: string | null
         }
         Relationships: []
       }

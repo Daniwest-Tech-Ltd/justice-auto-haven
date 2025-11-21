@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Fingerprint, Shield, Smartphone, Trash2 } from "lucide-react";
+import { registerTrustedDevice } from "@/lib/deviceTracking";
 import {
   startRegistration,
   startAuthentication,
@@ -101,8 +102,20 @@ export const FingerprintSetup = ({ devices = [], onUpdate }: FingerprintSetupPro
         .update({
           two_fa_enabled: true,
           preferred_2fa: 'fingerprint',
+          fingerprint_enabled: true,
         })
         .eq("user_id", session.user.id);
+
+      // Register this device as trusted with WebAuthn
+      await registerTrustedDevice(session.user.id, true, deviceName);
+
+      // Log to audit trail
+      await supabase.from("audit_logs").insert({
+        user_id: session.user.id,
+        action: "fingerprint_registered",
+        user_agent: navigator.userAgent,
+        metadata: { device_name: deviceName },
+      });
 
       toast({
         title: "Success!",
@@ -160,6 +173,7 @@ export const FingerprintSetup = ({ devices = [], onUpdate }: FingerprintSetupPro
             .update({
               two_fa_enabled: false,
               preferred_2fa: 'email_otp',
+              fingerprint_enabled: false,
             })
             .eq("user_id", session.user.id);
         } else {
@@ -168,10 +182,19 @@ export const FingerprintSetup = ({ devices = [], onUpdate }: FingerprintSetupPro
             .from("profiles")
             .update({
               preferred_2fa: 'totp',
+              fingerprint_enabled: false,
             })
             .eq("user_id", session.user.id);
         }
       }
+
+      // Log to audit trail
+      await supabase.from("audit_logs").insert({
+        user_id: session.user.id,
+        action: "fingerprint_removed",
+        user_agent: navigator.userAgent,
+        metadata: { device_id: deviceId },
+      });
 
       toast({
         title: "Success",
