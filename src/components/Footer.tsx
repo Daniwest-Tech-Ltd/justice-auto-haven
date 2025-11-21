@@ -203,10 +203,6 @@ const Footer = () => {
           </div>
 
           {/* Connect With Us */}
-            </ul>
-          </div>
-
-          {/* Connect */}
           <div>
             <h4 className="text-lg font-bold mb-4 text-foreground">Connect With Us</h4>
             <div className="flex gap-4 mb-6">
