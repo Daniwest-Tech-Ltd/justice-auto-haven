@@ -149,13 +149,30 @@ serve(async (req) => {
         .delete()
         .eq("user_id", user.id);
 
-      await supabase
-        .from("profiles")
-        .update({ 
-          two_fa_enabled: false,
-          preferred_2fa: 'email_otp'
-        })
+      // Check if user has fingerprint devices
+      const { data: fingerprintData } = await supabase
+        .from("user_fingerprints")
+        .select("id")
         .eq("user_id", user.id);
+
+      // If no fingerprint devices, disable 2FA completely
+      if (!fingerprintData || fingerprintData.length === 0) {
+        await supabase
+          .from("profiles")
+          .update({ 
+            two_fa_enabled: false,
+            preferred_2fa: 'email_otp'
+          })
+          .eq("user_id", user.id);
+      } else {
+        // Switch preferred method to fingerprint
+        await supabase
+          .from("profiles")
+          .update({ 
+            preferred_2fa: 'fingerprint'
+          })
+          .eq("user_id", user.id);
+      }
 
       return new Response(
         JSON.stringify({ success: true, message: "TOTP disabled successfully" }),

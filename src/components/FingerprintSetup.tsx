@@ -126,12 +126,52 @@ export const FingerprintSetup = ({ devices = [], onUpdate }: FingerprintSetupPro
   const removeFingerprint = async (deviceId: string) => {
     setLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
+      // Check if this is the last fingerprint device
+      const { data: allDevices } = await supabase
+        .from("user_fingerprints")
+        .select("id")
+        .eq("user_id", session.user.id);
+
+      const isLastDevice = allDevices && allDevices.length === 1;
+
+      // Delete the device
       const { error } = await supabase
         .from("user_fingerprints")
         .delete()
         .eq("id", deviceId);
 
       if (error) throw error;
+
+      // If this was the last device, check if user has other 2FA methods
+      if (isLastDevice) {
+        const { data: totpData } = await supabase
+          .from("user_totp")
+          .select("enabled")
+          .eq("user_id", session.user.id)
+          .single();
+
+        // If no TOTP enabled, disable 2FA completely
+        if (!totpData?.enabled) {
+          await supabase
+            .from("profiles")
+            .update({
+              two_fa_enabled: false,
+              preferred_2fa: 'email_otp',
+            })
+            .eq("user_id", session.user.id);
+        } else {
+          // Switch preferred method to TOTP
+          await supabase
+            .from("profiles")
+            .update({
+              preferred_2fa: 'totp',
+            })
+            .eq("user_id", session.user.id);
+        }
+      }
 
       toast({
         title: "Success",
