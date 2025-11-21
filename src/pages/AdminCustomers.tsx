@@ -141,13 +141,14 @@ const AdminCustomers = () => {
 
       if (error) throw error;
 
-      // Send suspension notification email
-      if (profile?.email) {
+      // Send suspension notification email (without activation code)
+      if (profile?.email && profile?.full_name) {
         await supabase.functions.invoke('send-suspension-notification', {
           body: {
             email: profile.email,
-            reason: "Suspended by admin",
-            activationCode
+            name: profile.full_name,
+            reason: "Suspended by admin"
+            // NOT sending activationCode in email
           }
         });
       }
@@ -221,14 +222,14 @@ const AdminCustomers = () => {
 
       if (error) throw error;
 
-      // Send suspension notification email
-      if (profile?.email) {
+      // Send suspension notification email (without activation code)
+      if (profile?.email && profile?.full_name) {
         await supabase.functions.invoke('send-suspension-notification', {
           body: {
             email: profile.email,
             name: profile.full_name,
-            reason: "Your account has been blocked by an administrator.",
-            activationCode: activationCode
+            reason: "Your account has been blocked by an administrator."
+            // NOT sending activationCode in email
           }
         });
       }

@@ -45,11 +45,8 @@ serve(async (req) => {
                 <p><strong>Your account has been suspended.</strong></p>
                 <p><strong>Reason:</strong> ${reason}</p>
               </div>
-              <p>To regain access to your account, please contact our support team through the chatbot on our website.</p>
-              ${activationCode ? `
-                <p>When contacting support, you will need to provide this activation code:</p>
-                <div class="code-box">${activationCode}</div>
-              ` : ''}
+              <p><strong>⚠️ WARNING:</strong> Your account may be permanently deleted if not reactivated soon.</p>
+              <p>To regain access to your account, please contact our support team immediately through the chatbot on our website or by replying to this email.</p>
               <p>Our team will review your case and assist you with the reactivation process.</p>
               <p>If you believe this suspension was made in error, please reach out to us immediately.</p>
               <div class="footer">
