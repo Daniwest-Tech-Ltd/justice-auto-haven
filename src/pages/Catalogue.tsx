@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
 import { usePagination } from "@/hooks/usePagination";
@@ -254,14 +254,67 @@ const Catalogue = () => {
   }
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        <h1 className="text-4xl md:text-5xl font-bold mb-2 text-center bg-gradient-accent bg-clip-text text-transparent">
-          Vehicle Catalogue
-        </h1>
-        <p className="text-center text-muted-foreground mb-8">
-          Browse our collection of premium vehicles
-        </p>
+    <div className="min-h-screen">
+      {/* Hero Banner Section */}
+      <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-16 mb-8">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-accent bg-clip-text text-transparent">
+              Find Your Perfect Car Today
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground mb-6">
+              Trusted Automotive Dealer – Nairobi, Kenya
+            </p>
+            <p className="text-base text-muted-foreground mb-8">
+              Quality, Verified, and Ready for Delivery • Lipa Mdogo Mdogo Available
+            </p>
+            
+            {/* Trust Indicators */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+              <div className="glass-strong rounded-lg p-4 flex items-center gap-3">
+                <Shield className="h-8 w-8 text-primary flex-shrink-0" />
+                <div className="text-left">
+                  <p className="font-semibold text-sm">Verified Vehicles</p>
+                  <p className="text-xs text-muted-foreground">100% Quality Assured</p>
+                </div>
+              </div>
+              <div className="glass-strong rounded-lg p-4 flex items-center gap-3">
+                <MapPin className="h-8 w-8 text-primary flex-shrink-0" />
+                <div className="text-left">
+                  <p className="font-semibold text-sm">Visit Our Yard</p>
+                  <p className="text-xs text-muted-foreground">Mpesi Lane, Westlands</p>
+                </div>
+              </div>
+              <div className="glass-strong rounded-lg p-4 flex items-center gap-3">
+                <Clock className="h-8 w-8 text-primary flex-shrink-0" />
+                <div className="text-left">
+                  <p className="font-semibold text-sm">Quick Processing</p>
+                  <p className="text-xs text-muted-foreground">7-21 Days Logbook</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Buttons */}
+            <div className="flex flex-wrap justify-center gap-4 mt-8">
+              <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
+                <Button size="lg" className="gap-2 bg-green-600 hover:bg-green-700">
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp: 0722 827 458
+                </Button>
+              </a>
+              <a href="tel:+254722827458">
+                <Button size="lg" variant="outline" className="gap-2">
+                  <Phone className="h-5 w-5" />
+                  Call Now
+                </Button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 pb-8">
 
         {/* Search and Filters */}
         <div className="glass-strong rounded-lg p-6 mb-8">
@@ -398,88 +451,118 @@ const Catalogue = () => {
                 const brandLogo = getBrandLogo(car.make);
                 
                 return (
-                  <Link
+                  <div
                     key={car.id}
-                    to={`/car/${car.stock_id || car.id}`}
-                    className="glass-strong rounded-lg overflow-hidden flex flex-col hover:scale-[1.02] transition-transform"
+                    className="glass-strong rounded-xl overflow-hidden flex flex-col border border-primary/20 hover:border-primary/40 transition-all hover:shadow-xl hover:shadow-primary/10"
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      <img
-                        src={images[0] || "/placeholder.svg"}
-                        alt={`${car.make} ${car.model}`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <Badge className="absolute top-2 left-2 bg-primary">
-                        {car.year}
-                      </Badge>
-                      
-                      {/* Stock Status Badge - Centered at Top */}
-                      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10">
-                        {car.status === "sold" ? (
-                          <Badge className="bg-red-600 hover:bg-red-600 text-white text-xs px-2 py-0.5">
-                            Sold Out
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-green-600 hover:bg-green-600 text-white text-xs px-2 py-0.5">
-                            In Stock
+                    <Link to={`/car/${car.stock_id || car.id}`} className="block">
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        <img
+                          src={images[0] || "/placeholder.svg"}
+                          alt={`${car.make} ${car.model}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                        <Badge className="absolute top-3 left-3 bg-primary shadow-lg">
+                          {car.year}
+                        </Badge>
+                        
+                        {/* Lipa Mdogo Mdogo Badge */}
+                        {car.status !== "sold" && (
+                          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg">
+                            💰 Lipa Mdogo Mdogo
                           </Badge>
                         )}
-                      </div>
 
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="absolute top-2 right-2 z-10"
-                        onClick={(e) => toggleWishlist(e, car.id)}
-                      >
-                        <Heart
-                          className={`h-4 w-4 ${
-                            wishlist.includes(car.id) ? "fill-red-500 text-red-500" : ""
-                          }`}
-                        />
-                      </Button>
-                      {brandLogo && (
-                        <div className="absolute bottom-2 left-2 bg-white/90 rounded p-1">
-                          <img src={brandLogo} alt={car.make} className="h-6 w-auto object-contain" />
+                        {/* Stock Status Badge - Centered */}
+                        <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-10">
+                          {car.status === "sold" ? (
+                            <Badge className="bg-red-600 hover:bg-red-600 text-white px-3 py-1 shadow-lg">
+                              SOLD OUT
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-green-600 hover:bg-green-600 text-white px-3 py-1 shadow-lg">
+                              ✓ IN STOCK
+                            </Badge>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className="p-4 flex-1 flex flex-col">
-                      <h3 className="font-bold text-lg mb-2 line-clamp-1">
-                        {car.make} {car.model}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-2">Stock ID: {car.stock_id || "N/A"}</p>
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-                        <span className="flex items-center gap-1">
-                          <Gauge className="h-4 w-4" />
-                          {car.mileage || "N/A"}
-                        </span>
-                        <span>•</span>
-                        <span className="uppercase">{car.fuel_type || "N/A"}</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <SettingsIcon className="h-4 w-4" />
-                          {car.transmission || "N/A"}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-muted-foreground mb-3">
-                        <span className="text-xs">{car.color || "N/A"}</span>
-                        <span>•</span>
-                        <span className="text-xs">{car.engine || "N/A"}</span>
-                      </div>
-                      <div className="flex items-center justify-between mt-auto">
-                        <p className="text-2xl font-bold text-primary">
-                          KSH {car.price.toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="border-t border-white/10 mt-4 pt-3">
-                        <Button variant="ghost" className="w-full justify-start gap-2 text-sm">
-                          <Car className="h-4 w-4 text-primary" />
-                          View Details
+
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="absolute bottom-3 right-3 z-10 shadow-lg"
+                          onClick={(e) => toggleWishlist(e, car.id)}
+                        >
+                          <Heart
+                            className={`h-4 w-4 ${
+                              wishlist.includes(car.id) ? "fill-red-500 text-red-500" : ""
+                            }`}
+                          />
                         </Button>
+                        {brandLogo && (
+                          <div className="absolute bottom-3 left-3 bg-white/90 rounded p-1.5 shadow-lg">
+                            <img src={brandLogo} alt={car.make} className="h-6 w-auto object-contain" />
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                    
+                    <div className="p-5 flex-1 flex flex-col">
+                      <Link to={`/car/${car.stock_id || car.id}`}>
+                        <h3 className="font-bold text-xl mb-2 line-clamp-1 hover:text-primary transition-colors">
+                          {car.make} {car.model}
+                        </h3>
+                      </Link>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Stock ID: <span className="font-mono font-semibold">{car.stock_id || "N/A"}</span>
+                      </p>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <Gauge className="h-4 w-4 text-primary" />
+                          <span>{car.mileage || "N/A"}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <SettingsIcon className="h-4 w-4 text-primary" />
+                          <span>{car.transmission || "N/A"}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+                          <span className="text-primary">⛽</span>
+                          <span className="uppercase">{car.fuel_type || "N/A"}</span>
+                          <span>•</span>
+                          <span>{car.color || "N/A"}</span>
+                          <span>•</span>
+                          <span className="text-xs">{car.engine || "N/A"}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="border-t border-primary/10 pt-3 mb-4">
+                        <p className="text-sm text-muted-foreground mb-1">Price</p>
+                        <p className="text-2xl font-bold text-primary">
+                          KSh {car.price.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">Negotiable • Payment Plans Available</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 mt-auto">
+                        <Link to={`/car/${car.stock_id || car.id}`} className="block">
+                          <Button variant="outline" className="w-full text-xs h-9">
+                            View Details
+                          </Button>
+                        </Link>
+                        <a 
+                          href={`https://wa.me/254722827458?text=Hi, I'm interested in ${car.year} ${car.make} ${car.model} (Stock ID: ${car.stock_id || car.id})`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button className="w-full gap-1.5 bg-green-600 hover:bg-green-700 text-xs h-9">
+                            <MessageCircle className="h-3.5 w-3.5" />
+                            WhatsApp
+                          </Button>
+                        </a>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
@@ -522,30 +605,43 @@ const Catalogue = () => {
         )}
 
         {/* Contact CTA */}
-        <div className="glass-strong rounded-lg p-8 mt-12 text-center">
-          <h2 className="text-2xl font-bold mb-4">Can't Find What You're Looking For?</h2>
-          <p className="text-muted-foreground mb-6">
-            Contact us and we'll help you find your perfect vehicle
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a href="tel:+254722827458">
-              <Button className="gap-2">
-                <Phone className="h-4 w-4" />
-                Call Us
-              </Button>
-            </a>
-            <a href="mailto:justicevincentt@gmail.com">
-              <Button variant="outline" className="gap-2">
-                <Mail className="h-4 w-4" />
-                Email Us
-              </Button>
-            </a>
-            <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
-              <Button className="gap-2 bg-green-600 hover:bg-green-700">
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp
-              </Button>
-            </a>
+        <div className="glass-strong rounded-xl p-10 mt-12 border-2 border-primary/30">
+          <div className="max-w-2xl mx-auto text-center">
+            <Shield className="h-12 w-12 mx-auto mb-4 text-primary" />
+            <h2 className="text-3xl font-bold mb-3">Can't Find What You're Looking For?</h2>
+            <p className="text-muted-foreground mb-2 text-lg">
+              Contact us and we'll help you source your perfect vehicle
+            </p>
+            <p className="text-sm text-muted-foreground mb-8">
+              ⚠️ <strong>IMPORTANT:</strong> We DO NOT accept online payments. All customers MUST visit our yard physically at <strong>Mpesi Lane 11, Westlands, Nairobi</strong>
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-4 mb-6">
+              <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
+                <Button size="lg" className="gap-2 bg-green-600 hover:bg-green-700">
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp: 0722 827 458
+                </Button>
+              </a>
+              <a href="tel:+254722827458">
+                <Button size="lg" variant="outline" className="gap-2">
+                  <Phone className="h-5 w-5" />
+                  Call: 0722 827 458
+                </Button>
+              </a>
+              <a href="mailto:justicevincentt@gmail.com">
+                <Button size="lg" variant="outline" className="gap-2">
+                  <Mail className="h-5 w-5" />
+                  Email Us
+                </Button>
+              </a>
+            </div>
+
+            <div className="pt-6 border-t border-primary/20">
+              <p className="text-xs text-muted-foreground">
+                📍 Mpesi Lane 11, Westlands, Nairobi • 🗺️ <a href="https://maps.app.goo.gl/sruXcwwRpCAZrg6i8" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on Map</a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
