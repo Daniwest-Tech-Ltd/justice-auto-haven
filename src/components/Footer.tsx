@@ -24,11 +24,6 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/services" className="text-muted-foreground hover:text-accent transition-colors">
-                  Services
-                </Link>
-              </li>
-              <li>
                 <Link to="/contact" className="text-muted-foreground hover:text-accent transition-colors">
                   Contact Us
                 </Link>
@@ -156,15 +151,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <button
-                  onClick={() => {
-                    document.cookie = "cookie_consent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                    window.location.reload();
-                  }}
-                  className="text-muted-foreground hover:text-accent transition-colors text-left"
+                <Link 
+                  to="/faqs" 
+                  className="text-muted-foreground hover:text-accent transition-colors"
                 >
-                  🍪 Manage Cookies
-                </button>
+                  FAQs
+                </Link>
               </li>
               <li>
                 <Link 
