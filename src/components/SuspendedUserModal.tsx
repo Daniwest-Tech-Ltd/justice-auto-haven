@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldAlert, MessageCircle, Home, Mail } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ShieldAlert, MessageCircle, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
 
 interface SuspendedUserModalProps {
   isOpen: boolean;
@@ -19,6 +20,8 @@ export const SuspendedUserModal = ({ isOpen, reason, suspendedUntil, onSuccess }
   const [activationCode, setActivationCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState("");
+  const [messageToAdmin, setMessageToAdmin] = useState("");
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   useEffect(() => {
     if (!suspendedUntil) return;
@@ -75,6 +78,7 @@ export const SuspendedUserModal = ({ isOpen, reason, suspendedUntil, onSuccess }
         .from("profiles")
         .update({
           is_suspended: false,
+          account_status: "active",
           activation_code: null,
           suspended_at: null,
           suspended_reason: null,
@@ -93,18 +97,91 @@ export const SuspendedUserModal = ({ isOpen, reason, suspendedUntil, onSuccess }
     }
   };
 
+  const handleSendMessage = async () => {
+    if (!messageToAdmin.trim()) {
+      toast.error("Please enter a message");
+      return;
+    }
+
+    setIsSendingMessage(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Get user profile for name
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("user_id", user.id)
+        .single();
+
+      // Get all admin users
+      const { data: adminRoles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      if (!adminRoles || adminRoles.length === 0) {
+        toast.error("No administrators found. Please try again later.");
+        return;
+      }
+
+      // Send message to all admins
+      const messagePromises = adminRoles.map((admin) =>
+        supabase.from("messages").insert({
+          sender_id: user.id,
+          receiver_id: admin.user_id,
+          subject: `🚨 Urgent: Account Suspension Appeal from ${profile?.full_name || "User"}`,
+          message: `${messageToAdmin}\n\n---\nUser Email: ${profile?.email}\nSuspension Reason: ${reason || "Not specified"}`,
+          is_read: false,
+        })
+      );
+
+      await Promise.all(messagePromises);
+
+      // Create notification for admins
+      const notificationPromises = adminRoles.map((admin) =>
+        supabase.from("notifications").insert({
+          user_id: admin.user_id,
+          title: "Account Suspension Appeal",
+          message: `${profile?.full_name || "A user"} has sent an appeal regarding their suspended account.`,
+          type: "alert",
+          is_read: false,
+        })
+      );
+
+      await Promise.all(notificationPromises);
+
+      toast.success("Message sent to administrators successfully!");
+      setMessageToAdmin("");
+    } catch (error) {
+      console.error("Message sending error:", error);
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <ShieldAlert className="w-6 h-6 text-destructive" />
             <DialogTitle>Account Suspended</DialogTitle>
           </div>
           <DialogDescription>
-            Your account has been temporarily suspended due to multiple failed login attempts.
+            Your account has been suspended and requires administrator approval to reactivate.
           </DialogDescription>
         </DialogHeader>
+
+        <Alert variant="destructive" className="border-destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="text-sm font-medium">
+            ⚠️ WARNING: Your account may be permanently deleted if not reactivated soon.
+          </AlertDescription>
+        </Alert>
 
         <div className="space-y-5">
           {reason && (
@@ -120,54 +197,72 @@ export const SuspendedUserModal = ({ isOpen, reason, suspendedUntil, onSuccess }
             </div>
           )}
 
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              You can wait for the suspension to expire or enter an activation code from an administrator to reactivate your account immediately.
-            </p>
+          <Tabs defaultValue="message" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="message">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Message Admin
+              </TabsTrigger>
+              <TabsTrigger value="code">Activation Code</TabsTrigger>
+            </TabsList>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="activationCode" className="text-sm font-medium mb-2 block">
-                  Activation Code (Optional)
-                </label>
-                <Input
-                  id="activationCode"
-                  value={activationCode}
-                  onChange={(e) => setActivationCode(e.target.value)}
-                  placeholder="Enter activation code from admin"
-                  className="font-mono"
-                />
+            <TabsContent value="message" className="space-y-4">
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Send a message to the administrators explaining your situation. They will receive your message immediately and can assist with reactivating your account.
+                </p>
+
+                <div>
+                  <label htmlFor="messageToAdmin" className="text-sm font-medium mb-2 block">
+                    Your Message
+                  </label>
+                  <Textarea
+                    id="messageToAdmin"
+                    value={messageToAdmin}
+                    onChange={(e) => setMessageToAdmin(e.target.value)}
+                    placeholder="Please explain why you believe your account should be reactivated..."
+                    className="min-h-[150px] resize-none"
+                  />
+                </div>
+
+                <Button 
+                  onClick={handleSendMessage} 
+                  className="w-full" 
+                  disabled={isSendingMessage || !messageToAdmin.trim()}
+                >
+                  {isSendingMessage ? "Sending..." : "Send Message to Admin"}
+                </Button>
               </div>
+            </TabsContent>
 
-              <Button type="submit" className="w-full" disabled={isSubmitting || !activationCode.trim()}>
-                {isSubmitting ? "Activating..." : "Activate Account Now"}
-              </Button>
-            </form>
-          </div>
+            <TabsContent value="code" className="space-y-4">
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  If you have received an activation code from an administrator, you can enter it here to reactivate your account immediately.
+                </p>
 
-          <div className="flex flex-col gap-4 pt-4 border-t">
-            <p className="text-sm font-medium text-foreground">Need assistance?</p>
-            <div className="grid grid-cols-3 gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/" className="flex items-center gap-2">
-                  <Home className="h-4 w-4" />
-                  Home
-                </Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/reset-password" className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  Reset
-                </Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/contact" className="flex items-center gap-2">
-                  <MessageCircle className="h-4 w-4" />
-                  Contact
-                </Link>
-              </Button>
-            </div>
-          </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="activationCode" className="text-sm font-medium mb-2 block">
+                      Activation Code
+                    </label>
+                    <Input
+                      id="activationCode"
+                      value={activationCode}
+                      onChange={(e) => setActivationCode(e.target.value)}
+                      placeholder="Enter 8-character code from admin"
+                      className="font-mono uppercase"
+                      maxLength={8}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={isSubmitting || !activationCode.trim()}>
+                    {isSubmitting ? "Activating..." : "Activate Account Now"}
+                  </Button>
+                </form>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </DialogContent>
     </Dialog>

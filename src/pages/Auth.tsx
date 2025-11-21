@@ -399,8 +399,17 @@ const Auth = () => {
         .eq("email", email)
         .maybeSingle();
 
-      if (profileData?.is_suspended) {
-        // Calculate suspension expiry time
+      // Check if account is suspended or blocked
+      if (profileData?.is_suspended || profileData?.account_status === "suspended" || profileData?.account_status === "blocked") {
+        // If account is blocked, always show the modal (requires admin intervention)
+        if (profileData?.account_status === "blocked") {
+          setShowSuspendedModal(true);
+          setSuspensionReason(profileData.suspended_reason || "Account blocked by administrator");
+          setLoading(false);
+          return;
+        }
+        
+        // For temporary suspensions, check if suspension has expired
         if (profileData.suspended_at) {
           const suspendedAt = new Date(profileData.suspended_at);
           const attempts = profileData.login_attempts || 0;
@@ -420,6 +429,7 @@ const Auth = () => {
               .from("profiles")
               .update({
                 is_suspended: false,
+                account_status: "active",
                 suspended_reason: null,
                 suspended_at: null,
                 login_attempts: 0,
@@ -473,12 +483,14 @@ const Auth = () => {
               ).join('').toUpperCase();
               
               updateData.is_suspended = true;
+              updateData.account_status = "blocked";
               updateData.suspended_reason = "Account blocked due to repeated failed login attempts. Contact administrator for assistance.";
               updateData.activation_code = activationCode;
             } else {
               // Escalating suspension
               const reason = getEscalationReason(stage);
               updateData.is_suspended = true;
+              updateData.account_status = "suspended";
               updateData.suspended_reason = reason;
             }
             
