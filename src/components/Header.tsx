@@ -191,6 +191,7 @@ const Header = () => {
               size="icon"
               asChild
               aria-label="Home"
+              className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
             >
               <Link to="/">
                 <HomeIcon className="h-5 w-5" />
@@ -203,7 +204,7 @@ const Header = () => {
               size="icon"
               asChild
               aria-label="Wishlist"
-              className="relative"
+              className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
             >
               <Link to="/wishlist">
                 <Heart className="h-5 w-5" />
@@ -223,7 +224,7 @@ const Header = () => {
                   size="icon"
                   asChild
                   aria-label="Notifications"
-                  className="relative"
+                  className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
                 >
                   <Link to="/customer/notifications">
                     <Bell className="h-5 w-5" />
@@ -239,7 +240,7 @@ const Header = () => {
                   size="icon"
                   asChild
                   aria-label="Messages"
-                  className="relative"
+                  className="relative border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
                 >
                   <Link to="/customer/messages">
                     <Mail className="h-5 w-5" />
@@ -260,6 +261,7 @@ const Header = () => {
                 size="icon"
                 asChild
                 aria-label="Dashboard"
+                className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
               >
                 <Link to={dashboardPath}>
                   <LayoutDashboard className="h-5 w-5" />
@@ -274,12 +276,13 @@ const Header = () => {
                 size="icon"
                 onClick={initiateLogout}
                 aria-label="Sign Out"
+                className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
               >
                 <LogOut className="h-5 w-5" />
               </Button>
             ) : (
               <Link to="/auth" className="hidden sm:block">
-                <Button variant="ghost" size="sm" className="gap-2">
+                <Button variant="ghost" size="sm" className="gap-2 border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]">
                   <User className="h-4 w-4" />
                   Sign In
                 </Button>
@@ -291,6 +294,7 @@ const Header = () => {
               size="icon"
               onClick={toggleDarkMode}
               aria-label="Toggle dark mode"
+              className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
             >
               {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
