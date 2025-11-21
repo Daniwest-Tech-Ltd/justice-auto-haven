@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Instagram, Youtube } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone } from "lucide-react";
 import BrandMarquee from "./BrandMarquee";
+import { Button } from "./ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -245,11 +246,29 @@ const Footer = () => {
                 </TooltipContent>
               </Tooltip>
             </div>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p>📍 Mpesi Lane 11, Westlands</p>
-              <p>Nairobi, Kenya</p>
-              <p>📞 +254 722 827 458</p>
-              <p className="text-xs italic mt-2 opacity-70">Powered By Daniwest Tech Sol</p>
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => window.open("https://maps.app.goo.gl/sruXcwwRpCAZrg6i8", "_blank")}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                <div className="text-left text-xs">
+                  <div>Mpesi Lane 11, Westlands</div>
+                  <div>Nairobi, Kenya</div>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => window.open("tel:+254722827458")}
+              >
+                <Phone className="h-4 w-4 mr-2" />
+                +254 722 827 458
+              </Button>
+              <p className="text-xs italic mt-3 opacity-70">Powered By Daniwest Tech Sol</p>
             </div>
           </div>
         </div>
