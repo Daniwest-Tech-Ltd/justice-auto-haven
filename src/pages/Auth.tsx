@@ -604,61 +604,40 @@ const Auth = () => {
         // Log successful login attempt
         await logLoginAttempt(email, true);
 
-        // Send 2FA code
-        const { error: twoFAError } = await supabase.functions.invoke('send-2fa-code', {
-          body: { email, userId: data.user.id }
-        });
+        // Check for 2FA requirements
+        const { data: profileData2FA } = await supabase
+          .from("profiles")
+          .select("two_fa_enabled, preferred_2fa")
+          .eq("user_id", data.user.id)
+          .single();
 
-        if (twoFAError) {
-          console.error("2FA error:", twoFAError);
-          toast({
-            title: "Warning",
-            description: "Could not send 2FA code. Proceeding without 2FA.",
-            variant: "destructive",
+        if (profileData2FA?.two_fa_enabled) {
+          // Check available methods
+          const { data: totpData } = await supabase
+            .from("user_totp")
+            .select("enabled")
+            .eq("user_id", data.user.id)
+            .single();
+          
+          const { data: fingerprintData } = await supabase
+            .from("user_fingerprints")
+            .select("id")
+            .eq("user_id", data.user.id);
+
+          setAvailable2FAMethods({
+            email: true,
+            totp: totpData?.enabled || false,
+            fingerprint: (fingerprintData?.length || 0) > 0,
           });
-        } else {
-          // Show 2FA dialog
+          setPreferred2FAMethod(profileData2FA.preferred_2fa || "email_otp");
           setPendingUserId(data.user.id);
+          setPendingUserEmail(email);
           setShow2FADialog(true);
           setLoading(false);
           return;
         }
 
-        // If 2FA fails, continue with login
-      // Check for 2FA requirements
-      const { data: profileData2FA } = await supabase
-        .from("profiles")
-        .select("two_fa_enabled, preferred_2fa")
-        .eq("user_id", data.user.id)
-        .single();
-
-      if (profileData2FA?.two_fa_enabled) {
-        // Check available methods
-        const { data: totpData } = await supabase
-          .from("user_totp")
-          .select("enabled")
-          .eq("user_id", data.user.id)
-          .single();
-        
-        const { data: fingerprintData } = await supabase
-          .from("user_fingerprints")
-          .select("id")
-          .eq("user_id", data.user.id);
-
-        setAvailable2FAMethods({
-          email: true,
-          totp: totpData?.enabled || false,
-          fingerprint: (fingerprintData?.length || 0) > 0,
-        });
-        setPreferred2FAMethod(profileData2FA.preferred_2fa || "email_otp");
-        setPendingUserId(data.user.id);
-        setPendingUserEmail(email);
-        setShow2FADialog(true);
-        setLoading(false);
-        return;
-      }
-
-      await completeLogin(data.user.id);
+        await completeLogin(data.user.id);
       }
     } catch (error: any) {
       // Reset CAPTCHA on error
@@ -1197,74 +1176,30 @@ const Auth = () => {
       />
 
       {/* 2FA Verification Dialog */}
-      <Dialog open={show2FADialog} onOpenChange={async (open) => {
-        if (!open) {
-          // User closed or cancelled - log them out
+      <TwoFactorDialog
+        open={show2FADialog}
+        onClose={async () => {
           await supabase.auth.signOut();
           setShow2FADialog(false);
           setPendingUserId(null);
-          setTwoFactorCode("");
+          setPendingUserEmail("");
           toast({
             title: "Login Cancelled",
             description: "You must complete 2FA verification to login.",
             variant: "destructive",
           });
-        }
-      }}>
-        <DialogContent className="glass-strong">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">Two-Factor Authentication</DialogTitle>
-            <DialogDescription className="space-y-4 pt-4">
-              <p>A 6-digit verification code has been sent to your email.</p>
-              <div className="flex items-center justify-between text-sm">
-                <p className="text-muted-foreground">
-                  Please enter the code below to complete your login.
-                </p>
-                <p className="text-yellow-600 font-medium">
-                  {Math.floor(otpTimeLeft / 60)}:{String(otpTimeLeft % 60).padStart(2, '0')}
-                </p>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                OTP expires in 10 minutes
-              </p>
-              <Input
-                type="text"
-                placeholder="Enter 6-digit code"
-                value={twoFactorCode}
-                onChange={(e) => setTwoFactorCode(e.target.value)}
-                maxLength={6}
-                className="text-center text-2xl tracking-widest"
-              />
-              <div className="flex gap-4 pt-4">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    setShow2FADialog(false);
-                    setPendingUserId(null);
-                    setTwoFactorCode("");
-                    toast({
-                      title: "Login Cancelled",
-                      description: "You must complete 2FA verification to login.",
-                      variant: "destructive",
-                    });
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={verify2FA}
-                  disabled={loading || twoFactorCode.length !== 6}
-                >
-                  {loading ? "Verifying..." : "Verify"}
-                </Button>
-              </div>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+        }}
+        userId={pendingUserId || ""}
+        email={pendingUserEmail}
+        availableMethods={available2FAMethods}
+        preferredMethod={preferred2FAMethod}
+        onSuccess={async () => {
+          if (pendingUserId) {
+            setShow2FADialog(false);
+            await completeLogin(pendingUserId);
+          }
+        }}
+      />
     </>
   );
 };
