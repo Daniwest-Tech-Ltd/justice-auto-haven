@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import ceoImage from "@/assets/ceo.jpg";
 import danielImage from "@/assets/daniel-maina.jpg";
 import abigaelImage from "@/assets/abigael-muthoni.jpg";
+import CertificateModal from "@/components/CertificateModal";
 
 const Home = () => {
   const [featuredCars, setFeaturedCars] = useState<any[]>([]);
@@ -26,6 +27,7 @@ const Home = () => {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [brands, setBrands] = useState<any[]>([]);
   const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>({});
+  const [showCertificate, setShowCertificate] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -698,14 +700,12 @@ const Home = () => {
                 <p>📅 Issued: 2025-11-21</p>
                 <p>🏛 Authority: HARAMBEE - Republic of Kenya</p>
               </div>
-              <a 
-                href="https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/Justice%20Ultimate%20Automobiles%20_justice_ultimate_automobiles.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full bg-accent hover:bg-accent/90 text-accent-foreground text-sm py-2 px-4 rounded-lg text-center transition-colors"
+              <Button
+                onClick={() => setShowCertificate(true)}
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-sm"
               >
                 View Certificate
-              </a>
+              </Button>
             </div>
 
             {/* Safe Payment Policy Tile */}
@@ -830,6 +830,9 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Certificate Modal */}
+      <CertificateModal open={showCertificate} onOpenChange={setShowCertificate} />
     </div>
   );
 };

@@ -1,7 +1,10 @@
 import { ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import CertificateModal from "@/components/CertificateModal";
 
 const TermsOfUse = () => {
-  const certificateUrl = "https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/Justice%20Ultimate%20Automobiles%20_justice_ultimate_automobiles.pdf";
+  const [showCertificate, setShowCertificate] = useState(false);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -32,14 +35,13 @@ const TermsOfUse = () => {
               <li>NTSA Motor Dealer License</li>
               <li>Valid Business Permits</li>
             </ul>
-            <a 
-              href={certificateUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
+            <Button
+              onClick={() => setShowCertificate(true)}
+              variant="link"
+              className="p-0 h-auto text-primary hover:underline font-semibold inline-flex items-center gap-2"
             >
               View Our Company Certificate <ExternalLink className="w-4 h-4" />
-            </a>
+            </Button>
           </section>
 
           <section>
@@ -175,14 +177,13 @@ const TermsOfUse = () => {
               <p><strong>Phone:</strong> <a href="tel:+254722827458" className="text-primary hover:underline">+254 722 827 458</a></p>
               <p><strong>Address:</strong> Mpesi Lane 11, Westlands, Nairobi, Kenya</p>
               <p className="mt-3">
-                <a 
-                  href={certificateUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
+                <Button
+                  onClick={() => setShowCertificate(true)}
+                  variant="link"
+                  className="p-0 h-auto text-primary hover:underline font-semibold inline-flex items-center gap-2"
                 >
                   View Company Certificate <ExternalLink className="w-4 h-4" />
-                </a>
+                </Button>
               </p>
             </div>
           </section>
@@ -195,6 +196,9 @@ const TermsOfUse = () => {
           </div>
         </div>
       </div>
+      
+      {/* Certificate Modal */}
+      <CertificateModal open={showCertificate} onOpenChange={setShowCertificate} />
     </div>
   );
 };

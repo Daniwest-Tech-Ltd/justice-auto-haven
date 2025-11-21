@@ -1,7 +1,10 @@
 import { ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import CertificateModal from "@/components/CertificateModal";
 
 const PrivacyPolicy = () => {
-  const certificateUrl = "https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/Justice%20Ultimate%20Automobiles%20_justice_ultimate_automobiles.pdf";
+  const [showCertificate, setShowCertificate] = useState(false);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -120,6 +123,9 @@ const PrivacyPolicy = () => {
           </div>
         </div>
       </div>
+      
+      {/* Certificate Modal */}
+      <CertificateModal open={showCertificate} onOpenChange={setShowCertificate} />
     </div>
   );
 };
