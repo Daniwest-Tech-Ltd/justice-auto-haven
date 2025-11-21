@@ -309,6 +309,145 @@ const About = () => {
         </div>
       </section>
 
+      {/* Trust & Transparency Section */}
+      <section className="space-y-12">
+        <div className="text-center space-y-4">
+          <h2 className="text-4xl font-bold">🛡️ Why Thousands Trust Us</h2>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            We're committed to transparency, security, and delivering exceptional service. Here's what sets us apart.
+          </p>
+        </div>
+
+        {/* Trust Features Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="glass-strong rounded-xl p-6 text-center space-y-3">
+            <div className="text-4xl mb-2">✅</div>
+            <h3 className="text-lg font-bold">100% Verified Car History</h3>
+            <p className="text-sm text-muted-foreground">
+              Every vehicle undergoes thorough inspection and comes with complete documentation
+            </p>
+          </div>
+
+          <div className="glass-strong rounded-xl p-6 text-center space-y-3">
+            <div className="text-4xl mb-2">💰</div>
+            <h3 className="text-lg font-bold">Transparent Pricing</h3>
+            <p className="text-sm text-muted-foreground">
+              No hidden fees. What you see is what you pay, with flexible payment options
+            </p>
+          </div>
+
+          <div className="glass-strong rounded-xl p-6 text-center space-y-3">
+            <div className="text-4xl mb-2">🔒</div>
+            <h3 className="text-lg font-bold">Secure Payment Options</h3>
+            <p className="text-sm text-muted-foreground">
+              Bank transfers, mobile money, and secure online payments with 2FA protection
+            </p>
+          </div>
+
+          <div className="glass-strong rounded-xl p-6 text-center space-y-3">
+            <div className="text-4xl mb-2">🔍</div>
+            <h3 className="text-lg font-bold">Physical Inspections</h3>
+            <p className="text-sm text-muted-foreground">
+              Visit our showroom anytime. See, test, and verify before you buy
+            </p>
+          </div>
+        </div>
+
+        {/* Company Credentials */}
+        <div className="glass-strong rounded-3xl p-12">
+          <h3 className="text-3xl font-bold mb-8 text-center">📋 Company Credentials</h3>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="space-y-2">
+              <div className="text-3xl mb-2">🏢</div>
+              <h4 className="font-bold">Certificate of Incorporation</h4>
+              <p className="text-sm text-muted-foreground">Registered & Licensed Business</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-3xl mb-2">📄</div>
+              <h4 className="font-bold">Business Permit</h4>
+              <p className="text-sm text-muted-foreground">County Government Approved</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-3xl mb-2">💼</div>
+              <h4 className="font-bold">KRA Compliance</h4>
+              <p className="text-sm text-muted-foreground">Tax Compliant & PIN Verified</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-3xl mb-2">🚗</div>
+              <h4 className="font-bold">NTSA Dealer License</h4>
+              <p className="text-sm text-muted-foreground">Authorized Motor Vehicle Dealer</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-3xl mb-2">📍</div>
+              <h4 className="font-bold">Physical Office</h4>
+              <p className="text-sm text-muted-foreground">Mpesi Lane 11, Westlands</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-3xl mb-2">🌍</div>
+              <h4 className="font-bold">Export Certified</h4>
+              <p className="text-sm text-muted-foreground">International Trade License</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Verification */}
+        <div className="glass-strong rounded-3xl p-8">
+          <div className="grid md:grid-cols-3 gap-6 text-center">
+            <div>
+              <div className="text-3xl mb-2">📍</div>
+              <h4 className="font-bold mb-2">Visit Our Showroom</h4>
+              <p className="text-sm text-muted-foreground">
+                Mpesi Lane 11, Westlands<br />
+                Nairobi, Kenya
+              </p>
+              <a 
+                href="https://maps.google.com/?q=Mpesi+Lane+11+Westlands+Nairobi" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline mt-2 inline-block"
+              >
+                View on Google Maps
+              </a>
+            </div>
+
+            <div>
+              <div className="text-3xl mb-2">📞</div>
+              <h4 className="font-bold mb-2">24/7 Customer Support</h4>
+              <p className="text-sm text-muted-foreground mb-2">
+                Call us anytime for inquiries
+              </p>
+              <a 
+                href="tel:+254722827458" 
+                className="text-primary font-semibold hover:underline"
+              >
+                +254 722 827 458
+              </a>
+            </div>
+
+            <div>
+              <div className="text-3xl mb-2">💬</div>
+              <h4 className="font-bold mb-2">WhatsApp Direct</h4>
+              <p className="text-sm text-muted-foreground mb-2">
+                Chat with our team instantly
+              </p>
+              <a 
+                href="https://wa.me/254722827458" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg transition-colors"
+              >
+                Chat on WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="glass-strong rounded-3xl p-12 text-center">
         <h2 className="text-4xl font-bold mb-6">🚀 Ready to Drive With Us?</h2>
