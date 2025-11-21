@@ -147,7 +147,8 @@ const AdminCustomers = () => {
           body: {
             email: profile.email,
             name: profile.full_name,
-            reason: "Suspended by admin"
+            reason: "Your account has been suspended by an administrator. Please contact support for assistance.",
+            isBlocked: false
             // NOT sending activationCode in email
           }
         });
@@ -228,7 +229,8 @@ const AdminCustomers = () => {
           body: {
             email: profile.email,
             name: profile.full_name,
-            reason: "Your account has been blocked by an administrator."
+            reason: "Your account has been blocked by an administrator. Please contact support immediately for assistance.",
+            isBlocked: true
             // NOT sending activationCode in email
           }
         });
