@@ -114,7 +114,19 @@ const AdminDashboard = () => {
   const fetchRealStats = async () => {
     const { data: carsData } = await supabase.from("cars").select("*");
     const { data: profilesData } = await supabase.from("profiles").select("*");
-    const { data: salesData } = await supabase.from("sales").select("*");
+    
+    // Get current month's start and end dates
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    
+    // Fetch sales for current month only
+    const { data: salesData } = await supabase
+      .from("sales")
+      .select("*")
+      .gte("sale_date", startOfMonth.toISOString().split('T')[0])
+      .lte("sale_date", endOfMonth.toISOString().split('T')[0]);
+    
     const { data: whitelistData } = await supabase.from("whitelist_orders").select("*").eq("status", "pending");
 
     setStats({
@@ -360,8 +372,8 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-green-600 dark:text-green-400">Monthly Sales</p>
-                      <h3 className="text-4xl font-bold mt-2 text-green-900 dark:text-green-100">
-                        {(stats.monthlySales / 1000).toFixed(0)}K
+                      <h3 className="text-2xl font-bold mt-2 text-green-900 dark:text-green-100">
+                        KSh {stats.monthlySales.toLocaleString('en-KE')}
                       </h3>
                       <p className="text-xs text-green-600 dark:text-green-400 mt-1">Total revenue</p>
                     </div>
