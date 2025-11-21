@@ -73,7 +73,7 @@ const AdminCustomers = () => {
     try {
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select("*")
+        .select("user_id, full_name, email, phone, is_suspended, account_status, activation_code, created_at, is_online, suspended_at, suspended_reason, login_attempts")
         .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -94,7 +94,7 @@ const AdminCustomers = () => {
           accountStatus = "suspended";
         }
         
-        console.log(`Customer ${profile.full_name} - account_status: ${accountStatus}, is_suspended: ${profile.is_suspended}`);
+        console.log(`Customer ${profile.full_name} - Status: ${accountStatus}, Code: ${profile.activation_code}`);
         
         return {
           ...profile,
@@ -124,11 +124,24 @@ const AdminCustomers = () => {
         .eq("user_id", userId)
         .single();
 
-      // Generate activation code
-      const { data: codeData } = await supabase.rpc('generate_activation_code');
-      const activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
+      // Generate activation code - try RPC first, fallback to random generation
+      let activationCode = '';
+      try {
+        const { data: codeData, error: rpcError } = await supabase.rpc('generate_activation_code');
+        if (rpcError) {
+          console.error('RPC error:', rpcError);
+          activationCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+        } else {
+          activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+      } catch (err) {
+        console.error('Failed to call RPC:', err);
+        activationCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+      }
 
-      const { error } = await supabase
+      console.log('Generated activation code:', activationCode);
+
+      const { error, data: updateData } = await supabase
         .from("profiles")
         .update({ 
           is_suspended: true,
@@ -137,9 +150,15 @@ const AdminCustomers = () => {
           suspended_reason: "Suspended by admin",
           activation_code: activationCode
         })
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
+      }
+
+      console.log('Update successful:', updateData);
 
       // Send suspension notification email (without activation code)
       if (profile?.email && profile?.full_name) {
@@ -149,7 +168,6 @@ const AdminCustomers = () => {
             name: profile.full_name,
             reason: "Your account has been suspended by an administrator. Please contact support for assistance.",
             isBlocked: false
-            // NOT sending activationCode in email
           }
         });
       }
@@ -157,9 +175,13 @@ const AdminCustomers = () => {
       toast({
         title: "Customer Suspended",
         description: `Activation code: ${activationCode}. Email notification sent.`,
+        duration: 5000,
       });
-      fetchCustomers();
+      
+      // Wait a moment before refreshing to ensure DB update completes
+      setTimeout(() => fetchCustomers(), 500);
     } catch (error: any) {
+      console.error('Suspension error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -206,11 +228,24 @@ const AdminCustomers = () => {
         .eq("user_id", userId)
         .single();
 
-      // Generate activation code
-      const { data: codeData } = await supabase.rpc('generate_activation_code');
-      const activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
+      // Generate activation code - try RPC first, fallback to random generation
+      let activationCode = '';
+      try {
+        const { data: codeData, error: rpcError } = await supabase.rpc('generate_activation_code');
+        if (rpcError) {
+          console.error('RPC error:', rpcError);
+          activationCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+        } else {
+          activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+      } catch (err) {
+        console.error('Failed to call RPC:', err);
+        activationCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+      }
 
-      const { error } = await supabase
+      console.log('Generated activation code for block:', activationCode);
+
+      const { error, data: updateData } = await supabase
         .from("profiles")
         .update({ 
           is_suspended: true,
@@ -219,9 +254,15 @@ const AdminCustomers = () => {
           suspended_reason: "Blocked by admin",
           activation_code: activationCode
         })
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Block update error:', error);
+        throw error;
+      }
+
+      console.log('Block update successful:', updateData);
 
       // Send suspension notification email (without activation code)
       if (profile?.email && profile?.full_name) {
@@ -231,17 +272,20 @@ const AdminCustomers = () => {
             name: profile.full_name,
             reason: "Your account has been blocked by an administrator. Please contact support immediately for assistance.",
             isBlocked: true
-            // NOT sending activationCode in email
           }
         });
       }
 
       toast({
-        title: "Success",
-        description: "Customer blocked successfully",
+        title: "Customer Blocked",
+        description: `Activation code: ${activationCode}. Email notification sent.`,
+        duration: 5000,
       });
-      fetchCustomers();
+      
+      // Wait a moment before refreshing to ensure DB update completes
+      setTimeout(() => fetchCustomers(), 500);
     } catch (error: any) {
+      console.error('Block error:', error);
       toast({
         title: "Error",
         description: error.message,
