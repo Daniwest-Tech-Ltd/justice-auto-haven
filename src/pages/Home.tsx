@@ -788,38 +788,60 @@ const Home = () => {
             <h2 className="text-4xl font-bold">Get in Touch</h2>
             <div className="grid md:grid-cols-2 gap-6 text-left">
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Globe className="h-6 w-6 text-primary" />
-                  <div>
-                    <p className="font-semibold">Location</p>
-                    <p className="text-sm text-muted-foreground">
-                      Mpesi Lane 11, Westlands, Nairobi, Kenya
-                    </p>
+                <div className="flex items-start gap-3">
+                  <Globe className="h-6 w-6 text-primary mt-1" />
+                  <div className="flex-1">
+                    <p className="font-semibold mb-2">Location</p>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left h-auto py-3"
+                      onClick={() => window.open("https://maps.app.goo.gl/sruXcwwRpCAZrg6i8", "_blank")}
+                    >
+                      <div className="text-sm">
+                        Mpesi Lane 11, Westlands, Nairobi, Kenya
+                      </div>
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Phone className="h-6 w-6 text-primary" />
-                  <div>
-                    <p className="font-semibold">Phone</p>
-                    <p className="text-sm text-muted-foreground">+254 722 827 458</p>
+                <div className="flex items-start gap-3">
+                  <Phone className="h-6 w-6 text-primary mt-1" />
+                  <div className="flex-1">
+                    <p className="font-semibold mb-2">Phone</p>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left"
+                      onClick={() => window.open("tel:+254722827458")}
+                    >
+                      +254 722 827 458
+                    </Button>
                   </div>
                 </div>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Globe className="h-6 w-6 text-primary" />
-                  <div>
-                    <p className="font-semibold">Email</p>
-                    <p className="text-sm text-muted-foreground">justicevincentt@gmail.com</p>
+                <div className="flex items-start gap-3">
+                  <Globe className="h-6 w-6 text-primary mt-1" />
+                  <div className="flex-1">
+                    <p className="font-semibold mb-2">Email</p>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left"
+                      onClick={() => window.open("mailto:justicevincentt@gmail.com")}
+                    >
+                      justicevincentt@gmail.com
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Globe className="h-6 w-6 text-primary" />
-                  <div>
-                    <p className="font-semibold">Website</p>
-                    <p className="text-sm text-muted-foreground">
+                <div className="flex items-start gap-3">
+                  <Globe className="h-6 w-6 text-primary mt-1" />
+                  <div className="flex-1">
+                    <p className="font-semibold mb-2">Website</p>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left"
+                      onClick={() => window.open("https://www.justice-ultimate-automobiles.co.ke", "_blank")}
+                    >
                       www.justice-ultimate-automobiles.co.ke
-                    </p>
+                    </Button>
                   </div>
                 </div>
               </div>
