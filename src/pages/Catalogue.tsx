@@ -279,13 +279,15 @@ const Catalogue = () => {
                   <p className="text-xs text-muted-foreground">100% Quality Assured</p>
                 </div>
               </div>
-              <div className="glass-strong rounded-lg p-4 flex items-center gap-3">
-                <MapPin className="h-8 w-8 text-primary flex-shrink-0" />
-                <div className="text-left">
-                  <p className="font-semibold text-sm">Visit Our Yard</p>
-                  <p className="text-xs text-muted-foreground">Mpesi Lane, Westlands</p>
+              <a href="https://maps.app.goo.gl/92DgyWn62UNSR26p8" target="_blank" rel="noopener noreferrer" className="block">
+                <div className="glass-strong rounded-lg p-4 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
+                  <MapPin className="h-8 w-8 text-primary flex-shrink-0" />
+                  <div className="text-left">
+                    <p className="font-semibold text-sm">Visit Our Yard</p>
+                    <p className="text-xs text-muted-foreground">Mpesi Lane, Westlands</p>
+                  </div>
                 </div>
-              </div>
+              </a>
               <div className="glass-strong rounded-lg p-4 flex items-center gap-3">
                 <Clock className="h-8 w-8 text-primary flex-shrink-0" />
                 <div className="text-left">
@@ -466,15 +468,8 @@ const Catalogue = () => {
                           {car.year}
                         </Badge>
                         
-                        {/* Lipa Mdogo Mdogo Badge */}
-                        {car.status !== "sold" && (
-                          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg">
-                            💰 Lipa Mdogo Mdogo
-                          </Badge>
-                        )}
-
-                        {/* Stock Status Badge - Centered */}
-                        <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-10">
+                        {/* Stock Status Badge - Top Right */}
+                        <div className="absolute top-3 right-3 z-10">
                           {car.status === "sold" ? (
                             <Badge className="bg-red-600 hover:bg-red-600 text-white px-3 py-1 shadow-lg">
                               SOLD OUT
@@ -639,7 +634,7 @@ const Catalogue = () => {
 
             <div className="pt-6 border-t border-primary/20">
               <p className="text-xs text-muted-foreground">
-                📍 Mpesi Lane 11, Westlands, Nairobi • 🗺️ <a href="https://maps.app.goo.gl/sruXcwwRpCAZrg6i8" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on Map</a>
+                📍 Mpesi Lane 11, Westlands, Nairobi • 🗺️ <a href="https://maps.app.goo.gl/92DgyWn62UNSR26p8" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on Map</a>
               </p>
             </div>
           </div>
