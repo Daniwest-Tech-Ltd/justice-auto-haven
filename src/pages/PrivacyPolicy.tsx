@@ -1,4 +1,8 @@
+import { ExternalLink } from "lucide-react";
+
 const PrivacyPolicy = () => {
+  const certificateUrl = "https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/Justice%20Ultimate%20Automobiles%20_justice_ultimate_automobiles.pdf";
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto glass-strong rounded-3xl p-8 md:p-12">
