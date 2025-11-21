@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { 
   Sidebar,
   SidebarContent,
@@ -217,9 +218,17 @@ const CustomerDashboard = () => {
           </header>
 
           <div className="p-6 space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
-              <p className="text-muted-foreground">Manage your vehicles and bookings</p>
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16 border-2 border-primary/20">
+                <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name} />
+                <AvatarFallback className="text-lg bg-primary/10">
+                  {profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
+                <p className="text-muted-foreground">Manage your vehicles and bookings</p>
+              </div>
             </div>
 
             <CustomerLoyaltyBadge />

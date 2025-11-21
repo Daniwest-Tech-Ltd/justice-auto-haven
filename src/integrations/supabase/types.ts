@@ -1046,6 +1046,7 @@ export type Database = {
         Row: {
           account_status: string | null
           activation_code: string | null
+          avatar_url: string | null
           county_city: string | null
           created_at: string | null
           email: string
@@ -1069,6 +1070,7 @@ export type Database = {
         Insert: {
           account_status?: string | null
           activation_code?: string | null
+          avatar_url?: string | null
           county_city?: string | null
           created_at?: string | null
           email: string
@@ -1092,6 +1094,7 @@ export type Database = {
         Update: {
           account_status?: string | null
           activation_code?: string | null
+          avatar_url?: string | null
           county_city?: string | null
           created_at?: string | null
           email?: string

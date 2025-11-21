@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import kenyaLocations from "@/data/kenya-locations.json";
+import { AvatarUpload } from "@/components/AvatarUpload";
 
 const CustomerProfile = () => {
   const { user, profile } = useAuth();
@@ -17,6 +18,7 @@ const CustomerProfile = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -36,6 +38,7 @@ const CustomerProfile = () => {
         gender: profile.gender || "",
         preferred_contact: profile.preferred_contact || "",
       });
+      setAvatarUrl(profile.avatar_url || null);
       
       // Load towns for the existing county
       if (profile.county_city) {
@@ -104,6 +107,14 @@ const CustomerProfile = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="flex justify-center pb-6 border-b">
+                <AvatarUpload
+                  currentAvatarUrl={avatarUrl}
+                  userId={user?.id || ""}
+                  userName={formData.full_name || profile?.full_name || "User"}
+                  onUploadComplete={(url) => setAvatarUrl(url)}
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="full_name">Full Name</Label>

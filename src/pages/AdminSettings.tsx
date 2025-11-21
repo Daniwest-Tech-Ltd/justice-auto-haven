@@ -14,12 +14,15 @@ import { Textarea } from "@/components/ui/textarea";
 import kenyaLocations from "@/data/kenya-locations.json";
 import { setTheme } from "@/lib/theme";
 import type { Theme } from "@/lib/theme";
+import { AvatarUpload } from "@/components/AvatarUpload";
 
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingCompany, setSavingCompany] = useState(false);
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>("");
   const [profile, setProfile] = useState({
     full_name: "",
     email: "",
@@ -147,6 +150,8 @@ const AdminSettings = () => {
         return;
       }
 
+      setUserId(session.user.id);
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -163,6 +168,7 @@ const AdminSettings = () => {
           exact_location: data.exact_location || "",
           theme: (data.theme || "system") as Theme,
         });
+        setAvatarUrl(data.avatar_url || null);
       }
     } catch (error: any) {
       toast({
@@ -314,6 +320,15 @@ const AdminSettings = () => {
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6 pt-6">
+              <div className="flex justify-center pb-6 border-b">
+                <AvatarUpload
+                  currentAvatarUrl={avatarUrl}
+                  userId={userId}
+                  userName={profile.full_name || "Admin"}
+                  onUploadComplete={(url) => setAvatarUrl(url)}
+                />
+              </div>
+
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="full_name">

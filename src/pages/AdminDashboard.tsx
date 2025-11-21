@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { 
   Sidebar,
   SidebarContent,
@@ -322,9 +323,17 @@ const AdminDashboard = () => {
           </header>
 
           <div className="p-6 space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
-              <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16 border-2 border-primary/20">
+                <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "Admin"} />
+                <AvatarFallback className="text-lg bg-primary/10">
+                  {profile?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || "AD"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
+                <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

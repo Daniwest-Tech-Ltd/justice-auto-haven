@@ -14,6 +14,7 @@ export interface UserProfile {
   preferred_contact?: string;
   account_status?: "active" | "suspended" | "blocked";
   is_suspended?: boolean;
+  avatar_url?: string | null;
 }
 
 export interface UserRole {
