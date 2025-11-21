@@ -838,9 +838,9 @@ const Home = () => {
                     <Button
                       variant="outline"
                       className="w-full justify-start text-left"
-                      onClick={() => window.open("https://www.justice-ultimate-automobiles.co.ke", "_blank")}
+                      onClick={() => window.open("https://www.justiceultimateautomobiles.com", "_blank")}
                     >
-                      www.justice-ultimate-automobiles.co.ke
+                      www.justiceultimateautomobiles.com
                     </Button>
                   </div>
                 </div>
