@@ -477,9 +477,23 @@ const Auth = () => {
               updateData.suspended_reason = getEscalationReason(true);
               updateData.activation_code = activationCode;
               
+              // Send blocked notification email
+              try {
+                await supabase.functions.invoke('send-suspension-notification', {
+                  body: {
+                    email: profileData.email,
+                    name: profileData.full_name,
+                    reason: updateData.suspended_reason,
+                    isBlocked: true
+                  }
+                });
+              } catch (emailError) {
+                console.error("Failed to send block notification email:", emailError);
+              }
+              
               toast({
                 title: "Account Blocked",
-                description: "Your account has been blocked. Please contact administrator.",
+                description: "Your account has been blocked. Check your email for details.",
                 variant: "destructive",
               });
             } else {
@@ -493,9 +507,23 @@ const Auth = () => {
               const until = new Date(new Date(now).getTime() + suspensionMinutes * 60000);
               setSuspendedUntil(until.toISOString());
               
+              // Send suspension notification email
+              try {
+                await supabase.functions.invoke('send-suspension-notification', {
+                  body: {
+                    email: profileData.email,
+                    name: profileData.full_name,
+                    reason: updateData.suspended_reason,
+                    isBlocked: false
+                  }
+                });
+              } catch (emailError) {
+                console.error("Failed to send suspension notification email:", emailError);
+              }
+              
               toast({
                 title: "Account Suspended",
-                description: `Your account has been suspended for 1 hour due to 3 failed login attempts.`,
+                description: `Your account has been suspended for 1 hour. Check your email for details.`,
                 variant: "destructive",
               });
             }
