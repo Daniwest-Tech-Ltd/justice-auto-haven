@@ -153,7 +153,7 @@ const Wishlist = () => {
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
           <Heart className="h-8 w-8 text-primary" />
-          My Wishlist
+          My Whitelist
         </h1>
         <p className="text-muted-foreground">
           {wishlist.length} {wishlist.length === 1 ? "vehicle" : "vehicles"} saved
@@ -164,9 +164,9 @@ const Wishlist = () => {
         <Card className="glass-strong">
           <CardContent className="p-12 text-center">
             <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-xl font-semibold mb-2">Your wishlist is empty</h3>
+            <h3 className="text-xl font-semibold mb-2">Your whitelist is empty</h3>
             <p className="text-muted-foreground mb-6">
-              Start adding vehicles you love to your wishlist
+              Start adding vehicles you love to your whitelist
             </p>
             <Button onClick={() => navigate("/catalogue")}>
               Browse Catalogue

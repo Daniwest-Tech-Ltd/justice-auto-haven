@@ -142,7 +142,7 @@ const CustomerDashboard = () => {
   const menuItems = [
     { title: "My Dashboard", icon: Home, onClick: () => {} },
     { title: "Profile", icon: User, onClick: () => navigate("/customer/profile") },
-    { title: "Wishlist", icon: Heart, onClick: () => {} },
+    { title: "Whitelist", icon: Heart, onClick: () => {} },
     { title: "My Vehicles", icon: Car, onClick: () => {} },
     { title: "Bookings", icon: Calendar, onClick: () => {} },
     { title: "Orders", icon: ShoppingBag, onClick: () => navigate("/customer/orders") },
@@ -229,7 +229,7 @@ const CustomerDashboard = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-pink-600 dark:text-pink-400">Wishlist Items</p>
+                      <p className="text-sm font-medium text-pink-600 dark:text-pink-400">Whitelist Items</p>
                       <h3 className="text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">{wishlistCount}</h3>
                       <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Vehicles saved</p>
                     </div>
@@ -273,7 +273,7 @@ const CustomerDashboard = () => {
 
           <Tabs defaultValue="wishlist" className="space-y-6">
             <TabsList className="glass-strong">
-              <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
+              <TabsTrigger value="wishlist">Whitelist</TabsTrigger>
               <TabsTrigger value="bookings">Bookings</TabsTrigger>
               <TabsTrigger value="vehicles">My Vehicles</TabsTrigger>
             </TabsList>
@@ -282,7 +282,7 @@ const CustomerDashboard = () => {
               {filteredWishlist.length === 0 && !searchQuery ? (
                 <Card className="glass-strong">
                   <CardContent className="pt-6">
-                    <p className="text-muted-foreground text-center">Your wishlist is empty. Start browsing our catalogue!</p>
+                    <p className="text-muted-foreground text-center">Your whitelist is empty. Start browsing our catalogue!</p>
                     <Button onClick={() => navigate("/catalogue")} className="mt-4 mx-auto block">Browse Cars</Button>
                   </CardContent>
                 </Card>

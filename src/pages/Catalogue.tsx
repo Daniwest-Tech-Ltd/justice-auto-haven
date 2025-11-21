@@ -128,7 +128,7 @@ const Catalogue = () => {
           localStorage.setItem("wishlist", JSON.stringify(local.filter((id: string) => id !== carId)));
         }
         setWishlist(wishlist.filter(id => id !== carId));
-        toast({ title: "Removed from wishlist" });
+        toast({ title: "Removed from whitelist" });
       } else {
         if (user) {
           await supabase
@@ -139,7 +139,7 @@ const Catalogue = () => {
           localStorage.setItem("wishlist", JSON.stringify([...local, carId]));
         }
         setWishlist([...wishlist, carId]);
-        toast({ title: "Added to wishlist" });
+        toast({ title: "Added to whitelist" });
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
