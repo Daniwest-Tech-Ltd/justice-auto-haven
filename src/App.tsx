@@ -67,6 +67,8 @@ const CustomerOrderStatus = lazy(() => import("./pages/CustomerOrderStatus"));
 const VIPAnalytics = lazy(() => import("./pages/VIPAnalytics"));
 const OTPManagement = lazy(() => import("./pages/OTPManagement"));
 const TrackOrder = lazy(() => import("./pages/TrackOrder"));
+const FAQs = lazy(() => import("./pages/FAQs"));
+const HelpSupport = lazy(() => import("./pages/HelpSupport"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const SystemAuthDetails = lazy(() => import("./pages/SystemAuthDetails"));
 const SystemDatabaseDetails = lazy(() => import("./pages/SystemDatabaseDetails"));
@@ -107,9 +109,13 @@ const AppContent = () => {
           <Route path="/videos" element={<Layout><Videos /></Layout>} />
           <Route path="/blogs" element={<Layout><Blogs /></Layout>} />
           <Route path="/terms" element={<Layout><TermsOfUse /></Layout>} />
+          <Route path="/terms-of-use" element={<Layout><TermsOfUse /></Layout>} />
           <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
+          <Route path="/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
           <Route path="/cookies" element={<Layout><CookiePolicy /></Layout>} />
           <Route path="/cookie-policy" element={<Layout><CookiePolicy /></Layout>} />
+          <Route path="/faqs" element={<Layout><FAQs /></Layout>} />
+          <Route path="/help-support" element={<Layout><HelpSupport /></Layout>} />
           <Route path="/rental-booking" element={<Layout><RentalBooking /></Layout>} />
           <Route path="/trade-in" element={<Layout><TradeInSubmission /></Layout>} />
           <Route path="/track-order" element={<Layout><TrackOrder /></Layout>} />
