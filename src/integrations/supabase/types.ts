@@ -74,6 +74,66 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_security_settings: {
+        Row: {
+          auto_block_suspicious: boolean | null
+          behaviour_monitoring_enabled: boolean | null
+          confidence_threshold: number | null
+          created_at: string | null
+          facial_recognition_enabled: boolean | null
+          fraud_detection_enabled: boolean | null
+          id: string
+          threat_detection_enabled: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          auto_block_suspicious?: boolean | null
+          behaviour_monitoring_enabled?: boolean | null
+          confidence_threshold?: number | null
+          created_at?: string | null
+          facial_recognition_enabled?: boolean | null
+          fraud_detection_enabled?: boolean | null
+          id?: string
+          threat_detection_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          auto_block_suspicious?: boolean | null
+          behaviour_monitoring_enabled?: boolean | null
+          confidence_threshold?: number | null
+          created_at?: string | null
+          facial_recognition_enabled?: boolean | null
+          fraud_detection_enabled?: boolean | null
+          id?: string
+          threat_detection_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      allowed_ips: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          ip_address: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          ip_address: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          ip_address?: string
+        }
+        Relationships: []
+      }
       anomaly_baselines: {
         Row: {
           baseline_data: Json
@@ -181,6 +241,90 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_settings: {
+        Row: {
+          apple_oauth_enabled: boolean | null
+          created_at: string | null
+          email_verification_enabled: boolean | null
+          facebook_oauth_enabled: boolean | null
+          google_oauth_enabled: boolean | null
+          id: string
+          password_min_length: number | null
+          password_require_symbols: boolean | null
+          phone_verification_enabled: boolean | null
+          session_timeout_minutes: number | null
+          signup_enabled: boolean | null
+          two_fa_enabled: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          apple_oauth_enabled?: boolean | null
+          created_at?: string | null
+          email_verification_enabled?: boolean | null
+          facebook_oauth_enabled?: boolean | null
+          google_oauth_enabled?: boolean | null
+          id?: string
+          password_min_length?: number | null
+          password_require_symbols?: boolean | null
+          phone_verification_enabled?: boolean | null
+          session_timeout_minutes?: number | null
+          signup_enabled?: boolean | null
+          two_fa_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          apple_oauth_enabled?: boolean | null
+          created_at?: string | null
+          email_verification_enabled?: boolean | null
+          facebook_oauth_enabled?: boolean | null
+          google_oauth_enabled?: boolean | null
+          id?: string
+          password_min_length?: number | null
+          password_require_symbols?: boolean | null
+          phone_verification_enabled?: boolean | null
+          session_timeout_minutes?: number | null
+          signup_enabled?: boolean | null
+          two_fa_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      backup_logs: {
+        Row: {
+          backup_type: string
+          completed_at: string | null
+          created_by: string | null
+          error_message: string | null
+          file_path: string | null
+          file_size_mb: number | null
+          id: string
+          started_at: string | null
+          status: string | null
+        }
+        Insert: {
+          backup_type: string
+          completed_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          file_path?: string | null
+          file_size_mb?: number | null
+          id?: string
+          started_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          backup_type?: string
+          completed_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          file_path?: string | null
+          file_size_mb?: number | null
+          id?: string
+          started_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           badge_type: string
@@ -276,6 +420,54 @@ export type Database = {
           links?: Json | null
           published_at?: string | null
           title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      branding_settings: {
+        Row: {
+          accent_color: string | null
+          created_at: string | null
+          footer_text: string | null
+          hero_images: Json | null
+          hero_text: string | null
+          id: string
+          logo_icon_url: string | null
+          logo_primary_url: string | null
+          logo_white_url: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          social_links: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          created_at?: string | null
+          footer_text?: string | null
+          hero_images?: Json | null
+          hero_text?: string | null
+          id?: string
+          logo_icon_url?: string | null
+          logo_primary_url?: string | null
+          logo_white_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          social_links?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          created_at?: string | null
+          footer_text?: string | null
+          hero_images?: Json | null
+          hero_text?: string | null
+          id?: string
+          logo_icon_url?: string | null
+          logo_primary_url?: string | null
+          logo_white_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          social_links?: Json | null
           updated_at?: string | null
         }
         Relationships: []
@@ -785,6 +977,45 @@ export type Database = {
           },
         ]
       }
+      firewall_rules: {
+        Row: {
+          country_code: string | null
+          created_at: string | null
+          created_by: string | null
+          enabled: boolean | null
+          id: string
+          ip_address: string | null
+          ip_range: string | null
+          rule_name: string
+          rule_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          enabled?: boolean | null
+          id?: string
+          ip_address?: string | null
+          ip_range?: string | null
+          rule_name: string
+          rule_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          enabled?: boolean | null
+          id?: string
+          ip_address?: string | null
+          ip_range?: string | null
+          rule_name?: string
+          rule_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       followup_rules: {
         Row: {
           created_at: string
@@ -867,6 +1098,36 @@ export type Database = {
           },
         ]
       }
+      localization_settings: {
+        Row: {
+          auto_language_detection: boolean | null
+          available_languages: Json | null
+          created_at: string | null
+          default_language: string | null
+          id: string
+          rtl_support: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          auto_language_detection?: boolean | null
+          available_languages?: Json | null
+          created_at?: string | null
+          default_language?: string | null
+          id?: string
+          rtl_support?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          auto_language_detection?: boolean | null
+          available_languages?: Json | null
+          created_at?: string | null
+          default_language?: string | null
+          id?: string
+          rtl_support?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           created_at: string
@@ -936,6 +1197,75 @@ export type Database = {
           tactic_name?: string
           technique_id?: string
           technique_name?: string
+        }
+        Relationships: []
+      }
+      notification_config: {
+        Row: {
+          created_at: string | null
+          email_enabled: boolean | null
+          email_provider: string | null
+          id: string
+          push_enabled: boolean | null
+          sms_enabled: boolean | null
+          sms_provider: string | null
+          updated_at: string | null
+          whatsapp_enabled: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_enabled?: boolean | null
+          email_provider?: string | null
+          id?: string
+          push_enabled?: boolean | null
+          sms_enabled?: boolean | null
+          sms_provider?: string | null
+          updated_at?: string | null
+          whatsapp_enabled?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          email_enabled?: boolean | null
+          email_provider?: string | null
+          id?: string
+          push_enabled?: boolean | null
+          sms_enabled?: boolean | null
+          sms_provider?: string | null
+          updated_at?: string | null
+          whatsapp_enabled?: boolean | null
+        }
+        Relationships: []
+      }
+      notification_templates: {
+        Row: {
+          body: string
+          created_at: string | null
+          id: string
+          subject: string | null
+          template_name: string
+          template_type: string
+          updated_at: string | null
+          variables: Json | null
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          id?: string
+          subject?: string | null
+          template_name: string
+          template_type: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          id?: string
+          subject?: string | null
+          template_name?: string
+          template_type?: string
+          updated_at?: string | null
+          variables?: Json | null
         }
         Relationships: []
       }
@@ -1016,6 +1346,63 @@ export type Database = {
           },
         ]
       }
+      payment_config: {
+        Row: {
+          auto_currency_conversion: boolean | null
+          bank_details: Json | null
+          bank_transfer_enabled: boolean | null
+          created_at: string | null
+          id: string
+          mpesa_consumer_key: string | null
+          mpesa_consumer_secret: string | null
+          mpesa_enabled: boolean | null
+          mpesa_shortcode: string | null
+          paypal_client_id: string | null
+          paypal_enabled: boolean | null
+          paypal_secret: string | null
+          stripe_enabled: boolean | null
+          stripe_public_key: string | null
+          stripe_secret_key: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          auto_currency_conversion?: boolean | null
+          bank_details?: Json | null
+          bank_transfer_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          mpesa_consumer_key?: string | null
+          mpesa_consumer_secret?: string | null
+          mpesa_enabled?: boolean | null
+          mpesa_shortcode?: string | null
+          paypal_client_id?: string | null
+          paypal_enabled?: boolean | null
+          paypal_secret?: string | null
+          stripe_enabled?: boolean | null
+          stripe_public_key?: string | null
+          stripe_secret_key?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          auto_currency_conversion?: boolean | null
+          bank_details?: Json | null
+          bank_transfer_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          mpesa_consumer_key?: string | null
+          mpesa_consumer_secret?: string | null
+          mpesa_enabled?: boolean | null
+          mpesa_shortcode?: string | null
+          paypal_client_id?: string | null
+          paypal_enabled?: boolean | null
+          paypal_secret?: string | null
+          stripe_enabled?: boolean | null
+          stripe_public_key?: string | null
+          stripe_secret_key?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       payroll: {
         Row: {
           allowances: number | null
@@ -1071,6 +1458,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      privacy_settings: {
+        Row: {
+          allow_data_deletion: boolean | null
+          allow_data_export: boolean | null
+          cookie_auto_consent: boolean | null
+          cookie_consent_enabled: boolean | null
+          created_at: string | null
+          data_retention_days: number | null
+          id: string
+          privacy_policy_url: string | null
+          terms_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          allow_data_deletion?: boolean | null
+          allow_data_export?: boolean | null
+          cookie_auto_consent?: boolean | null
+          cookie_consent_enabled?: boolean | null
+          created_at?: string | null
+          data_retention_days?: number | null
+          id?: string
+          privacy_policy_url?: string | null
+          terms_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          allow_data_deletion?: boolean | null
+          allow_data_export?: boolean | null
+          cookie_auto_consent?: boolean | null
+          cookie_consent_enabled?: boolean | null
+          created_at?: string | null
+          data_retention_days?: number | null
+          id?: string
+          privacy_policy_url?: string | null
+          terms_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -1299,6 +1725,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_config: {
+        Row: {
+          bot_protection_enabled: boolean | null
+          brute_force_protection: boolean | null
+          created_at: string | null
+          csrf_protection_enabled: boolean | null
+          encryption_level: string | null
+          id: string
+          jwt_expiry_hours: number | null
+          lockout_duration_minutes: number | null
+          max_login_attempts: number | null
+          rate_limit_requests: number | null
+          rate_limit_window_minutes: number | null
+          rate_limiting_enabled: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          bot_protection_enabled?: boolean | null
+          brute_force_protection?: boolean | null
+          created_at?: string | null
+          csrf_protection_enabled?: boolean | null
+          encryption_level?: string | null
+          id?: string
+          jwt_expiry_hours?: number | null
+          lockout_duration_minutes?: number | null
+          max_login_attempts?: number | null
+          rate_limit_requests?: number | null
+          rate_limit_window_minutes?: number | null
+          rate_limiting_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          bot_protection_enabled?: boolean | null
+          brute_force_protection?: boolean | null
+          created_at?: string | null
+          csrf_protection_enabled?: boolean | null
+          encryption_level?: string | null
+          id?: string
+          jwt_expiry_hours?: number | null
+          lockout_duration_minutes?: number | null
+          max_login_attempts?: number | null
+          rate_limit_requests?: number | null
+          rate_limit_window_minutes?: number | null
+          rate_limiting_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       security_events: {
         Row: {
@@ -1584,6 +2058,39 @@ export type Database = {
         }
         Relationships: []
       }
+      storage_settings: {
+        Row: {
+          allowed_file_types: string[] | null
+          backup_enabled: boolean | null
+          backup_schedule: string | null
+          created_at: string | null
+          id: string
+          max_upload_size_mb: number | null
+          provider: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          allowed_file_types?: string[] | null
+          backup_enabled?: boolean | null
+          backup_schedule?: string | null
+          created_at?: string | null
+          id?: string
+          max_upload_size_mb?: number | null
+          provider?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          allowed_file_types?: string[] | null
+          backup_enabled?: boolean | null
+          backup_schedule?: string | null
+          created_at?: string | null
+          id?: string
+          max_upload_size_mb?: number | null
+          provider?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       system_health: {
         Row: {
           created_at: string | null
@@ -1764,6 +2271,60 @@ export type Database = {
           message?: string | null
           start_time?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      system_settings: {
+        Row: {
+          created_at: string | null
+          currency_format: Json | null
+          date_format: string | null
+          default_country: string | null
+          default_currency: string | null
+          favicon_url: string | null
+          id: string
+          support_email: string | null
+          support_phone: string | null
+          system_description: string | null
+          system_logo_url: string | null
+          system_name: string | null
+          timezone: string | null
+          updated_at: string | null
+          whatsapp_support: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency_format?: Json | null
+          date_format?: string | null
+          default_country?: string | null
+          default_currency?: string | null
+          favicon_url?: string | null
+          id?: string
+          support_email?: string | null
+          support_phone?: string | null
+          system_description?: string | null
+          system_logo_url?: string | null
+          system_name?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          whatsapp_support?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency_format?: Json | null
+          date_format?: string | null
+          default_country?: string | null
+          default_currency?: string | null
+          favicon_url?: string | null
+          id?: string
+          support_email?: string | null
+          support_phone?: string | null
+          system_description?: string | null
+          system_logo_url?: string | null
+          system_name?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          whatsapp_support?: string | null
         }
         Relationships: []
       }
@@ -1983,6 +2544,102 @@ export type Database = {
           purpose?: string
           used?: boolean | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_payment_methods: {
+        Row: {
+          billing_address: Json | null
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          last_four: string | null
+          method_type: string
+          mpesa_number: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          billing_address?: Json | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          last_four?: string | null
+          method_type: string
+          mpesa_number?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          billing_address?: Json | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          last_four?: string | null
+          method_type?: string
+          mpesa_number?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          allow_session_tracking: boolean | null
+          created_at: string | null
+          data_sharing: boolean | null
+          email_notifications: boolean | null
+          hide_email: boolean | null
+          hide_online_status: boolean | null
+          hide_phone: boolean | null
+          hide_profile: boolean | null
+          id: string
+          marketing_emails: boolean | null
+          newsletter_enabled: boolean | null
+          personalized_ads: boolean | null
+          push_notifications: boolean | null
+          sms_notifications: boolean | null
+          updated_at: string | null
+          user_id: string
+          whatsapp_notifications: boolean | null
+        }
+        Insert: {
+          allow_session_tracking?: boolean | null
+          created_at?: string | null
+          data_sharing?: boolean | null
+          email_notifications?: boolean | null
+          hide_email?: boolean | null
+          hide_online_status?: boolean | null
+          hide_phone?: boolean | null
+          hide_profile?: boolean | null
+          id?: string
+          marketing_emails?: boolean | null
+          newsletter_enabled?: boolean | null
+          personalized_ads?: boolean | null
+          push_notifications?: boolean | null
+          sms_notifications?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          whatsapp_notifications?: boolean | null
+        }
+        Update: {
+          allow_session_tracking?: boolean | null
+          created_at?: string | null
+          data_sharing?: boolean | null
+          email_notifications?: boolean | null
+          hide_email?: boolean | null
+          hide_online_status?: boolean | null
+          hide_phone?: boolean | null
+          hide_profile?: boolean | null
+          id?: string
+          marketing_emails?: boolean | null
+          newsletter_enabled?: boolean | null
+          personalized_ads?: boolean | null
+          push_notifications?: boolean | null
+          sms_notifications?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          whatsapp_notifications?: boolean | null
         }
         Relationships: []
       }

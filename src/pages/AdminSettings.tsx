@@ -332,12 +332,14 @@ const AdminSettings = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-7 overflow-x-auto">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
+              <TabsTrigger value="preferences">Preferences</TabsTrigger>
+              <TabsTrigger value="notifications">Notifications</TabsTrigger>
+              <TabsTrigger value="privacy">Privacy</TabsTrigger>
               <TabsTrigger value="company">Company</TabsTrigger>
-              <TabsTrigger value="system">System</TabsTrigger>
-              <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+              <TabsTrigger value="danger">Danger Zone</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6 pt-6">
@@ -460,6 +462,88 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
 
+            <TabsContent value="preferences" className="space-y-6 pt-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Theme Settings</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <Button
+                      variant={profile.theme === "light" ? "default" : "outline"}
+                      onClick={() => handleThemeChange("light")}
+                      className="w-full"
+                    >
+                      Light Mode
+                    </Button>
+                    <Button
+                      variant={profile.theme === "dark" ? "default" : "outline"}
+                      onClick={() => handleThemeChange("dark")}
+                      className="w-full"
+                    >
+                      Dark Mode
+                    </Button>
+                    <Button
+                      variant={profile.theme === "system" ? "default" : "outline"}
+                      onClick={() => handleThemeChange("system")}
+                      className="w-full"
+                    >
+                      System Default
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="notifications" className="space-y-6 pt-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Notification Preferences</h3>
+                <p className="text-sm text-muted-foreground">
+                  Configure how you want to receive notifications and updates.
+                </p>
+                <div className="space-y-4 pt-4">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="email_notifications">Email Notifications</Label>
+                    <Input type="checkbox" id="email_notifications" className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="sms_notifications">SMS Notifications</Label>
+                    <Input type="checkbox" id="sms_notifications" className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="push_notifications">Push Notifications</Label>
+                    <Input type="checkbox" id="push_notifications" className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="security_alerts">Security Alerts</Label>
+                    <Input type="checkbox" id="security_alerts" className="w-5 h-5" defaultChecked />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="privacy" className="space-y-6 pt-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Privacy Settings</h3>
+                <div className="space-y-4 pt-4">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="hide_profile">Hide Profile</Label>
+                    <Input type="checkbox" id="hide_profile" className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="hide_email">Hide Email</Label>
+                    <Input type="checkbox" id="hide_email" className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="hide_phone">Hide Phone Number</Label>
+                    <Input type="checkbox" id="hide_phone" className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="allow_tracking">Allow Session Tracking</Label>
+                    <Input type="checkbox" id="allow_tracking" className="w-5 h-5" defaultChecked />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
             <TabsContent value="company" className="space-y-6 pt-6">
               <div className="space-y-4">
                 <div>
@@ -524,6 +608,28 @@ const AdminSettings = () => {
                     <p><strong>Environment:</strong> {companySettings.environment}</p>
                     <p><strong>Database:</strong> Connected</p>
                     <p><strong>Storage:</strong> Active</p>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="danger" className="space-y-6 pt-6">
+              <div className="space-y-4">
+                <div className="border border-destructive/50 rounded-lg p-6 bg-destructive/5">
+                  <h3 className="text-lg font-semibold text-destructive mb-2">Danger Zone</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Irreversible and destructive actions
+                  </p>
+                  <div className="space-y-3">
+                    <Button variant="outline" className="w-full border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                      Logout All Sessions
+                    </Button>
+                    <Button variant="outline" className="w-full border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                      Reset Account Settings
+                    </Button>
+                    <Button variant="destructive" className="w-full">
+                      Deactivate Account
+                    </Button>
                   </div>
                 </div>
               </div>

@@ -124,9 +124,11 @@ const CustomerProfile = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="profile" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="profile">Profile</TabsTrigger>
                 <TabsTrigger value="security">Security</TabsTrigger>
+                <TabsTrigger value="preferences">Preferences</TabsTrigger>
+                <TabsTrigger value="danger">Danger Zone</TabsTrigger>
               </TabsList>
               
               <TabsContent value="profile" className="space-y-6 pt-6">
@@ -260,6 +262,77 @@ const CustomerProfile = () => {
                       <TrustedDevices userId={profile.user_id} />
                     </div>
                   )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="preferences" className="space-y-6 pt-6">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Appearance</h3>
+                    <div className="grid grid-cols-3 gap-4">
+                      <Button variant="outline" className="w-full">Light Mode</Button>
+                      <Button variant="outline" className="w-full">Dark Mode</Button>
+                      <Button variant="default" className="w-full">System Default</Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold mb-4">Notifications</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Email Notifications</Label>
+                        <Input type="checkbox" className="w-5 h-5" defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label>SMS Notifications</Label>
+                        <Input type="checkbox" className="w-5 h-5" />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label>Order Updates</Label>
+                        <Input type="checkbox" className="w-5 h-5" defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label>Marketing Emails</Label>
+                        <Input type="checkbox" className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold mb-4">Privacy</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Data Sharing</Label>
+                        <Input type="checkbox" className="w-5 h-5" />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label>Personalized Ads</Label>
+                        <Input type="checkbox" className="w-5 h-5" />
+                      </div>
+                      <Button variant="outline" className="w-full">Export My Data</Button>
+                      <Button variant="outline" className="w-full text-destructive">Request Data Deletion</Button>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="danger" className="space-y-6 pt-6">
+                <div className="border border-destructive/50 rounded-lg p-6 bg-destructive/5">
+                  <h3 className="text-lg font-semibold text-destructive mb-2">Danger Zone</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    These actions are irreversible. Please proceed with caution.
+                  </p>
+                  <div className="space-y-3">
+                    <Button variant="outline" className="w-full border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                      Logout All Devices
+                    </Button>
+                    <Button variant="outline" className="w-full border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                      Deactivate Account
+                    </Button>
+                    <Button variant="destructive" className="w-full">
+                      Delete Account Permanently
+                    </Button>
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
