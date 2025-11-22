@@ -258,68 +258,68 @@ const Catalogue = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Banner Section */}
-      <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-16 mb-8">
+      <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-8 mb-6">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-accent bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-5xl font-bold mb-3 bg-gradient-accent bg-clip-text text-transparent">
               Find Your Perfect Car Today
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-6">
+            <p className="text-base md:text-lg text-muted-foreground mb-3">
               Trusted Automotive Dealer – Nairobi, Kenya
             </p>
-            <p className="text-base text-muted-foreground mb-8">
+            <p className="text-sm text-muted-foreground mb-5">
               Quality, Verified, and Ready for Delivery • Lipa Mdogo Mdogo Available
             </p>
             
             {/* Trust Indicators */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-              <div className="glass-strong rounded-lg p-4 flex items-center gap-3">
-                <Shield className="h-8 w-8 text-primary flex-shrink-0" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl mx-auto">
+              <div className="glass-strong rounded-lg p-3 flex items-center gap-2">
+                <Shield className="h-6 w-6 text-primary flex-shrink-0" />
                 <div className="text-left">
-                  <p className="font-semibold text-sm">Verified Vehicles</p>
+                  <p className="font-semibold text-xs">Verified Vehicles</p>
                   <p className="text-xs text-muted-foreground">100% Quality Assured</p>
                 </div>
               </div>
               <a href="https://maps.app.goo.gl/92DgyWn62UNSR26p8" target="_blank" rel="noopener noreferrer" className="block">
-                <div className="glass-strong rounded-lg p-4 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer">
-                  <MapPin className="h-8 w-8 text-primary flex-shrink-0" />
+                <div className="glass-strong rounded-lg p-3 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer">
+                  <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
                   <div className="text-left">
-                    <p className="font-semibold text-sm">Visit Our Yard</p>
+                    <p className="font-semibold text-xs">Visit Our Yard</p>
                     <p className="text-xs text-muted-foreground">Mpesi Lane, Westlands</p>
                   </div>
                 </div>
               </a>
-              <div className="glass-strong rounded-lg p-4 flex items-center gap-3">
-                <Clock className="h-8 w-8 text-primary flex-shrink-0" />
+              <div className="glass-strong rounded-lg p-3 flex items-center gap-2">
+                <Clock className="h-6 w-6 text-primary flex-shrink-0" />
                 <div className="text-left">
-                  <p className="font-semibold text-sm">Quick Processing</p>
+                  <p className="font-semibold text-xs">Quick Processing</p>
                   <p className="text-xs text-muted-foreground">7-21 Days Logbook</p>
                 </div>
               </div>
               <button 
                 onClick={() => setPaymentModalOpen(true)}
-                className="glass-strong rounded-lg p-4 flex items-center gap-3 hover:scale-105 transition-transform cursor-pointer w-full"
+                className="glass-strong rounded-lg p-3 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer w-full"
               >
-                <CreditCard className="h-8 w-8 text-primary flex-shrink-0" />
+                <CreditCard className="h-6 w-6 text-primary flex-shrink-0" />
                 <div className="text-left">
-                  <p className="font-semibold text-sm">Lipa Mdogo Mdogo</p>
+                  <p className="font-semibold text-xs">Lipa Mdogo Mdogo</p>
                   <p className="text-xs text-muted-foreground">Flexible Payment Plans</p>
                 </div>
               </button>
             </div>
 
             {/* Contact Buttons */}
-            <div className="flex flex-wrap justify-center gap-4 mt-8">
+            <div className="flex flex-wrap justify-center gap-3 mt-5">
               <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
-                <Button size="lg" className="gap-2 bg-green-600 hover:bg-green-700">
-                  <MessageCircle className="h-5 w-5" />
+                <Button size="default" className="gap-2 bg-green-600 hover:bg-green-700">
+                  <MessageCircle className="h-4 w-4" />
                   WhatsApp: 0722 827 458
                 </Button>
               </a>
               <a href="tel:+254722827458">
-                <Button size="lg" variant="outline" className="gap-2">
-                  <Phone className="h-5 w-5" />
+                <Button size="default" variant="outline" className="gap-2">
+                  <Phone className="h-4 w-4" />
                   Call Now
                 </Button>
               </a>
@@ -331,7 +331,7 @@ const Catalogue = () => {
       <div className="container mx-auto px-4 pb-8">
 
         {/* Search and Filters */}
-        <div className="glass-strong rounded-lg p-6 mb-8">
+        <div className="glass-strong rounded-lg p-4 mb-6">
           {/* Stock Status Filter Buttons */}
           <div className="flex gap-3 mb-6">
             <Button
