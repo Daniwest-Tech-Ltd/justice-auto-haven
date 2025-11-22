@@ -41,14 +41,15 @@ export const useSecurityLogger = () => {
   };
 
   const logLoginAttempt = async (email: string, success: boolean, ip?: string) => {
-    await logSecurityEvent(
+    // Fire and forget - don't await
+    logSecurityEvent(
       "login_attempt",
       success ? "low" : "medium",
       success ? "Successful Login" : "Failed Login Attempt",
       `Login attempt for ${email}`,
       ip,
       { email, success }
-    );
+    ).catch(err => console.error("Failed to log login attempt:", err));
   };
 
   const logSuspiciousActivity = async (
@@ -57,14 +58,15 @@ export const useSecurityLogger = () => {
     ip?: string,
     metadata?: any
   ) => {
-    await logSecurityEvent(
+    // Fire and forget - don't await
+    logSecurityEvent(
       "suspicious_activity",
       "high",
       title,
       description,
       ip,
       metadata
-    );
+    ).catch(err => console.error("Failed to log suspicious activity:", err));
   };
 
   const logAccountSuspension = async (
