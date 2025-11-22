@@ -202,12 +202,13 @@ const CustomerDashboard = () => {
                 <h1 className="text-xl font-bold">Justice Ultimate Automobiles Customer Dashboard</h1>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+                <Button variant="ghost" size="icon" onClick={() => navigate("/")} title="Home">
                   <Home className="h-5 w-5" />
                 </Button>
                 <Button 
                   variant="ghost" 
-                  size="icon" 
+                  size="icon"
+                  title={currentTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
                   onClick={async () => {
                     const newTheme: Theme = currentTheme === "dark" ? "light" : "dark";
                     setCurrentTheme(newTheme);
