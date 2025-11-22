@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -10,12 +11,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, Settings, Shield, Globe, Database, Bell, CreditCard, Lock, Palette } from "lucide-react";
+import { ArrowLeft, Save, Settings, Shield, Globe, Database, Bell, CreditCard, Lock, Palette, Menu } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 
 const SystemSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("general");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -197,16 +200,103 @@ const SystemSettings = () => {
 
       <Card className="glass-strong">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold">
-            <span className="bg-gradient-accent bg-clip-text text-transparent">
-              System Settings
-            </span>
-          </CardTitle>
-          <CardDescription>Configure all system settings and preferences</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl md:text-3xl font-bold">
+                <span className="bg-gradient-accent bg-clip-text text-transparent">
+                  System Settings
+                </span>
+              </CardTitle>
+              <CardDescription>Configure all system settings and preferences</CardDescription>
+            </div>
+            
+            {/* Mobile Menu Button */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="outline" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64">
+                <SheetHeader>
+                  <SheetTitle>Settings Menu</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-2 mt-6">
+                  <Button
+                    variant={activeTab === "general" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("general");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    General
+                  </Button>
+                  <Button
+                    variant={activeTab === "authentication" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("authentication");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Lock className="h-4 w-4 mr-2" />
+                    Authentication
+                  </Button>
+                  <Button
+                    variant={activeTab === "maintenance" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("maintenance");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Maintenance
+                  </Button>
+                  <Button
+                    variant={activeTab === "security" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("security");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    Security
+                  </Button>
+                  <Button
+                    variant={activeTab === "storage" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("storage");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Database className="h-4 w-4 mr-2" />
+                    Storage
+                  </Button>
+                  <Button
+                    variant={activeTab === "advanced" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("advanced");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Globe className="h-4 w-4 mr-2" />
+                    Advanced
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            {/* Desktop Tabs - Hidden on Mobile */}
+            <TabsList className="hidden md:grid w-full grid-cols-6">
               <TabsTrigger value="general"><Settings className="h-4 w-4 mr-2" />General</TabsTrigger>
               <TabsTrigger value="authentication"><Lock className="h-4 w-4 mr-2" />Auth</TabsTrigger>
               <TabsTrigger value="maintenance"><Settings className="h-4 w-4 mr-2" />Maintenance</TabsTrigger>

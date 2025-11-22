@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, User, Building, Mail, Phone } from "lucide-react";
+import { ArrowLeft, Save, User, Building, Mail, Phone, Menu } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Textarea } from "@/components/ui/textarea";
 import kenyaLocations from "@/data/kenya-locations.json";
@@ -27,6 +28,8 @@ const AdminSettings = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>("");
   const [fingerprintDevices, setFingerprintDevices] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState("profile");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profile, setProfile] = useState({
     full_name: "",
     email: "",
@@ -324,15 +327,114 @@ const AdminSettings = () => {
 
       <Card className="glass-strong max-w-4xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold">
-            <span className="bg-gradient-accent bg-clip-text text-transparent">
-              Admin Settings
-            </span>
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl md:text-3xl font-bold">
+              <span className="bg-gradient-accent bg-clip-text text-transparent">
+                Admin Settings
+              </span>
+            </CardTitle>
+            
+            {/* Mobile Menu Button */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="outline" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64">
+                <SheetHeader>
+                  <SheetTitle>Settings Menu</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-2 mt-6">
+                  <Button
+                    variant={activeTab === "profile" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("profile");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Profile
+                  </Button>
+                  <Button
+                    variant={activeTab === "security" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("security");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Security
+                  </Button>
+                  <Button
+                    variant={activeTab === "preferences" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("preferences");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Preferences
+                  </Button>
+                  <Button
+                    variant={activeTab === "notifications" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("notifications");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Notifications
+                  </Button>
+                  <Button
+                    variant={activeTab === "privacy" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("privacy");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Privacy
+                  </Button>
+                  <Button
+                    variant={activeTab === "company" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("company");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Company
+                  </Button>
+                  <Button
+                    variant={activeTab === "maintenance" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("maintenance");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Maintenance
+                  </Button>
+                  <Button
+                    variant={activeTab === "danger" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("danger");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Danger Zone
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-8 overflow-x-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            {/* Desktop Tabs - Hidden on Mobile */}
+            <TabsList className="hidden md:grid w-full grid-cols-8 overflow-x-auto">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
               <TabsTrigger value="preferences">Preferences</TabsTrigger>

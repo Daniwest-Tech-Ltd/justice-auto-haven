@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ArrowLeft, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +25,8 @@ const CustomerProfile = () => {
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [fingerprintDevices, setFingerprintDevices] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState("profile");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -120,11 +123,70 @@ const CustomerProfile = () => {
 
         <Card className="glass-strong">
           <CardHeader>
-            <CardTitle>Settings</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Settings</CardTitle>
+              
+              {/* Mobile Menu Button */}
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild className="md:hidden">
+                  <Button variant="outline" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-64">
+                  <SheetHeader>
+                    <SheetTitle>Settings Menu</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-2 mt-6">
+                    <Button
+                      variant={activeTab === "profile" ? "default" : "ghost"}
+                      className="justify-start"
+                      onClick={() => {
+                        setActiveTab("profile");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      Profile
+                    </Button>
+                    <Button
+                      variant={activeTab === "security" ? "default" : "ghost"}
+                      className="justify-start"
+                      onClick={() => {
+                        setActiveTab("security");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      Security
+                    </Button>
+                    <Button
+                      variant={activeTab === "preferences" ? "default" : "ghost"}
+                      className="justify-start"
+                      onClick={() => {
+                        setActiveTab("preferences");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      Preferences
+                    </Button>
+                    <Button
+                      variant={activeTab === "danger" ? "default" : "ghost"}
+                      className="justify-start"
+                      onClick={() => {
+                        setActiveTab("danger");
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      Danger Zone
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="profile" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              {/* Desktop Tabs - Hidden on Mobile */}
+              <TabsList className="hidden md:grid w-full grid-cols-4">
                 <TabsTrigger value="profile">Profile</TabsTrigger>
                 <TabsTrigger value="security">Security</TabsTrigger>
                 <TabsTrigger value="preferences">Preferences</TabsTrigger>
