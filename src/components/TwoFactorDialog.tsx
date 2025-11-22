@@ -39,19 +39,12 @@ export const TwoFactorDialog = ({
   const [countdown, setCountdown] = useState(600); // 10 minutes in seconds
   const { toast } = useToast();
 
-  // Auto-send email OTP when dialog opens with email method
+  // Auto-send email OTP only once when dialog opens with email method
   useEffect(() => {
     if (open && selectedMethod === 'email_otp' && !otpSent) {
       handleEmailOTP();
     }
-  }, [open, selectedMethod]);
-
-  // Auto-send email OTP when switching to email tab
-  useEffect(() => {
-    if (selectedMethod === 'email_otp' && !otpSent) {
-      handleEmailOTP();
-    }
-  }, [selectedMethod]);
+  }, [open]);
 
   // Countdown timer
   useEffect(() => {

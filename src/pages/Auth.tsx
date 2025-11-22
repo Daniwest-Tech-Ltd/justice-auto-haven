@@ -76,27 +76,8 @@ const Auth = () => {
   const [maintenanceCountdown, setMaintenanceCountdown] = useState("");
 
   useEffect(() => {
+    // Check maintenance once on mount, don't check repeatedly
     checkMaintenanceMode();
-    
-    // Set up realtime subscription for maintenance mode changes
-    const channel = supabase
-      .channel('maintenance-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'system_maintenance'
-        },
-        () => {
-          checkMaintenanceMode();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   useEffect(() => {
@@ -254,44 +235,30 @@ const Auth = () => {
 
   const passwordStrength = checkPasswordStrength(regPassword);
 
-  const completeLogin = async (userId: string) => {
+  const completeLogin = async (userId: string, userName?: string) => {
     try {
-      // Update online status and reset login attempts
-      await supabase
-        .from("profiles")
-        .update({
+      // Fetch role and update profile in parallel
+      const [roleResult, profileResult] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
+        supabase.from("profiles").update({
           is_online: true,
           last_seen: new Date().toISOString(),
           login_attempts: 0
-        })
-        .eq("user_id", userId);
+        }).eq("user_id", userId).select("full_name").single()
+      ]);
 
-      // Check user role
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      // Get profile for name
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("user_id", userId)
-        .single();
-
-      sonnerToast.success(`Welcome back, ${profile?.full_name || "User"}! 🎉`, {
-        description: `Logged in as ${roleData?.role || "customer"}`,
+      const displayName = userName || profileResult.data?.full_name || "User";
+      
+      sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
+        description: `Logged in as ${roleResult.data?.role || "customer"}`,
       });
 
-      // Redirect based on role
-      setTimeout(() => {
-        if (roleData && roleData.role === "admin") {
-          navigate("/admin-dashboard");
-        } else {
-          navigate("/customer-dashboard");
-        }
-      }, 500);
+      // Redirect based on role immediately
+      if (roleResult.data?.role === "admin") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/customer-dashboard");
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -388,10 +355,10 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // First check if user profile exists and check suspension status
+      // Check profile with optimized query (select only needed fields)
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("*")
+        .select("user_id, email, full_name, is_suspended, account_status, suspended_reason, suspended_at, login_attempts, two_fa_enabled, preferred_2fa, totp_enabled, fingerprint_enabled")
         .eq("email", email)
         .maybeSingle();
 
@@ -601,43 +568,35 @@ const Auth = () => {
       }
 
       if (data.user) {
-        // Log successful login attempt
-        await logLoginAttempt(email, true);
-
-        // Check for 2FA requirements
-        const { data: profileData2FA } = await supabase
-          .from("profiles")
-          .select("two_fa_enabled, preferred_2fa")
-          .eq("user_id", data.user.id)
-          .single();
-
-        if (profileData2FA?.two_fa_enabled) {
-          // Check available methods
-          const { data: totpData } = await supabase
-            .from("user_totp")
-            .select("enabled")
-            .eq("user_id", data.user.id)
+        const currentUserId = data.user.id;
+        
+        // Use cached profile data from earlier check
+        const cachedProfile = profileData || await (async () => {
+          const { data: profData } = await supabase
+            .from("profiles")
+            .select("two_fa_enabled, preferred_2fa, totp_enabled, fingerprint_enabled, full_name")
+            .eq("user_id", currentUserId)
             .single();
-          
-          const { data: fingerprintData } = await supabase
-            .from("user_fingerprints")
-            .select("id")
-            .eq("user_id", data.user.id);
+          return profData;
+        })();
 
+        if (cachedProfile?.two_fa_enabled) {
           setAvailable2FAMethods({
             email: true,
-            totp: totpData?.enabled || false,
-            fingerprint: (fingerprintData?.length || 0) > 0,
+            totp: cachedProfile.totp_enabled || false,
+            fingerprint: cachedProfile.fingerprint_enabled || false,
           });
-          setPreferred2FAMethod(profileData2FA.preferred_2fa || "email_otp");
-          setPendingUserId(data.user.id);
+          setPreferred2FAMethod(cachedProfile.preferred_2fa || "email_otp");
+          setPendingUserId(currentUserId);
           setPendingUserEmail(email);
           setShow2FADialog(true);
           setLoading(false);
           return;
         }
 
-        await completeLogin(data.user.id);
+        // Log and complete login with cached name
+        logLoginAttempt(email, true);
+        await completeLogin(currentUserId, cachedProfile?.full_name);
       }
     } catch (error: any) {
       // Reset CAPTCHA on error
