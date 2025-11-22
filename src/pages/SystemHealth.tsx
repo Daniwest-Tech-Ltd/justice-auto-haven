@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { 
   ArrowLeft, 
   Activity, 
@@ -17,7 +18,8 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Menu
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +30,8 @@ const SystemHealth = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [healthData, setHealthData] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -371,11 +375,60 @@ const SystemHealth = () => {
       {/* Detailed Tabs */}
       <Card className="glass-strong">
         <CardHeader>
-          <CardTitle>System Details</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>System Details</CardTitle>
+            
+            {/* Mobile Menu Button */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="outline" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64">
+                <SheetHeader>
+                  <SheetTitle>System Details Menu</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-2 mt-6">
+                  <Button
+                    variant={activeTab === "logs" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("logs");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    System Logs
+                  </Button>
+                  <Button
+                    variant={activeTab === "metrics" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("metrics");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Metrics
+                  </Button>
+                  <Button
+                    variant={activeTab === "cron" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("cron");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Cron Jobs
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="logs">
-            <TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            {/* Desktop Tabs - Hidden on Mobile */}
+            <TabsList className="hidden md:flex">
               <TabsTrigger value="logs">System Logs</TabsTrigger>
               <TabsTrigger value="metrics">Metrics</TabsTrigger>
               <TabsTrigger value="cron">Cron Jobs</TabsTrigger>

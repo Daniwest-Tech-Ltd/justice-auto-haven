@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, Shield, AlertTriangle, CheckCircle, Ban,
-  Activity, Lock, Brain, Target, FileText, Zap, Globe, Key, Users, Clock, RefreshCw, Download, Play, Pause, Settings
+  Activity, Lock, Brain, Target, FileText, Zap, Globe, Key, Users, Clock, RefreshCw, Download, Play, Pause, Settings, Menu
 } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ const AISecurityDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aiThreatScore, setAiThreatScore] = useState<any>(null);
   const [aiAnomalies, setAiAnomalies] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -425,9 +427,105 @@ const AISecurityDashboard = () => {
         </Card>
       </div>
 
+      {/* Mobile Menu for Tabs */}
+      <div className="mb-4 md:hidden">
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="w-full">
+              <Menu className="h-5 w-5 mr-2" />
+              {activeTab === "overview" && "Overview"}
+              {activeTab === "alerts" && "Alerts"}
+              {activeTab === "incidents" && "Incidents"}
+              {activeTab === "realtime" && "Real-time Monitoring"}
+              {activeTab === "workflows" && "Auto-Response"}
+              {activeTab === "playbooks" && "Playbooks"}
+              {activeTab === "pqc" && "PQC Wizard"}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64">
+            <SheetHeader>
+              <SheetTitle>Security Menu</SheetTitle>
+            </SheetHeader>
+            <div className="flex flex-col gap-2 mt-6">
+              <Button
+                variant={activeTab === "overview" ? "default" : "ghost"}
+                className="justify-start"
+                onClick={() => {
+                  setActiveTab("overview");
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Overview
+              </Button>
+              <Button
+                variant={activeTab === "alerts" ? "default" : "ghost"}
+                className="justify-start"
+                onClick={() => {
+                  setActiveTab("alerts");
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Alerts
+              </Button>
+              <Button
+                variant={activeTab === "incidents" ? "default" : "ghost"}
+                className="justify-start"
+                onClick={() => {
+                  setActiveTab("incidents");
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Incidents
+              </Button>
+              <Button
+                variant={activeTab === "realtime" ? "default" : "ghost"}
+                className="justify-start"
+                onClick={() => {
+                  setActiveTab("realtime");
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Real-time
+              </Button>
+              <Button
+                variant={activeTab === "workflows" ? "default" : "ghost"}
+                className="justify-start"
+                onClick={() => {
+                  setActiveTab("workflows");
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Auto-Response
+              </Button>
+              <Button
+                variant={activeTab === "playbooks" ? "default" : "ghost"}
+                className="justify-start"
+                onClick={() => {
+                  setActiveTab("playbooks");
+                  setMobileMenuOpen(false);
+                }}
+              >
+                Playbooks
+              </Button>
+              <Button
+                variant={activeTab === "pqc" ? "default" : "ghost"}
+                className="justify-start"
+                onClick={() => {
+                  setActiveTab("pqc");
+                  setMobileMenuOpen(false);
+                }}
+              >
+                PQC Wizard
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-7">
+        {/* Desktop Tabs - Hidden on Mobile */}
+        <TabsList className="hidden md:grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
