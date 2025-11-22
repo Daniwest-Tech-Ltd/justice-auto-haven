@@ -272,8 +272,24 @@ const Catalogue = () => {
               Quality, Verified, and Ready for Delivery • Lipa Mdogo Mdogo Available
             </p>
             
+            {/* Contact Buttons */}
+            <div className="flex flex-wrap justify-center gap-3 mb-5">
+              <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
+                <Button size="default" className="gap-2 bg-green-600 hover:bg-green-700">
+                  <MessageCircle className="h-4 w-4" />
+                  WhatsApp: 0722 827 458
+                </Button>
+              </a>
+              <a href="tel:+254722827458">
+                <Button size="default" variant="outline" className="gap-2">
+                  <Phone className="h-4 w-4" />
+                  Call Now
+                </Button>
+              </a>
+            </div>
+
             {/* Trust Indicators */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 max-w-4xl mx-auto">
               <div className="glass-strong rounded-lg p-3 flex items-center gap-2">
                 <Shield className="h-6 w-6 text-primary flex-shrink-0" />
                 <div className="text-left">
@@ -307,22 +323,6 @@ const Catalogue = () => {
                   <p className="text-xs text-muted-foreground">Flexible Payment Plans</p>
                 </div>
               </button>
-            </div>
-
-            {/* Contact Buttons */}
-            <div className="flex flex-wrap justify-center gap-3 mt-5">
-              <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
-                <Button size="default" className="gap-2 bg-green-600 hover:bg-green-700">
-                  <MessageCircle className="h-4 w-4" />
-                  WhatsApp: 0722 827 458
-                </Button>
-              </a>
-              <a href="tel:+254722827458">
-                <Button size="default" variant="outline" className="gap-2">
-                  <Phone className="h-4 w-4" />
-                  Call Now
-                </Button>
-              </a>
             </div>
           </div>
         </div>
