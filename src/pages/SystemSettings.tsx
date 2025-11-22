@@ -102,6 +102,17 @@ const SystemSettings = () => {
     allow_data_deletion: true,
   });
 
+  const [maintenanceMode, setMaintenanceMode] = useState({
+    is_active: false,
+    message: "We are currently undergoing scheduled maintenance. We'll be back soon!",
+    start_time: "",
+    end_time: "",
+    countdown_hours: 0,
+    countdown_days: 0,
+    countdown_weeks: 0,
+    auto_reactivate: false,
+  });
+
   useEffect(() => {
     fetchAllSettings();
   }, []);
@@ -119,6 +130,7 @@ const SystemSettings = () => {
         notificationRes,
         paymentRes,
         privacyRes,
+        maintenanceRes,
       ] = await Promise.all([
         supabaseClient.from("system_settings").select("*").single(),
         supabaseClient.from("auth_settings").select("*").single(),
@@ -129,6 +141,7 @@ const SystemSettings = () => {
         supabaseClient.from("notification_config").select("*").single(),
         supabaseClient.from("payment_config").select("*").single(),
         supabaseClient.from("privacy_settings").select("*").single(),
+        supabaseClient.from("system_maintenance").select("*").order("created_at", { ascending: false }).limit(1).single(),
       ]);
 
       if (systemRes.data) setSystemSettings(systemRes.data);
@@ -140,6 +153,7 @@ const SystemSettings = () => {
       if (notificationRes.data) setNotificationConfig(notificationRes.data);
       if (paymentRes.data) setPaymentConfig(paymentRes.data);
       if (privacyRes.data) setPrivacySettings(privacyRes.data);
+      if (maintenanceRes.data) setMaintenanceMode(maintenanceRes.data);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -192,9 +206,10 @@ const SystemSettings = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="general"><Settings className="h-4 w-4 mr-2" />General</TabsTrigger>
               <TabsTrigger value="authentication"><Lock className="h-4 w-4 mr-2" />Auth</TabsTrigger>
+              <TabsTrigger value="maintenance"><Settings className="h-4 w-4 mr-2" />Maintenance</TabsTrigger>
               <TabsTrigger value="security"><Shield className="h-4 w-4 mr-2" />Security</TabsTrigger>
               <TabsTrigger value="storage"><Database className="h-4 w-4 mr-2" />Storage</TabsTrigger>
               <TabsTrigger value="advanced"><Globe className="h-4 w-4 mr-2" />Advanced</TabsTrigger>
@@ -281,6 +296,123 @@ const SystemSettings = () => {
                   {saving ? "Saving..." : "Save General Settings"}
                 </Button>
               </div>
+            </TabsContent>
+
+            {/* Maintenance Mode */}
+            <TabsContent value="maintenance" className="space-y-6 pt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Maintenance Mode</CardTitle>
+                  <CardDescription>Put your system in maintenance mode to perform updates</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <Label className="text-lg font-semibold">Maintenance Mode</Label>
+                      <p className="text-sm text-muted-foreground">
+                        {maintenanceMode.is_active ? "System is currently in maintenance mode" : "System is active"}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={maintenanceMode.is_active}
+                      onCheckedChange={(checked) => setMaintenanceMode({ ...maintenanceMode, is_active: checked })}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="maintenance_message">Maintenance Message</Label>
+                    <Textarea
+                      id="maintenance_message"
+                      value={maintenanceMode.message}
+                      onChange={(e) => setMaintenanceMode({ ...maintenanceMode, message: e.target.value })}
+                      placeholder="Enter the message users will see during maintenance"
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="start_time">Start Time</Label>
+                      <Input
+                        id="start_time"
+                        type="datetime-local"
+                        value={maintenanceMode.start_time}
+                        onChange={(e) => setMaintenanceMode({ ...maintenanceMode, start_time: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="end_time">End Time</Label>
+                      <Input
+                        id="end_time"
+                        type="datetime-local"
+                        value={maintenanceMode.end_time}
+                        onChange={(e) => setMaintenanceMode({ ...maintenanceMode, end_time: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-base font-semibold mb-3 block">Countdown Settings</Label>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="countdown_weeks">Weeks</Label>
+                        <Input
+                          id="countdown_weeks"
+                          type="number"
+                          min="0"
+                          value={maintenanceMode.countdown_weeks}
+                          onChange={(e) => setMaintenanceMode({ ...maintenanceMode, countdown_weeks: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="countdown_days">Days</Label>
+                        <Input
+                          id="countdown_days"
+                          type="number"
+                          min="0"
+                          max="6"
+                          value={maintenanceMode.countdown_days}
+                          onChange={(e) => setMaintenanceMode({ ...maintenanceMode, countdown_days: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="countdown_hours">Hours</Label>
+                        <Input
+                          id="countdown_hours"
+                          type="number"
+                          min="0"
+                          max="23"
+                          value={maintenanceMode.countdown_hours}
+                          onChange={(e) => setMaintenanceMode({ ...maintenanceMode, countdown_hours: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <Label>Auto-reactivate System</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Automatically disable maintenance mode when end time is reached
+                      </p>
+                    </div>
+                    <Switch
+                      checked={maintenanceMode.auto_reactivate}
+                      onCheckedChange={(checked) => setMaintenanceMode({ ...maintenanceMode, auto_reactivate: checked })}
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleSaveSettings("system_maintenance", maintenanceMode)} disabled={saving}>
+                      <Save className="mr-2 h-4 w-4" />
+                      {saving ? "Saving..." : "Save Maintenance Settings"}
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate("/")}>
+                      Preview Maintenance Page
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Authentication Settings */}
