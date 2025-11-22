@@ -166,10 +166,10 @@ const Home = () => {
             </p>
             <div className="flex flex-wrap gap-4">
               <Button size="lg" className="text-lg" onClick={() => navigate("/catalogue")}>
-                🔍 Find Your Car
+                Find Your Car
               </Button>
               <Button size="lg" variant="outline" className="text-lg" onClick={() => navigate("/trade-in")}>
-                🧾 Trade In Your Car
+                 Trade In Your Car
               </Button>
             </div>
           </div>
@@ -181,7 +181,7 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="text-4xl font-bold">Find Your Dream Car</h2>
+              <h2 className="text-4xl font-bold">Find Your Dream Car Today!</h2>
               <p className="text-muted-foreground">
                 Try "Toyota Harrier Hybrid under 100k km" or use filters below
               </p>
@@ -357,7 +357,7 @@ const Home = () => {
           </div>
           <div className="text-center mt-10">
             <Button size="lg" onClick={() => navigate("/catalogue")}>
-              🚗 View All Available Cars <ArrowRight className="ml-2" />
+              View All Available Cars <ArrowRight className="ml-2" />
             </Button>
           </div>
         </div>
@@ -388,7 +388,7 @@ const Home = () => {
               <div key={car.id} className="flip-card h-80">
                 <div className="flip-card-inner">
                   <div className="flip-card-front bg-card border border-border rounded-xl overflow-hidden relative">
-                    <Badge className="absolute top-3 right-3 bg-accent z-10">COMING SOON 🚚</Badge>
+                    <Badge className="absolute top-3 right-3 bg-accent z-10">COMING SOON </Badge>
                     <div className="h-48">
                       {getImageUrl(car.images) ? (
                         <img
@@ -538,7 +538,7 @@ const Home = () => {
                   />
                   <h3 className="text-xl font-bold mb-2">Justice Vincent</h3>
                   <p className="text-sm text-primary font-semibold mb-2">Chief Executive Officer</p>
-                  <p className="text-xs text-muted-foreground">📍 Kenya / Global Operations</p>
+                  <p className="text-xs text-muted-foreground"> Kenya / Global Operations</p>
                   <div className="absolute bottom-4 text-xs text-muted-foreground">Click to flip</div>
                 </div>
                 
@@ -562,14 +562,14 @@ const Home = () => {
                       className="block w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg text-center transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      📞 WhatsApp: 0722 827 458
+                      WhatsApp: 0722 827 458
                     </a>
                     <a 
                       href="mailto:justicevincentt@gmail.com" 
                       className="block w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm py-2 px-4 rounded-lg text-center transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      📧 Email
+                      Email
                     </a>
                   </div>
                 </div>
@@ -623,7 +623,7 @@ const Home = () => {
                       className="block w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg text-center transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      📞 WhatsApp: 0701 460 110
+                      WhatsApp: 0701460110
                     </a>
                   </div>
                 </div>
@@ -670,12 +670,14 @@ const Home = () => {
                     </div>
                   </div>
                   <div>
-                    <button 
-                      className="block w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm py-2 px-4 rounded-lg text-center transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      📞 Contact Sales
-                    </button>
+                   <a href="mailto:sales@justiceultimateautomobiles.com?subject=Inquiry%20from%20Customer&body=Hello%20team%2C%0A%0AI%20would%20like%20to%20inquire%20about...">
+  <button 
+    className="block w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm py-2 px-4 rounded-lg text-center transition-colors"
+    onClick={(e) => e.stopPropagation()}
+  >
+    Contact Sales
+  </button>
+</a>
                   </div>
                 </div>
               </div>
@@ -773,7 +775,7 @@ const Home = () => {
                 rel="noopener noreferrer"
                 className="block w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-lg text-center transition-colors"
               >
-                📞 Support: 0722 827 458
+                📞 Support: 0722827458
               </a>
             </div>
 
@@ -812,7 +814,7 @@ const Home = () => {
                       className="w-full justify-start text-left"
                       onClick={() => window.open("tel:+254722827458")}
                     >
-                      +254 722 827 458
+                      +254722827458
                     </Button>
                   </div>
                 </div>
