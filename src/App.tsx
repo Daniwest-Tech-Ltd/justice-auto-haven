@@ -30,6 +30,9 @@ const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard"));
+const CustomerVehicles = lazy(() => import("./pages/CustomerVehicles"));
+const CustomerBookings = lazy(() => import("./pages/CustomerBookings"));
+const CustomerSettings = lazy(() => import("./pages/CustomerSettings"));
 const CarManagement = lazy(() => import("./pages/CarManagement"));
 const AddCar = lazy(() => import("./pages/AddCar"));
 const EditCar = lazy(() => import("./pages/EditCar"));
@@ -377,10 +380,26 @@ const AppContent = () => {
             } 
           />
           <Route 
-            path="/customer/profile" 
+            path="/customer/vehicles" 
             element={
               <ProtectedRoute requiredRole="customer">
-                <CustomerProfile />
+                <CustomerVehicles />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/customer/bookings" 
+            element={
+              <ProtectedRoute requiredRole="customer">
+                <CustomerBookings />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/customer/settings" 
+            element={
+              <ProtectedRoute requiredRole="customer">
+                <CustomerSettings />
               </ProtectedRoute>
             } 
           />
