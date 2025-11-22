@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Smartphone, Mail, Fingerprint } from "lucide-react";
+import { Smartphone, Mail, Fingerprint, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { startAuthentication } from '@simplewebauthn/browser';
@@ -35,20 +35,54 @@ export const TwoFactorDialog = ({
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState(preferredMethod);
+  const [otpSent, setOtpSent] = useState(false);
+  const [countdown, setCountdown] = useState(600); // 10 minutes in seconds
   const { toast } = useToast();
+
+  // Auto-send email OTP when dialog opens with email method
+  useEffect(() => {
+    if (open && selectedMethod === 'email_otp' && !otpSent) {
+      handleEmailOTP();
+    }
+  }, [open, selectedMethod]);
+
+  // Auto-send email OTP when switching to email tab
+  useEffect(() => {
+    if (selectedMethod === 'email_otp' && !otpSent) {
+      handleEmailOTP();
+    }
+  }, [selectedMethod]);
+
+  // Countdown timer
+  useEffect(() => {
+    if (otpSent && countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [otpSent, countdown]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleEmailOTP = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.functions.invoke('send-2fa-code', {
-        body: { email, userId }
+      const { error } = await supabase.functions.invoke('send-email-otp', {
+        body: { userId, purpose: 'login' }
       });
 
       if (error) throw error;
 
+      setOtpSent(true);
+      setCountdown(600); // Reset to 10 minutes
       toast({
         title: "Code Sent",
-        description: "Check your email for the verification code",
+        description: "Check your email for the verification code (valid for 10 minutes)",
       });
     } catch (error: any) {
       toast({
@@ -73,23 +107,13 @@ export const TwoFactorDialog = ({
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("two_factor_auth")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("code", code)
-        .gte("expires_at", new Date().toISOString())
-        .single();
+      const { data, error } = await supabase.functions.invoke('verify-email-otp', {
+        body: { userId, code, purpose: 'login' }
+      });
 
-      if (error || !data) {
-        throw new Error("Invalid or expired code");
+      if (error || !data?.success) {
+        throw new Error(data?.error || "Invalid or expired code");
       }
-
-      // Delete used code
-      await supabase
-        .from("two_factor_auth")
-        .delete()
-        .eq("id", data.id);
 
       onSuccess();
     } catch (error: any) {
@@ -220,13 +244,20 @@ export const TwoFactorDialog = ({
 
           {availableMethods.email && (
             <TabsContent value="email_otp" className="space-y-4">
-              <div className="text-center text-sm text-muted-foreground">
-                We'll send a verification code to {email}
+              <div className="text-center space-y-2">
+                <div className="text-sm text-muted-foreground">
+                  {otpSent ? `Code sent to ${email}` : `Sending code to ${email}...`}
+                </div>
+                {otpSent && countdown > 0 && (
+                  <div className="flex items-center justify-center gap-2 text-sm font-medium text-primary">
+                    <Clock className="h-4 w-4" />
+                    <span>Valid for: {formatTime(countdown)}</span>
+                  </div>
+                )}
+                {countdown === 0 && (
+                  <div className="text-sm text-destructive">Code expired</div>
+                )}
               </div>
-              
-              <Button onClick={handleEmailOTP} disabled={loading} className="w-full">
-                {loading ? "Sending..." : "Send Code"}
-              </Button>
 
               <div className="space-y-2">
                 <Label>Enter 6-digit code</Label>
@@ -237,16 +268,29 @@ export const TwoFactorDialog = ({
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                   placeholder="000000"
                   className="text-center text-2xl font-mono tracking-widest"
+                  disabled={countdown === 0}
                 />
               </div>
 
-              <Button 
-                onClick={verifyEmailOTP} 
-                disabled={loading || code.length !== 6}
-                className="w-full"
-              >
-                {loading ? "Verifying..." : "Verify"}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={verifyEmailOTP} 
+                  disabled={loading || code.length !== 6 || countdown === 0}
+                  className="flex-1"
+                >
+                  {loading ? "Verifying..." : "Verify"}
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setOtpSent(false);
+                    handleEmailOTP();
+                  }} 
+                  disabled={loading || countdown > 540}
+                  variant="outline"
+                >
+                  Resend
+                </Button>
+              </div>
             </TabsContent>
           )}
 
