@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Facebook, Instagram, Linkedin, ArrowLeft, Mail, Chrome } from "lucide-react";
+import { Facebook, Instagram, Linkedin, ArrowLeft, Mail, Chrome, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +26,7 @@ import authBg from "@/assets/auth-bg.jpg";
 import carLotOverlay from "@/assets/car-lot-overlay.jpg";
 import maintenanceGif from "@/assets/maintenance.gif";
 import kenyaLocations from "@/data/kenya-locations.json";
+import { Combobox } from "@/components/ui/combobox";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
 
@@ -54,6 +55,7 @@ const Auth = () => {
   // Login form
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
 
   // Registration form
   const [regFullName, setRegFullName] = useState("");
@@ -61,6 +63,8 @@ const Auth = () => {
   const [regPhone, setRegPhone] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
   const [gender, setGender] = useState<string[]>([]);
   const [countyCity, setCountyCity] = useState("");
   const [exactLocation, setExactLocation] = useState("");
@@ -779,14 +783,24 @@ const Auth = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <Input 
-                type="password" 
-                placeholder="Password" 
-                className="w-full auth-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative w-full">
+                <Input 
+                  type={showLoginPassword ? "text" : "password"} 
+                  placeholder="Password" 
+                  className="w-full auth-input pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                  aria-label={showLoginPassword ? "Hide password" : "Show password"}
+                >
+                  {showLoginPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
               
               {/* Cloudflare Turnstile CAPTCHA */}
               <div ref={loginTurnstile.containerRef} className="w-full flex justify-center" />
@@ -851,14 +865,24 @@ const Auth = () => {
               />
               
               <div className="w-full space-y-2">
-                <Input 
-                  type="password" 
-                  placeholder="Password" 
-                  className="w-full auth-input"
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Input 
+                    type={showRegPassword ? "text" : "password"} 
+                    placeholder="Password" 
+                    className="w-full auth-input pr-10"
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegPassword(!showRegPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={showRegPassword ? "Hide password" : "Show password"}
+                  >
+                    {showRegPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
                 {regPassword && (
                   <p className={`text-xs ${
                     passwordStrength === "strong" ? 'text-green-400' : 
@@ -870,14 +894,24 @@ const Auth = () => {
                 )}
               </div>
 
-              <Input 
-                type="password" 
-                placeholder="Confirm Password" 
-                className="w-full auth-input"
-                value={regConfirmPassword}
-                onChange={(e) => setRegConfirmPassword(e.target.value)}
-                required
-              />
+              <div className="relative w-full">
+                <Input 
+                  type={showRegConfirmPassword ? "text" : "password"} 
+                  placeholder="Confirm Password" 
+                  className="w-full auth-input pr-10"
+                  value={regConfirmPassword}
+                  onChange={(e) => setRegConfirmPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRegConfirmPassword(!showRegConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showRegConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showRegConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
 
               <div className="w-full text-left space-y-2">
                 <Label className="text-sm text-foreground font-medium">Gender (Optional)</Label>
@@ -903,41 +937,29 @@ const Auth = () => {
                 </div>
               </div>
 
-              <div className="w-full grid grid-cols-2 gap-3">
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="w-full">
-                  <Label className="text-sm mb-2 text-foreground font-medium">County</Label>
-                  <Select value={countyCity} onValueChange={setCountyCity}>
-                    <SelectTrigger className="w-full auth-select-trigger">
-                      <SelectValue placeholder="Select County" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {kenyaLocations.counties.map((county: any) => (
-                        <SelectItem key={county.name} value={county.name}>
-                          {county.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-sm mb-2 text-foreground font-medium block text-left">County</Label>
+                  <Combobox
+                    options={kenyaLocations.counties.map((county: any) => county.name)}
+                    value={countyCity}
+                    onValueChange={setCountyCity}
+                    placeholder="Search county..."
+                    searchPlaceholder="Search counties..."
+                    emptyMessage="No county found."
+                  />
                 </div>
                 
                 <div className="w-full">
-                  <Label className="text-sm mb-2 text-foreground font-medium">Town / Location</Label>
-                  <Select 
-                    value={exactLocation} 
+                  <Label className="text-sm mb-2 text-foreground font-medium block text-left">Town / Location</Label>
+                  <Combobox
+                    options={availableTowns}
+                    value={exactLocation}
                     onValueChange={setExactLocation}
-                    disabled={!countyCity}
-                  >
-                    <SelectTrigger className="w-full auth-select-trigger">
-                      <SelectValue placeholder={countyCity ? "Select Town" : "First select a county"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableTowns.map((town: string) => (
-                        <SelectItem key={town} value={town}>
-                          {town}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder={countyCity ? "Search town..." : "First select county"}
+                    searchPlaceholder="Search towns..."
+                    emptyMessage="No town found."
+                  />
                 </div>
               </div>
 
