@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingBag, MessageSquare } from "lucide-react";
+import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingBag, MessageSquare, Sun, Moon } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import SessionTimeoutModal from "@/components/SessionTimeoutModal";
@@ -28,6 +28,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { CustomerLoyaltyBadge } from "@/components/CustomerLoyaltyBadge";
 import { LiveChatWidget } from "@/components/LiveChatWidget";
 import logo from "@/assets/logo.png";
+import { setTheme, Theme } from "@/lib/theme";
 
 const CustomerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +47,10 @@ const CustomerDashboard = () => {
   const [filteredRentals, setFilteredRentals] = useState<any[]>([]);
   const [filteredPurchases, setFilteredPurchases] = useState<any[]>([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem("theme") as Theme;
+    return saved || "dark";
+  });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -199,6 +204,17 @@ const CustomerDashboard = () => {
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
                   <Home className="h-5 w-5" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={async () => {
+                    const newTheme: Theme = currentTheme === "dark" ? "light" : "dark";
+                    setCurrentTheme(newTheme);
+                    await setTheme(newTheme, user?.id);
+                  }}
+                >
+                  {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </Button>
                 <Button onClick={() => navigate("/catalogue")} size="sm">Browse Catalogue</Button>
               </div>
