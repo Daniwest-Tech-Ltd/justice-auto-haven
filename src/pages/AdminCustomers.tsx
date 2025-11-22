@@ -6,9 +6,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Ban, Trash2, Edit, CheckCircle, Copy, Shield } from "lucide-react";
+import { ArrowLeft, Ban, Trash2, Edit, CheckCircle, Copy, Shield, User } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { 
   AlertDialog, 
@@ -42,6 +43,7 @@ interface Customer {
   created_at: string;
   role: string;
   is_online: boolean;
+  avatar_url: string | null;
 }
 
 const AdminCustomers = () => {
@@ -73,7 +75,7 @@ const AdminCustomers = () => {
     try {
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select("user_id, full_name, email, phone, is_suspended, account_status, activation_code, created_at, is_online, suspended_at, suspended_reason, login_attempts")
+        .select("user_id, full_name, email, phone, is_suspended, account_status, activation_code, created_at, is_online, suspended_at, suspended_reason, login_attempts, avatar_url")
         .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -403,6 +405,7 @@ const AdminCustomers = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Status</TableHead>
+                  <TableHead>Avatar</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
@@ -431,6 +434,14 @@ const AdminCustomers = () => {
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                           </span>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={customer.avatar_url || undefined} alt={customer.full_name} />
+                          <AvatarFallback>
+                            <User className="h-5 w-5" />
+                          </AvatarFallback>
+                        </Avatar>
                       </TableCell>
                       <TableCell className="font-medium">{customer.full_name}</TableCell>
                       <TableCell>{customer.email}</TableCell>
