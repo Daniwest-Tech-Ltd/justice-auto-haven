@@ -29,12 +29,34 @@ export const FingerprintSetup = ({ devices = [], onUpdate }: FingerprintSetupPro
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  const getDeviceInfo = () => {
+    const ua = navigator.userAgent;
+    let deviceType = "Unknown Device";
+    
+    if (/iPhone/.test(ua)) deviceType = "iPhone";
+    else if (/iPad/.test(ua)) deviceType = "iPad";
+    else if (/Android/.test(ua)) deviceType = "Android Device";
+    else if (/Mac/.test(ua)) deviceType = "Mac";
+    else if (/Windows/.test(ua)) deviceType = "Windows PC";
+    else if (/Linux/.test(ua)) deviceType = "Linux PC";
+    
+    let browser = "Browser";
+    if (/Chrome/.test(ua) && !/Edge/.test(ua)) browser = "Chrome";
+    else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = "Safari";
+    else if (/Firefox/.test(ua)) browser = "Firefox";
+    else if (/Edge/.test(ua)) browser = "Edge";
+    
+    return `${deviceType} - ${browser}`;
+  };
+
   const registerFingerprint = async () => {
+    // Auto-populate device name if empty
     if (!deviceName.trim()) {
+      const autoName = getDeviceInfo();
+      setDeviceName(autoName);
       toast({
-        title: "Device Name Required",
-        description: "Please enter a name for this device",
-        variant: "destructive",
+        title: "Device Name Auto-Detected",
+        description: `Set to: ${autoName}. You can change it if needed.`,
       });
       return;
     }
@@ -56,32 +78,39 @@ export const FingerprintSetup = ({ devices = [], onUpdate }: FingerprintSetupPro
         .eq("user_id", session.user.id)
         .single();
 
-      // Generate registration options
+      // Convert challenge to base64url string
+      const challengeBytes = crypto.getRandomValues(new Uint8Array(32));
+      const challenge = btoa(String.fromCharCode(...challengeBytes))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+
+      // Generate registration options in correct format for simplewebauthn
       const registrationOptions = {
-        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        challenge,
         rp: {
           name: "Justice Ultimate Automobiles",
           id: window.location.hostname,
         },
         user: {
-          id: new TextEncoder().encode(session.user.id),
-          name: profile?.email || session.user.email,
+          id: btoa(session.user.id).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+          name: profile?.email || session.user.email || '',
           displayName: profile?.full_name || "User",
         },
         pubKeyCredParams: [
-          { type: "public-key", alg: -7 },  // ES256
-          { type: "public-key", alg: -257 }, // RS256
+          { type: "public-key" as const, alg: -7 },  // ES256
+          { type: "public-key" as const, alg: -257 }, // RS256
         ],
         authenticatorSelection: {
-          authenticatorAttachment: "platform",
-          userVerification: "required",
+          authenticatorAttachment: "platform" as const,
+          userVerification: "required" as const,
         },
         timeout: 60000,
-        attestation: "none",
+        attestation: "none" as const,
       };
 
       // Start WebAuthn registration
-      const credential = await startRegistration(registrationOptions as any);
+      const credential = await startRegistration({ optionsJSON: registrationOptions });
 
       // Store credential in database
       const { error: insertError } = await supabase
@@ -259,17 +288,20 @@ export const FingerprintSetup = ({ devices = [], onUpdate }: FingerprintSetupPro
               id="device-name"
               value={deviceName}
               onChange={(e) => setDeviceName(e.target.value)}
-              placeholder="e.g., My iPhone, My Laptop"
+              placeholder="Click 'Auto-Detect' or enter manually"
             />
+            <p className="text-xs text-muted-foreground">
+              Click the button below once to auto-detect your device
+            </p>
           </div>
 
           <Button 
             onClick={registerFingerprint} 
-            disabled={loading || !deviceName.trim()}
+            disabled={loading}
             className="w-full"
           >
             <Fingerprint className="mr-2 h-4 w-4" />
-            {loading ? "Registering..." : "Register Fingerprint"}
+            {loading ? "Registering..." : deviceName.trim() ? "Register Fingerprint" : "Auto-Detect Device"}
           </Button>
         </CardContent>
       </Card>
