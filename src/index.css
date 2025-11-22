@@ -224,6 +224,39 @@ All colors MUST be HSL.
   .sign-up-container .auth-select-trigger:hover {
     background: rgba(255, 255, 255, 1) !important;
   }
+
+  /* Mobile Responsiveness for Auth */
+  @media (max-width: 768px) {
+    .auth-panel-container {
+      grid-template-columns: 1fr !important;
+    }
+
+    .auth-form-container {
+      width: 100% !important;
+      position: relative !important;
+    }
+
+    .sign-in-container,
+    .sign-up-container {
+      width: 100% !important;
+      opacity: 1 !important;
+      z-index: 10 !important;
+    }
+
+    .overlay-container {
+      display: none !important;
+    }
+
+    .auth-form-glass {
+      padding: 1.5rem !important;
+      max-width: 100% !important;
+    }
+
+    /* Ensure password eye icons are accessible on mobile */
+    .auth-input {
+      font-size: 16px !important; /* Prevent zoom on iOS */
+    }
+  }
 }
 
 @keyframes marquee {
