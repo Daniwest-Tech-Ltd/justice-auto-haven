@@ -20,7 +20,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server } from "lucide-react";
+import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +30,7 @@ import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";
+import { setTheme, Theme } from "@/lib/theme";
 
 const AdminDashboard = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -37,6 +38,10 @@ const AdminDashboard = () => {
   const [filteredCustomers, setFilteredCustomers] = useState<any[]>([]);
   const [openGroups, setOpenGroups] = useState<string[]>(["dashboard"]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem("theme") as Theme;
+    return saved || "dark";
+  });
   const { user, profile, role, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -300,6 +305,17 @@ const AdminDashboard = () => {
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
                   <Home className="h-5 w-5" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={async () => {
+                    const newTheme: Theme = currentTheme === "dark" ? "light" : "dark";
+                    setCurrentTheme(newTheme);
+                    await setTheme(newTheme, user?.id);
+                  }}
+                >
+                  {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </Button>
                 <NotificationsPanel />
                 <Button variant="ghost" size="icon" onClick={() => navigate("/admin/messages")}>
