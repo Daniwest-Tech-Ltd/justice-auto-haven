@@ -172,19 +172,27 @@ export const TwoFactorDialog = ({
         throw new Error("No fingerprint registered");
       }
 
-      // Create authentication options
+      // Convert challenge to base64url string
+      const challengeBytes = crypto.getRandomValues(new Uint8Array(32));
+      const challenge = btoa(String.fromCharCode(...challengeBytes))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+
+      // Create authentication options in correct format
       const authOptions = {
-        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        challenge,
         allowCredentials: credentials.map(cred => ({
           id: cred.credential_id,
           type: "public-key" as const,
         })),
         userVerification: "required" as const,
         timeout: 60000,
+        rpId: window.location.hostname,
       };
 
       // Start authentication
-      const authResult = await startAuthentication(authOptions as any);
+      const authResult = await startAuthentication({ optionsJSON: authOptions });
 
       // Verify with backend (in production, you'd verify the signature)
       // For now, we'll just check if credential exists
@@ -215,11 +223,11 @@ export const TwoFactorDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md glass-strong">
+      <DialogContent className="sm:max-w-md glass-strong" aria-describedby="2fa-description">
         <DialogHeader>
           <DialogTitle>Two-Factor Authentication</DialogTitle>
-          <DialogDescription>
-            Choose your preferred verification method
+          <DialogDescription id="2fa-description">
+            Choose your preferred verification method to complete login
           </DialogDescription>
         </DialogHeader>
 
