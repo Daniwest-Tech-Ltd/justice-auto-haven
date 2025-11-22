@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingBag, MessageSquare, Sun, Moon } from "lucide-react";
+import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingCart, MessageSquare, Sun, Moon } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import SessionTimeoutModal from "@/components/SessionTimeoutModal";
@@ -146,15 +146,14 @@ const CustomerDashboard = () => {
   if (!user || !profile) return null;
 
   const menuItems = [
-    { title: "My Dashboard", icon: Home, onClick: () => {} },
-    { title: "Profile", icon: User, onClick: () => navigate("/customer/profile") },
-    { title: "Whitelist", icon: Heart, onClick: () => {} },
-    { title: "My Vehicles", icon: Car, onClick: () => {} },
-    { title: "Bookings", icon: Calendar, onClick: () => {} },
-    { title: "Orders", icon: ShoppingBag, onClick: () => navigate("/customer/orders") },
-    { title: "Messages", icon: MessageSquare, onClick: () => navigate("/customer/messages") },
-    { title: "My Badge", icon: Award, onClick: () => navigate("/customer/badge") },
-    { title: "Settings", icon: Settings, onClick: () => navigate("/customer/profile") },
+    { title: "My Dashboard", icon: Home, path: "/customer-dashboard" },
+    { title: "Whitelist", icon: Heart, path: "/wishlist" },
+    { title: "My Vehicles", icon: Car, path: "/customer/vehicles" },
+    { title: "Bookings", icon: Calendar, path: "/customer/bookings" },
+    { title: "Orders", icon: ShoppingCart, path: "/order-status" },
+    { title: "Messages", icon: MessageSquare, path: "/customer/messages" },
+    { title: "My Badge", icon: Award, path: "/customer/badge" },
+    { title: "Settings", icon: Settings, path: "/customer/settings" },
   ];
 
   return (
@@ -175,9 +174,11 @@ const CustomerDashboard = () => {
                 <SidebarMenu>
                   {menuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton onClick={item.onClick}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                      <SidebarMenuButton asChild>
+                        <Link to={item.path}>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
@@ -290,7 +291,7 @@ const CustomerDashboard = () => {
                       <p className="text-xs text-green-600 dark:text-green-400 mt-1">Vehicles owned</p>
                     </div>
                     <div className="h-16 w-16 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
-                      <ShoppingBag className="h-8 w-8 text-green-600 dark:text-green-300" />
+                      <ShoppingCart className="h-8 w-8 text-green-600 dark:text-green-300" />
                     </div>
                   </div>
                 </CardContent>
