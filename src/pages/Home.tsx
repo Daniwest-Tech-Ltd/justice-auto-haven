@@ -168,7 +168,7 @@ const Home = () => {
               <Button size="lg" className="text-lg" onClick={() => navigate("/catalogue")}>
                 Find Your Car
               </Button>
-              <Button size="lg" variant="outline" className="text-lg" onClick={() => navigate("/trade-in")}>
+              <Button size="lg" variant="outline" className="text-lg" onClick={() => navigate("/trade-in-submission")}>
                  Trade In Your Car
               </Button>
             </div>
@@ -372,7 +372,7 @@ const Home = () => {
               Trade in your current car for a newer model with ease. We evaluate fairly 
               and offer same-day exchange options.
             </p>
-            <Button size="lg" onClick={() => navigate("/trade-in")} className="text-lg">
+            <Button size="lg" onClick={() => navigate("/trade-in-submission")} className="text-lg">
               Trade In Now <ArrowRight className="ml-2" />
             </Button>
           </div>

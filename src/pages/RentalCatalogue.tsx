@@ -53,9 +53,19 @@ const RentalCatalogue = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Car Rentals</h1>
-        <p className="text-muted-foreground">Choose from our premium fleet</p>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-4xl font-bold mb-2">Car Rentals</h1>
+          <p className="text-muted-foreground">Choose from our premium fleet</p>
+        </div>
+        
+        <Button
+          variant="outline"
+          onClick={() => navigate("/trade-in-submission")}
+          className="font-semibold"
+        >
+          TRADE IN
+        </Button>
       </div>
 
       {rentalCars.length === 0 ? (
