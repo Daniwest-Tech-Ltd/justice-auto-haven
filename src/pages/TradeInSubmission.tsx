@@ -8,11 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const TradeInSubmission = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
     car_make: "",
     car_model: "",
     car_year: "",
@@ -44,6 +47,9 @@ const TradeInSubmission = () => {
         .from("trade_ins")
         .insert([{
           user_id: session.user.id,
+          customer_name: formData.name,
+          customer_email: formData.email,
+          customer_phone: formData.phone,
           car_make: formData.car_make,
           car_model: formData.car_model,
           car_year: parseInt(formData.car_year),
@@ -54,6 +60,22 @@ const TradeInSubmission = () => {
         }]);
 
       if (error) throw error;
+
+      // Send email notification
+      await supabase.functions.invoke("send-notifications", {
+        body: {
+          type: "trade_in",
+          to: formData.email,
+          data: {
+            customerName: formData.name,
+            carMake: formData.car_make,
+            carModel: formData.car_model,
+            carYear: formData.car_year,
+            carMileage: formData.car_mileage,
+            carCondition: formData.car_condition,
+          },
+        },
+      });
 
       toast({
         title: "Success",
@@ -98,7 +120,41 @@ const TradeInSubmission = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="car_make">Make</Label>
+                <Label htmlFor="name">Full Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="phone">Phone Number *</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="car_make">Make *</Label>
                 <Input
                   id="car_make"
                   value={formData.car_make}
@@ -109,7 +165,7 @@ const TradeInSubmission = () => {
               </div>
 
               <div>
-                <Label htmlFor="car_model">Model</Label>
+                <Label htmlFor="car_model">Model *</Label>
                 <Input
                   id="car_model"
                   value={formData.car_model}
@@ -122,7 +178,7 @@ const TradeInSubmission = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="car_year">Year</Label>
+                <Label htmlFor="car_year">Year *</Label>
                 <Input
                   id="car_year"
                   type="number"
@@ -134,7 +190,7 @@ const TradeInSubmission = () => {
               </div>
 
               <div>
-                <Label htmlFor="car_mileage">Mileage (km)</Label>
+                <Label htmlFor="car_mileage">Mileage (km) *</Label>
                 <Input
                   id="car_mileage"
                   value={formData.car_mileage}
@@ -146,7 +202,7 @@ const TradeInSubmission = () => {
             </div>
 
             <div>
-              <Label htmlFor="car_condition">Condition</Label>
+              <Label htmlFor="car_condition">Condition *</Label>
               <Select
                 value={formData.car_condition}
                 onValueChange={(value) => setFormData({ ...formData, car_condition: value })}

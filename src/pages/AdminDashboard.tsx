@@ -177,7 +177,8 @@ const AdminDashboard = () => {
         { title: "Vehicle Analytics", icon: TrendingUp, path: "/admin/vehicle-analytics" },
         { title: "Brands", icon: Grid3x3, path: "/admin/brands" },
         { title: "Trade-Ins", icon: Package, path: "/admin/trade-ins" },
-        { title: "Rentals", icon: Clock, path: "/admin/rentals" },
+        { title: "Rental Bookings", icon: Clock, path: "/admin/rental-management" },
+        { title: "Rentals (Legacy)", icon: Clock, path: "/admin/rentals" },
       ]
     },
     {

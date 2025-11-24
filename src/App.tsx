@@ -26,7 +26,13 @@ const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const RentalBooking = lazy(() => import("./pages/RentalBooking"));
+const RentalsManagement = lazy(() => import("./pages/RentalsManagement"));
 const TradeInSubmission = lazy(() => import("./pages/TradeInSubmission"));
+const TradeInsManagement = lazy(() => import("./pages/TradeInsManagement"));
+const RentalCatalogue = lazy(() => import("./pages/RentalCatalogue"));
+const RentalCarDetails = lazy(() => import("./pages/RentalCarDetails"));
+const AddRentalCar = lazy(() => import("./pages/AddRentalCar"));
+const RentalManagement = lazy(() => import("./pages/RentalManagement"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -45,8 +51,6 @@ const BrandManagement = lazy(() => import("./pages/BrandManagement"));
 const VideoManagement = lazy(() => import("./pages/VideoManagement"));
 const BlogManagement = lazy(() => import("./pages/BlogManagement"));
 const SalesAnalytics = lazy(() => import("./pages/SalesAnalytics"));
-const RentalsManagement = lazy(() => import("./pages/RentalsManagement"));
-const TradeInsManagement = lazy(() => import("./pages/TradeInsManagement"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const CarDetails = lazy(() => import("./pages/CarDetails"));
 const Unauthorized = lazy(() => import("./pages/Unauthorized"));
@@ -160,6 +164,8 @@ const AppContent = () => {
           <Route path="/faqs" element={<Layout><FAQs /></Layout>} />
           <Route path="/help-support" element={<Layout><HelpSupport /></Layout>} />
           <Route path="/rental-booking" element={<Layout><RentalBooking /></Layout>} />
+          <Route path="/rentals" element={<Layout><RentalCatalogue /></Layout>} />
+          <Route path="/rental/:id" element={<Layout><RentalCarDetails /></Layout>} />
           <Route path="/trade-in" element={<Layout><TradeInSubmission /></Layout>} />
           <Route path="/track-order" element={<Layout><TrackOrder /></Layout>} />
           
@@ -345,6 +351,22 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <RentalsManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/rental-management"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <RentalManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/add-rental-car"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AddRentalCar />
               </ProtectedRoute>
             } 
           />

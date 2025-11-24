@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 interface NotificationRequest {
-  type: "rental" | "trade_in" | "crm_lead" | "payroll";
+  type: "rental" | "trade_in" | "trade_in_approved" | "trade_in_rejected" | "crm_lead" | "payroll";
   to: string;
   data: any;
 }
@@ -27,27 +27,94 @@ const handler = async (req: Request): Promise<Response> => {
 
     switch (type) {
       case "rental":
-        subject = "New Car Rental Booking Received";
+        subject = "Rental Booking Confirmation - Justice Ultimate Automobiles";
         html = `
-          <h1>New Rental Booking</h1>
-          <p><strong>Customer:</strong> ${data.customerName}</p>
-          <p><strong>Car:</strong> ${data.carMake} ${data.carModel}</p>
-          <p><strong>Start Date:</strong> ${new Date(data.startDate).toLocaleDateString()}</p>
-          <p><strong>End Date:</strong> ${new Date(data.endDate).toLocaleDateString()}</p>
-          <p><strong>Total Price:</strong> KES ${parseFloat(data.totalPrice).toLocaleString()}</p>
-          <p>Please review this booking in the admin dashboard.</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #1e40af;">Rental Booking Received</h1>
+            <p>Dear ${data.customerName},</p>
+            <p>Thank you for your rental booking request. We have received your request and will confirm it shortly.</p>
+            
+            <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h2 style="margin-top: 0;">Booking Details</h2>
+              <p><strong>Vehicle:</strong> ${data.carName || `${data.carMake} ${data.carModel}`}</p>
+              <p><strong>Start Date:</strong> ${new Date(data.startDate).toLocaleString()}</p>
+              <p><strong>End Date:</strong> ${new Date(data.endDate).toLocaleString()}</p>
+              <p><strong>Estimated Total:</strong> KES ${parseFloat(data.totalPrice).toLocaleString()}</p>
+            </div>
+            
+            <p>Our team will review your request and contact you within 24 hours to confirm availability and finalize details.</p>
+            <p>If you have any questions, please don't hesitate to contact us.</p>
+            
+            <p>Best regards,<br>Justice Ultimate Automobiles Team</p>
+          </div>
         `;
         break;
 
       case "trade_in":
-        subject = "New Trade-In Submission";
+        subject = "Trade-In Request Confirmation - Justice Ultimate Automobiles";
         html = `
-          <h1>New Trade-In Request</h1>
-          <p><strong>Customer:</strong> ${data.customerName}</p>
-          <p><strong>Vehicle:</strong> ${data.carMake} ${data.carModel} (${data.carYear})</p>
-          <p><strong>Mileage:</strong> ${data.carMileage}</p>
-          <p><strong>Condition:</strong> ${data.carCondition}</p>
-          <p>Please review this trade-in request in the admin dashboard.</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #1e40af;">Trade-In Request Received</h1>
+            <p>Dear ${data.customerName},</p>
+            <p>Thank you for submitting your trade-in request. We have received your information and will evaluate it shortly.</p>
+            
+            <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h2 style="margin-top: 0;">Your Vehicle Details</h2>
+              <p><strong>Vehicle:</strong> ${data.carMake} ${data.carModel} (${data.carYear})</p>
+              <p><strong>Mileage:</strong> ${data.carMileage || 'Not specified'}</p>
+              <p><strong>Condition:</strong> ${data.carCondition || 'Not specified'}</p>
+            </div>
+            
+            <p>Our team will review your vehicle information and photos, and contact you within 48 hours with an evaluation.</p>
+            <p>If you have any questions, please don't hesitate to contact us.</p>
+            
+            <p>Best regards,<br>Justice Ultimate Automobiles Team</p>
+          </div>
+        `;
+        break;
+      
+      case "trade_in_approved":
+        subject = "Trade-In Request Approved - Justice Ultimate Automobiles";
+        html = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #16a34a;">Trade-In Request Approved!</h1>
+            <p>Dear ${data.customerName},</p>
+            <p>Great news! Your trade-in request has been approved.</p>
+            
+            <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #16a34a;">
+              <h2 style="margin-top: 0;">Vehicle Details</h2>
+              <p><strong>Vehicle:</strong> ${data.carMake} ${data.carModel} (${data.carYear})</p>
+              ${data.estimatedValue ? `<p><strong>Estimated Value:</strong> KES ${parseFloat(data.estimatedValue).toLocaleString()}</p>` : ''}
+              ${data.adminNotes ? `<p><strong>Notes:</strong> ${data.adminNotes}</p>` : ''}
+            </div>
+            
+            <p>Please contact us to schedule an inspection and finalize the trade-in process.</p>
+            <p><strong>Contact:</strong> +254 722 827 458</p>
+            
+            <p>Best regards,<br>Justice Ultimate Automobiles Team</p>
+          </div>
+        `;
+        break;
+      
+      case "trade_in_rejected":
+        subject = "Trade-In Request Update - Justice Ultimate Automobiles";
+        html = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #dc2626;">Trade-In Request Update</h1>
+            <p>Dear ${data.customerName},</p>
+            <p>Thank you for your interest in trading in your vehicle with us.</p>
+            
+            <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+              <h2 style="margin-top: 0;">Vehicle Details</h2>
+              <p><strong>Vehicle:</strong> ${data.carMake} ${data.carModel} (${data.carYear})</p>
+              ${data.adminNotes ? `<p><strong>Notes:</strong> ${data.adminNotes}</p>` : ''}
+            </div>
+            
+            <p>Unfortunately, we are unable to proceed with your trade-in request at this time. However, we appreciate your interest and encourage you to explore other options with us.</p>
+            <p>If you have any questions, please don't hesitate to contact us at +254 722 827 458.</p>
+            
+            <p>Best regards,<br>Justice Ultimate Automobiles Team</p>
+          </div>
         `;
         break;
 
