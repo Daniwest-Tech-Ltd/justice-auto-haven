@@ -91,7 +91,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Car By Location */}
+          {/* Car By Location - County SEO */}
           <div>
             <h4 className="text-lg font-bold mb-4 text-foreground">Car By Location</h4>
             <ul className="space-y-2">
@@ -100,7 +100,7 @@ const Footer = () => {
                   to="/catalogue" 
                   className="text-muted-foreground hover:text-accent transition-colors"
                 >
-                  Nairobi
+                  Nairobi Cars
                 </Link>
               </li>
               <li>
@@ -108,7 +108,7 @@ const Footer = () => {
                   to="/catalogue" 
                   className="text-muted-foreground hover:text-accent transition-colors"
                 >
-                  Mombasa
+                  Nyeri Cars
                 </Link>
               </li>
               <li>
@@ -116,7 +116,7 @@ const Footer = () => {
                   to="/catalogue" 
                   className="text-muted-foreground hover:text-accent transition-colors"
                 >
-                  Japan Imports
+                  Kisii Cars
                 </Link>
               </li>
               <li>
@@ -124,7 +124,23 @@ const Footer = () => {
                   to="/catalogue" 
                   className="text-muted-foreground hover:text-accent transition-colors"
                 >
-                  UK Imports
+                  Kiambu Cars
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/catalogue" 
+                  className="text-muted-foreground hover:text-accent transition-colors"
+                >
+                  Mombasa Cars
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/catalogue" 
+                  className="text-muted-foreground hover:text-accent transition-colors"
+                >
+                  Eldoret Cars
                 </Link>
               </li>
             </ul>
@@ -259,15 +275,49 @@ const Footer = () => {
                   <div>Nairobi, Kenya</div>
                 </div>
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start"
-                onClick={() => window.open("tel:+254722827458")}
-              >
-                <Phone className="h-4 w-4 mr-2" />
-                +254 722 827 458
-              </Button>
+              
+              {/* Personal Brand SEO - Justice Vincent */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => window.open("tel:+254722827458")}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    <div className="text-left text-xs">
+                      <div className="font-semibold">Justice Vincent - GM</div>
+                      <div>0722 827 458</div>
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>General Manager - Car Sales Kenya</p>
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Personal Brand SEO - Daniel Maina */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => window.open("tel:+254701460110")}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    <div className="text-left text-xs">
+                      <div className="font-semibold">Daniel Maina - Sales</div>
+                      <div>0701 460 110</div>
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Sales Manager - Trusted Car Expert Kenya</p>
+                </TooltipContent>
+              </Tooltip>
+              
               <p className="text-xs italic mt-3 opacity-70">Powered By Daniwest Tech Sol</p>
             </div>
           </div>

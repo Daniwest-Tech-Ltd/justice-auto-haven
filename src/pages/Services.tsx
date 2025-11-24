@@ -77,7 +77,7 @@ const Services = () => {
       {/* Hero */}
       <section className="text-center glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
         <h1 className="text-5xl font-bold mb-4">
-          <span className="bg-gradient-accent bg-clip-text text-transparent">Global Automotive Excellence</span>
+          <span className="bg-gradient-accent bg-clip-text text-transparent">Car Services Kenya | Justice Ultimate Automobiles</span>
         </h1>
         <p className="text-xl text-muted-foreground mb-8">
           🚘 From Nairobi to Japan — Justice Ultimate Automobiles delivers world-class car services, international sourcing, export, import, and global logistics.
