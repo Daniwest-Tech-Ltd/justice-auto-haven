@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,10 @@ export const TOTPSetup = ({ onComplete }: TOTPSetupProps) => {
   const { toast } = useToast();
 
   // Check if TOTP is already enabled
+  useEffect(() => {
+    checkTOTPStatus();
+  }, []);
+
   const checkTOTPStatus = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -33,7 +37,7 @@ export const TOTPSetup = ({ onComplete }: TOTPSetupProps) => {
         .from("user_totp")
         .select("enabled")
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
       setIsEnabled(data?.enabled || false);
     } catch (error) {

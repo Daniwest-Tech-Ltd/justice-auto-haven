@@ -179,13 +179,22 @@ const RentalCarDetails = () => {
           <ArrowLeft className="mr-2" /> Back to Rentals
         </Button>
         
-        <Button
-          variant="outline"
-          onClick={() => navigate("/trade-in-submission")}
-          className="font-semibold"
-        >
-          TRADE IN
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/catalogue")}
+            className="font-semibold"
+          >
+            CATALOGUE
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/trade-in-submission")}
+            className="font-semibold"
+          >
+            TRADE IN
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
