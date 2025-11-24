@@ -128,6 +128,7 @@ serve(async (req) => {
           .from("profiles")
           .update({ 
             two_fa_enabled: true,
+            totp_enabled: true,
             preferred_2fa: 'totp'
           })
           .eq("user_id", user.id);
@@ -161,6 +162,7 @@ serve(async (req) => {
           .from("profiles")
           .update({ 
             two_fa_enabled: false,
+            totp_enabled: false,
             preferred_2fa: 'email_otp'
           })
           .eq("user_id", user.id);
@@ -169,6 +171,7 @@ serve(async (req) => {
         await supabase
           .from("profiles")
           .update({ 
+            totp_enabled: false,
             preferred_2fa: 'fingerprint'
           })
           .eq("user_id", user.id);
