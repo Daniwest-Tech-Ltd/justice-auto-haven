@@ -1,6 +1,43 @@
+# Justice Ultimate Automobiles - Robots.txt
+# Best Car Dealer in Kenya - Car Sales, Rentals & Trade-Ins
+
 User-agent: *
 Allow: /
+Allow: /catalogue
+Allow: /rental-catalogue
+Allow: /trade-in-submission
+Allow: /car/*
+Allow: /rental/*
+Allow: /about
+Allow: /contact
+Allow: /services
+Allow: /blogs
+Allow: /videos
+
+Disallow: /admin*
+Disallow: /customer-dashboard*
+Disallow: /auth
+Disallow: /system-*
+Disallow: /api/
+
+# Special Crawlers
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Googlebot-Image
+Allow: /
+Allow: /assets/
+Allow: /images/
+
+User-agent: bingbot
+Allow: /
+Crawl-delay: 1
+
+# Sitemap
 Sitemap: https://www.justiceultimateautomobiles.com/sitemap.xml
 
-# Crawl delay for well-behaved bots
-Crawl-delay: 1
+# Important Keywords for Crawlers
+# Car dealer Kenya, Car sales Nairobi, Used cars Kenya, Car rentals Kenya
+# Trade-in cars Kenya, Best car dealership Nairobi, Affordable cars Kenya
+# Toyota Kenya, Mazda Kenya, Nissan Kenya, Subaru Kenya, Honda Kenya

@@ -17,7 +17,7 @@ const About = () => {
       <section className="text-center space-y-6">
         <div className="glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Driving Excellence <span className="bg-gradient-accent bg-clip-text text-transparent">Beyond Borders</span>
+            About Justice Ultimate Automobiles | <span className="bg-gradient-accent bg-clip-text text-transparent">Trusted Car Dealers in Kenya</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
             At Justice Ultimate Automobiles, we connect Kenya to the world—one vehicle at a time. 

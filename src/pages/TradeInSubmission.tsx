@@ -127,11 +127,11 @@ const TradeInSubmission = () => {
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-center">
             <span className="bg-gradient-accent bg-clip-text text-transparent">
-              Trade-In Your Car
+              Car Trade-In Kenya | Swap Your Car Easily
             </span>
           </CardTitle>
           <p className="text-center text-muted-foreground">
-            Get a free valuation for your vehicle
+            Get free car valuation in Nairobi - Best trade-in deals in Kenya
           </p>
         </CardHeader>
         <CardContent>

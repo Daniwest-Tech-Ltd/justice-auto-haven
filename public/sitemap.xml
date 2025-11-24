@@ -1,57 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-   <url>
-      <loc>https://www.justiceultimateautomobiles.com/</loc>
-      <lastmod>2025-01-12</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>1.00</priority>
-   </url>
-   <url>
-      <loc>https://www.justiceultimateautomobiles.com/catalogue</loc>
-      <lastmod>2025-01-12</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.90</priority>
-   </url>
-   <url>
-      <loc>https://www.justiceultimateautomobiles.com/about</loc>
-      <lastmod>2025-01-12</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.80</priority>
-   </url>
-   <url>
-      <loc>https://www.justiceultimateautomobiles.com/services</loc>
-      <lastmod>2025-01-12</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.80</priority>
-   </url>
-   <url>
-      <loc>https://www.justiceultimateautomobiles.com/contact</loc>
-      <lastmod>2025-01-12</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.70</priority>
-   </url>
-   <url>
-      <loc>https://www.justiceultimateautomobiles.com/blogs</loc>
-      <lastmod>2025-01-12</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.75</priority>
-   </url>
-   <url>
-      <loc>https://www.justiceultimateautomobiles.com/videos</loc>
-      <lastmod>2025-01-12</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.75</priority>
-   </url>
-   <url>
-      <loc>https://www.justiceultimateautomobiles.com/trade-in</loc>
-      <lastmod>2025-01-12</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.70</priority>
-   </url>
-   <url>
-      <loc>https://www.justiceultimateautomobiles.com/rental</loc>
-      <lastmod>2025-01-12</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.70</priority>
-   </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- Homepage - Car Dealer Kenya -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Cars for Sale Kenya -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/catalogue</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Car Rentals Kenya -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/rental-catalogue</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Trade-In Cars Kenya -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/trade-in-submission</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- About Justice Ultimate Automobiles -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/about</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Contact Car Dealer Nairobi -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/contact</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Car Services Kenya -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/services</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Car Blog Kenya -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/blogs</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- Car Videos Kenya -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/videos</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- Compare Cars Kenya -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/compare</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- FAQs -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/faqs</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Legal Pages -->
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/privacy-policy</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/terms-of-use</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://www.justiceultimateautomobiles.com/cookie-policy</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
 </urlset>

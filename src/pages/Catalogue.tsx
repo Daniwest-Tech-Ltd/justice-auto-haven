@@ -313,10 +313,10 @@ const Catalogue = () => {
           </div>
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-3xl md:text-5xl font-bold mb-3 bg-gradient-accent bg-clip-text text-transparent">
-              Find Your Perfect Car Today
+              Cars for Sale in Kenya | Affordable & Verified Vehicles
             </h1>
             <p className="text-base md:text-lg text-muted-foreground mb-3">
-              Trusted Automotive Dealer – Nairobi, Kenya
+              Best Car Dealership in Nairobi, Kenya - Toyota, Mazda, Nissan, Subaru & More
             </p>
             <p className="text-sm text-muted-foreground mb-5">
               Quality, Verified, and Ready for Delivery • Lipa Mdogo Mdogo Available
