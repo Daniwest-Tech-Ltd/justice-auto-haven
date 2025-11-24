@@ -151,7 +151,7 @@ const Home = () => {
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-center">
           <div className="max-w-2xl space-y-6">
-            <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+            <h1 className="text-3xl md:text-5xl font-bold leading-tight">
               Buy, Rent, or Trade-In Cars in Kenya – <span className="text-transparent bg-clip-text bg-gradient-gold">Justice Ultimate Automobiles</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground">
