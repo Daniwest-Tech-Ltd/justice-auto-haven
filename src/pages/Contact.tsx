@@ -78,10 +78,20 @@ const Contact = () => {
     <div className="container mx-auto px-4 py-12 space-y-12">
       {/* Header */}
       <div className="text-center glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
-        <h1 className="text-5xl font-bold mb-4">📞 Contact Us</h1>
+        <h1 className="text-5xl font-bold mb-4">Contact Justice Ultimate Automobiles | Nairobi Car Dealership</h1>
         <p className="text-lg text-muted-foreground">
-          Get in touch with our global team. We're here to help with all your automotive needs, from sales to support.
+          Get in touch with Kenya's most trusted car dealership. Contact us for car sales, rentals, trade-ins, and inquiries. Available in Nairobi, Nyeri, Kisii & nationwide.
         </p>
+        <div className="mt-6 flex flex-wrap gap-4 justify-center">
+          <div className="glass rounded-lg p-4">
+            <p className="text-sm font-semibold mb-1">Justice Vincent - General Manager</p>
+            <a href="tel:+254722827458" className="text-accent hover:underline font-bold text-lg">0722 827 458</a>
+          </div>
+          <div className="glass rounded-lg p-4">
+            <p className="text-sm font-semibold mb-1">Daniel Maina - Sales Manager</p>
+            <a href="tel:+254701460110" className="text-accent hover:underline font-bold text-lg">0701 460 110</a>
+          </div>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
