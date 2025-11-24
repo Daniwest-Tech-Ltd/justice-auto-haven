@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,9 +9,9 @@ import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIco
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
-import { usePagination } from "@/hooks/usePagination";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface Car {
   id: string;
@@ -38,12 +38,7 @@ interface Brand {
 
 const Catalogue = () => {
   const [searchParams] = useSearchParams();
-  const [cars, setCars] = useState<Car[]>([]);
-  const [filteredCars, setFilteredCars] = useState<Car[]>([]);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
-  const [loading, setLoading] = useState(true);
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [wishlist, setWishlist] = useState<string[]>([]);
   const [filters, setFilters] = useState({
     brand: searchParams.get("brand") || "all",
     year: "all",
@@ -51,67 +46,132 @@ const Catalogue = () => {
     fuelType: "all",
     priceRange: "all",
   });
-  const [stockFilter, setStockFilter] = useState<string>("all"); // "all", "in-stock", "sold-out"
+  const [stockFilter, setStockFilter] = useState<string>("all");
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
+  const itemsPerPage = 12;
 
-  const { currentItems, currentPage, totalPages, goToPage, nextPage, prevPage, resetPagination } = usePagination({
-    items: filteredCars,
-    itemsPerPage: 12,
+  // Fetch brands with React Query
+  const { data: brands = [] } = useQuery({
+    queryKey: ['brands'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("brands")
+        .select("*")
+        .order("name");
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // Fetch wishlist with React Query
+  const { data: wishlistData } = useQuery({
+    queryKey: ['wishlist', user?.id],
+    queryFn: async () => {
+      if (user) {
+        const { data } = await supabase
+          .from("wishlist")
+          .select("car_id")
+          .eq("user_id", user.id);
+        return data?.map(w => w.car_id) || [];
+      }
+      return JSON.parse(localStorage.getItem("wishlist") || "[]");
+    },
+    staleTime: 1 * 60 * 1000,
   });
 
   useEffect(() => {
-    fetchCars();
-    fetchBrands();
-    fetchWishlist();
-    
-    // Check for brand filter from URL
+    if (wishlistData) {
+      setWishlist(wishlistData);
+    }
+  }, [wishlistData]);
+
+  // Build optimized query
+  const buildCarsQuery = () => {
+    let query = supabase
+      .from("cars")
+      .select("*", { count: 'exact' });
+
+    // Apply filters at database level
+    if (searchQuery) {
+      query = query.or(`make.ilike.%${searchQuery}%,model.ilike.%${searchQuery}%,year.eq.${searchQuery}`);
+    }
+
+    if (filters.brand !== "all") {
+      query = query.eq("make", filters.brand);
+    }
+
+    if (filters.year !== "all") {
+      query = query.eq("year", parseInt(filters.year));
+    }
+
+    if (filters.availability !== "all") {
+      query = query.eq("status", filters.availability);
+    }
+
+    if (filters.fuelType !== "all") {
+      query = query.eq("fuel_type", filters.fuelType);
+    }
+
+    if (filters.priceRange !== "all") {
+      const [min, max] = filters.priceRange.split("-").map(Number);
+      if (max) {
+        query = query.gte("price", min).lte("price", max);
+      } else {
+        query = query.gte("price", min);
+      }
+    }
+
+    if (stockFilter === "in-stock") {
+      query = query.neq("status", "sold");
+    } else if (stockFilter === "sold-out") {
+      query = query.eq("status", "sold");
+    }
+
+    return query;
+  };
+
+  // Fetch cars with React Query and server-side pagination
+  const { data: carsData, isLoading } = useQuery({
+    queryKey: ['cars', searchQuery, filters, stockFilter, currentPage],
+    queryFn: async () => {
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+
+      const { data, error, count } = await buildCarsQuery()
+        .range(from, to)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      return {
+        cars: data || [],
+        total: count || 0,
+      };
+    },
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+    placeholderData: (previousData) => previousData, // Keep previous data while loading
+  });
+
+  const cars = carsData?.cars || [];
+  const totalPages = Math.ceil((carsData?.total || 0) / itemsPerPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filters, stockFilter]);
+
+  // Check for brand filter from URL
+  useEffect(() => {
     const brandParam = searchParams.get("brand");
     if (brandParam) {
       setFilters(prev => ({ ...prev, brand: brandParam }));
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    filterCars();
-  }, [cars, searchQuery, filters, stockFilter]);
-
-  const fetchCars = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("cars")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setCars(data || []);
-    } catch (error) {
-      console.error("Error fetching cars:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchBrands = async () => {
-    const { data } = await supabase.from("brands").select("*").order("name");
-    if (data) setBrands(data);
-  };
-
-  const fetchWishlist = async () => {
-    if (user) {
-      const { data } = await supabase
-        .from("wishlist")
-        .select("car_id")
-        .eq("user_id", user.id);
-      
-      setWishlist(data?.map(w => w.car_id) || []);
-    } else {
-      const local = JSON.parse(localStorage.getItem("wishlist") || "[]");
-      setWishlist(local);
-    }
-  };
 
   const toggleWishlist = async (e: React.MouseEvent, carId: string) => {
     e.preventDefault();
@@ -148,54 +208,6 @@ const Catalogue = () => {
     }
   };
 
-  const filterCars = () => {
-    let filtered = [...cars];
-
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (car) =>
-          car.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          car.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          car.year.toString().includes(searchQuery)
-      );
-    }
-
-    if (filters.brand !== "all") {
-      filtered = filtered.filter((car) => car.make === filters.brand);
-    }
-
-    if (filters.year !== "all") {
-      filtered = filtered.filter((car) => car.year.toString() === filters.year);
-    }
-
-    if (filters.availability !== "all") {
-      filtered = filtered.filter((car) => car.status === filters.availability);
-    }
-
-    if (filters.fuelType !== "all") {
-      filtered = filtered.filter((car) => car.fuel_type === filters.fuelType);
-    }
-
-    if (filters.priceRange !== "all") {
-      const [min, max] = filters.priceRange.split("-").map(Number);
-      filtered = filtered.filter((car) => {
-        if (max) {
-          return car.price >= min && car.price <= max;
-        }
-        return car.price >= min;
-      });
-    }
-
-    // Stock filter
-    if (stockFilter === "in-stock") {
-      filtered = filtered.filter((car) => car.status !== "sold");
-    } else if (stockFilter === "sold-out") {
-      filtered = filtered.filter((car) => car.status === "sold");
-    }
-
-    setFilteredCars(filtered);
-    resetPagination();
-  };
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -207,6 +219,7 @@ const Catalogue = () => {
       priceRange: "all",
     });
     setStockFilter("all");
+    setCurrentPage(1);
   };
 
   const getImages = (car: any): string[] => {
@@ -244,14 +257,34 @@ const Catalogue = () => {
     return brand?.logo_url;
   };
 
-  const uniqueYears = Array.from(new Set(cars.map((car) => car.year)))
-    .sort((a, b) => b - a);
+  // Fetch filter options separately (cached)
+  const { data: filterOptions } = useQuery({
+    queryKey: ['car-filter-options'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("cars")
+        .select("year, make, fuel_type");
+      
+      const uniqueYears = Array.from(new Set(data?.map((car) => car.year) || []))
+        .filter(Boolean)
+        .sort((a, b) => b - a);
+      
+      const uniqueMakes = Array.from(new Set(data?.map((car) => car.make).filter(make => make && make.trim() !== '') || []))
+        .sort();
+      
+      const uniqueFuelTypes = Array.from(new Set(data?.map((car) => car.fuel_type).filter(type => type && type.trim() !== '') || []))
+        .sort();
 
-  const uniqueMakes = Array.from(new Set(cars.map((car) => car.make).filter(make => make && make.trim() !== ''))).sort();
+      return { uniqueYears, uniqueMakes, uniqueFuelTypes };
+    },
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  });
 
-  const uniqueFuelTypes = Array.from(new Set(cars.map((car) => car.fuel_type).filter(type => type && type.trim() !== ''))).sort();
+  const uniqueYears = filterOptions?.uniqueYears || [];
+  const uniqueMakes = filterOptions?.uniqueMakes || [];
+  const uniqueFuelTypes = filterOptions?.uniqueFuelTypes || [];
 
-  if (loading) {
+  if (isLoading && !carsData) {
     return <LoadingScreen />;
   }
 
@@ -438,7 +471,7 @@ const Catalogue = () => {
           {(searchQuery || filters.brand !== "all" || filters.year !== "all" || filters.fuelType !== "all" || filters.priceRange !== "all" || stockFilter !== "all") && (
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Showing {filteredCars.length} of {cars.length} vehicles
+                Showing {carsData?.total || 0} vehicles
               </p>
               <Button variant="ghost" size="sm" onClick={clearFilters}>
                 Clear Filters
@@ -448,7 +481,7 @@ const Catalogue = () => {
         </div>
 
         {/* Cars Grid */}
-        {filteredCars.length === 0 ? (
+        {cars.length === 0 ? (
           <div className="glass-strong rounded-lg p-12 text-center">
             <Car className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-xl font-semibold mb-2">No vehicles found</h3>
@@ -460,7 +493,7 @@ const Catalogue = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentItems.map((car) => {
+              {cars.map((car) => {
                 const images = getImages(car);
                 const brandLogo = getBrandLogo(car.make);
                 
@@ -576,37 +609,45 @@ const Catalogue = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-8 flex justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={() => prevPage()} 
-                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                    
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Pagination className="mt-12">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 5) {
+                      page = i + 1;
+                    } else if (currentPage <= 3) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      page = totalPages - 4 + i;
+                    } else {
+                      page = currentPage - 2 + i;
+                    }
+                    return (
                       <PaginationItem key={page}>
                         <PaginationLink
-                          onClick={() => goToPage(page)}
+                          onClick={() => setCurrentPage(page)}
                           isActive={currentPage === page}
                           className="cursor-pointer"
                         >
                           {page}
                         </PaginationLink>
                       </PaginationItem>
-                    ))}
-                    
-                    <PaginationItem>
-                      <PaginationNext 
-                        onClick={() => nextPage()} 
-                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
+                    );
+                  })}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             )}
           </>
         )}
