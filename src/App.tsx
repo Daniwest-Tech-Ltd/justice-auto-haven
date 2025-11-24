@@ -90,23 +90,24 @@ const AppContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Apply user's theme preference on auth state change
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        // Fetch user's theme preference from database
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('theme')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (profile?.theme) {
-          applyTheme(profile.theme as Theme);
-        }
+        // Defer Supabase calls to avoid auth deadlocks
+        setTimeout(async () => {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("theme")
+            .eq("user_id", session.user.id)
+            .maybeSingle();
+
+          if (profile?.theme) {
+            applyTheme(profile.theme as Theme);
+          }
+        }, 0);
       } else {
         // Apply saved theme from localStorage when not logged in
-        const savedTheme = localStorage.getItem('theme') as Theme | null;
+        const savedTheme = localStorage.getItem("theme") as Theme | null;
         if (savedTheme) {
           applyTheme(savedTheme);
         }

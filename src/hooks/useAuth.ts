@@ -28,24 +28,30 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Listen for auth changes first to avoid missing events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+
       if (session?.user) {
-        fetchUserData(session.user.id);
+        setLoading(true);
+        // Defer Supabase calls to avoid auth deadlocks
+        setTimeout(() => {
+          fetchUserData(session.user.id);
+        }, 0);
       } else {
+        setProfile(null);
+        setRole(null);
         setLoading(false);
       }
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
+        setLoading(true);
         fetchUserData(session.user.id);
       } else {
-        setProfile(null);
-        setRole(null);
         setLoading(false);
       }
     });
@@ -60,17 +66,17 @@ export const useAuth = () => {
         .from("profiles")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
       // Fetch role
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
-      setProfile(profileData as UserProfile);
-      setRole(roleData);
+      setProfile(profileData as UserProfile | null);
+      setRole(roleData as UserRole | null);
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
