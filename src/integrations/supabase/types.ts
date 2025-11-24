@@ -1588,6 +1588,131 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_bookings: {
+        Row: {
+          created_at: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          days: number | null
+          end_date: string
+          hours: number | null
+          id: string
+          notes: string | null
+          rental_car_id: string
+          start_date: string
+          status: string | null
+          total_price: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          days?: number | null
+          end_date: string
+          hours?: number | null
+          id?: string
+          notes?: string | null
+          rental_car_id: string
+          start_date: string
+          status?: string | null
+          total_price: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          days?: number | null
+          end_date?: string
+          hours?: number | null
+          id?: string
+          notes?: string | null
+          rental_car_id?: string
+          start_date?: string
+          status?: string | null
+          total_price?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_bookings_rental_car_id_fkey"
+            columns: ["rental_car_id"]
+            isOneToOne: false
+            referencedRelation: "rental_cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_cars: {
+        Row: {
+          additional_images: Json | null
+          available: boolean | null
+          color: string | null
+          created_at: string | null
+          description: string | null
+          fuel_type: string | null
+          id: string
+          main_images: Json | null
+          make: string
+          mileage: string | null
+          model: string
+          name: string
+          price_per_day: number | null
+          price_per_hour: number
+          stock_id: string | null
+          transmission: string | null
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          additional_images?: Json | null
+          available?: boolean | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          fuel_type?: string | null
+          id?: string
+          main_images?: Json | null
+          make: string
+          mileage?: string | null
+          model: string
+          name: string
+          price_per_day?: number | null
+          price_per_hour: number
+          stock_id?: string | null
+          transmission?: string | null
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          additional_images?: Json | null
+          available?: boolean | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          fuel_type?: string | null
+          id?: string
+          main_images?: Json | null
+          make?: string
+          mileage?: string | null
+          model?: string
+          name?: string
+          price_per_day?: number | null
+          price_per_hour?: number
+          stock_id?: string | null
+          transmission?: string | null
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
       rentals: {
         Row: {
           car_id: string
@@ -2385,6 +2510,9 @@ export type Database = {
           car_model: string
           car_year: number
           created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
           description: string | null
           estimated_value: number | null
           id: string
@@ -2401,6 +2529,9 @@ export type Database = {
           car_model: string
           car_year: number
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           description?: string | null
           estimated_value?: number | null
           id?: string
@@ -2417,6 +2548,9 @@ export type Database = {
           car_model?: string
           car_year?: number
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           description?: string | null
           estimated_value?: number | null
           id?: string

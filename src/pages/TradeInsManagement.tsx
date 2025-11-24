@@ -78,26 +78,51 @@ const TradeInsManagement = () => {
     }
   };
 
-  const updateTradeIn = async (id: string, status: string) => {
+  const updateTradeIn = async (
+    id: string,
+    newStatus: string,
+    estimatedValue?: number,
+    adminNotes?: string
+  ) => {
     try {
       const { error } = await supabase
         .from("trade_ins")
         .update({
-          status,
-          admin_notes: adminNotes || null,
-          estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
+          status: newStatus,
+          estimated_value: estimatedValue,
+          admin_notes: adminNotes,
         })
         .eq("id", id);
 
       if (error) throw error;
 
+      // Get trade-in details for email
+      const tradeIn = tradeIns.find((t) => t.id === id);
+      if (tradeIn && tradeIn.profiles?.email) {
+        const notificationType = 
+          newStatus === "approved" ? "trade_in_approved" : "trade_in_rejected";
+        
+        await supabase.functions.invoke("send-notifications", {
+          body: {
+            type: notificationType,
+            to: tradeIn.profiles.email,
+            data: {
+              customerName: tradeIn.profiles.full_name,
+              carMake: tradeIn.car_make,
+              carModel: tradeIn.car_model,
+              carYear: tradeIn.car_year,
+              estimatedValue: estimatedValue,
+              adminNotes: adminNotes,
+            },
+          },
+        });
+      }
+
       toast({
         title: "Success",
-        description: "Trade-in updated successfully",
+        description: `Trade-in ${newStatus} successfully`,
       });
-      setEditingId(null);
-      setAdminNotes("");
-      setEstimatedValue("");
+
       fetchTradeIns();
     } catch (error: any) {
       toast({
@@ -185,12 +210,12 @@ const TradeInsManagement = () => {
                         />
                       </div>
                       <div className="flex gap-2">
-                        <Button onClick={() => updateTradeIn(tradeIn.id, "approved")}>
+                        <Button onClick={() => updateTradeIn(tradeIn.id, "approved", parseFloat(estimatedValue), adminNotes)}>
                           Approve
                         </Button>
                         <Button
                           variant="destructive"
-                          onClick={() => updateTradeIn(tradeIn.id, "rejected")}
+                          onClick={() => updateTradeIn(tradeIn.id, "rejected", undefined, adminNotes)}
                         >
                           Reject
                         </Button>
