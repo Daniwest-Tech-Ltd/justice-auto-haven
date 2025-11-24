@@ -2691,6 +2691,41 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_views: {
+        Row: {
+          car_id: string
+          created_at: string | null
+          id: string
+          session_id: string | null
+          user_id: string | null
+          viewed_at: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string | null
+          id?: string
+          session_id?: string | null
+          user_id?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string | null
+          id?: string
+          session_id?: string | null
+          user_id?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_views_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       videos: {
         Row: {
           category: string | null

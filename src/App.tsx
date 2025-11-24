@@ -38,6 +38,7 @@ const CustomerSettings = lazy(() => import("./pages/CustomerSettings"));
 const CarManagement = lazy(() => import("./pages/CarManagement"));
 const AddCar = lazy(() => import("./pages/AddCar"));
 const EditCar = lazy(() => import("./pages/EditCar"));
+const VehicleAnalytics = lazy(() => import("./pages/VehicleAnalytics"));
 const AdminCustomers = lazy(() => import("./pages/AdminCustomers"));
 const CustomerBadge = lazy(() => import("./pages/CustomerBadge"));
 const BrandManagement = lazy(() => import("./pages/BrandManagement"));
@@ -272,6 +273,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <EditCar />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/vehicle-analytics" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <VehicleAnalytics />
               </ProtectedRoute>
             } 
           />
