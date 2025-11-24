@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -52,8 +54,44 @@ serve(async (req) => {
 
     if (otpError) throw otpError;
 
-    // Send email (you can integrate with Resend or other email service)
-    console.log(`OTP ${code} generated for user ${userId} (${profile.email})`);
+    // Send email via Resend API
+    if (!RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not set");
+      throw new Error("Email service not configured");
+    }
+
+    const emailResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "Justice Ultimate Automobiles <noreply@justiceultimateautomobiles.com>",
+        to: [profile.email],
+        subject: "Your Login Verification Code",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #1a1a1a;">Two-Factor Authentication</h2>
+            <p>Hello ${profile.full_name || ''},</p>
+            <p>Your one-time verification code for logging in is:</p>
+            <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
+              ${code}
+            </div>
+            <p style="color: #666;">This code will expire in 10 minutes.</p>
+            <p style="color: #666;">If you didn't request this code, please secure your account immediately.</p>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+            <p style="color: #999; font-size: 12px;">Justice Ultimate Automobiles - Security Team</p>
+          </div>
+        `,
+      }),
+    });
+
+    if (!emailResponse.ok) {
+      const errorData = await emailResponse.text();
+      console.error("Resend API error:", emailResponse.status, errorData);
+      throw new Error(`Failed to send email: ${emailResponse.status}`);
+    }
 
     // Log to audit trail
     await supabase.from("audit_logs").insert({
