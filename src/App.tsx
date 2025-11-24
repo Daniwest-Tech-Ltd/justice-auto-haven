@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-ro
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useActivityTracker } from "./hooks/useActivityTracker";
+import { useSessionTimeout } from "./hooks/useSessionTimeout";
+import SessionTimeoutModal from "./components/SessionTimeoutModal";
 import LoadingScreen from "./components/LoadingScreen";
 import { applyTheme } from "./lib/theme";
 import type { Theme } from "./lib/theme";
@@ -89,6 +91,7 @@ const AppContent = () => {
   const { logActivity } = useActivityTracker();
   const location = useLocation();
   const navigate = useNavigate();
+  const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -132,6 +135,12 @@ const AppContent = () => {
 
   return (
     <Suspense fallback={<LoadingScreen />}>
+      <SessionTimeoutModal
+        isOpen={showWarning}
+        timeLeft={timeLeft}
+        onExtend={extendSession}
+        onLogout={handleLogout}
+      />
       <Routes>
           {/* Public Routes with Layout */}
           <Route path="/" element={<Layout><Home /></Layout>} />
