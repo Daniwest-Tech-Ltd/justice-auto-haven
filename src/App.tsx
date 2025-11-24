@@ -165,8 +165,10 @@ const AppContent = () => {
           <Route path="/help-support" element={<Layout><HelpSupport /></Layout>} />
           <Route path="/rental-booking" element={<Layout><RentalBooking /></Layout>} />
           <Route path="/rentals" element={<Layout><RentalCatalogue /></Layout>} />
+          <Route path="/rental-catalogue" element={<Layout><RentalCatalogue /></Layout>} />
           <Route path="/rental/:id" element={<Layout><RentalCarDetails /></Layout>} />
           <Route path="/trade-in" element={<Layout><TradeInSubmission /></Layout>} />
+          <Route path="/trade-in-submission" element={<Layout><TradeInSubmission /></Layout>} />
           <Route path="/track-order" element={<Layout><TrackOrder /></Layout>} />
           
           {/* Car Details Route */}

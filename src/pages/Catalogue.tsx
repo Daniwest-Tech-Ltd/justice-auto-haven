@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ interface Brand {
 
 const Catalogue = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [filters, setFilters] = useState({
     brand: searchParams.get("brand") || "all",
@@ -294,6 +295,22 @@ const Catalogue = () => {
       <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-8 mb-6">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="container mx-auto px-4 relative z-10">
+          <div className="flex justify-end gap-3 mb-6">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/trade-in-submission')}
+              className="font-semibold"
+            >
+              TRADE IN
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/rental-catalogue')}
+              className="font-semibold"
+            >
+              RENT
+            </Button>
+          </div>
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-3xl md:text-5xl font-bold mb-3 bg-gradient-accent bg-clip-text text-transparent">
               Find Your Perfect Car Today
