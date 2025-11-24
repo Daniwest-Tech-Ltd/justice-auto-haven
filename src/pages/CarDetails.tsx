@@ -8,6 +8,9 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { useToast } from "@/hooks/use-toast";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { downloadImageWithWatermark } from "@/lib/watermark";
+import { VehicleAnalyticsChart } from "@/components/VehicleAnalyticsChart";
+import { trackVehicleView } from "@/hooks/useVehicleAnalytics";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Car {
   id: string;
@@ -31,6 +34,7 @@ const CarDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [car, setCar] = useState<Car | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -39,6 +43,13 @@ const CarDetails = () => {
   useEffect(() => {
     fetchCarDetails();
   }, [id]);
+
+  useEffect(() => {
+    // Track vehicle view when page loads
+    if (car?.id) {
+      trackVehicleView(car.id, user?.id);
+    }
+  }, [car?.id, user?.id]);
 
   const fetchCarDetails = async () => {
     try {
@@ -395,6 +406,11 @@ const CarDetails = () => {
 
         {/* Customer Reviews */}
         <ReviewsSection carId={car.id} carName={`${car.make} ${car.model}`} />
+
+        {/* Vehicle Analytics */}
+        <div className="mt-12">
+          <VehicleAnalyticsChart carId={car.id} />
+        </div>
 
         {/* Similar Vehicles */}
         {similarCars.length > 0 && (
