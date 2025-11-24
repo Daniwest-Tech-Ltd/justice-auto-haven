@@ -96,14 +96,23 @@ const TradeInSubmission = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <Button
-        variant="ghost"
-        onClick={() => navigate(-1)}
-        className="mb-6"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back
-      </Button>
+      <div className="flex justify-between items-center mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={() => navigate("/rental-catalogue")}
+          className="font-semibold"
+        >
+          RENT
+        </Button>
+      </div>
 
       <Card className="glass-strong max-w-2xl mx-auto">
         <CardHeader>

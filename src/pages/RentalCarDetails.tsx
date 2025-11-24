@@ -174,9 +174,19 @@ const RentalCarDetails = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Button onClick={() => navigate(-1)} variant="ghost" className="mb-4">
-        <ArrowLeft className="mr-2" /> Back to Rentals
-      </Button>
+      <div className="flex justify-between items-center mb-4">
+        <Button onClick={() => navigate(-1)} variant="ghost">
+          <ArrowLeft className="mr-2" /> Back to Rentals
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={() => navigate("/trade-in-submission")}
+          className="font-semibold"
+        >
+          TRADE IN
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Car Images */}
