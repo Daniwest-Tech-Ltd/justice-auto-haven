@@ -55,8 +55,8 @@ const RentalCatalogue = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Car Rentals</h1>
-          <p className="text-muted-foreground">Choose from our premium fleet</p>
+          <h1 className="text-4xl font-bold mb-2">Car Rentals Kenya | Self-Drive & Chauffeur Services</h1>
+          <p className="text-muted-foreground">Affordable car hire in Nairobi - Choose from our premium fleet</p>
         </div>
         
         <div className="flex gap-2">

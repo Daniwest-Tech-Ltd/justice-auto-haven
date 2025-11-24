@@ -129,7 +129,7 @@ const Home = () => {
   return (
     <div className="min-h-screen animate-fade-in">
       {/* Hero Section with Slideshow */}
-      <section className="relative h-[600px] overflow-hidden">
+      <section className="relative h-[600px] overflow-hidden" aria-label="Featured Vehicles Showcase">
         <div className="absolute inset-0">
           {heroCars.map((car, index) => (
             <div
@@ -152,10 +152,7 @@ const Home = () => {
         <div className="relative container mx-auto px-4 h-full flex items-center">
           <div className="max-w-2xl space-y-6">
             <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-              Welcome to{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-gold">
-                Justice Ultimate Automobiles
-              </span>
+              Buy, Rent, or Trade-In Cars in Kenya – <span className="text-transparent bg-clip-text bg-gradient-gold">Justice Ultimate Automobiles</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground">
               Your Trusted Car Masters... with you every step of the way
@@ -177,11 +174,11 @@ const Home = () => {
       </section>
 
       {/* Search Section */}
-      <section className="py-16 bg-secondary/30">
+      <section className="py-16 bg-secondary/30" aria-label="Car Search">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="text-4xl font-bold">Find Your Dream Car Today!</h2>
+              <h2 className="text-4xl font-bold">Find Your Dream Car in Kenya Today</h2>
               <p className="text-muted-foreground">
                 Try "Toyota Harrier Hybrid under 100k km" or use filters below
               </p>
@@ -231,11 +228,11 @@ const Home = () => {
 
       {/* Featured / Priority Cars Section */}
       {featuredCars.length > 0 && (
-        <section className="py-16 bg-accent/5">
+        <section className="py-16 bg-accent/5" aria-label="Featured Cars">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-2">Featured Vehicles</h2>
-              <p className="text-muted-foreground">Our handpicked selection of premium vehicles</p>
+              <h2 className="text-4xl font-bold mb-2">Featured Cars for Sale in Kenya</h2>
+              <p className="text-muted-foreground">Premium quality vehicles - Toyota, Mazda, Nissan, Subaru & more</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredCars.map((car) => {
@@ -301,9 +298,9 @@ const Home = () => {
       )}
 
       {/* Available Cars Section */}
-      <section className="py-16">
+      <section className="py-16" aria-label="Available Cars">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Available Cars in Our Stock</h2>
+          <h2 className="text-4xl font-bold text-center mb-12">Quality Used Cars for Sale in Nairobi, Kenya</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {availableCars.map((car) => (
               <Link 
