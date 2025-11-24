@@ -59,13 +59,22 @@ const RentalCatalogue = () => {
           <p className="text-muted-foreground">Choose from our premium fleet</p>
         </div>
         
-        <Button
-          variant="outline"
-          onClick={() => navigate("/trade-in-submission")}
-          className="font-semibold"
-        >
-          TRADE IN
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/catalogue")}
+            className="font-semibold"
+          >
+            CATALOGUE
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/trade-in-submission")}
+            className="font-semibold"
+          >
+            TRADE IN
+          </Button>
+        </div>
       </div>
 
       {rentalCars.length === 0 ? (

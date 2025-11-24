@@ -284,7 +284,43 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      // Verify 2FA code
+      // Check if user has TOTP enabled
+      if (preferred2FAMethod === "totp" && available2FAMethods.totp) {
+        // Verify TOTP code using edge function
+        const { data: totpResult, error: totpError } = await supabase.functions.invoke(
+          'verify-totp-login',
+          {
+            body: {
+              userId: pendingUserId,
+              code: twoFactorCode
+            }
+          }
+        );
+
+        if (totpError || !totpResult?.success) {
+          await logSuspiciousActivity(
+            "Invalid TOTP Code",
+            `Failed TOTP verification for user ${pendingUserId}`,
+            undefined,
+            { code: twoFactorCode }
+          );
+          
+          toast({
+            title: "Invalid Code",
+            description: "The authenticator code is incorrect or expired",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
+        // TOTP verified successfully
+        setShow2FADialog(false);
+        await completeLogin(pendingUserId);
+        return;
+      }
+
+      // Email OTP verification (existing logic)
       const { data: twoFAData, error: twoFAError } = await supabase
         .from("two_factor_auth")
         .select("*")
