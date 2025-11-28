@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Facebook, Instagram, Linkedin, ArrowLeft, Mail, Chrome, Eye, EyeOff } from "lucide-react";
+import { Facebook, Instagram, Linkedin, ArrowLeft, Mail, Chrome, Eye, EyeOff, Lock, UserPlus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -845,8 +845,15 @@ const Auth = () => {
               <Link to="/reset-password" className="text-sm text-white hover:text-accent transition-all duration-300 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
                 Forgot Password?
               </Link>
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-all duration-300 hover:-translate-y-1" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
+              <Button 
+                type="submit" 
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-3 bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] text-primary-foreground font-bold text-lg py-6 rounded-full border-4 border-muted shadow-[0_4px_6px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.6),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_12px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:-translate-y-1 active:translate-y-0.5 transition-all duration-200"
+              >
+                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-background text-primary border-4 border-muted-foreground/30 shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-2px_5px_rgba(0,0,0,0.2)]">
+                  <Lock className="w-5 h-5" />
+                </span>
+                {loading ? "Logging in..." : "Sign In"}
               </Button>
               
               <div className="relative w-full my-4">
@@ -1037,7 +1044,14 @@ const Auth = () => {
               {/* Cloudflare Turnstile CAPTCHA */}
               <div ref={signupTurnstile.containerRef} className="w-full flex justify-center" />
 
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-all duration-300 hover:-translate-y-1" disabled={loading}>
+              <Button 
+                type="submit" 
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-3 bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] text-primary-foreground font-bold text-lg py-6 rounded-full border-4 border-muted shadow-[0_4px_6px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.6),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_12px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:-translate-y-1 active:translate-y-0.5 transition-all duration-200"
+              >
+                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-background text-primary border-4 border-muted-foreground/30 shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-2px_5px_rgba(0,0,0,0.2)]">
+                  <UserPlus className="w-5 h-5" />
+                </span>
                 {loading ? "Registering..." : "Register"}
               </Button>
               
