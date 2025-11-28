@@ -25,6 +25,7 @@ import { useTurnstile } from "@/hooks/useTurnstile";
 import authBg from "@/assets/auth-bg.jpg";
 import carLotOverlay from "@/assets/car-lot-overlay.jpg";
 import maintenanceGif from "@/assets/maintenance.gif";
+import googleIcon from "@/assets/google-icon.svg";
 import kenyaLocations from "@/data/kenya-locations.json";
 import { Combobox } from "@/components/ui/combobox";
 
@@ -809,12 +810,12 @@ const Auth = () => {
         >
           {/* Sign In Form */}
           <div className="auth-form-container sign-in-container absolute top-0 left-0 w-full md:w-1/2 h-full flex items-center justify-center z-20 transition-all duration-700 overflow-y-auto md:overflow-hidden">
-            <form onSubmit={handleLogin} className="auth-form-glass rounded-2xl p-6 md:p-12 flex flex-col items-center justify-center text-center space-y-4 md:space-y-6 w-full max-w-md my-4 md:my-0">
-              <h1 className="text-4xl font-bold mb-6 text-white drop-shadow-lg">Login</h1>
+            <form onSubmit={handleLogin} className="auth-form-glass rounded-2xl p-6 md:p-12 flex flex-col items-center justify-center text-center space-y-4 md:space-y-6 w-full max-w-md my-4 md:my-0 shadow-[0_20px_60px_rgba(0,0,0,0.4)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.5)] transition-all duration-300 transform hover:scale-[1.02]">
+              <h1 className="text-4xl font-bold mb-6 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] animate-fade-in">Login</h1>
               <Input 
                 type="email" 
                 placeholder="Email" 
-                className="w-full auth-input" 
+                className="w-full auth-input shadow-[inset_0_2px_8px_rgba(0,0,0,0.3)] focus:shadow-[inset_0_2px_8px_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.5)]" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -823,7 +824,7 @@ const Auth = () => {
                 <Input 
                   type={showLoginPassword ? "text" : "password"} 
                   placeholder="Password" 
-                  className="w-full auth-input pr-10"
+                  className="w-full auth-input pr-10 shadow-[inset_0_2px_8px_rgba(0,0,0,0.3)] focus:shadow-[inset_0_2px_8px_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.5)]"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -841,10 +842,10 @@ const Auth = () => {
               {/* Cloudflare Turnstile CAPTCHA */}
               <div ref={loginTurnstile.containerRef} className="w-full flex justify-center" />
               
-              <Link to="/reset-password" className="text-sm text-white hover:text-accent transition-colors">
+              <Link to="/reset-password" className="text-sm text-white hover:text-accent transition-all duration-300 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
                 Forgot Password?
               </Link>
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" disabled={loading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-all duration-300 hover:-translate-y-1" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </Button>
               
@@ -862,9 +863,9 @@ const Auth = () => {
                 onClick={handleGoogleLogin}
                 disabled={loading}
                 variant="outline"
-                className="w-full border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300"
+                className="w-full border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
               >
-                <Chrome className="mr-2 h-5 w-5 text-[#4285F4]" />
+                <img src={googleIcon} alt="Google" className="mr-2 h-5 w-5" />
                 Continue with Google
               </Button>
             </form>
@@ -872,8 +873,8 @@ const Auth = () => {
 
           {/* Sign Up Form */}
           <div className="auth-form-container sign-up-container absolute top-0 left-0 w-full md:w-1/2 h-full z-10 md:opacity-0 transition-all duration-700 overflow-y-auto bg-gradient-to-br from-background/98 via-card/98 to-background/98">
-            <form onSubmit={handleRegister} className="auth-form-glass p-4 md:p-6 flex flex-col text-center space-y-2 md:space-y-3 w-full max-w-md mt-4 mb-4 mx-auto">
-              <h1 className="text-2xl font-bold mb-2 text-foreground drop-shadow-lg">Registration</h1>
+            <form onSubmit={handleRegister} className="auth-form-glass p-4 md:p-6 flex flex-col text-center space-y-2 md:space-y-3 w-full max-w-md mt-4 mb-4 mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.4)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.5)] transition-all duration-300 transform hover:scale-[1.02]">
+              <h1 className="text-2xl font-bold mb-2 text-foreground drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] animate-fade-in">Registration</h1>
               
               <Input 
                 type="text" 
@@ -1036,7 +1037,7 @@ const Auth = () => {
               {/* Cloudflare Turnstile CAPTCHA */}
               <div ref={signupTurnstile.containerRef} className="w-full flex justify-center" />
 
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" disabled={loading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-all duration-300 hover:-translate-y-1" disabled={loading}>
                 {loading ? "Registering..." : "Register"}
               </Button>
               
@@ -1054,9 +1055,9 @@ const Auth = () => {
                 onClick={handleGoogleLogin}
                 disabled={loading}
                 variant="outline"
-                className="w-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300"
+                className="w-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
               >
-                <Chrome className="mr-2 h-5 w-5 text-[#4285F4]" />
+                <img src={googleIcon} alt="Google" className="mr-2 h-5 w-5" />
                 Continue with Google
               </Button>
             </form>
@@ -1071,8 +1072,8 @@ const Auth = () => {
                 style={{ backgroundImage: `url(${carLotOverlay})` }}
               >
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70 backdrop-blur-[2px]" />
-                <div className="relative z-10">
-                  <h1 className="text-5xl font-bold text-white mb-6" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
+                <div className="relative z-10 transform hover:scale-105 transition-all duration-300">
+                  <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
                     Welcome Back to Justice System
                   </h1>
                   <p className="text-xl text-white mb-8" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
@@ -1081,11 +1082,11 @@ const Auth = () => {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="bg-white text-primary border-2 border-white hover:bg-white/90 hover:scale-105 transition-all shadow-xl font-semibold px-8 py-6 text-lg"
+                    className="bg-white text-primary border-2 border-white hover:bg-white/90 hover:scale-110 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.7)] font-semibold px-8 py-6 text-lg transform hover:-translate-y-1"
                     onClick={() => setIsSignUp(false)}
                     type="button"
                   >
-                    Login
+                    Sign In
                   </Button>
                 </div>
               </div>
@@ -1096,8 +1097,8 @@ const Auth = () => {
                 style={{ backgroundImage: `url(${carLotOverlay})` }}
               >
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70 backdrop-blur-[2px]" />
-                <div className="relative z-10">
-                  <h1 className="text-5xl font-bold text-white mb-6" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
+                <div className="relative z-10 transform hover:scale-105 transition-all duration-300">
+                  <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
                     Hello, Welcome to Justice Ultimate System
                   </h1>
                   <p className="text-xl text-white mb-8" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
@@ -1106,11 +1107,11 @@ const Auth = () => {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="bg-white text-primary border-2 border-white hover:bg-white/90 hover:scale-105 transition-all shadow-xl font-semibold px-8 py-6 text-lg"
+                    className="bg-white text-primary border-2 border-white hover:bg-white/90 hover:scale-110 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.7)] font-semibold px-8 py-6 text-lg transform hover:-translate-y-1"
                     onClick={() => setIsSignUp(true)}
                     type="button"
                   >
-                    Register
+                    Sign Up
                   </Button>
                 </div>
               </div>
@@ -1124,18 +1125,18 @@ const Auth = () => {
               size="sm"
               variant={!isSignUp ? "default" : "outline"}
               onClick={() => setIsSignUp(false)}
-              className="text-xs"
+              className="text-xs shadow-[0_4px_12px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-all duration-300"
             >
-              Login
+              Sign In
             </Button>
             <Button
               type="button"
               size="sm"
               variant={isSignUp ? "default" : "outline"}
               onClick={() => setIsSignUp(true)}
-              className="text-xs"
+              className="text-xs shadow-[0_4px_12px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-all duration-300"
             >
-              Register
+              Sign Up
             </Button>
           </div>
 
