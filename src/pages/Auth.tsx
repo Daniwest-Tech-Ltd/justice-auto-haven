@@ -803,13 +803,13 @@ const Auth = () => {
         </Link>
 
         <div
-          className={`glass-strong rounded-lg shadow-2xl max-w-4xl w-full min-h-[600px] max-h-[95vh] overflow-hidden relative transition-all duration-700 z-10 ${
+          className={`glass-strong rounded-lg shadow-2xl max-w-4xl w-full min-h-[600px] md:max-h-[95vh] overflow-hidden relative transition-all duration-700 z-10 ${
             isSignUp ? "auth-panel-active" : ""
           }`}
         >
           {/* Sign In Form */}
-          <div className="auth-form-container sign-in-container absolute top-0 left-0 w-1/2 h-full flex items-center justify-center z-20 transition-all duration-700">
-            <form onSubmit={handleLogin} className="auth-form-glass rounded-2xl p-12 flex flex-col items-center justify-center text-center space-y-6 w-full max-w-md">
+          <div className="auth-form-container sign-in-container absolute top-0 left-0 w-full md:w-1/2 h-full flex items-center justify-center z-20 transition-all duration-700 overflow-y-auto md:overflow-hidden">
+            <form onSubmit={handleLogin} className="auth-form-glass rounded-2xl p-6 md:p-12 flex flex-col items-center justify-center text-center space-y-4 md:space-y-6 w-full max-w-md my-4 md:my-0">
               <h1 className="text-4xl font-bold mb-6 text-white drop-shadow-lg">Login</h1>
               <Input 
                 type="email" 
@@ -871,8 +871,8 @@ const Auth = () => {
           </div>
 
           {/* Sign Up Form */}
-          <div className="auth-form-container sign-up-container absolute top-0 left-0 w-1/2 h-full z-10 opacity-0 transition-all duration-700 overflow-y-auto bg-gradient-to-br from-background/98 via-card/98 to-background/98">
-            <form onSubmit={handleRegister} className="auth-form-glass p-6 flex flex-col text-center space-y-3 w-full max-w-md mt-4 mb-4">
+          <div className="auth-form-container sign-up-container absolute top-0 left-0 w-full md:w-1/2 h-full z-10 md:opacity-0 transition-all duration-700 overflow-y-auto bg-gradient-to-br from-background/98 via-card/98 to-background/98">
+            <form onSubmit={handleRegister} className="auth-form-glass p-4 md:p-6 flex flex-col text-center space-y-2 md:space-y-3 w-full max-w-md mt-4 mb-4 mx-auto">
               <h1 className="text-2xl font-bold mb-2 text-foreground drop-shadow-lg">Registration</h1>
               
               <Input 
@@ -1062,8 +1062,8 @@ const Auth = () => {
             </form>
           </div>
 
-          {/* Overlay Container */}
-          <div className="overlay-container absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-transform duration-700 z-30">
+          {/* Overlay Container - Hidden on Mobile */}
+          <div className="overlay-container hidden md:block absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-transform duration-700 z-30">
             <div className="overlay relative left-[-100%] h-full w-[200%] transform transition-transform duration-700 flex">
               {/* Left Overlay - Shows on Register (with car lot image) */}
               <div 
@@ -1117,29 +1117,58 @@ const Auth = () => {
             </div>
           </div>
 
+          {/* Mobile Toggle Buttons */}
+          <div className="md:hidden absolute top-4 right-4 z-50 flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={!isSignUp ? "default" : "outline"}
+              onClick={() => setIsSignUp(false)}
+              className="text-xs"
+            >
+              Login
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={isSignUp ? "default" : "outline"}
+              onClick={() => setIsSignUp(true)}
+              className="text-xs"
+            >
+              Register
+            </Button>
+          </div>
+
           <style>{`
-            .auth-panel-active .sign-in-container {
-              transform: translateX(100%);
+            /* Desktop Animations */
+            @media (min-width: 768px) {
+              .auth-panel-active .sign-in-container {
+                transform: translateX(100%);
+              }
+              .auth-panel-active .sign-up-container {
+                transform: translateX(100%);
+                opacity: 1;
+                z-index: 25;
+              }
+              .auth-panel-active .overlay-container {
+                transform: translateX(-100%);
+              }
+              .auth-panel-active .overlay {
+                transform: translateX(50%);
+              }
+              .auth-panel-active .overlay-left {
+                transform: translateX(0);
+              }
+              .auth-panel-active .overlay-right {
+                transform: translateX(20%);
+              }
+              .overlay-left {
+                transform: translateX(-20%);
+              }
             }
-            .auth-panel-active .sign-up-container {
-              transform: translateX(100%);
-              opacity: 1;
-              z-index: 25;
-            }
-            .auth-panel-active .overlay-container {
-              transform: translateX(-100%);
-            }
-            .auth-panel-active .overlay {
-              transform: translateX(50%);
-            }
-            .auth-panel-active .overlay-left {
-              transform: translateX(0);
-            }
-            .auth-panel-active .overlay-right {
-              transform: translateX(20%);
-            }
-            .overlay-left {
-              transform: translateX(-20%);
+            @media (max-width: 767px) {
+              .sign-in-container { display: ${!isSignUp ? 'flex' : 'none'} !important; position: static !important; width: 100% !important; }
+              .sign-up-container { display: ${isSignUp ? 'flex' : 'none'} !important; position: static !important; width: 100% !important; }
             }
           `}</style>
         </div>
