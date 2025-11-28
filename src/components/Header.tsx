@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, Moon, Sun, User, LogOut, Home as HomeIcon, LayoutDashboard, Heart, Bell, Mail } from "lucide-react";
 import { Button } from "./ui/button";
@@ -29,6 +29,7 @@ const Header = () => {
   const location = useLocation();
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const drawerRef = useRef<HTMLDivElement>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [wishlistCount, setWishlistCount] = useState(0);
@@ -71,6 +72,23 @@ const Header = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuOpen && drawerRef.current && !drawerRef.current.contains(event.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
 
   const fetchCounts = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -173,10 +191,10 @@ const Header = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`relative px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 overflow-hidden group ${
+                className={`relative px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 overflow-hidden group shadow-[0_4px_8px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_12px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 ${
                   location.pathname === link.to
-                    ? "text-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary),0.3)]"
-                    : "text-foreground/90 hover:bg-white/5 hover:text-primary"
+                    ? "text-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary),0.3)] border border-primary/20"
+                    : "text-foreground/90 hover:bg-white/5 hover:text-primary border border-border/50"
                 }`}
               >
                 {location.pathname === link.to && (
@@ -378,7 +396,7 @@ const Header = () => {
 
       {/* Mobile Drawer Menu */}
       <Drawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <DrawerContent className="h-[80vh] max-w-[280px]">
+        <DrawerContent ref={drawerRef} className="h-[80vh] max-w-[280px] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
           <DrawerHeader className="border-b border-border">
             <div className="flex items-center justify-between">
               <DrawerTitle className="text-lg font-semibold">Menu</DrawerTitle>
@@ -396,10 +414,10 @@ const Header = () => {
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`relative block px-4 py-3 rounded-md text-sm font-medium transition-all duration-300 overflow-hidden ${
+                className={`relative block px-4 py-3 rounded-md text-sm font-medium transition-all duration-300 overflow-hidden shadow-[0_4px_8px_rgba(0,0,0,0.15)] hover:shadow-[0_6px_12px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 ${
                   location.pathname === link.to
-                    ? "text-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary),0.3)]"
-                    : "text-foreground/90 hover:bg-accent hover:text-accent-foreground"
+                    ? "text-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary),0.3)] border border-primary/20"
+                    : "text-foreground/90 hover:bg-accent hover:text-accent-foreground border border-border/50"
                 }`}
               >
                 {location.pathname === link.to && (

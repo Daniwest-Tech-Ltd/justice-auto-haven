@@ -147,6 +147,27 @@ All colors MUST be HSL.
   }
 
   /* Professional Auth Form Styling */
+  /* Keyframe Animations for Auth Buttons */
+  @keyframes padlock-open {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg) translateX(-2px); }
+    50% { transform: rotate(15deg) translateX(2px); }
+    75% { transform: rotate(-10deg) translateX(-1px); }
+  }
+
+  @keyframes register-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+  }
+
+  .animate-padlock-open {
+    animation: padlock-open 0.6s ease-in-out;
+  }
+
+  .animate-register-pulse {
+    animation: register-pulse 0.8s ease-in-out infinite;
+  }
+
   .auth-form-glass {
     background: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(25px) saturate(200%);

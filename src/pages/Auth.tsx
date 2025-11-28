@@ -815,7 +815,7 @@ const Auth = () => {
               <Input 
                 type="email" 
                 placeholder="Email" 
-                className="w-full auth-input shadow-[inset_0_2px_8px_rgba(0,0,0,0.3)] focus:shadow-[inset_0_2px_8px_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.5)]" 
+                className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -824,7 +824,7 @@ const Auth = () => {
                 <Input 
                   type={showLoginPassword ? "text" : "password"} 
                   placeholder="Password" 
-                  className="w-full auth-input pr-10 shadow-[inset_0_2px_8px_rgba(0,0,0,0.3)] focus:shadow-[inset_0_2px_8px_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.5)]"
+                  className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200 pr-10"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -832,7 +832,7 @@ const Auth = () => {
                 <button
                   type="button"
                   onClick={() => setShowLoginPassword(!showLoginPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground transition-colors"
                   aria-label={showLoginPassword ? "Hide password" : "Show password"}
                 >
                   {showLoginPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -850,7 +850,7 @@ const Auth = () => {
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-3 bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] text-primary-foreground font-bold text-lg py-6 rounded-full border-4 border-muted shadow-[0_4px_6px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.6),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_12px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:-translate-y-1 active:translate-y-0.5 transition-all duration-200"
               >
-                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-background text-primary border-4 border-muted-foreground/30 shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-2px_5px_rgba(0,0,0,0.2)]">
+                <span className={`flex items-center justify-center w-10 h-10 rounded-full bg-background text-primary border-4 border-muted-foreground/30 shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-2px_5px_rgba(0,0,0,0.2)] ${loading ? 'animate-padlock-open' : ''}`}>
                   <Lock className="w-5 h-5" />
                 </span>
                 {loading ? "Logging in..." : "Sign In"}
@@ -886,7 +886,7 @@ const Auth = () => {
               <Input 
                 type="text" 
                 placeholder="Full Name" 
-                className="w-full auth-input"
+                className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200"
                 value={regFullName}
                 onChange={(e) => setRegFullName(e.target.value)}
                 required
@@ -894,7 +894,7 @@ const Auth = () => {
               <Input 
                 type="email" 
                 placeholder="Email" 
-                className="w-full auth-input"
+                className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200"
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
                 required
@@ -902,7 +902,7 @@ const Auth = () => {
               <Input 
                 type="tel" 
                 placeholder="Phone (e.g., +254...)" 
-                className="w-full auth-input"
+                className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200"
                 value={regPhone}
                 onChange={(e) => setRegPhone(e.target.value)}
                 required
@@ -913,7 +913,7 @@ const Auth = () => {
                   <Input 
                     type={showRegPassword ? "text" : "password"} 
                     placeholder="Password" 
-                    className="w-full auth-input pr-10"
+                    className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200 pr-10"
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
                     required
@@ -921,7 +921,7 @@ const Auth = () => {
                   <button
                     type="button"
                     onClick={() => setShowRegPassword(!showRegPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground transition-colors"
                     aria-label={showRegPassword ? "Hide password" : "Show password"}
                   >
                     {showRegPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -942,7 +942,7 @@ const Auth = () => {
                 <Input 
                   type={showRegConfirmPassword ? "text" : "password"} 
                   placeholder="Confirm Password" 
-                  className="w-full auth-input pr-10"
+                  className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200 pr-10"
                   value={regConfirmPassword}
                   onChange={(e) => setRegConfirmPassword(e.target.value)}
                   required
@@ -950,7 +950,7 @@ const Auth = () => {
                 <button
                   type="button"
                   onClick={() => setShowRegConfirmPassword(!showRegConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground transition-colors"
                   aria-label={showRegConfirmPassword ? "Hide password" : "Show password"}
                 >
                   {showRegConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -1049,7 +1049,7 @@ const Auth = () => {
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-3 bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] text-primary-foreground font-bold text-lg py-6 rounded-full border-4 border-muted shadow-[0_4px_6px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.6),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_12px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:-translate-y-1 active:translate-y-0.5 transition-all duration-200"
               >
-                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-background text-primary border-4 border-muted-foreground/30 shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-2px_5px_rgba(0,0,0,0.2)]">
+                <span className={`flex items-center justify-center w-10 h-10 rounded-full bg-background text-primary border-4 border-muted-foreground/30 shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-2px_5px_rgba(0,0,0,0.2)] ${loading ? 'animate-register-pulse' : ''}`}>
                   <UserPlus className="w-5 h-5" />
                 </span>
                 {loading ? "Registering..." : "Register"}
