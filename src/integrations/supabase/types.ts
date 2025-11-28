@@ -2920,6 +2920,36 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_webhook_logs: {
+        Row: {
+          created_at: string
+          from_number: string | null
+          id: string
+          message_data: Json
+          message_id: string | null
+          message_type: string | null
+          timestamp: number | null
+        }
+        Insert: {
+          created_at?: string
+          from_number?: string | null
+          id?: string
+          message_data: Json
+          message_id?: string | null
+          message_type?: string | null
+          timestamp?: number | null
+        }
+        Update: {
+          created_at?: string
+          from_number?: string | null
+          id?: string
+          message_data?: Json
+          message_id?: string | null
+          message_type?: string | null
+          timestamp?: number | null
+        }
+        Relationships: []
+      }
       whitelist_orders: {
         Row: {
           admin_notes: string | null
