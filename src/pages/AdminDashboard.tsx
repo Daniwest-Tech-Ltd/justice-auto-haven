@@ -30,6 +30,8 @@ import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";
+import specialOffer from "@/assets/special-offer.png";
+import christmasCorner from "@/assets/christmas-corner.png";
 import { setTheme, Theme } from "@/lib/theme";
 
 const AdminDashboard = () => {
@@ -52,6 +54,28 @@ const AdminDashboard = () => {
       navigate("/auth");
     }
   }, [loading, user, role, navigate]);
+
+  // Add snowfall effect
+  useEffect(() => {
+    const snowflakes = 50;
+    const container = document.body;
+    
+    for (let i = 0; i < snowflakes; i++) {
+      const flake = document.createElement("div");
+      flake.className = "snowflake";
+      flake.style.left = Math.random() * 100 + "vw";
+      flake.style.animationDuration = 2 + Math.random() * 3 + "s";
+      flake.style.animationDelay = Math.random() * 3 + "s";
+      flake.style.opacity = (Math.random() * 0.6 + 0.3).toString();
+      container.appendChild(flake);
+    }
+
+    return () => {
+      // Cleanup snowflakes on unmount
+      const flakes = document.querySelectorAll(".snowflake");
+      flakes.forEach(flake => flake.remove());
+    };
+  }, []);
 
   const [stats, setStats] = useState({
     totalVehicles: 0,
@@ -343,7 +367,19 @@ const AdminDashboard = () => {
           </header>
 
           <div className="p-6 space-y-6">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 relative">
+              {/* Christmas decorations */}
+              <img 
+                src={christmasCorner} 
+                alt="" 
+                className="absolute -top-4 -left-4 w-16 h-16 offer-badge pointer-events-none z-10"
+              />
+              <img 
+                src={specialOffer} 
+                alt="" 
+                className="absolute top-0 right-0 w-24 h-auto offer-badge pointer-events-none z-10"
+              />
+              
               <Avatar className="h-16 w-16 border-2 border-primary/20">
                 <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "Admin"} />
                 <AvatarFallback className="text-lg bg-primary/10">
@@ -351,7 +387,7 @@ const AdminDashboard = () => {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
+                <h1 className="text-3xl font-bold glitter-text">{getGreeting(profile.full_name)}</h1>
                 <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
               </div>
             </div>
