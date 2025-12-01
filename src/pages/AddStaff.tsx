@@ -5,69 +5,70 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+
+const staffRoles = [
+  { value: "operations_manager", label: "Operations Manager" },
+  { value: "sales_manager", label: "Sales Manager" },
+  { value: "sales_rep", label: "Sales Representative" },
+  { value: "rental_manager", label: "Rental Manager" },
+  { value: "rental_staff", label: "Rental Staff" },
+  { value: "tradein_manager", label: "Trade-In Manager" },
+  { value: "tradein_staff", label: "Trade-In Staff" },
+  { value: "mechanic", label: "Mechanic" },
+  { value: "marketing_manager", label: "Marketing Manager" },
+  { value: "designer", label: "Graphic Designer" },
+  { value: "support_agent", label: "Support Agent" },
+  { value: "accounts_manager", label: "Accounts Manager" },
+  { value: "finance_staff", label: "Finance Staff" },
+  { value: "driver", label: "Driver" },
+  { value: "security_officer", label: "Security Officer" },
+  { value: "system_admin", label: "System Admin" },
+  { value: "it_support", label: "IT Support" },
+];
 
 const AddStaff = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    full_name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     phone: "",
+    role: "",
     department: "",
-    position: "",
-    salary: "",
-    emergency_contact: "",
-    address: "",
+    branch: "Nairobi",
   });
-
-  const generateStaffId = () => {
-    const prefix = "JUA";
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    return `${prefix}-${random}`;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const staffId = generateStaffId();
+      const username = `${formData.role}.${Date.now()}`;
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("staff")
-        .insert([{
-          staff_id: staffId,
-          full_name: formData.full_name,
+        .insert({
+          username,
           email: formData.email,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
           phone: formData.phone,
+          role: formData.role,
           department: formData.department,
-          position: formData.position as "ceo" | "manager" | "sales_executive" | "technician" | "accountant" | "hr_manager" | "receptionist" | "driver",
-          salary: parseFloat(formData.salary),
-          emergency_contact: formData.emergency_contact,
-          address: formData.address,
+          branch: formData.branch,
           status: "active",
-        }])
-        .select();
+        });
 
       if (error) throw error;
 
-      toast({
-        title: "Staff Added Successfully",
-        description: `Staff ID: ${staffId}`,
-      });
-
-      navigate("/admin/hr");
+      toast.success("Staff Added Successfully");
+      navigate("/admin/staff-management");
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to add staff");
     } finally {
       setLoading(false);
     }
@@ -77,7 +78,7 @@ const AddStaff = () => {
     <div className="min-h-screen p-4 lg:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/hr")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/staff-management")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
@@ -94,12 +95,22 @@ const AddStaff = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="full_name">Full Name *</Label>
+                  <Label htmlFor="first_name">First Name *</Label>
                   <Input
-                    id="full_name"
+                    id="first_name"
                     required
-                    value={formData.full_name}
-                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Last Name *</Label>
+                  <Input
+                    id="last_name"
+                    required
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                   />
                 </div>
 
@@ -125,6 +136,22 @@ const AddStaff = () => {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="role">Role *</Label>
+                  <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {staffRoles.map((role) => (
+                        <SelectItem key={role.value} value={role.value}>
+                          {role.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="department">Department *</Label>
                   <Input
                     id="department"
@@ -135,56 +162,17 @@ const AddStaff = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="position">Position *</Label>
-                  <Select value={formData.position} onValueChange={(value) => setFormData({ ...formData, position: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select position" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ceo">CEO</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="sales_executive">Sales Executive</SelectItem>
-                      <SelectItem value="technician">Technician</SelectItem>
-                      <SelectItem value="accountant">Accountant</SelectItem>
-                      <SelectItem value="hr_manager">HR Manager</SelectItem>
-                      <SelectItem value="receptionist">Receptionist</SelectItem>
-                      <SelectItem value="driver">Driver</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="salary">Salary (KES) *</Label>
+                  <Label htmlFor="branch">Branch</Label>
                   <Input
-                    id="salary"
-                    type="number"
-                    required
-                    value={formData.salary}
-                    onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                    id="branch"
+                    value={formData.branch}
+                    onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="emergency_contact">Emergency Contact</Label>
-                  <Input
-                    id="emergency_contact"
-                    value={formData.emergency_contact}
-                    onChange={(e) => setFormData({ ...formData, emergency_contact: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Textarea
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                />
               </div>
 
               <div className="flex justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => navigate("/admin/hr")}>
+                <Button type="button" variant="outline" onClick={() => navigate("/admin/staff-management")}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
