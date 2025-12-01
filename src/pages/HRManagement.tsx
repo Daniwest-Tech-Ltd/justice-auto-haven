@@ -43,9 +43,9 @@ const HRManagement = () => {
     const { data: staffData } = await supabase.from("staff").select("*");
     const { data: payrollData } = await supabase.from("payroll").select("*").eq("payment_status", "pending");
 
-    if (staffData) {
+    if (staffData && payrollData) {
       const active = staffData.filter(s => s.status === "active").length;
-      const totalSalary = staffData.reduce((sum, s) => sum + (typeof s.salary === 'string' ? parseFloat(s.salary) : s.salary), 0);
+      const totalSalary = payrollData.reduce((sum, p) => sum + (p.basic_salary || 0), 0);
 
       setStats({
         totalStaff: staffData.length,
@@ -173,11 +173,11 @@ const HRManagement = () => {
               <TableBody>
                 {staff.map((member) => (
                   <TableRow key={member.id}>
-                    <TableCell className="font-mono">{member.staff_id}</TableCell>
-                    <TableCell className="font-medium">{member.full_name}</TableCell>
-                    <TableCell className="capitalize">{member.position.replace('_', ' ')}</TableCell>
+                    <TableCell className="font-mono">{member.id.slice(0, 8)}</TableCell>
+                    <TableCell className="font-medium">{member.first_name} {member.last_name}</TableCell>
+                    <TableCell className="capitalize">{member.role?.replace('_', ' ')}</TableCell>
                     <TableCell>{member.department}</TableCell>
-                    <TableCell>KES {parseFloat(member.salary).toLocaleString()}</TableCell>
+                    <TableCell>-</TableCell>
                     <TableCell>
                       <Badge variant={member.status === "active" ? "default" : "secondary"}>
                         {member.status}

@@ -12,14 +12,16 @@ import * as XLSX from "xlsx";
 
 interface StaffMember {
   id: string;
-  full_name: string;
-  position: string;
+  first_name: string;
+  last_name: string;
+  role: string;
   department: string;
 }
 
 interface PerformanceData {
   staff_id: string;
-  full_name: string;
+  first_name: string;
+  last_name: string;
   total_days: number;
   present_days: number;
   absent_days: number;
@@ -68,7 +70,7 @@ const StaffPerformance = () => {
       
       const { data: staffData } = await supabase
         .from("staff")
-        .select("id, full_name, position, department")
+        .select("id, first_name, last_name, role, department")
         .eq("status", "active");
 
       if (!staffData) return;
@@ -115,7 +117,8 @@ const StaffPerformance = () => {
 
         performanceResults.push({
           staff_id: member.id,
-          full_name: member.full_name,
+          first_name: member.first_name,
+          last_name: member.last_name,
           total_days: totalDays,
           present_days: presentDays,
           absent_days: absentDays,
@@ -132,19 +135,19 @@ const StaffPerformance = () => {
   };
 
   const attendanceChartData = performanceData.map(p => ({
-    name: p.full_name.split(' ')[0],
+    name: p.first_name,
     present: p.present_days,
     absent: p.absent_days,
   }));
 
   const hoursChartData = performanceData.map(p => ({
-    name: p.full_name.split(' ')[0],
+    name: p.first_name,
     hours: parseFloat(p.total_hours.toFixed(1)),
     avgHours: parseFloat(p.avg_hours_per_day.toFixed(1)),
   }));
 
   const activityChartData = performanceData.map(p => ({
-    name: p.full_name.split(' ')[0],
+    name: p.first_name,
     activities: p.total_activities,
   }));
 
@@ -170,7 +173,7 @@ const StaffPerformance = () => {
 
   const exportToExcel = () => {
     const exportData = performanceData.map(p => ({
-      Name: p.full_name,
+      Name: `${p.first_name} ${p.last_name}`,
       "Total Days": p.total_days,
       "Present Days": p.present_days,
       "Absent Days": p.absent_days,
