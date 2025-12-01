@@ -181,14 +181,14 @@ const Header = () => {
       <img 
         src={christmasCorner} 
         alt="" 
-        className="absolute top-0 left-0 w-16 md:w-20 h-16 md:h-20 z-10 pointer-events-none"
+        className="absolute -top-2 left-0 w-12 md:w-16 h-12 md:h-16 z-10 pointer-events-none"
       />
       
       {/* Christmas Bells - Center Top */}
       <img 
         src={christmasBells} 
         alt="" 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-32 md:w-48 h-auto z-10 pointer-events-none"
+        className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 md:w-36 h-auto z-10 pointer-events-none"
       />
       
       <div className="container mx-auto px-4">
