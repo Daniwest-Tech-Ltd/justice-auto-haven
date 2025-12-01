@@ -231,16 +231,15 @@ const Home = () => {
       {featuredCars.length > 0 && (
         <section className="py-16 bg-accent/5" aria-label="Featured Cars">
           <div className="container mx-auto px-4">
-            {/* Christmas Offer Image - Positioned at top */}
-            <div className="flex justify-start mb-6">
-              <img 
-                src={specialOffer} 
-                alt="Christmas Special Offer" 
-                className="w-32 h-auto offer-badge"
-              />
-            </div>
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-2 glitter-text">Featured Cars for Sale in Kenya</h2>
+              <div className="flex items-center justify-center gap-4 mb-2">
+                <img 
+                  src={specialOffer} 
+                  alt="Christmas Special Offer" 
+                  className="w-20 h-auto offer-badge"
+                />
+                <h2 className="text-4xl font-bold glitter-text">Featured Cars for Sale in Kenya</h2>
+              </div>
               <p className="text-muted-foreground">Premium quality vehicles - Toyota, Mazda, Nissan, Subaru & more</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
