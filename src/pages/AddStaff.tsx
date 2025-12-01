@@ -47,12 +47,9 @@ const AddStaff = () => {
     setLoading(true);
 
     try {
-      const username = `${formData.role}.${Date.now()}`;
-      
       const { error } = await supabase
         .from("staff")
         .insert({
-          username,
           email: formData.email,
           first_name: formData.first_name,
           last_name: formData.last_name,
@@ -61,7 +58,7 @@ const AddStaff = () => {
           department: formData.department,
           branch: formData.branch,
           status: "active",
-        });
+        } as any);
 
       if (error) throw error;
 

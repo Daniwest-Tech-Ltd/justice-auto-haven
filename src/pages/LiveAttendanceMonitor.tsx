@@ -9,8 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface StaffStatus {
   id: string;
-  full_name: string;
-  position: string;
+  first_name: string;
+  last_name: string;
+  role: string;
   department: string;
   status: "present" | "absent" | "pending";
   clock_in?: string;
@@ -99,8 +100,9 @@ const LiveAttendanceMonitor = () => {
 
       return {
         id: staff.id,
-        full_name: staff.full_name,
-        position: staff.position,
+        first_name: staff.first_name,
+        last_name: staff.last_name,
+        role: staff.role,
         department: staff.department,
         status: (attendance?.status as "present" | "absent" | "pending") || "pending",
         clock_in: attendance?.clock_in,
@@ -200,8 +202,8 @@ const LiveAttendanceMonitor = () => {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-lg">{staff.full_name}</h3>
-                    <p className="text-sm text-muted-foreground">{staff.position}</p>
+                    <h3 className="font-semibold text-lg">{staff.first_name} {staff.last_name}</h3>
+                    <p className="text-sm text-muted-foreground">{staff.role}</p>
                     <p className="text-xs text-muted-foreground">{staff.department}</p>
                   </div>
                   <Badge className={getStatusColor(staff.status)}>
