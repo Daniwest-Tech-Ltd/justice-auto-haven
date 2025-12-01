@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import ceoImage from "@/assets/ceo.jpg";
 import danielImage from "@/assets/daniel-maina.jpg";
 import abigaelImage from "@/assets/abigael-muthoni.jpg";
-import christmasOffer from "@/assets/christmas-offer.png";
+import specialOffer from "@/assets/special-offer.png";
 import CertificateModal from "@/components/CertificateModal";
 
 const Home = () => {
@@ -234,9 +234,9 @@ const Home = () => {
             {/* Christmas Offer Image - Positioned at top */}
             <div className="flex justify-start mb-6">
               <img 
-                src={christmasOffer} 
+                src={specialOffer} 
                 alt="Christmas Special Offer" 
-                className="w-40 h-auto offer-badge"
+                className="w-32 h-auto offer-badge"
               />
             </div>
             <div className="text-center mb-12">
@@ -311,9 +311,9 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-start gap-4 mb-12">
             <img 
-              src={christmasOffer} 
+              src={specialOffer} 
               alt="Christmas Offer" 
-              className="w-32 h-auto offer-badge"
+              className="w-28 h-auto offer-badge"
             />
             <h2 className="text-4xl font-bold glitter-text">Quality Used Cars for Sale in Nairobi, Kenya</h2>
           </div>

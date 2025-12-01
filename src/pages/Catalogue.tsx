@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import christmasGarland from "@/assets/christmas-garland.png";
-import christmasOffer from "@/assets/christmas-offer.png";
+import specialOffer from "@/assets/special-offer.png";
 
 interface Car {
   id: string;
@@ -298,9 +298,9 @@ const Catalogue = () => {
         {/* Christmas Offer - Top Center of Catalogue */}
         <div className="flex justify-center mb-4 pt-4">
           <img 
-            src={christmasOffer} 
+            src={specialOffer} 
             alt="Christmas Special Offer" 
-            className="w-48 h-auto offer-badge z-20"
+            className="w-40 h-auto offer-badge z-20"
           />
         </div>
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
@@ -532,9 +532,8 @@ const Catalogue = () => {
                     <Link to={`/car/${car.stock_id || car.id}`} className="block">
                       <div className="relative aspect-[4/3] overflow-hidden">
                         {/* Christmas Offer Badge - Top Left */}
-                        <div className="absolute top-3 left-3 z-20 offer-badge flex items-center gap-1 text-xs">
-                          <img src={christmasOffer} alt="" className="w-5 h-5" />
-                          <span>XMAS OFFER</span>
+                        <div className="absolute top-3 left-3 z-20 flex items-center">
+                          <img src={specialOffer} alt="Special Offer" className="w-16 h-auto offer-badge" />
                         </div>
                         
                         <img
