@@ -7,8 +7,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Briefcase, Clock, LogOut } from "lucide-react";
 import { toast } from "sonner";
-import specialOffer from "@/assets/special-offer.png";
-import christmasCorner from "@/assets/christmas-corner.png";
 
 interface JobCard {
   id: string;
@@ -44,28 +42,6 @@ export default function StaffDashboard() {
     fetchStaffData();
     fetchJobCards();
   }, [user]);
-
-  // Add snowfall effect
-  useEffect(() => {
-    const snowflakes = 50;
-    const container = document.body;
-    
-    for (let i = 0; i < snowflakes; i++) {
-      const flake = document.createElement("div");
-      flake.className = "snowflake";
-      flake.style.left = Math.random() * 100 + "vw";
-      flake.style.animationDuration = 2 + Math.random() * 3 + "s";
-      flake.style.animationDelay = Math.random() * 3 + "s";
-      flake.style.opacity = (Math.random() * 0.6 + 0.3).toString();
-      container.appendChild(flake);
-    }
-
-    return () => {
-      // Cleanup snowflakes on unmount
-      const flakes = document.querySelectorAll(".snowflake");
-      flakes.forEach(flake => flake.remove());
-    };
-  }, []);
 
   const fetchStaffData = async () => {
     try {
@@ -133,21 +109,9 @@ export default function StaffDashboard() {
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 relative">
-          {/* Christmas decorations */}
-          <img 
-            src={christmasCorner} 
-            alt="" 
-            className="absolute -top-4 -left-4 w-16 h-16 offer-badge pointer-events-none z-10"
-          />
-          <img 
-            src={specialOffer} 
-            alt="" 
-            className="absolute top-0 right-0 w-24 h-auto offer-badge pointer-events-none z-10"
-          />
-          
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-foreground glitter-text">
+            <h1 className="text-4xl font-bold text-foreground">
               Welcome, {staff?.first_name}!
             </h1>
             <p className="text-muted-foreground">
