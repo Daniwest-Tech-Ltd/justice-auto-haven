@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import christmasGarland from "@/assets/christmas-garland.png";
+import christmasOffer from "@/assets/christmas-offer.png";
 
 interface Car {
   id: string;
@@ -525,16 +526,22 @@ const Catalogue = () => {
                 return (
                   <div
                     key={car.id}
-                    className="glass-strong rounded-xl overflow-hidden flex flex-col border border-primary/20 hover:border-primary/40 transition-all hover:shadow-xl hover:shadow-primary/10"
+                    className="glass-strong rounded-xl overflow-hidden flex flex-col border border-primary/20 hover:border-primary/40 transition-all hover:shadow-xl hover:shadow-primary/10 christmas-card"
                   >
                     <Link to={`/car/${car.stock_id || car.id}`} className="block">
                       <div className="relative aspect-[4/3] overflow-hidden">
+                        {/* Christmas Offer Badge - Top Left */}
+                        <div className="absolute top-3 left-3 z-20 offer-badge flex items-center gap-1 text-xs">
+                          <img src={christmasOffer} alt="" className="w-5 h-5" />
+                          <span>XMAS OFFER</span>
+                        </div>
+                        
                         <img
                           src={images[0] || "/placeholder.svg"}
                           alt={`${car.make} ${car.model}`}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         />
-                        <Badge className="absolute top-3 left-3 bg-primary shadow-lg">
+                        <Badge className="absolute top-3 left-24 bg-primary shadow-lg">
                           {car.year}
                         </Badge>
                         
