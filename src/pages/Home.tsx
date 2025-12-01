@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import ceoImage from "@/assets/ceo.jpg";
 import danielImage from "@/assets/daniel-maina.jpg";
 import abigaelImage from "@/assets/abigael-muthoni.jpg";
+import christmasOffer from "@/assets/christmas-offer.png";
 import CertificateModal from "@/components/CertificateModal";
 
 const Home = () => {
@@ -230,8 +231,16 @@ const Home = () => {
       {featuredCars.length > 0 && (
         <section className="py-16 bg-accent/5" aria-label="Featured Cars">
           <div className="container mx-auto px-4">
+            {/* Christmas Offer Image */}
+            <div className="flex justify-center mb-8">
+              <img 
+                src={christmasOffer} 
+                alt="Christmas Special Offer" 
+                className="w-32 h-auto animate-bounce"
+              />
+            </div>
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-2">Featured Cars for Sale in Kenya</h2>
+              <h2 className="text-4xl font-bold mb-2 glitter-text">Featured Cars for Sale in Kenya</h2>
               <p className="text-muted-foreground">Premium quality vehicles - Toyota, Mazda, Nissan, Subaru & more</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -300,7 +309,14 @@ const Home = () => {
       {/* Available Cars Section */}
       <section className="py-16" aria-label="Available Cars">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Quality Used Cars for Sale in Nairobi, Kenya</h2>
+          <div className="flex items-center justify-center gap-4 mb-12">
+            <img 
+              src={christmasOffer} 
+              alt="Christmas Offer" 
+              className="w-24 h-auto"
+            />
+            <h2 className="text-4xl font-bold text-center glitter-text">Quality Used Cars for Sale in Nairobi, Kenya</h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {availableCars.map((car) => (
               <Link 

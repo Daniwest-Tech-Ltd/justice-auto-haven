@@ -789,6 +789,28 @@ const Auth = () => {
     );
   }
 
+  // Add snowfall effect
+  useEffect(() => {
+    const snowflakes = 50;
+    const container = document.body;
+    
+    for (let i = 0; i < snowflakes; i++) {
+      const flake = document.createElement("div");
+      flake.className = "snowflake";
+      flake.style.left = Math.random() * 100 + "vw";
+      flake.style.animationDuration = 2 + Math.random() * 3 + "s";
+      flake.style.animationDelay = Math.random() * 3 + "s";
+      flake.style.opacity = (Math.random() * 0.6 + 0.3).toString();
+      container.appendChild(flake);
+    }
+
+    return () => {
+      // Cleanup snowflakes on unmount
+      const flakes = document.querySelectorAll(".snowflake");
+      flakes.forEach(flake => flake.remove());
+    };
+  }, []);
+
   return (
     <>
       <div 
