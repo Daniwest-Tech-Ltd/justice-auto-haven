@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Plus, Trash2, Edit, FileText, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Edit, FileText, Link as LinkIcon, Upload, X } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 
 interface Blog {
@@ -34,6 +34,8 @@ const BlogManagement = () => {
     is_published: true,
   });
   const [newLink, setNewLink] = useState({ title: "", url: "" });
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -76,6 +78,46 @@ const BlogManagement = () => {
       ...formData,
       links: formData.links.filter((_, i) => i !== index),
     });
+  };
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      setUploadingImage(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, featured_image: publicUrl });
+      setUploadedImage(file);
+      
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveUploadedImage = () => {
+    setUploadedImage(null);
+    setFormData({ ...formData, featured_image: "" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -126,6 +168,7 @@ const BlogManagement = () => {
         links: [],
         is_published: true,
       });
+      setUploadedImage(null);
       setEditingBlog(null);
       setShowForm(false);
       fetchBlogs();
@@ -214,6 +257,7 @@ const BlogManagement = () => {
         </Button>
         <Button onClick={() => {
           setEditingBlog(null);
+          setUploadedImage(null);
           setFormData({
             title: "",
             excerpt: "",
@@ -268,14 +312,83 @@ const BlogManagement = () => {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="featured_image">Featured Image URL</Label>
-                <Input
-                  id="featured_image"
-                  value={formData.featured_image}
-                  onChange={(e) => setFormData({ ...formData, featured_image: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                />
+              <div className="space-y-4">
+                <Label>Featured Image</Label>
+                
+                {/* Image Upload Section */}
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                  <input
+                    type="file"
+                    id="image-upload"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImageUpload(file);
+                    }}
+                  />
+                  
+                  {uploadedImage || formData.featured_image ? (
+                    <div className="space-y-4">
+                      {formData.featured_image && (
+                        <div className="relative inline-block">
+                          <img
+                            src={formData.featured_image}
+                            alt="Preview"
+                            className="max-h-48 rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            className="absolute top-2 right-2"
+                            onClick={handleRemoveUploadedImage}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                        disabled={uploadingImage}
+                      >
+                        <Upload className="mr-2 h-4 w-4" />
+                        {uploadingImage ? "Uploading..." : "Change Image"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">
+                        Upload an image or use URL below
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                        disabled={uploadingImage}
+                      >
+                        <Upload className="mr-2 h-4 w-4" />
+                        {uploadingImage ? "Uploading..." : "Upload Image"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* URL Input as Alternative */}
+                <div>
+                  <Label htmlFor="featured_image" className="text-sm text-muted-foreground">
+                    Or enter image URL
+                  </Label>
+                  <Input
+                    id="featured_image"
+                    value={formData.featured_image}
+                    onChange={(e) => setFormData({ ...formData, featured_image: e.target.value })}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -317,6 +430,7 @@ const BlogManagement = () => {
                 <Button type="button" variant="outline" onClick={() => {
                   setShowForm(false);
                   setEditingBlog(null);
+                  setUploadedImage(null);
                 }}>
                   Cancel
                 </Button>
