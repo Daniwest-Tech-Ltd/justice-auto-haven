@@ -17,21 +17,43 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Fetch all sales with car and customer details
-    const { data: sales, error } = await supabase
+    // Fetch all sales with car details
+    const { data: sales, error: salesError } = await supabase
       .from("sales")
       .select(`
         *,
-        cars (make, model, year, stock_id),
-        profiles:customer_id (full_name, email, phone)
+        cars (make, model, year, stock_id)
       `)
       .order("sale_date", { ascending: false });
 
-    if (error) throw error;
+    if (salesError) {
+      console.error("Error fetching sales:", salesError);
+      throw salesError;
+    }
+
+    // Fetch customer profiles separately
+    const customerIds = sales?.map(sale => sale.customer_id).filter(Boolean) || [];
+    const { data: profiles, error: profilesError } = await supabase
+      .from("profiles")
+      .select("user_id, full_name, email, phone")
+      .in("user_id", customerIds);
+
+    if (profilesError) {
+      console.error("Error fetching profiles:", profilesError);
+    }
+
+    // Create a map of profiles for easy lookup
+    const profilesMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+
+    // Attach profile data to sales
+    const salesWithProfiles = sales?.map(sale => ({
+      ...sale,
+      profile: sale.customer_id ? profilesMap.get(sale.customer_id) : null
+    })) || [];
 
     // Calculate totals
-    const totalRevenue = sales?.reduce((sum, sale) => sum + Number(sale.sale_price), 0) || 0;
-    const totalSales = sales?.length || 0;
+    const totalRevenue = salesWithProfiles.reduce((sum, sale) => sum + Number(sale.sale_price), 0);
+    const totalSales = salesWithProfiles.length;
 
     // Generate HTML for PDF with better styling
     const htmlContent = `
@@ -193,14 +215,14 @@ serve(async (req) => {
             </tr>
           </thead>
           <tbody>
-            ${sales?.map(sale => `
+            ${salesWithProfiles.map(sale => `
               <tr>
                 <td>${new Date(sale.sale_date).toLocaleDateString()}</td>
                 <td><strong>${sale.cars?.stock_id || 'N/A'}</strong></td>
                 <td>${sale.cars?.year} ${sale.cars?.make} ${sale.cars?.model}</td>
                 <td>
-                  <div><strong>${sale.profiles?.full_name || 'N/A'}</strong></div>
-                  <div style="font-size: 11px; color: #666;">${sale.profiles?.email || ''}</div>
+                  <div><strong>${sale.profile?.full_name || 'N/A'}</strong></div>
+                  <div style="font-size: 11px; color: #666;">${sale.profile?.email || ''}</div>
                 </td>
                 <td>${sale.payment_type || 'N/A'}</td>
                 <td><strong>KSh ${Number(sale.sale_price).toLocaleString()}</strong></td>
