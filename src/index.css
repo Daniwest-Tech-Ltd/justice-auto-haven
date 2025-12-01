@@ -347,21 +347,34 @@ All colors MUST be HSL.
   background-size: 50px 50px;
 }
 
-/* Christmas Snowfall Effect */
+/* Christmas Snowfall Effect - Theme Aware */
 .snowflake {
   position: fixed;
   top: -10px;
   width: 8px;
   height: 8px;
-  background: white;
+  background: hsl(var(--foreground));
   border-radius: 50%;
-  opacity: 0.8;
+  opacity: 0.7;
   pointer-events: none;
   z-index: 9999;
   animation-name: fall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+/* Light mode - dark snowflakes */
+.light .snowflake {
+  background: hsl(210 100% 50%);
+  box-shadow: 0 0 6px hsl(210 100% 50% / 0.6);
+  opacity: 0.6;
+}
+
+/* Dark mode - white snowflakes */
+.dark .snowflake {
+  background: white;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+  opacity: 0.8;
 }
 
 @keyframes fall {
