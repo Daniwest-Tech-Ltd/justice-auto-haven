@@ -58,6 +58,7 @@ const Forbidden = lazy(() => import("./pages/Forbidden"));
 const ServerError = lazy(() => import("./pages/ServerError"));
 const HRManagement = lazy(() => import("./pages/HRManagement"));
 const AddStaff = lazy(() => import("./pages/AddStaff"));
+const StaffManagement = lazy(() => import("./pages/StaffManagement"));
 const StaffBadge = lazy(() => import("./pages/StaffBadge"));
 const PayrollManagement = lazy(() => import("./pages/PayrollManagement"));
 const AttendanceManagement = lazy(() => import("./pages/AttendanceManagement"));
@@ -447,12 +448,20 @@ const AppContent = () => {
             } 
           />
           
-          {/* HR Routes */}
+          {/* HR & Staff Routes */}
           <Route 
             path="/admin/hr" 
             element={
               <ProtectedRoute requiredRole="admin">
                 <HRManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/staff" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <StaffManagement />
               </ProtectedRoute>
             } 
           />
