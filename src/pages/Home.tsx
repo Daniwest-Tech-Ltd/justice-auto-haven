@@ -153,7 +153,7 @@ const Home = () => {
         <div className="relative container mx-auto px-4 h-full flex items-center">
           <div className="max-w-2xl space-y-6">
             <h1 className="text-3xl md:text-5xl font-bold leading-tight glitter-text">
-              Buy, Rent, or Trade-In Cars in Kenya – <span className="text-transparent bg-clip-text bg-gradient-gold christmas-glow">Justice Ultimate Automobiles</span>
+              Buy, Rent, or Trade-In Cars in Kenya – <span className="text-transparent bg-clip-text bg-gradient-gold">Justice Ultimate Automobiles</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground">
               Your Trusted Car Masters... with you every step of the way
