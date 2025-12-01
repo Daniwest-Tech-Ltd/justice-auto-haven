@@ -189,6 +189,7 @@ const AdminDashboard = () => {
         { title: "Customers", icon: Users, path: "/admin/customers" },
         { title: "CRM", icon: Activity, path: "/admin/crm" },
         { title: "Messages", icon: MessageSquare, path: "/admin/messages" },
+        { title: "Staff Management", icon: UserCog, path: "/admin/staff" },
       ]
     },
     {
