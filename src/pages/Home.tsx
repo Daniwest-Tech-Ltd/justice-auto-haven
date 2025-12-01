@@ -152,8 +152,8 @@ const Home = () => {
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-center">
           <div className="max-w-2xl space-y-6">
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight">
-              Buy, Rent, or Trade-In Cars in Kenya – <span className="text-transparent bg-clip-text bg-gradient-gold">Justice Ultimate Automobiles</span>
+            <h1 className="text-3xl md:text-5xl font-bold leading-tight glitter-text">
+              Buy, Rent, or Trade-In Cars in Kenya – <span className="text-transparent bg-clip-text bg-gradient-gold christmas-glow">Justice Ultimate Automobiles</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground">
               Your Trusted Car Masters... with you every step of the way
@@ -231,12 +231,12 @@ const Home = () => {
       {featuredCars.length > 0 && (
         <section className="py-16 bg-accent/5" aria-label="Featured Cars">
           <div className="container mx-auto px-4">
-            {/* Christmas Offer Image */}
-            <div className="flex justify-center mb-8">
+            {/* Christmas Offer Image - Positioned at top */}
+            <div className="flex justify-start mb-6">
               <img 
                 src={christmasOffer} 
                 alt="Christmas Special Offer" 
-                className="w-32 h-auto animate-bounce"
+                className="w-40 h-auto offer-badge"
               />
             </div>
             <div className="text-center mb-12">
@@ -309,13 +309,13 @@ const Home = () => {
       {/* Available Cars Section */}
       <section className="py-16" aria-label="Available Cars">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-4 mb-12">
+          <div className="flex items-center justify-start gap-4 mb-12">
             <img 
               src={christmasOffer} 
               alt="Christmas Offer" 
-              className="w-24 h-auto"
+              className="w-32 h-auto offer-badge"
             />
-            <h2 className="text-4xl font-bold text-center glitter-text">Quality Used Cars for Sale in Nairobi, Kenya</h2>
+            <h2 className="text-4xl font-bold glitter-text">Quality Used Cars for Sale in Nairobi, Kenya</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {availableCars.map((car) => (

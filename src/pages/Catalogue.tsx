@@ -295,15 +295,16 @@ const Catalogue = () => {
     <div className="min-h-screen">
       {/* Hero Banner Section */}
       <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-8 mb-6">
-        {/* Christmas Garland - Top of Catalogue */}
-        <img 
-          src={christmasGarland} 
-          alt="" 
-          className="absolute top-0 left-0 right-0 w-full h-auto z-10 pointer-events-none max-h-16"
-          style={{ objectFit: 'contain', objectPosition: 'top' }}
-        />
+        {/* Christmas Offer - Top Center of Catalogue */}
+        <div className="flex justify-center mb-4 pt-4">
+          <img 
+            src={christmasOffer} 
+            alt="Christmas Special Offer" 
+            className="w-48 h-auto offer-badge z-20"
+          />
+        </div>
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="container mx-auto px-4 relative z-10 pt-12">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="flex justify-end gap-3 mb-6">
             <Button
               variant="outline"
@@ -541,7 +542,9 @@ const Catalogue = () => {
                           alt={`${car.make} ${car.model}`}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         />
-                        <Badge className="absolute top-3 left-24 bg-primary shadow-lg">
+                        
+                        {/* Year Badge - Center */}
+                        <Badge className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary/90 shadow-2xl text-xl px-6 py-2 font-bold">
                           {car.year}
                         </Badge>
                         

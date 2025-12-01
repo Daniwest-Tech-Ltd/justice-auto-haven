@@ -402,27 +402,35 @@ All colors MUST be HSL.
   }
 }
 
-/* Christmas Offer Badge */
-.offer-badge {
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  color: #8B0000;
-  font-weight: bold;
-  padding: 8px 16px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-  animation: badgePulse 2s infinite;
-}
-
-@keyframes badgePulse {
-  0%, 100% {
-    transform: scale(1);
+  /* Christmas Offer Badge */
+  .offer-badge {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #8B0000;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 12px;
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    animation: badgeDance 2s infinite;
   }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+
+  @keyframes badgeDance {
+    0%, 100% {
+      transform: scale(1) rotate(-3deg);
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    }
+    25% {
+      transform: scale(1.08) rotate(3deg);
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+    }
+    50% {
+      transform: scale(1.05) rotate(-3deg);
+      box-shadow: 0 8px 25px rgba(255, 215, 0, 0.7);
+    }
+    75% {
+      transform: scale(1.08) rotate(3deg);
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+    }
   }
-}
 
 /* Christmas Card Effects */
 .christmas-card {
