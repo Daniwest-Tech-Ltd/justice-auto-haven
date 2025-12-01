@@ -4,6 +4,8 @@ import { Menu, X, Moon, Sun, User, LogOut, Home as HomeIcon, LayoutDashboard, He
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import logo from "@/assets/logo.png";
+import christmasBells from "@/assets/christmas-bells.png";
+import christmasCorner from "@/assets/christmas-corner.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LogoutConfirmModal } from "./LogoutConfirmModal";
@@ -175,6 +177,20 @@ const Header = () => {
     <TooltipProvider>
     <>
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
+      {/* Christmas Corner Decoration - Top Left */}
+      <img 
+        src={christmasCorner} 
+        alt="" 
+        className="absolute top-0 left-0 w-16 md:w-20 h-16 md:h-20 z-10 pointer-events-none"
+      />
+      
+      {/* Christmas Bells - Center Top */}
+      <img 
+        src={christmasBells} 
+        alt="" 
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-32 md:w-48 h-auto z-10 pointer-events-none"
+      />
+      
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
