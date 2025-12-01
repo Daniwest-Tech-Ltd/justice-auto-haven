@@ -177,18 +177,18 @@ const Header = () => {
     <TooltipProvider>
     <>
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
-      {/* Christmas Corner Decoration - Moved much lower and right */}
+      {/* Christmas Corner Decoration - Right side */}
       <img 
         src={christmasCorner} 
         alt="" 
-        className="absolute top-14 left-2 w-10 md:w-12 h-10 md:h-12 z-10 pointer-events-none offer-badge"
+        className="absolute top-14 right-[60%] w-10 md:w-12 h-10 md:h-12 z-10 pointer-events-none offer-badge"
       />
       
-      {/* Christmas Bells - Moved far right */}
+      {/* Christmas Bells - Far right corner */}
       <img 
         src={christmasBells} 
         alt="" 
-        className="absolute top-12 right-[35%] w-20 md:w-28 h-auto z-10 pointer-events-none offer-badge"
+        className="absolute top-12 right-4 w-20 md:w-28 h-auto z-10 pointer-events-none offer-badge"
       />
       
       <div className="container mx-auto px-4">
