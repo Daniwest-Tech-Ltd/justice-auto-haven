@@ -63,7 +63,7 @@ const AddStaff = () => {
       if (error) throw error;
 
       toast.success("Staff Added Successfully");
-      navigate("/admin/staff-management");
+      navigate("/admin/staff");
     } catch (error: any) {
       toast.error(error.message || "Failed to add staff");
     } finally {
@@ -75,7 +75,7 @@ const AddStaff = () => {
     <div className="min-h-screen p-4 lg:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/staff-management")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/staff")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
@@ -169,7 +169,7 @@ const AddStaff = () => {
               </div>
 
               <div className="flex justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => navigate("/admin/staff-management")}>
+                <Button type="button" variant="outline" onClick={() => navigate("/admin/staff")}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>

@@ -188,6 +188,15 @@ const AppContent = () => {
               </ProtectedRoute>
             } 
           />
+          {/* Redirect /admin to /admin-dashboard */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/customer-dashboard" 
             element={

@@ -79,7 +79,7 @@ export default function StaffManagement() {
 
   useEffect(() => {
     if (role?.role !== "admin") {
-      navigate("/admin");
+      navigate("/admin-dashboard");
       return;
     }
     fetchStaff();
@@ -180,7 +180,7 @@ export default function StaffManagement() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/admin-dashboard")}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
