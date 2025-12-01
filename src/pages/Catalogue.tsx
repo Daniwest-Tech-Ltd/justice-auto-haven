@@ -12,6 +12,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import christmasGarland from "@/assets/christmas-garland.png";
 
 interface Car {
   id: string;
@@ -293,8 +294,15 @@ const Catalogue = () => {
     <div className="min-h-screen">
       {/* Hero Banner Section */}
       <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-8 mb-6">
+        {/* Christmas Garland - Top of Catalogue */}
+        <img 
+          src={christmasGarland} 
+          alt="" 
+          className="absolute top-0 left-0 right-0 w-full h-auto z-10 pointer-events-none max-h-16"
+          style={{ objectFit: 'contain', objectPosition: 'top' }}
+        />
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 pt-12">
           <div className="flex justify-end gap-3 mb-6">
             <Button
               variant="outline"
