@@ -38,6 +38,12 @@ Crawl-delay: 1
 Sitemap: https://www.justiceultimateautomobiles.com/sitemap.xml
 
 # Important Keywords for Crawlers
-# Car dealer Kenya, Car sales Nairobi, Used cars Kenya, Car rentals Kenya
-# Trade-in cars Kenya, Best car dealership Nairobi, Affordable cars Kenya
-# Toyota Kenya, Mazda Kenya, Nissan Kenya, Subaru Kenya, Honda Kenya
+# Best car dealer Kenya, Cars for sale Kenya, Car sales Nairobi Kisumu Mombasa Nakuru Nyeri Thika Kisii
+# Toyota Premio Allion Axio Fielder Harrier Prado Land Cruiser Noah Voxy Alphard Hilux Mark X Kenya
+# Subaru Forester Outback Impreza Legacy XV Kenya, Nissan Note X-Trail Juke March Serena Kenya
+# Mazda CX-5 CX-3 Demio Atenza Kenya, Honda Fit Vezel CR-V Freed Kenya
+# BMW X5 X3 Mercedes Benz C-Class E-Class Audi Q5 Q7 Range Rover Sport Kenya
+# Mitsubishi Outlander RVR Pajero Kenya, Suzuki Swift Alto Wagon R Kenya
+# Ford Ranger Everest Kenya, VW Golf Tiguan Passat Kenya, Hyundai Tucson Kenya, Kia Sportage Kenya
+# Sedan Hatchback SUV Crossover Pickup 4x4 7-seater Hybrid Diesel Petrol Kenya
+# Car rentals Kenya, Car trade-in Kenya, Justice Ultimate Automobiles, Justice Vincent Daniel Maina
