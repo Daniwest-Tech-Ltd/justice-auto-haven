@@ -46,6 +46,34 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
+  const [isGeneratingReports, setIsGeneratingReports] = useState(false);
+
+  const handleGenerateDailyReports = async () => {
+    try {
+      setIsGeneratingReports(true);
+      toast({
+        title: "Generating Reports",
+        description: "Please wait while we generate daily reports for all staff...",
+      });
+
+      const { data, error } = await supabase.functions.invoke('generate-daily-reports');
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: data.message || "Daily reports generated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingReports(false);
+    }
+  };
 
   useEffect(() => {
     if (!loading && (!user || role?.role !== "admin")) {
@@ -205,6 +233,7 @@ const AdminDashboard = () => {
       label: "Business Intelligence",
       items: [
         { title: "Reports", icon: BarChart3, path: "/admin/reports" },
+        { title: "Daily Reports", icon: FileText, path: "/admin/daily-reports" },
         { title: "AI Security", icon: Shield, path: "/admin/security" },
       ]
     },
@@ -324,6 +353,10 @@ const AdminDashboard = () => {
                 <NotificationsPanel />
                 <Button variant="ghost" size="icon" onClick={() => navigate("/admin/messages")}>
                   <MessageSquare className="h-5 w-5" />
+                </Button>
+                <Button onClick={handleGenerateDailyReports} size="sm" disabled={isGeneratingReports}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  {isGeneratingReports ? "Generating..." : "Generate Reports"}
                 </Button>
                 <Button onClick={() => navigate("/admin/cars/add")} size="sm">Add Vehicle</Button>
               </div>

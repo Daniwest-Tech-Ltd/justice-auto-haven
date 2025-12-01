@@ -36,7 +36,7 @@ serve(async (req) => {
     // Get all active users (staff)
     const { data: staffList, error: staffError } = await supabase
       .from("staff")
-      .select("id, user_id, full_name, position, department")
+      .select("id, user_id, first_name, last_name, role, department")
       .eq("status", "active");
 
     if (staffError) throw staffError;
@@ -100,11 +100,12 @@ serve(async (req) => {
         });
       }
 
-      // Generate report data (simplified - in production, generate actual PDF)
+      // Generate report data
+      const staffName = `${staff.first_name} ${staff.last_name}`;
       const reportData = {
         date: dateStr,
-        staff_name: staff.full_name,
-        position: staff.position,
+        staff_name: staffName,
+        role: staff.role,
         department: staff.department,
         attendance_status: attendance?.status || "absent",
         time_in: attendance?.time_in || null,
@@ -136,10 +137,10 @@ serve(async (req) => {
         });
 
       if (reportError) {
-        console.error(`Error saving report for ${staff.full_name}:`, reportError);
+        console.error(`Error saving report for ${staffName}:`, reportError);
       } else {
         reportsGenerated++;
-        console.log(`Report generated for ${staff.full_name}`);
+        console.log(`Report generated for ${staffName}`);
       }
     }
 
