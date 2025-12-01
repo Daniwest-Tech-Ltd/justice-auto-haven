@@ -110,11 +110,15 @@ export default function StaffManagement() {
     try {
       setLoading(true);
 
+      // Generate username from email
+      const username = formData.email.split('@')[0];
+
       const { error } = await supabase.from("staff").insert({
+        username: username,
         email: formData.email,
         first_name: formData.first_name,
         last_name: formData.last_name,
-        phone: formData.phone,
+        phone: formData.phone || '',
         role: formData.role,
         department: formData.department,
         branch: formData.branch,
