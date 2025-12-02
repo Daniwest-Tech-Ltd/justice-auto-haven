@@ -187,7 +187,7 @@ const Header = () => {
               <img 
                 src={christmasHat} 
                 alt="" 
-                className="absolute -top-3 -left-1 w-10 h-10 object-contain pointer-events-none z-10"
+                className="absolute -top-3 -left-1 w-10 h-10 object-contain pointer-events-none z-10 animate-swing origin-bottom"
               />
             </div>
             <span className="text-xl font-bold bg-gradient-accent bg-clip-text text-transparent hidden sm:block">
