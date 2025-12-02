@@ -294,18 +294,18 @@ const Catalogue = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Banner Section */}
-      <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-8 mb-6">
+      <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-3 mb-4">
         {/* Christmas Offer - Top Center of Catalogue */}
-        <div className="flex justify-center mb-4 pt-4">
+        <div className="flex justify-center mb-2 pt-1">
           <img 
             src={specialOffer} 
             alt="Christmas Special Offer" 
-            className="w-40 h-auto offer-badge z-20"
+            className="w-32 h-auto offer-badge z-20"
           />
         </div>
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="flex justify-end gap-3 mb-6">
+          <div className="flex justify-end gap-3 mb-4">
             <Button
               variant="outline"
               onClick={() => navigate('/trade-in-submission')}
@@ -322,18 +322,18 @@ const Catalogue = () => {
             </Button>
           </div>
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-5xl font-bold mb-3 bg-gradient-accent bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-5xl font-bold mb-2 bg-gradient-accent bg-clip-text text-transparent">
               Cars for Sale in Kenya | Affordable & Verified Vehicles
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground mb-3">
+            <p className="text-base md:text-lg text-muted-foreground mb-2">
               Best Car Dealership in Nairobi, Kenya - Toyota, Mazda, Nissan, Subaru & More
             </p>
-            <p className="text-sm text-muted-foreground mb-5">
+            <p className="text-sm text-muted-foreground mb-4">
               Quality, Verified, and Ready for Delivery • Lipa Mdogo Mdogo Available
             </p>
             
             {/* Contact Buttons */}
-            <div className="flex flex-wrap justify-center gap-3 mb-5">
+            <div className="flex flex-wrap justify-center gap-3 mb-4">
               <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
                 <Button size="default" className="gap-2 bg-green-600 hover:bg-green-700">
                   <MessageCircle className="h-4 w-4" />
@@ -349,8 +349,8 @@ const Catalogue = () => {
             </div>
 
             {/* Trust Indicators */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 max-w-4xl mx-auto">
-              <div className="glass-strong rounded-lg p-3 flex items-center gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 max-w-4xl mx-auto">
+              <div className="glass-strong rounded-lg p-2 flex items-center gap-2">
                 <Shield className="h-6 w-6 text-primary flex-shrink-0" />
                 <div className="text-left">
                   <p className="font-semibold text-xs">Verified Vehicles</p>
@@ -358,7 +358,7 @@ const Catalogue = () => {
                 </div>
               </div>
               <a href="https://maps.app.goo.gl/92DgyWn62UNSR26p8" target="_blank" rel="noopener noreferrer" className="block">
-                <div className="glass-strong rounded-lg p-3 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer">
+                <div className="glass-strong rounded-lg p-2 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer">
                   <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
                   <div className="text-left">
                     <p className="font-semibold text-xs">Visit Our Yard</p>
@@ -366,7 +366,7 @@ const Catalogue = () => {
                   </div>
                 </div>
               </a>
-              <div className="glass-strong rounded-lg p-3 flex items-center gap-2">
+              <div className="glass-strong rounded-lg p-2 flex items-center gap-2">
                 <Clock className="h-6 w-6 text-primary flex-shrink-0" />
                 <div className="text-left">
                   <p className="font-semibold text-xs">Quick Processing</p>
@@ -375,7 +375,7 @@ const Catalogue = () => {
               </div>
               <button 
                 onClick={() => setPaymentModalOpen(true)}
-                className="glass-strong rounded-lg p-3 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer w-full"
+                className="glass-strong rounded-lg p-2 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer w-full"
               >
                 <CreditCard className="h-6 w-6 text-primary flex-shrink-0" />
                 <div className="text-left">
