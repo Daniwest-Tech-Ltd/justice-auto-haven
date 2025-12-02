@@ -181,18 +181,18 @@ const Header = () => {
       <img 
         src={christmasCorner} 
         alt="" 
-        className="absolute -top-2 left-0 w-12 md:w-16 h-12 md:h-16 z-10 pointer-events-none"
+        className="absolute top-0 left-0 w-10 md:w-12 h-10 md:h-12 z-10 pointer-events-none"
       />
       
       {/* Christmas Bells - Center Top */}
       <img 
         src={christmasBells} 
         alt="" 
-        className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 md:w-36 h-auto z-10 pointer-events-none"
+        className="absolute -top-1 left-1/2 -translate-x-1/2 w-16 md:w-24 h-auto z-10 pointer-events-none"
       />
       
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
             <img src={logo} alt="Justice Ultimate Automobiles" className="h-12 w-12 object-contain" />

@@ -51,7 +51,7 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Content */}
       <div className="relative z-10">
         <Header />
-        <main className="pt-20">{children}</main>
+        <main className="pt-16">{children}</main>
         <Footer />
       </div>
     </div>
