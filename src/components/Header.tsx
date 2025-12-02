@@ -177,25 +177,12 @@ const Header = () => {
     <TooltipProvider>
     <>
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
-      {/* Christmas Corner Decoration - Top Left */}
-      <img 
-        src={christmasCorner} 
-        alt="" 
-        className="absolute top-0 left-0 w-10 md:w-12 h-10 md:h-12 z-10 pointer-events-none"
-      />
-      
-      {/* Christmas Bells - Center Top */}
-      <img 
-        src={christmasBells} 
-        alt="" 
-        className="absolute -top-1 left-1/2 -translate-x-1/2 w-16 md:w-24 h-auto z-10 pointer-events-none"
-      />
-      
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <span className="text-xl font-bold bg-gradient-accent bg-clip-text text-transparent">
+            <img src={logo} alt="Justice Ultimate Automobiles" className="h-12 w-12 object-contain" />
+            <span className="text-xl font-bold bg-gradient-accent bg-clip-text text-transparent hidden sm:block">
               JUSTICE ULTIMATE AUTOMOBILES
             </span>
           </Link>
