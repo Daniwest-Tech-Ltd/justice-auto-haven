@@ -98,12 +98,21 @@ export default {
             boxShadow: "0 0 60px hsl(var(--primary) / 0.5)",
           },
         },
+        "swing": {
+          "0%, 100%": {
+            transform: "rotate(-8deg)",
+          },
+          "50%": {
+            transform: "rotate(8deg)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 1s ease-out",
         "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+        "swing": "swing 2s ease-in-out infinite",
       },
       backgroundImage: {
         "gradient-hero": "var(--gradient-hero)",
