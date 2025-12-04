@@ -30,10 +30,10 @@ serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get user profile with phone number
+    // Get user profile with phone number and country code
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("phone, full_name")
+      .select("phone, full_name, country_code")
       .eq("user_id", userId)
       .single();
 
@@ -88,20 +88,28 @@ serve(async (req: Request) => {
       );
     }
 
-    // Format phone number to +254XXXXXXXXX format
-    const formatPhoneNumber = (phone: string): string => {
+    // Get country code from profile (default to +254 for Kenya)
+    const userCountryCode = profile.country_code || '+254';
+    
+    // Format phone number using stored country code
+    const formatPhoneNumber = (phone: string, countryCode: string): string => {
       let cleaned = phone.toString().replace(/\D/g, '');
       if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+      // Remove any existing country code prefix
       if (cleaned.startsWith('254')) cleaned = cleaned.substring(3);
-      return '+254' + cleaned;
+      // Also check for other common prefixes based on country code
+      const codeDigits = countryCode.replace(/\D/g, '');
+      if (cleaned.startsWith(codeDigits)) cleaned = cleaned.substring(codeDigits.length);
+      return countryCode + cleaned;
     };
 
-    // Validate phone number (must be 9 digits after formatting)
+    // Validate phone number (must be 9 digits after formatting for Kenya, but varies by country)
     const validatePhone = (phone: string): boolean => {
       let cleaned = phone.toString().replace(/\D/g, '');
       if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
       if (cleaned.startsWith('254')) cleaned = cleaned.substring(3);
-      return cleaned.length === 9;
+      // Allow 7-12 digit numbers to accommodate various African countries
+      return cleaned.length >= 7 && cleaned.length <= 12;
     };
 
     if (!validatePhone(profile.phone)) {
@@ -112,7 +120,7 @@ serve(async (req: Request) => {
       );
     }
 
-    const formattedPhone = formatPhoneNumber(profile.phone);
+    const formattedPhone = formatPhoneNumber(profile.phone, userCountryCode);
 
     console.log(`Sending WhatsApp OTP to ${formattedPhone}`);
 

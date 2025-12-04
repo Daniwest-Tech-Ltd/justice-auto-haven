@@ -1547,6 +1547,7 @@ export type Database = {
           account_status: string | null
           activation_code: string | null
           avatar_url: string | null
+          country_code: string | null
           county_city: string | null
           created_at: string | null
           email: string
@@ -1576,6 +1577,7 @@ export type Database = {
           account_status?: string | null
           activation_code?: string | null
           avatar_url?: string | null
+          country_code?: string | null
           county_city?: string | null
           created_at?: string | null
           email: string
@@ -1605,6 +1607,7 @@ export type Database = {
           account_status?: string | null
           activation_code?: string | null
           avatar_url?: string | null
+          country_code?: string | null
           county_city?: string | null
           created_at?: string | null
           email?: string

@@ -1,0 +1,66 @@
+export interface CountryCode {
+  code: string;
+  country: string;
+  flag: string;
+  dialCode: string;
+}
+
+export const africanCountryCodes: CountryCode[] = [
+  { code: "DZ", country: "Algeria", flag: "🇩🇿", dialCode: "+213" },
+  { code: "AO", country: "Angola", flag: "🇦🇴", dialCode: "+244" },
+  { code: "BJ", country: "Benin", flag: "🇧🇯", dialCode: "+229" },
+  { code: "BW", country: "Botswana", flag: "🇧🇼", dialCode: "+267" },
+  { code: "BF", country: "Burkina Faso", flag: "🇧🇫", dialCode: "+226" },
+  { code: "BI", country: "Burundi", flag: "🇧🇮", dialCode: "+257" },
+  { code: "CV", country: "Cabo Verde", flag: "🇨🇻", dialCode: "+238" },
+  { code: "CM", country: "Cameroon", flag: "🇨🇲", dialCode: "+237" },
+  { code: "CF", country: "Central African Republic", flag: "🇨🇫", dialCode: "+236" },
+  { code: "TD", country: "Chad", flag: "🇹🇩", dialCode: "+235" },
+  { code: "KM", country: "Comoros", flag: "🇰🇲", dialCode: "+269" },
+  { code: "CG", country: "Congo", flag: "🇨🇬", dialCode: "+242" },
+  { code: "CD", country: "DR Congo", flag: "🇨🇩", dialCode: "+243" },
+  { code: "CI", country: "Côte d'Ivoire", flag: "🇨🇮", dialCode: "+225" },
+  { code: "DJ", country: "Djibouti", flag: "🇩🇯", dialCode: "+253" },
+  { code: "EG", country: "Egypt", flag: "🇪🇬", dialCode: "+20" },
+  { code: "GQ", country: "Equatorial Guinea", flag: "🇬🇶", dialCode: "+240" },
+  { code: "ER", country: "Eritrea", flag: "🇪🇷", dialCode: "+291" },
+  { code: "SZ", country: "Eswatini", flag: "🇸🇿", dialCode: "+268" },
+  { code: "ET", country: "Ethiopia", flag: "🇪🇹", dialCode: "+251" },
+  { code: "GA", country: "Gabon", flag: "🇬🇦", dialCode: "+241" },
+  { code: "GM", country: "Gambia", flag: "🇬🇲", dialCode: "+220" },
+  { code: "GH", country: "Ghana", flag: "🇬🇭", dialCode: "+233" },
+  { code: "GN", country: "Guinea", flag: "🇬🇳", dialCode: "+224" },
+  { code: "GW", country: "Guinea-Bissau", flag: "🇬🇼", dialCode: "+245" },
+  { code: "KE", country: "Kenya", flag: "🇰🇪", dialCode: "+254" },
+  { code: "LS", country: "Lesotho", flag: "🇱🇸", dialCode: "+266" },
+  { code: "LR", country: "Liberia", flag: "🇱🇷", dialCode: "+231" },
+  { code: "LY", country: "Libya", flag: "🇱🇾", dialCode: "+218" },
+  { code: "MG", country: "Madagascar", flag: "🇲🇬", dialCode: "+261" },
+  { code: "MW", country: "Malawi", flag: "🇲🇼", dialCode: "+265" },
+  { code: "ML", country: "Mali", flag: "🇲🇱", dialCode: "+223" },
+  { code: "MR", country: "Mauritania", flag: "🇲🇷", dialCode: "+222" },
+  { code: "MU", country: "Mauritius", flag: "🇲🇺", dialCode: "+230" },
+  { code: "MA", country: "Morocco", flag: "🇲🇦", dialCode: "+212" },
+  { code: "MZ", country: "Mozambique", flag: "🇲🇿", dialCode: "+258" },
+  { code: "NA", country: "Namibia", flag: "🇳🇦", dialCode: "+264" },
+  { code: "NE", country: "Niger", flag: "🇳🇪", dialCode: "+227" },
+  { code: "NG", country: "Nigeria", flag: "🇳🇬", dialCode: "+234" },
+  { code: "RW", country: "Rwanda", flag: "🇷🇼", dialCode: "+250" },
+  { code: "ST", country: "São Tomé and Príncipe", flag: "🇸🇹", dialCode: "+239" },
+  { code: "SN", country: "Senegal", flag: "🇸🇳", dialCode: "+221" },
+  { code: "SC", country: "Seychelles", flag: "🇸🇨", dialCode: "+248" },
+  { code: "SL", country: "Sierra Leone", flag: "🇸🇱", dialCode: "+232" },
+  { code: "SO", country: "Somalia", flag: "🇸🇴", dialCode: "+252" },
+  { code: "ZA", country: "South Africa", flag: "🇿🇦", dialCode: "+27" },
+  { code: "SS", country: "South Sudan", flag: "🇸🇸", dialCode: "+211" },
+  { code: "SD", country: "Sudan", flag: "🇸🇩", dialCode: "+249" },
+  { code: "TZ", country: "Tanzania", flag: "🇹🇿", dialCode: "+255" },
+  { code: "TG", country: "Togo", flag: "🇹🇬", dialCode: "+228" },
+  { code: "TN", country: "Tunisia", flag: "🇹🇳", dialCode: "+216" },
+  { code: "UG", country: "Uganda", flag: "🇺🇬", dialCode: "+256" },
+  { code: "ZM", country: "Zambia", flag: "🇿🇲", dialCode: "+260" },
+  { code: "ZW", country: "Zimbabwe", flag: "🇿🇼", dialCode: "+263" },
+];
+
+// Default to Kenya
+export const defaultCountryCode = africanCountryCodes.find(c => c.code === "KE")!;
