@@ -62,10 +62,10 @@ Daniel Maina: 0701460110
 
 🌐 www.justiceultimateautomobiles.com`;
 
-    // Get all customer profiles with phone numbers (active accounts)
+    // Get all customer profiles with phone numbers and country codes (active accounts)
     const { data: customers, error: customersError } = await supabase
       .from("profiles")
-      .select("phone, full_name, user_id")
+      .select("phone, full_name, user_id, country_code")
       .eq("account_status", "active")
       .not("phone", "is", null);
 
@@ -82,20 +82,23 @@ Daniel Maina: 0701460110
     let successCount = 0;
     let failCount = 0;
 
-    // Phone formatting helper function
-    const formatPhoneNumber = (phone: string): string => {
+    // Phone formatting helper function (uses stored country code)
+    const formatPhoneNumber = (phone: string, countryCode: string): string => {
       let cleaned = phone.toString().replace(/\D/g, '');
       if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+      // Remove any existing country code prefix
+      const codeDigits = countryCode.replace(/\D/g, '');
+      if (cleaned.startsWith(codeDigits)) cleaned = cleaned.substring(codeDigits.length);
       if (cleaned.startsWith('254')) cleaned = cleaned.substring(3);
-      return '+254' + cleaned;
+      return countryCode + cleaned;
     };
 
-    // Validate phone number (must be 9 digits after formatting)
+    // Validate phone number (allow 7-12 digits for various African countries)
     const validatePhone = (phone: string): boolean => {
       let cleaned = phone.toString().replace(/\D/g, '');
       if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
       if (cleaned.startsWith('254')) cleaned = cleaned.substring(3);
-      return cleaned.length === 9;
+      return cleaned.length >= 7 && cleaned.length <= 12;
     };
 
     // Send to each customer
@@ -108,7 +111,9 @@ Daniel Maina: 0701460110
         continue;
       }
 
-      const formattedPhone = formatPhoneNumber(customer.phone);
+      // Use stored country code or default to +254
+      const customerCountryCode = customer.country_code || '+254';
+      const formattedPhone = formatPhoneNumber(customer.phone, customerCountryCode);
 
       try {
         const response = await fetch("https://api.apiwap.com/api/v1/whatsapp/send-message", {

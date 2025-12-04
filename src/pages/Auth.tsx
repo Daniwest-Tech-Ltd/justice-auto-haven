@@ -28,6 +28,7 @@ import maintenanceGif from "@/assets/maintenance.gif";
 import googleIcon from "@/assets/google-icon.svg";
 import kenyaLocations from "@/data/kenya-locations.json";
 import { Combobox } from "@/components/ui/combobox";
+import { PhoneInputWithCountryCode } from "@/components/PhoneInputWithCountryCode";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
 
@@ -72,6 +73,7 @@ const Auth = () => {
   const [preferredContact, setPreferredContact] = useState("email");
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [countryCode, setCountryCode] = useState("+254"); // Default to Kenya
 
   const [maintenanceMode, setMaintenanceMode] = useState<{
     is_active: boolean;
@@ -701,6 +703,9 @@ const Auth = () => {
     try {
       const redirectUrl = `${window.location.origin}/auth`;
       
+      // Format full phone number with country code
+      const fullPhone = `${countryCode}${regPhone}`;
+      
       const { data, error } = await supabase.auth.signUp({
         email: regEmail,
         password: regPassword,
@@ -709,7 +714,7 @@ const Auth = () => {
           captchaToken,
           data: {
             full_name: regFullName,
-            phone: regPhone,
+            phone: fullPhone,
           }
         }
       });
@@ -717,12 +722,13 @@ const Auth = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Update profile with additional details
+        // Update profile with additional details including country code
         await supabase.from("profiles").update({
           gender: gender[0],
           county_city: countyCity,
           exact_location: exactLocation,
           preferred_contact: preferredContact,
+          country_code: countryCode,
         }).eq("user_id", data.user.id);
 
         setShowSuccessDialog(true);
@@ -922,12 +928,12 @@ const Auth = () => {
                 onChange={(e) => setRegEmail(e.target.value)}
                 required
               />
-              <Input 
-                type="tel" 
-                placeholder="Phone (e.g., +254...)" 
-                className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200"
+              <PhoneInputWithCountryCode
                 value={regPhone}
-                onChange={(e) => setRegPhone(e.target.value)}
+                onChange={setRegPhone}
+                countryCode={countryCode}
+                onCountryCodeChange={setCountryCode}
+                placeholder="Phone number"
                 required
               />
               
