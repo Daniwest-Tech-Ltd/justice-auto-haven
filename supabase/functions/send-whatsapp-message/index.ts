@@ -36,13 +36,31 @@ serve(async (req: Request) => {
       );
     }
 
-    // Format phone number (ensure it starts with +254 for Kenya)
-    let formattedPhone = phoneNumber.replace(/\s+/g, "").replace(/-/g, "");
-    if (formattedPhone.startsWith("0")) {
-      formattedPhone = "+254" + formattedPhone.substring(1);
-    } else if (!formattedPhone.startsWith("+")) {
-      formattedPhone = "+" + formattedPhone;
+    // Format phone number to +254XXXXXXXXX format
+    const formatPhoneNumber = (phone: string): string => {
+      let cleaned = phone.toString().replace(/\D/g, '');
+      if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+      if (cleaned.startsWith('254')) cleaned = cleaned.substring(3);
+      return '+254' + cleaned;
+    };
+
+    // Validate phone number (must be 9 digits after formatting)
+    const validatePhone = (phone: string): boolean => {
+      let cleaned = phone.toString().replace(/\D/g, '');
+      if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+      if (cleaned.startsWith('254')) cleaned = cleaned.substring(3);
+      return cleaned.length === 9;
+    };
+
+    if (!validatePhone(phoneNumber)) {
+      console.log("Invalid phone number format:", phoneNumber);
+      return new Response(
+        JSON.stringify({ success: true, message: "Invalid phone number - skipped" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
+
+    const formattedPhone = formatPhoneNumber(phoneNumber);
 
     console.log(`Sending WhatsApp message to ${formattedPhone}`);
 

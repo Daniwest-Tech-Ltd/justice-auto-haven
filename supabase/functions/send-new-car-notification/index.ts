@@ -82,17 +82,33 @@ Daniel Maina: 0701460110
     let successCount = 0;
     let failCount = 0;
 
+    // Phone formatting helper function
+    const formatPhoneNumber = (phone: string): string => {
+      let cleaned = phone.toString().replace(/\D/g, '');
+      if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+      if (cleaned.startsWith('254')) cleaned = cleaned.substring(3);
+      return '+254' + cleaned;
+    };
+
+    // Validate phone number (must be 9 digits after formatting)
+    const validatePhone = (phone: string): boolean => {
+      let cleaned = phone.toString().replace(/\D/g, '');
+      if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+      if (cleaned.startsWith('254')) cleaned = cleaned.substring(3);
+      return cleaned.length === 9;
+    };
+
     // Send to each customer
     for (const customer of customers || []) {
       if (!customer.phone) continue;
 
-      // Format phone number
-      let formattedPhone = customer.phone.replace(/\s+/g, "").replace(/-/g, "");
-      if (formattedPhone.startsWith("0")) {
-        formattedPhone = "+254" + formattedPhone.substring(1);
-      } else if (!formattedPhone.startsWith("+")) {
-        formattedPhone = "+" + formattedPhone;
+      // Validate phone number
+      if (!validatePhone(customer.phone)) {
+        console.log(`Invalid phone format for customer, skipping: ${customer.phone}`);
+        continue;
       }
+
+      const formattedPhone = formatPhoneNumber(customer.phone);
 
       try {
         const response = await fetch("https://api.apiwap.com/api/v1/whatsapp/send-message", {
