@@ -50,3 +50,12 @@ verify_jwt = false
 
 [functions.ai-anomaly-detection]
 verify_jwt = false
+
+[functions.send-whatsapp-message]
+verify_jwt = false
+
+[functions.send-whatsapp-otp]
+verify_jwt = false
+
+[functions.send-new-car-notification]
+verify_jwt = false
