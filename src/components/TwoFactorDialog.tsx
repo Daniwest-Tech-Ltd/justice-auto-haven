@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Smartphone, Mail, Fingerprint, Clock } from "lucide-react";
+import { Smartphone, Mail, Fingerprint, Clock, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { startAuthentication } from '@simplewebauthn/browser';
@@ -18,6 +18,7 @@ interface TwoFactorDialogProps {
     email: boolean;
     totp: boolean;
     fingerprint: boolean;
+    whatsapp: boolean;
   };
   preferredMethod: string;
   onSuccess: () => void;
@@ -36,7 +37,9 @@ export const TwoFactorDialog = ({
   const [loading, setLoading] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState(preferredMethod);
   const [otpSent, setOtpSent] = useState(false);
+  const [whatsappOtpSent, setWhatsappOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(600); // 10 minutes in seconds
+  const [whatsappCountdown, setWhatsappCountdown] = useState(300); // 5 minutes for WhatsApp
   const { toast } = useToast();
 
   // Auto-send email OTP only once when dialog opens with email method
@@ -44,9 +47,12 @@ export const TwoFactorDialog = ({
     if (open && selectedMethod === 'email_otp' && !otpSent) {
       handleEmailOTP();
     }
+    if (open && selectedMethod === 'whatsapp_otp' && !whatsappOtpSent) {
+      handleWhatsAppOTP();
+    }
   }, [open]);
 
-  // Countdown timer
+  // Countdown timer for email
   useEffect(() => {
     if (otpSent && countdown > 0) {
       const timer = setInterval(() => {
@@ -55,6 +61,16 @@ export const TwoFactorDialog = ({
       return () => clearInterval(timer);
     }
   }, [otpSent, countdown]);
+
+  // Countdown timer for WhatsApp
+  useEffect(() => {
+    if (whatsappOtpSent && whatsappCountdown > 0) {
+      const timer = setInterval(() => {
+        setWhatsappCountdown((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [whatsappOtpSent, whatsappCountdown]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -88,6 +104,32 @@ export const TwoFactorDialog = ({
     }
   };
 
+  const handleWhatsAppOTP = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-whatsapp-otp', {
+        body: { userId, purpose: 'login' }
+      });
+
+      if (error) throw error;
+
+      setWhatsappOtpSent(true);
+      setWhatsappCountdown(300); // Reset to 5 minutes
+      toast({
+        title: "Code Sent",
+        description: "Check your WhatsApp for the verification code (valid for 5 minutes)",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const verifyEmailOTP = async () => {
     if (code.length !== 6) {
       toast({
@@ -100,6 +142,39 @@ export const TwoFactorDialog = ({
 
     setLoading(true);
     try {
+      const { data, error } = await supabase.functions.invoke('verify-email-otp', {
+        body: { userId, code, purpose: 'login' }
+      });
+
+      if (error || !data?.success) {
+        throw new Error(data?.error || "Invalid or expired code");
+      }
+
+      onSuccess();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyWhatsAppOTP = async () => {
+    if (code.length !== 6) {
+      toast({
+        title: "Invalid Code",
+        description: "Please enter the 6-digit code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // WhatsApp OTP uses the same verification as email OTP
       const { data, error } = await supabase.functions.invoke('verify-email-otp', {
         body: { userId, code, purpose: 'login' }
       });
@@ -214,6 +289,14 @@ export const TwoFactorDialog = ({
     }
   };
 
+  // Count available methods for grid columns
+  const methodCount = [
+    availableMethods.email,
+    availableMethods.whatsapp,
+    availableMethods.totp,
+    availableMethods.fingerprint
+  ].filter(Boolean).length;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md glass-strong" aria-describedby="2fa-description">
@@ -225,19 +308,24 @@ export const TwoFactorDialog = ({
         </DialogHeader>
 
         <Tabs value={selectedMethod} onValueChange={setSelectedMethod} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className={`grid w-full grid-cols-${methodCount}`}>
             {availableMethods.email && (
-              <TabsTrigger value="email_otp">
+              <TabsTrigger value="email_otp" title="Email OTP">
                 <Mail className="h-4 w-4" />
               </TabsTrigger>
             )}
+            {availableMethods.whatsapp && (
+              <TabsTrigger value="whatsapp_otp" title="WhatsApp OTP">
+                <MessageCircle className="h-4 w-4" />
+              </TabsTrigger>
+            )}
             {availableMethods.totp && (
-              <TabsTrigger value="totp">
+              <TabsTrigger value="totp" title="Authenticator App">
                 <Smartphone className="h-4 w-4" />
               </TabsTrigger>
             )}
             {availableMethods.fingerprint && (
-              <TabsTrigger value="fingerprint">
+              <TabsTrigger value="fingerprint" title="Fingerprint/Face ID">
                 <Fingerprint className="h-4 w-4" />
               </TabsTrigger>
             )}
@@ -287,6 +375,59 @@ export const TwoFactorDialog = ({
                     handleEmailOTP();
                   }} 
                   disabled={loading || countdown > 540}
+                  variant="outline"
+                >
+                  Resend
+                </Button>
+              </div>
+            </TabsContent>
+          )}
+
+          {availableMethods.whatsapp && (
+            <TabsContent value="whatsapp_otp" className="space-y-4">
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <MessageCircle className="h-4 w-4 text-green-500" />
+                  {whatsappOtpSent ? "Code sent to your WhatsApp" : "Sending code via WhatsApp..."}
+                </div>
+                {whatsappOtpSent && whatsappCountdown > 0 && (
+                  <div className="flex items-center justify-center gap-2 text-sm font-medium text-green-600">
+                    <Clock className="h-4 w-4" />
+                    <span>Valid for: {formatTime(whatsappCountdown)}</span>
+                  </div>
+                )}
+                {whatsappCountdown === 0 && (
+                  <div className="text-sm text-destructive">Code expired</div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Enter 6-digit code from WhatsApp</Label>
+                <Input
+                  type="text"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  className="text-center text-2xl font-mono tracking-widest"
+                  disabled={whatsappCountdown === 0}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  onClick={verifyWhatsAppOTP} 
+                  disabled={loading || code.length !== 6 || whatsappCountdown === 0}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  {loading ? "Verifying..." : "Verify"}
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setWhatsappOtpSent(false);
+                    handleWhatsAppOTP();
+                  }} 
+                  disabled={loading || whatsappCountdown > 240}
                   variant="outline"
                 >
                   Resend

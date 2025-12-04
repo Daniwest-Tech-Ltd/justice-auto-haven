@@ -209,9 +209,32 @@ const AddCar = () => {
         },
       });
 
+      // Send WhatsApp notifications to all customers
+      try {
+        const { error: notifyError } = await supabase.functions.invoke("send-new-car-notification", {
+          body: {
+            carId: carData.id,
+            make: formData.make,
+            model: formData.model,
+            year: formData.year,
+            price: parseFloat(formData.price),
+            stockId: autoStockId,
+            imageUrl: mainImageUrls[0] || null,
+          },
+        });
+
+        if (notifyError) {
+          console.error("WhatsApp notification error:", notifyError);
+        } else {
+          console.log("WhatsApp notifications sent successfully");
+        }
+      } catch (notifyErr) {
+        console.error("Failed to send WhatsApp notifications:", notifyErr);
+      }
+
       toast({
         title: "Success",
-        description: `Car added successfully with Stock ID: ${autoStockId}`,
+        description: `Car added successfully with Stock ID: ${autoStockId}. Customers notified via WhatsApp.`,
       });
 
       navigate("/admin/cars");

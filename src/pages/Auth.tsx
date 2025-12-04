@@ -42,7 +42,7 @@ const Auth = () => {
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [pendingUserEmail, setPendingUserEmail] = useState("");
-  const [available2FAMethods, setAvailable2FAMethods] = useState({ email: true, totp: false, fingerprint: false });
+  const [available2FAMethods, setAvailable2FAMethods] = useState({ email: true, totp: false, fingerprint: false, whatsapp: true });
   const [preferred2FAMethod, setPreferred2FAMethod] = useState("email_otp");
   const [otpTimeLeft, setOtpTimeLeft] = useState(600); // 10 minutes in seconds
   const navigate = useNavigate();
@@ -626,6 +626,7 @@ const Auth = () => {
             email: true,
             totp: cachedProfile.totp_enabled || false,
             fingerprint: cachedProfile.fingerprint_enabled || false,
+            whatsapp: true, // WhatsApp OTP available for all users with phone
           });
           setPreferred2FAMethod(cachedProfile.preferred_2fa || "email_otp");
           setPendingUserId(currentUserId);
