@@ -29,12 +29,13 @@ serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Check API key - if not configured, return success anyway (non-blocking)
     const apiKey = Deno.env.get("APIWAP_API_KEY");
     if (!apiKey) {
-      console.error("APIWAP_API_KEY not configured");
+      console.log("APIWAP_API_KEY not configured - skipping WhatsApp notifications");
       return new Response(
-        JSON.stringify({ error: "WhatsApp API not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ success: true, message: "Notifications skipped - API not configured" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
