@@ -194,6 +194,13 @@ const EditCar = () => {
         allAdditionalImageUrls.push(publicUrl);
       }
 
+      // Get the current car data for stock_id
+      const { data: currentCar } = await supabase
+        .from("cars")
+        .select("stock_id")
+        .eq("id", id)
+        .single();
+
       const { error: updateError } = await supabase
         .from("cars")
         .update({
@@ -206,6 +213,28 @@ const EditCar = () => {
         .eq("id", id);
 
       if (updateError) throw updateError;
+
+      // Send update notifications (email, WhatsApp, in-app) in background - non-blocking
+      supabase.functions.invoke("send-new-car-notification", {
+        body: {
+          carId: id,
+          make: formData.make,
+          model: formData.model,
+          year: formData.year,
+          price: formData.price,
+          stockId: currentCar?.stock_id || "N/A",
+          imageUrl: allMainImageUrls[0] || null,
+          color: formData.color,
+          fuelType: formData.fuel_type,
+          transmission: formData.transmission,
+          mileage: formData.mileage,
+          isUpdate: true,
+        },
+      }).then(() => {
+        console.log("Update notifications sent (email, WhatsApp, in-app)");
+      }).catch(() => {
+        // Silent fail - don't affect user experience
+      });
 
       toast({
         title: "Success",
