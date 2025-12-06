@@ -63,7 +63,6 @@ serve(async (req: Request) => {
       code: otp,
       purpose: purpose,
       expires_at: expiresAt.toISOString(),
-      is_used: false,
     });
 
     if (otpError) {

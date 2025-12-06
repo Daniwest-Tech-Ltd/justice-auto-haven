@@ -240,7 +240,7 @@ serve(async (req: Request) => {
 </html>`;
 
           const { error: emailError } = await resend.emails.send({
-            from: "Justice Ultimate Automobiles <notifications@justiceultimateautomobiles.com>",
+            from: "Justice Ultimate Automobiles <onboarding@resend.dev>",
             to: [customer.email],
             subject: `🚗 ${actionText}: ${carTitle} - KSh ${formattedPrice}`,
             html: emailHtml,
