@@ -623,24 +623,40 @@ const Auth = () => {
           return profData;
         })();
 
-        if (cachedProfile?.two_fa_enabled) {
-          setAvailable2FAMethods({
-            email: true,
-            totp: cachedProfile.totp_enabled || false,
-            fingerprint: cachedProfile.fingerprint_enabled || false,
-            whatsapp: true, // WhatsApp OTP available for all users with phone
-          });
-          setPreferred2FAMethod(cachedProfile.preferred_2fa || "email_otp");
-          setPendingUserId(currentUserId);
-          setPendingUserEmail(email);
-          setShow2FADialog(true);
-          setLoading(false);
-          return;
+        // ALWAYS require 2FA for ALL users - email OTP is the default
+        // Set available methods based on user's configured options
+        setAvailable2FAMethods({
+          email: true, // Email OTP always available
+          totp: cachedProfile?.totp_enabled || false,
+          fingerprint: cachedProfile?.fingerprint_enabled || false,
+          whatsapp: true, // WhatsApp OTP available for all users with phone
+        });
+        
+        // Use preferred method if 2FA is enabled, otherwise default to email OTP
+        setPreferred2FAMethod(
+          cachedProfile?.two_fa_enabled && cachedProfile?.preferred_2fa 
+            ? cachedProfile.preferred_2fa 
+            : "email_otp"
+        );
+        
+        setPendingUserId(currentUserId);
+        setPendingUserEmail(email);
+        
+        // Auto-send email OTP for users who don't have other 2FA methods configured
+        if (!cachedProfile?.two_fa_enabled || (!cachedProfile?.totp_enabled && !cachedProfile?.fingerprint_enabled)) {
+          try {
+            await supabase.functions.invoke('send-2fa-code', {
+              body: { email, userId: currentUserId }
+            });
+            sonnerToast.success("Verification code sent to your email");
+          } catch (error) {
+            console.error("Failed to send 2FA code:", error);
+          }
         }
-
-        // Log and complete login with cached name
-        logLoginAttempt(email, true);
-        await completeLogin(currentUserId, cachedProfile?.full_name);
+        
+        setShow2FADialog(true);
+        setLoading(false);
+        return;
       }
     } catch (error: any) {
       // Reset CAPTCHA on error
