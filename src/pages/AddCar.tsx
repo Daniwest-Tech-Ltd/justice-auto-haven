@@ -209,7 +209,7 @@ const AddCar = () => {
         },
       });
 
-      // Send WhatsApp notifications in background (fire-and-forget, non-blocking)
+      // Send notifications (email, WhatsApp, in-app) in background - non-blocking
       supabase.functions.invoke("send-new-car-notification", {
         body: {
           carId: carData.id,
@@ -219,9 +219,14 @@ const AddCar = () => {
           price: parseFloat(formData.price),
           stockId: autoStockId,
           imageUrl: mainImageUrls[0] || null,
+          color: formData.color,
+          fuelType: formData.fuel_type,
+          transmission: formData.transmission,
+          mileage: formData.mileage,
+          isUpdate: false,
         },
       }).then(() => {
-        console.log("WhatsApp notifications sent");
+        console.log("All notifications sent (email, WhatsApp, in-app)");
       }).catch(() => {
         // Silent fail - don't affect user experience
       });
