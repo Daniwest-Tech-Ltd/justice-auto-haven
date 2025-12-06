@@ -42,20 +42,21 @@ export const TwoFactorDialog = ({
   const [whatsappCountdown, setWhatsappCountdown] = useState(300); // 5 minutes for WhatsApp
   const { toast } = useToast();
 
-  // ALWAYS auto-send email OTP when dialog opens - this is mandatory for all users
+  // ALWAYS auto-send BOTH email OTP AND WhatsApp OTP when dialog opens - this is mandatory for all users
   useEffect(() => {
     if (open && !otpSent) {
       // Always send email OTP first - it's the default and mandatory method
       handleEmailOTP();
     }
-  }, [open]);
-
-  // Auto-send WhatsApp OTP when user switches to that method
-  useEffect(() => {
-    if (open && selectedMethod === 'whatsapp_otp' && !whatsappOtpSent) {
-      handleWhatsAppOTP();
+    // Also send WhatsApp OTP automatically to provide an alternative verification method
+    if (open && !whatsappOtpSent && availableMethods.whatsapp) {
+      // Small delay to avoid overwhelming the user with notifications
+      const timer = setTimeout(() => {
+        handleWhatsAppOTP();
+      }, 1000);
+      return () => clearTimeout(timer);
     }
-  }, [open, selectedMethod]);
+  }, [open]);
 
   // Countdown timer for email
   useEffect(() => {
