@@ -623,37 +623,26 @@ const Auth = () => {
           return profData;
         })();
 
-        // ALWAYS require 2FA for ALL users - email OTP is the default
-        // Set available methods based on user's configured options
+        // ALWAYS require 2FA for ALL users - email OTP is the mandatory default
+        // Additional methods available only if user has configured them
+        const has2FAConfigured = cachedProfile?.two_fa_enabled;
+        const hasTotp = cachedProfile?.totp_enabled || false;
+        const hasFingerprint = cachedProfile?.fingerprint_enabled || false;
+        
         setAvailable2FAMethods({
-          email: true, // Email OTP always available
-          totp: cachedProfile?.totp_enabled || false,
-          fingerprint: cachedProfile?.fingerprint_enabled || false,
-          whatsapp: true, // WhatsApp OTP available for all users with phone
+          email: true, // Email OTP always available and mandatory
+          totp: hasTotp,
+          fingerprint: hasFingerprint,
+          whatsapp: true, // WhatsApp OTP available as alternative
         });
         
-        // Use preferred method if 2FA is enabled, otherwise default to email OTP
-        setPreferred2FAMethod(
-          cachedProfile?.two_fa_enabled && cachedProfile?.preferred_2fa 
-            ? cachedProfile.preferred_2fa 
-            : "email_otp"
-        );
+        // Always default to email_otp - user can switch if they have other methods
+        setPreferred2FAMethod("email_otp");
         
         setPendingUserId(currentUserId);
         setPendingUserEmail(email);
         
-        // Auto-send email OTP for users who don't have other 2FA methods configured
-        if (!cachedProfile?.two_fa_enabled || (!cachedProfile?.totp_enabled && !cachedProfile?.fingerprint_enabled)) {
-          try {
-            await supabase.functions.invoke('send-2fa-code', {
-              body: { email, userId: currentUserId }
-            });
-            sonnerToast.success("Verification code sent to your email");
-          } catch (error) {
-            console.error("Failed to send 2FA code:", error);
-          }
-        }
-        
+        // The TwoFactorDialog will auto-send email OTP when it opens
         setShow2FADialog(true);
         setLoading(false);
         return;
