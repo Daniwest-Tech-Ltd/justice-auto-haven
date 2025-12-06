@@ -254,8 +254,8 @@ serve(async (req: Request) => {
             console.log(`Email sent to ${customer.email}`);
           }
 
-          // Small delay to avoid rate limiting
-          await new Promise(resolve => setTimeout(resolve, 100));
+          // Respect Resend rate limit: max 2 requests per second = 500ms delay minimum
+          await new Promise(resolve => setTimeout(resolve, 550));
         } catch (err) {
           emailFailCount++;
           console.error(`Error sending email to ${customer.email}:`, err);
