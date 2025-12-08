@@ -20,7 +20,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone } from "lucide-react";
+import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone, Eye, EyeOff } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,6 +48,7 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
   const [isGeneratingReports, setIsGeneratingReports] = useState(false);
+  const [showAccountDetails, setShowAccountDetails] = useState(false);
 
   const handleGenerateDailyReports = async () => {
     try {
@@ -435,6 +436,28 @@ const AdminDashboard = () => {
               </div>
             </div>
 
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Account Overview</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAccountDetails(!showAccountDetails)}
+                className="flex items-center gap-2"
+              >
+                {showAccountDetails ? (
+                  <>
+                    <EyeOff className="h-4 w-4" />
+                    Hide Details
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-4 w-4" />
+                    Show Details
+                  </>
+                )}
+              </Button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card 
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800"
@@ -444,7 +467,9 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Total Vehicles</p>
-                      <h3 className="text-4xl font-bold mt-2 text-orange-900 dark:text-orange-100">{stats.totalVehicles}</h3>
+                      <h3 className="text-4xl font-bold mt-2 text-orange-900 dark:text-orange-100">
+                        {showAccountDetails ? stats.totalVehicles : "•••"}
+                      </h3>
                       <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">In inventory</p>
                     </div>
                     <div className="h-16 w-16 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center">
@@ -462,7 +487,9 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Active Customers</p>
-                      <h3 className="text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">{stats.activeCustomers}</h3>
+                      <h3 className="text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">
+                        {showAccountDetails ? stats.activeCustomers : "•••"}
+                      </h3>
                       <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Registered users</p>
                     </div>
                     <div className="h-16 w-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
@@ -481,7 +508,7 @@ const AdminDashboard = () => {
                     <div>
                       <p className="text-sm font-medium text-green-600 dark:text-green-400">Monthly Sales</p>
                       <h3 className="text-2xl font-bold mt-2 text-green-900 dark:text-green-100">
-                        KSh {stats.monthlySales.toLocaleString('en-KE')}
+                        {showAccountDetails ? `KSh ${stats.monthlySales.toLocaleString('en-KE')}` : "KSh •••••"}
                       </h3>
                       <p className="text-xs text-green-600 dark:text-green-400 mt-1">Total revenue</p>
                     </div>
@@ -500,7 +527,9 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-pink-600 dark:text-pink-400">Pending Orders</p>
-                      <h3 className="text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">{stats.whitelistOrders}</h3>
+                      <h3 className="text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">
+                        {showAccountDetails ? stats.whitelistOrders : "•••"}
+                      </h3>
                       <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Awaiting review</p>
                     </div>
                     <div className="h-16 w-16 rounded-full bg-pink-200 dark:bg-pink-800 flex items-center justify-center">

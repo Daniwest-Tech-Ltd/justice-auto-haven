@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingCart, MessageSquare, Sun, Moon } from "lucide-react";
+import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingCart, MessageSquare, Sun, Moon, Eye, EyeOff } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import SessionTimeoutModal from "@/components/SessionTimeoutModal";
@@ -47,6 +47,7 @@ const CustomerDashboard = () => {
   const [filteredRentals, setFilteredRentals] = useState<any[]>([]);
   const [filteredPurchases, setFilteredPurchases] = useState<any[]>([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showAccountDetails, setShowAccountDetails] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem("theme") as Theme;
     return saved || "dark";
@@ -251,13 +252,37 @@ const CustomerDashboard = () => {
 
             <CustomerLoyaltyBadge />
 
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Account Overview</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAccountDetails(!showAccountDetails)}
+                className="flex items-center gap-2"
+              >
+                {showAccountDetails ? (
+                  <>
+                    <EyeOff className="h-4 w-4" />
+                    Hide Details
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-4 w-4" />
+                    Show Details
+                  </>
+                )}
+              </Button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900 border-pink-200 dark:border-pink-800">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-pink-600 dark:text-pink-400">Whitelist Items</p>
-                      <h3 className="text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">{wishlistCount}</h3>
+                      <h3 className="text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">
+                        {showAccountDetails ? wishlistCount : "•••"}
+                      </h3>
                       <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Vehicles saved</p>
                     </div>
                     <div className="h-16 w-16 rounded-full bg-pink-200 dark:bg-pink-800 flex items-center justify-center">
@@ -272,7 +297,9 @@ const CustomerDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Active Rentals</p>
-                      <h3 className="text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">{rentalsCount}</h3>
+                      <h3 className="text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">
+                        {showAccountDetails ? rentalsCount : "•••"}
+                      </h3>
                       <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Car rentals</p>
                     </div>
                     <div className="h-16 w-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
@@ -287,7 +314,9 @@ const CustomerDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-green-600 dark:text-green-400">My Purchases</p>
-                      <h3 className="text-4xl font-bold mt-2 text-green-900 dark:text-green-100">{purchasesCount}</h3>
+                      <h3 className="text-4xl font-bold mt-2 text-green-900 dark:text-green-100">
+                        {showAccountDetails ? purchasesCount : "•••"}
+                      </h3>
                       <p className="text-xs text-green-600 dark:text-green-400 mt-1">Vehicles owned</p>
                     </div>
                     <div className="h-16 w-16 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
