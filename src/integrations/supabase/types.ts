@@ -2138,6 +2138,84 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_logs: {
+        Row: {
+          api_response: Json | null
+          created_at: string
+          error_message: string | null
+          id: string
+          message: string
+          phone: string
+          sent_at: string | null
+          sms_type: string
+          status: string
+        }
+        Insert: {
+          api_response?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message: string
+          phone: string
+          sent_at?: string | null
+          sms_type?: string
+          status?: string
+        }
+        Update: {
+          api_response?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message?: string
+          phone?: string
+          sent_at?: string | null
+          sms_type?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      sms_settings: {
+        Row: {
+          admin_phone: string | null
+          created_at: string
+          id: string
+          notify_on_new_lead: boolean | null
+          notify_on_new_order: boolean | null
+          notify_on_registration: boolean | null
+          otp_expiry_minutes: number | null
+          sandbox_mode: boolean | null
+          sender_name: string | null
+          sms_enabled: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          admin_phone?: string | null
+          created_at?: string
+          id?: string
+          notify_on_new_lead?: boolean | null
+          notify_on_new_order?: boolean | null
+          notify_on_registration?: boolean | null
+          otp_expiry_minutes?: number | null
+          sandbox_mode?: boolean | null
+          sender_name?: string | null
+          sms_enabled?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          admin_phone?: string | null
+          created_at?: string
+          id?: string
+          notify_on_new_lead?: boolean | null
+          notify_on_new_order?: boolean | null
+          notify_on_registration?: boolean | null
+          otp_expiry_minutes?: number | null
+          sandbox_mode?: boolean | null
+          sender_name?: string | null
+          sms_enabled?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staff: {
         Row: {
           avatar_url: string | null
