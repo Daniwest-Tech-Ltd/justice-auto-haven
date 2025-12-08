@@ -68,7 +68,8 @@ serve(async (req) => {
     }
 
     const formattedPhone = formatPhoneNumber(phone);
-    const senderName = settings?.sender_name || "JUA_AUTOS";
+    // Brevo doesn't allow special characters in sender name - use alphanumeric only
+    const senderName = settings?.sender_name?.replace(/[^a-zA-Z0-9]/g, '') || "JUAAUTOS";
 
     console.log(`Sending SMS to ${formattedPhone}: ${message.substring(0, 50)}...`);
 
