@@ -416,7 +416,7 @@ const AppContent = () => {
             } 
           />
           <Route 
-            path="/admin/sms-management" 
+            path="/admin/sms" 
             element={
               <ProtectedRoute requiredRole="admin">
                 <SMSManagement />
