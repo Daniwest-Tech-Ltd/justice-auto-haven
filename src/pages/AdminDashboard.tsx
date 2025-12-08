@@ -37,6 +37,7 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredCustomers, setFilteredCustomers] = useState<any[]>([]);
   const [openGroups, setOpenGroups] = useState<string[]>(["dashboard"]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem("theme") as Theme;
@@ -367,11 +368,55 @@ const AdminDashboard = () => {
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search..."
+                  placeholder="Search pages..."
                   className="pl-10"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSearchResults(e.target.value.length > 0);
+                  }}
+                  onFocus={() => searchQuery.length > 0 && setShowSearchResults(true)}
+                  onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
                 />
+                {showSearchResults && searchQuery.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
+                    {(() => {
+                      const allPages = menuGroups.flatMap(group => 
+                        group.items.map(item => ({ ...item, groupLabel: group.label }))
+                      );
+                      const filteredPages = allPages.filter(page =>
+                        page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        page.groupLabel.toLowerCase().includes(searchQuery.toLowerCase())
+                      );
+                      
+                      if (filteredPages.length === 0) {
+                        return (
+                          <div className="p-3 text-sm text-muted-foreground text-center">
+                            No pages found for "{searchQuery}"
+                          </div>
+                        );
+                      }
+                      
+                      return filteredPages.map((page, index) => (
+                        <button
+                          key={index}
+                          className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent text-left transition-colors"
+                          onClick={() => {
+                            navigate(page.path);
+                            setSearchQuery("");
+                            setShowSearchResults(false);
+                          }}
+                        >
+                          <page.icon className="h-4 w-4 text-muted-foreground" />
+                          <div className="flex-1">
+                            <div className="text-sm font-medium">{page.title}</div>
+                            <div className="text-xs text-muted-foreground">{page.groupLabel}</div>
+                          </div>
+                        </button>
+                      ));
+                    })()}
+                  </div>
+                )}
               </div>
             </div>
           </header>
