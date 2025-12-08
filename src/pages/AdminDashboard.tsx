@@ -20,7 +20,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon } from "lucide-react";
+import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -215,6 +215,7 @@ const AdminDashboard = () => {
       items: [
         { title: "Orders", icon: Package, path: "/admin/orders" },
         { title: "Customers", icon: Users, path: "/admin/customers" },
+        { title: "SMS Management", icon: Phone, path: "/admin/sms" },
         { title: "CRM", icon: Activity, path: "/admin/crm" },
         { title: "Messages", icon: MessageSquare, path: "/admin/messages" },
         { title: "Staff Management", icon: UserCog, path: "/admin/staff" },
