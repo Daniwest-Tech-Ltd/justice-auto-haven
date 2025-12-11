@@ -1,5 +1,11 @@
 project_id = "ccsfhblxkmyqdqqcgitt"
 
+[functions.generate-system-documentation]
+verify_jwt = false
+
+[functions.generate-system-report]
+verify_jwt = false
+
 [functions.whatsapp-webhook]
 verify_jwt = false
 
