@@ -22,10 +22,10 @@ export const CookieConsentBanner = () => {
       await setCookieConsent(decision);
       setShowBanner(false);
       
-      // No reload needed - analytics can be enabled dynamically
+      // Reload to apply cookie preferences across dashboards
+      window.location.reload();
     } catch (error) {
       console.error('Error setting cookie consent:', error);
-    } finally {
       setIsLoading(false);
     }
   };
