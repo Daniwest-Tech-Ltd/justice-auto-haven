@@ -9,9 +9,13 @@ const corsHeaders = {
 };
 
 interface NotificationRequest {
-  type: "rental" | "trade_in" | "trade_in_approved" | "trade_in_rejected" | "crm_lead" | "payroll";
-  to: string;
-  data: any;
+  type: "rental" | "trade_in" | "trade_in_approved" | "trade_in_rejected" | "crm_lead" | "payroll" | "test";
+  to?: string;
+  email?: string;
+  name?: string;
+  subject?: string;
+  message?: string;
+  data?: any;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -20,12 +24,37 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { type, to, data }: NotificationRequest = await req.json();
+    const requestData: NotificationRequest = await req.json();
+    const { type, to, data, email, name, subject: customSubject, message } = requestData;
+
+    // Determine recipient email
+    const recipientEmail = to || email;
+    if (!recipientEmail) {
+      throw new Error("No recipient email provided");
+    }
 
     let subject = "";
     let html = "";
 
     switch (type) {
+      case "test":
+        subject = customSubject || "Test Notification - Justice Ultimate Automobiles";
+        html = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #1e40af;">Test Notification</h1>
+            <p>Dear ${name || 'Valued Customer'},</p>
+            <p>${message || 'This is a test email notification from Justice Ultimate Automobiles. Your email notifications are working correctly!'}</p>
+            
+            <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0;"><strong>Status:</strong> ✅ Email notifications are properly configured</p>
+            </div>
+            
+            <p>Best regards,<br>Justice Ultimate Automobiles Team</p>
+            <p style="font-size: 12px; color: #6b7280;">📞 +254 722 827 458 | 🌐 www.justiceultimateautomobiles.com</p>
+          </div>
+        `;
+        break;
+
       case "rental":
         subject = "Rental Booking Confirmation - Justice Ultimate Automobiles";
         html = `
@@ -145,7 +174,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "Justice Ultimate Automobiles <noreply@justiceultimateautomobiles.com>",
-      to: [to],
+      to: [recipientEmail],
       subject: subject,
       html: html,
     });

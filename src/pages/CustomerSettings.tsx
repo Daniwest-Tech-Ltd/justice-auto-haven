@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { ArrowLeft, User, Shield, Bell, Palette, Menu } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { ArrowLeft, User, Shield, Bell, Palette, Menu, Lock, Send, LogOut, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -18,15 +19,26 @@ import { TrustedDevices } from "@/components/TrustedDevices";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { applyTheme } from "@/lib/theme";
 import type { Theme } from "@/lib/theme";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 const CustomerSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sendingTest, setSendingTest] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, profile } = useAuth();
+
+  // User preferences hook
+  const { 
+    preferences, 
+    saving: savingPrefs, 
+    updatePreferences, 
+    logoutAllDevices,
+    sendTestNotification 
+  } = useUserPreferences(user?.id);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -109,6 +121,8 @@ const CustomerSettings = () => {
   const tabs = [
     { value: "profile", label: "Profile", icon: User },
     { value: "security", label: "Security", icon: Shield },
+    { value: "notifications", label: "Notifications", icon: Bell },
+    { value: "privacy", label: "Privacy", icon: Lock },
     { value: "appearance", label: "Appearance", icon: Palette },
   ];
 
@@ -160,7 +174,7 @@ const CustomerSettings = () => {
         </div>
 
         {/* Desktop Tabs */}
-        <TabsList className="hidden md:grid md:grid-cols-3 w-full">
+        <TabsList className="hidden md:grid md:grid-cols-5 w-full">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -273,7 +287,213 @@ const CustomerSettings = () => {
             <TOTPSetup />
             <FingerprintSetup />
             <TrustedDevices userId={user?.id || ""} />
+            
+            {/* Logout All Devices */}
+            <Card className="glass-strong border-destructive/50">
+              <CardHeader>
+                <CardTitle className="text-destructive">Danger Zone</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Log out from all devices. You will need to login again.
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  disabled={savingPrefs}
+                  onClick={async () => {
+                    const success = await logoutAllDevices();
+                    if (success) {
+                      navigate('/auth');
+                    }
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  {savingPrefs ? "Logging out..." : "Logout All Devices"}
+                </Button>
+              </CardContent>
+            </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <Card className="glass-strong">
+            <CardHeader>
+              <CardTitle>Notification Preferences</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Configure how you want to receive notifications and updates.
+              </p>
+              
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="email_notifications" className="text-base font-medium">Email Notifications</Label>
+                    <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      disabled={sendingTest === 'email' || !preferences?.email_notifications}
+                      onClick={async () => {
+                        setSendingTest('email');
+                        await sendTestNotification('email');
+                        setSendingTest(null);
+                      }}
+                    >
+                      {sendingTest === 'email' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    </Button>
+                    <Switch 
+                      id="email_notifications" 
+                      checked={preferences?.email_notifications || false}
+                      onCheckedChange={(checked) => updatePreferences({ email_notifications: checked })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="sms_notifications" className="text-base font-medium">SMS Notifications</Label>
+                    <p className="text-sm text-muted-foreground">Receive notifications via SMS</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      disabled={sendingTest === 'sms' || !preferences?.sms_notifications}
+                      onClick={async () => {
+                        setSendingTest('sms');
+                        await sendTestNotification('sms');
+                        setSendingTest(null);
+                      }}
+                    >
+                      {sendingTest === 'sms' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    </Button>
+                    <Switch 
+                      id="sms_notifications" 
+                      checked={preferences?.sms_notifications || false}
+                      onCheckedChange={(checked) => updatePreferences({ sms_notifications: checked })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="whatsapp_notifications" className="text-base font-medium">WhatsApp Notifications</Label>
+                    <p className="text-sm text-muted-foreground">Receive notifications via WhatsApp</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      disabled={sendingTest === 'whatsapp' || !preferences?.whatsapp_notifications}
+                      onClick={async () => {
+                        setSendingTest('whatsapp');
+                        await sendTestNotification('whatsapp');
+                        setSendingTest(null);
+                      }}
+                    >
+                      {sendingTest === 'whatsapp' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    </Button>
+                    <Switch 
+                      id="whatsapp_notifications" 
+                      checked={preferences?.whatsapp_notifications || false}
+                      onCheckedChange={(checked) => updatePreferences({ whatsapp_notifications: checked })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="push_notifications" className="text-base font-medium">Push Notifications</Label>
+                    <p className="text-sm text-muted-foreground">Receive in-app push notifications</p>
+                  </div>
+                  <Switch 
+                    id="push_notifications" 
+                    checked={preferences?.push_notifications || false}
+                    onCheckedChange={(checked) => updatePreferences({ push_notifications: checked })}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="security_alerts" className="text-base font-medium">Security Alerts</Label>
+                    <p className="text-sm text-muted-foreground">Receive alerts for suspicious activities</p>
+                  </div>
+                  <Switch 
+                    id="security_alerts" 
+                    checked={preferences?.security_alerts ?? true}
+                    onCheckedChange={(checked) => updatePreferences({ security_alerts: checked })}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="privacy">
+          <Card className="glass-strong">
+            <CardHeader>
+              <CardTitle>Privacy Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Control what information is visible to others.
+              </p>
+              
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="hide_profile" className="text-base font-medium">Hide Profile</Label>
+                    <p className="text-sm text-muted-foreground">Hide your profile from other users</p>
+                  </div>
+                  <Switch 
+                    id="hide_profile" 
+                    checked={preferences?.hide_profile || false}
+                    onCheckedChange={(checked) => updatePreferences({ hide_profile: checked })}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="hide_email" className="text-base font-medium">Hide Email</Label>
+                    <p className="text-sm text-muted-foreground">Hide your email address from others</p>
+                  </div>
+                  <Switch 
+                    id="hide_email" 
+                    checked={preferences?.hide_email || false}
+                    onCheckedChange={(checked) => updatePreferences({ hide_email: checked })}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="hide_phone" className="text-base font-medium">Hide Phone Number</Label>
+                    <p className="text-sm text-muted-foreground">Hide your phone number from others</p>
+                  </div>
+                  <Switch 
+                    id="hide_phone" 
+                    checked={preferences?.hide_phone || false}
+                    onCheckedChange={(checked) => updatePreferences({ hide_phone: checked })}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div>
+                    <Label htmlFor="allow_tracking" className="text-base font-medium">Allow Session Tracking</Label>
+                    <p className="text-sm text-muted-foreground">Allow the system to track your sessions for security</p>
+                  </div>
+                  <Switch 
+                    id="allow_tracking" 
+                    checked={preferences?.allow_session_tracking ?? true}
+                    onCheckedChange={(checked) => updatePreferences({ allow_session_tracking: checked })}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="appearance">
