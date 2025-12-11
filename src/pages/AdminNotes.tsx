@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { 
   ArrowLeft, 
   Plus, 
@@ -72,6 +74,7 @@ const AdminNotes = () => {
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
   const [generatingDoc, setGeneratingDoc] = useState(false);
   const [generatingReport, setGeneratingReport] = useState(false);
+  const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
 
   useEffect(() => {
     fetchNotes();
@@ -188,65 +191,123 @@ const AdminNotes = () => {
     }
   };
 
-  const downloadAsPDF = (htmlContent: string, filename: string) => {
-    // Create a hidden iframe for printing
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'absolute';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = 'none';
-    document.body.appendChild(iframe);
+  // Convert HTML to PDF and download directly
+  const downloadAsPDF = async (htmlContent: string, filename: string) => {
+    try {
+      // Create a hidden container
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.top = '0';
+      container.style.width = '794px'; // A4 width in pixels at 96 DPI
+      document.body.appendChild(container);
 
-    const doc = iframe.contentWindow?.document;
-    if (doc) {
-      doc.open();
-      doc.write(htmlContent);
-      doc.close();
+      // Create an iframe to render the HTML
+      const iframe = document.createElement('iframe');
+      iframe.style.width = '794px';
+      iframe.style.height = '1123px'; // A4 height
+      iframe.style.border = 'none';
+      container.appendChild(iframe);
 
-      // Wait for content to load then trigger print
-      setTimeout(() => {
-        iframe.contentWindow?.print();
-        // Remove iframe after a delay
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 1000);
-      }, 500);
+      // Write HTML content
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) throw new Error("Could not access iframe document");
+      
+      iframeDoc.open();
+      iframeDoc.write(htmlContent);
+      iframeDoc.close();
+
+      // Wait for content and images to load
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Create PDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Capture the iframe content
+      const canvas = await html2canvas(iframeDoc.body, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        width: 794,
+        windowWidth: 794,
+        scrollY: -window.scrollY,
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      // Add pages as needed
+      let heightLeft = imgHeight;
+      let position = 0;
+      let pageNumber = 0;
+
+      while (heightLeft > 0) {
+        if (pageNumber > 0) {
+          pdf.addPage();
+        }
+        
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+        position -= pdfHeight;
+        pageNumber++;
+      }
+
+      // Download the PDF
+      pdf.save(filename);
+
+      // Cleanup
+      document.body.removeChild(container);
+      
+      return true;
+    } catch (error) {
+      console.error("PDF generation error:", error);
+      throw error;
     }
   };
 
   const handleDownloadDocument = async (doc: GeneratedDocument) => {
-    // Check cache first
-    if (documentCache[doc.id]) {
-      downloadAsPDF(documentCache[doc.id], `${doc.title.replace(/\s+/g, '_')}.pdf`);
-      toast.success("Opening print dialog - select 'Save as PDF' to download");
-      return;
-    }
-
-    // If no cache, regenerate the document
-    toast.info("Preparing document for download...");
+    setDownloadingDoc(doc.id);
     
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      let htmlContent = documentCache[doc.id];
+      
+      // If not in cache, regenerate
+      if (!htmlContent) {
+        toast.info("Preparing document for download...");
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
 
-      const functionName = doc.type === "documentation" 
-        ? "generate-system-documentation" 
-        : "generate-system-report";
+        const functionName = doc.type === "documentation" 
+          ? "generate-system-documentation" 
+          : "generate-system-report";
 
-      const { data, error } = await supabase.functions.invoke(functionName, {
-        body: { admin_id: user.id }
-      });
+        const { data, error } = await supabase.functions.invoke(functionName, {
+          body: { admin_id: user.id }
+        });
 
-      if (error) throw error;
-
-      if (data?.html_content) {
-        documentCache[doc.id] = data.html_content;
-        downloadAsPDF(data.html_content, `${doc.title.replace(/\s+/g, '_')}.pdf`);
-        toast.success("Opening print dialog - select 'Save as PDF' to download");
+        if (error) throw error;
+        
+        if (data?.html_content) {
+          htmlContent = data.html_content;
+          documentCache[doc.id] = htmlContent;
+        } else {
+          throw new Error("No content received from server");
+        }
       }
+
+      toast.info("Generating PDF file...");
+      await downloadAsPDF(htmlContent, `${doc.title.replace(/\s+/g, '_')}.pdf`);
+      toast.success("PDF downloaded successfully!");
     } catch (error) {
       console.error("Error downloading document:", error);
-      toast.error("Failed to prepare document for download");
+      toast.error("Failed to download PDF. Please try again.");
+    } finally {
+      setDownloadingDoc(null);
     }
   };
 
@@ -264,7 +325,7 @@ const AdminNotes = () => {
 
       if (error) throw error;
 
-      toast.success("System documentation generated successfully!");
+      toast.success("Documentation generated! Creating PDF...");
       fetchGeneratedDocs();
       
       // Auto-download as PDF
@@ -274,9 +335,9 @@ const AdminNotes = () => {
           documentCache[data.document_id] = data.html_content;
         }
         
-        // Auto-trigger download
-        downloadAsPDF(data.html_content, "Justice_Ultimate_Automobiles_System_Documentation.pdf");
-        toast.success("Opening print dialog - select 'Save as PDF' to download");
+        // Auto-trigger PDF download
+        await downloadAsPDF(data.html_content, "Justice_Ultimate_Automobiles_System_Documentation.pdf");
+        toast.success("PDF downloaded successfully!");
       } else if (data?.file_url) {
         window.open(data.file_url, '_blank');
       }
@@ -302,7 +363,7 @@ const AdminNotes = () => {
 
       if (error) throw error;
 
-      toast.success("System report generated successfully!");
+      toast.success("Report generated! Creating PDF...");
       fetchGeneratedDocs();
       
       // Auto-download as PDF
@@ -312,9 +373,9 @@ const AdminNotes = () => {
           documentCache[data.document_id] = data.html_content;
         }
         
-        // Auto-trigger download
-        downloadAsPDF(data.html_content, "Justice_Ultimate_Automobiles_System_Report.pdf");
-        toast.success("Opening print dialog - select 'Save as PDF' to download");
+        // Auto-trigger PDF download
+        await downloadAsPDF(data.html_content, "Justice_Ultimate_Automobiles_System_Report.pdf");
+        toast.success("PDF downloaded successfully!");
       } else if (data?.file_url) {
         window.open(data.file_url, '_blank');
       }
@@ -507,9 +568,14 @@ const AdminNotes = () => {
                           variant="outline" 
                           size="sm"
                           onClick={() => handleDownloadDocument(doc)}
+                          disabled={downloadingDoc === doc.id}
                         >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download PDF
+                          {downloadingDoc === doc.id ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Download className="h-4 w-4 mr-2" />
+                          )}
+                          {downloadingDoc === doc.id ? "Downloading..." : "Download PDF"}
                         </Button>
                       </div>
                     </div>
