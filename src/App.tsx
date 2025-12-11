@@ -90,6 +90,7 @@ const SystemStorageDetails = lazy(() => import("./pages/SystemStorageDetails"));
 const SystemSecurityDetails = lazy(() => import("./pages/SystemSecurityDetails"));
 const CookieManagement = lazy(() => import("./pages/CookieManagement"));
 const SMSManagement = lazy(() => import("./pages/SMSManagement"));
+const AdminNotes = lazy(() => import("./pages/AdminNotes"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();

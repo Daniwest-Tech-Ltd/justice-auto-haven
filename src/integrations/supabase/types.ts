@@ -74,6 +74,45 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notes: {
+        Row: {
+          admin_id: string
+          content: string
+          created_at: string | null
+          excerpt: string | null
+          id: string
+          is_published: boolean | null
+          slug: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          admin_id: string
+          content: string
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean | null
+          slug?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          admin_id?: string
+          content?: string
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean | null
+          slug?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ai_security_settings: {
         Row: {
           auto_block_suspicious: boolean | null
@@ -1027,6 +1066,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      generated_documents: {
+        Row: {
+          description: string | null
+          file_url: string | null
+          generated_at: string | null
+          generated_by: string
+          id: string
+          metadata: Json | null
+          pages: number | null
+          title: string
+          type: string
+          version: string | null
+          word_count: number | null
+        }
+        Insert: {
+          description?: string | null
+          file_url?: string | null
+          generated_at?: string | null
+          generated_by: string
+          id?: string
+          metadata?: Json | null
+          pages?: number | null
+          title: string
+          type: string
+          version?: string | null
+          word_count?: number | null
+        }
+        Update: {
+          description?: string | null
+          file_url?: string | null
+          generated_at?: string | null
+          generated_by?: string
+          id?: string
+          metadata?: Json | null
+          pages?: number | null
+          title?: string
+          type?: string
+          version?: string | null
+          word_count?: number | null
+        }
+        Relationships: []
       }
       incident_timeline: {
         Row: {
