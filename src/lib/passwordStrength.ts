@@ -17,7 +17,7 @@ export interface PasswordRequirement {
 
 /**
  * Check if password meets minimum requirements
- * - At least 12 characters
+ * - At least 8 characters
  * - At least one uppercase letter
  * - At least one lowercase letter
  * - At least one number
@@ -26,8 +26,8 @@ export interface PasswordRequirement {
 export const checkPasswordRequirements = (password: string): PasswordRequirement[] => {
   return [
     {
-      met: password.length >= 12,
-      label: 'At least 12 characters'
+      met: password.length >= 8,
+      label: 'At least 8 characters'
     },
     {
       met: /[A-Z]/.test(password),
@@ -72,9 +72,9 @@ export const calculatePasswordStrength = (password: string): PasswordStrength =>
   score += (metCount / requirements.length) * 60;
 
   // Length bonus (20 points max)
-  if (password.length >= 12) score += 10;
+  if (password.length >= 8) score += 10;
+  if (password.length >= 12) score += 5;
   if (password.length >= 16) score += 5;
-  if (password.length >= 20) score += 5;
 
   // Complexity bonus (20 points max)
   const uniqueChars = new Set(password).size;

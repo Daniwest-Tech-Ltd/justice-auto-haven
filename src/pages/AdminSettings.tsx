@@ -10,7 +10,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound } from "lucide-react";
+import { PasswordChangeDialog } from "@/components/PasswordChangeDialog";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Textarea } from "@/components/ui/textarea";
 import kenyaLocations from "@/data/kenya-locations.json";
@@ -554,6 +555,21 @@ const AdminSettings = () => {
             
             <TabsContent value="security" className="space-y-6 pt-6">
               <div className="space-y-6">
+                {/* Password Change */}
+                <div className="p-6 bg-muted/30 rounded-lg border">
+                  <div className="flex items-center gap-2 mb-4">
+                    <KeyRound className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">Change Password</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Update your password to keep your account secure. You will be logged out after changing your password.
+                  </p>
+                  <PasswordChangeDialog 
+                    userEmail={profile.email}
+                    userName={profile.full_name}
+                  />
+                </div>
+
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Two-Factor Authentication</h3>
                   <p className="text-sm text-muted-foreground mb-6">
