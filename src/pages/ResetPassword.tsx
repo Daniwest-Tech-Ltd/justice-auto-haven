@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, Mail, CheckCircle } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Mail, CheckCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -12,6 +12,7 @@ const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [isResetMode, setIsResetMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -47,15 +48,80 @@ const ResetPassword = () => {
   const passwordStrength = checkPasswordStrength(newPassword);
 
   useEffect(() => {
-    // Check if we have a recovery token in URL (type=recovery or access_token)
-    const type = searchParams.get("type");
-    const accessToken = searchParams.get("access_token");
-    const tokenHash = searchParams.get("token_hash");
+    // Check for recovery tokens in multiple places
+    const checkRecoveryMode = async () => {
+      setIsLoading(true);
+      
+      // 1. Check query parameters (some Supabase versions use this)
+      const type = searchParams.get("type");
+      const accessToken = searchParams.get("access_token");
+      const tokenHash = searchParams.get("token_hash");
+      
+      // 2. Check hash fragment (Supabase default format: #access_token=xxx&type=recovery)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const hashType = hashParams.get("type");
+      const hashAccessToken = hashParams.get("access_token");
+      const hashTokenHash = hashParams.get("token_hash");
+      
+      console.log("Recovery check - Query params:", { type, accessToken: !!accessToken, tokenHash: !!tokenHash });
+      console.log("Recovery check - Hash params:", { hashType, hashAccessToken: !!hashAccessToken, hashTokenHash: !!hashTokenHash });
+      
+      // If we have recovery tokens in either location
+      if (type === "recovery" || accessToken || tokenHash || 
+          hashType === "recovery" || hashAccessToken || hashTokenHash) {
+        console.log("Recovery tokens detected, setting reset mode");
+        setIsResetMode(true);
+        setIsLoading(false);
+        return;
+      }
+      
+      // 3. Listen for PASSWORD_RECOVERY event from Supabase auth
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log("Auth state change:", event);
+        if (event === "PASSWORD_RECOVERY") {
+          console.log("PASSWORD_RECOVERY event received");
+          setIsResetMode(true);
+          setIsLoading(false);
+        }
+      });
+      
+      // 4. Check current session for recovery state
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // If user has a session and landed on reset-password, they might be in recovery mode
+        console.log("Session found, checking if recovery mode");
+        // The hash might have been consumed by Supabase client already
+        if (window.location.hash.includes('type=recovery') || 
+            window.location.hash.includes('access_token') ||
+            window.location.href.includes('type=recovery')) {
+          setIsResetMode(true);
+        }
+      }
+      
+      setIsLoading(false);
+      
+      return () => {
+        subscription.unsubscribe();
+      };
+    };
     
-    if (type === "recovery" || accessToken || tokenHash) {
-      setIsResetMode(true);
-    }
+    checkRecoveryMode();
   }, [searchParams]);
+
+  // Also listen for auth state changes throughout component lifecycle
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Global auth state change:", event);
+      if (event === "PASSWORD_RECOVERY") {
+        setIsResetMode(true);
+        setIsLoading(false);
+      }
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const sendResetEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,6 +229,18 @@ const ResetPassword = () => {
       setLoading(false);
     }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Success screen after email sent
   if (emailSent && !isResetMode) {
