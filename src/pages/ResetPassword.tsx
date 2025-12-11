@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, EyeOff, Mail, CheckCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -9,7 +9,6 @@ import { toast } from "@/hooks/use-toast";
 const PRODUCTION_URL = "https://www.justiceultimateautomobiles.com";
 
 const ResetPassword = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [isResetMode, setIsResetMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,78 +47,89 @@ const ResetPassword = () => {
   const passwordStrength = checkPasswordStrength(newPassword);
 
   useEffect(() => {
-    // Check for recovery tokens in multiple places
-    const checkRecoveryMode = async () => {
-      setIsLoading(true);
+    let isMounted = true;
+    
+    // Set up auth state listener FIRST - this is critical
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth event received:", event);
       
-      // 1. Check query parameters (some Supabase versions use this)
-      const type = searchParams.get("type");
-      const accessToken = searchParams.get("access_token");
-      const tokenHash = searchParams.get("token_hash");
+      if (!isMounted) return;
       
-      // 2. Check hash fragment (Supabase default format: #access_token=xxx&type=recovery)
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const hashType = hashParams.get("type");
-      const hashAccessToken = hashParams.get("access_token");
-      const hashTokenHash = hashParams.get("token_hash");
-      
-      console.log("Recovery check - Query params:", { type, accessToken: !!accessToken, tokenHash: !!tokenHash });
-      console.log("Recovery check - Hash params:", { hashType, hashAccessToken: !!hashAccessToken, hashTokenHash: !!hashTokenHash });
-      
-      // If we have recovery tokens in either location
-      if (type === "recovery" || accessToken || tokenHash || 
-          hashType === "recovery" || hashAccessToken || hashTokenHash) {
-        console.log("Recovery tokens detected, setting reset mode");
+      if (event === "PASSWORD_RECOVERY") {
+        console.log("PASSWORD_RECOVERY event - showing reset form");
         setIsResetMode(true);
         setIsLoading(false);
-        return;
-      }
-      
-      // 3. Listen for PASSWORD_RECOVERY event from Supabase auth
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        console.log("Auth state change:", event);
-        if (event === "PASSWORD_RECOVERY") {
-          console.log("PASSWORD_RECOVERY event received");
+      } else if (event === "SIGNED_IN" && session) {
+        // User might have been signed in via recovery token
+        // Check if we came from a recovery flow
+        const url = window.location.href;
+        if (url.includes('type=recovery') || url.includes('reset-password')) {
+          console.log("SIGNED_IN after recovery - showing reset form");
           setIsResetMode(true);
           setIsLoading(false);
         }
-      });
+      }
+    });
+
+    // Check for recovery tokens in URL (before Supabase consumes them)
+    const checkRecoveryTokens = async () => {
+      // Check hash fragment
+      const hash = window.location.hash;
+      const hashParams = new URLSearchParams(hash.substring(1));
+      const hashType = hashParams.get("type");
+      const hashAccessToken = hashParams.get("access_token");
       
-      // 4. Check current session for recovery state
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        // If user has a session and landed on reset-password, they might be in recovery mode
-        console.log("Session found, checking if recovery mode");
-        // The hash might have been consumed by Supabase client already
-        if (window.location.hash.includes('type=recovery') || 
-            window.location.hash.includes('access_token') ||
-            window.location.href.includes('type=recovery')) {
+      // Check query params
+      const searchParams = new URLSearchParams(window.location.search);
+      const queryType = searchParams.get("type");
+      const queryAccessToken = searchParams.get("access_token");
+      
+      console.log("URL check - hash:", hash);
+      console.log("URL check - hashType:", hashType, "hashAccessToken:", !!hashAccessToken);
+      console.log("URL check - queryType:", queryType, "queryAccessToken:", !!queryAccessToken);
+      
+      // If we have recovery tokens, set reset mode
+      if (hashType === "recovery" || hashAccessToken || queryType === "recovery" || queryAccessToken) {
+        console.log("Recovery tokens found in URL");
+        if (isMounted) {
           setIsResetMode(true);
+          setIsLoading(false);
+        }
+        return;
+      }
+      
+      // Check if user has an active session (tokens might have been consumed)
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      console.log("Session check - session exists:", !!session, "error:", error?.message);
+      
+      if (session && isMounted) {
+        // User has a session - check if this looks like a recovery flow
+        // The hash being just "#" or empty after tokens were consumed indicates recovery
+        if (hash === "#" || hash === "" || window.location.href.includes('reset-password')) {
+          console.log("Session found on reset-password page - likely recovery flow");
+          setIsResetMode(true);
+          setIsLoading(false);
+          return;
         }
       }
       
-      setIsLoading(false);
-      
-      return () => {
-        subscription.unsubscribe();
-      };
-    };
-    
-    checkRecoveryMode();
-  }, [searchParams]);
-
-  // Also listen for auth state changes throughout component lifecycle
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Global auth state change:", event);
-      if (event === "PASSWORD_RECOVERY") {
-        setIsResetMode(true);
+      // No recovery indicators found - show forgot password form
+      if (isMounted) {
+        console.log("No recovery indicators - showing forgot password form");
         setIsLoading(false);
       }
-    });
-    
+    };
+
+    // Small delay to let Supabase process any tokens first
+    const timeoutId = setTimeout(() => {
+      checkRecoveryTokens();
+    }, 100);
+
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
+      clearTimeout(timeoutId);
     };
   }, []);
 
@@ -128,12 +138,12 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      // Use production URL for redirect, fallback to current origin for development
+      // Use production URL for redirect
       const redirectUrl = window.location.hostname === "localhost" 
         ? `${window.location.origin}/reset-password`
         : `${PRODUCTION_URL}/reset-password`;
 
-      // Use edge function to bypass captcha requirement for password reset
+      // Use edge function to bypass captcha requirement
       const { data, error } = await supabase.functions.invoke('send-password-reset', {
         body: { 
           email: email,
@@ -236,7 +246,7 @@ const ResetPassword = () => {
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Verifying your request...</p>
         </div>
       </div>
     );
