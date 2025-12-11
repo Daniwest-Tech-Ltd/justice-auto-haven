@@ -758,26 +758,55 @@ const Auth = () => {
     }
   };
 
+  // Add snowfall effect - moved before conditional returns to follow Rules of Hooks
+  useEffect(() => {
+    // Only add snowflakes if not in maintenance mode
+    if (maintenanceMode?.is_active) return;
+    
+    const snowflakes = 50;
+    const container = document.body;
+    
+    for (let i = 0; i < snowflakes; i++) {
+      const flake = document.createElement("div");
+      flake.className = "snowflake";
+      flake.style.left = Math.random() * 100 + "vw";
+      flake.style.animationDuration = 2 + Math.random() * 3 + "s";
+      flake.style.animationDelay = Math.random() * 3 + "s";
+      flake.style.opacity = (Math.random() * 0.6 + 0.3).toString();
+      container.appendChild(flake);
+    }
+
+    return () => {
+      // Cleanup snowflakes on unmount
+      const flakes = document.querySelectorAll(".snowflake");
+      flakes.forEach(flake => flake.remove());
+    };
+  }, [maintenanceMode?.is_active]);
+
   if (maintenanceMode?.is_active) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6 space-y-6">
+        <Card className="w-full max-w-md shadow-2xl">
+          <CardContent className="pt-8 pb-8 space-y-6">
             <div className="text-center space-y-4">
               <img 
                 src={maintenanceGif} 
                 alt="System under maintenance" 
-                className="w-32 h-32 mx-auto object-contain"
+                className="w-40 h-40 mx-auto object-contain"
               />
-              <h2 className="text-2xl font-bold">System Under Maintenance</h2>
+              <h2 className="text-2xl font-bold text-foreground">System Under Maintenance</h2>
               <p className="text-muted-foreground">{maintenanceMode.message}</p>
               
               {maintenanceCountdown && (
                 <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Back online in:</p>
-                  <p className="text-2xl font-bold text-primary">{maintenanceCountdown}</p>
+                  <p className="text-sm text-muted-foreground mb-1">Estimated time remaining:</p>
+                  <p className="text-3xl font-bold text-primary">{maintenanceCountdown}</p>
                 </div>
               )}
+              
+              <p className="text-sm text-muted-foreground">
+                We apologize for the inconvenience. Our team is working hard to improve your experience.
+              </p>
             </div>
 
             <div className="flex gap-2">
@@ -800,28 +829,6 @@ const Auth = () => {
       </div>
     );
   }
-
-  // Add snowfall effect
-  useEffect(() => {
-    const snowflakes = 50;
-    const container = document.body;
-    
-    for (let i = 0; i < snowflakes; i++) {
-      const flake = document.createElement("div");
-      flake.className = "snowflake";
-      flake.style.left = Math.random() * 100 + "vw";
-      flake.style.animationDuration = 2 + Math.random() * 3 + "s";
-      flake.style.animationDelay = Math.random() * 3 + "s";
-      flake.style.opacity = (Math.random() * 0.6 + 0.3).toString();
-      container.appendChild(flake);
-    }
-
-    return () => {
-      // Cleanup snowflakes on unmount
-      const flakes = document.querySelectorAll(".snowflake");
-      flakes.forEach(flake => flake.remove());
-    };
-  }, []);
 
   return (
     <>
