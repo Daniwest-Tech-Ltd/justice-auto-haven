@@ -32,6 +32,7 @@ import { setTheme, Theme } from "@/lib/theme";
 
 const CustomerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -43,9 +44,6 @@ const CustomerDashboard = () => {
   const [rentalsCars, setRentalsCars] = useState<any[]>([]);
   const [purchasedCars, setPurchasedCars] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [filteredWishlist, setFilteredWishlist] = useState<any[]>([]);
-  const [filteredRentals, setFilteredRentals] = useState<any[]>([]);
-  const [filteredPurchases, setFilteredPurchases] = useState<any[]>([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showAccountDetails, setShowAccountDetails] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => {
@@ -74,7 +72,6 @@ const CustomerDashboard = () => {
       
       setWishlistCount(wishlist?.length || 0);
       setWishlistCars(wishlist || []);
-      setFilteredWishlist(wishlist || []);
 
       const { data: rentals } = await supabase
         .from("rentals")
@@ -83,7 +80,6 @@ const CustomerDashboard = () => {
       
       setRentalsCount(rentals?.length || 0);
       setRentalsCars(rentals || []);
-      setFilteredRentals(rentals || []);
 
       const { data: sales } = await supabase
         .from("sales")
@@ -92,7 +88,6 @@ const CustomerDashboard = () => {
       
       setPurchasesCount(sales?.length || 0);
       setPurchasedCars(sales || []);
-      setFilteredPurchases(sales || []);
     } catch (error) {
       console.error("Error fetching customer data:", error);
     } finally {
@@ -100,36 +95,7 @@ const CustomerDashboard = () => {
     }
   };
 
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredWishlist(wishlistCars);
-      setFilteredRentals(rentalsCars);
-      setFilteredPurchases(purchasedCars);
-    } else {
-      const query = searchQuery.toLowerCase();
-      
-      const filteredW = wishlistCars.filter(item =>
-        item.cars?.make?.toLowerCase().includes(query) ||
-        item.cars?.model?.toLowerCase().includes(query) ||
-        item.cars?.year?.toString().includes(query)
-      );
-      setFilteredWishlist(filteredW);
-
-      const filteredR = rentalsCars.filter(item =>
-        item.cars?.make?.toLowerCase().includes(query) ||
-        item.cars?.model?.toLowerCase().includes(query) ||
-        item.cars?.year?.toString().includes(query)
-      );
-      setFilteredRentals(filteredR);
-
-      const filteredP = purchasedCars.filter(item =>
-        item.cars?.make?.toLowerCase().includes(query) ||
-        item.cars?.model?.toLowerCase().includes(query) ||
-        item.cars?.year?.toString().includes(query)
-      );
-      setFilteredPurchases(filteredP);
-    }
-  }, [searchQuery, wishlistCars, rentalsCars, purchasedCars]);
+  
 
   const handleSignOut = async () => {
     await signOut();
@@ -227,11 +193,50 @@ const CustomerDashboard = () => {
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search vehicles..."
+                  placeholder="Search pages..."
                   className="pl-10"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSearchResults(e.target.value.length > 0);
+                  }}
+                  onFocus={() => searchQuery.length > 0 && setShowSearchResults(true)}
+                  onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
                 />
+                {showSearchResults && searchQuery.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
+                    {(() => {
+                      const filteredPages = menuItems.filter(page =>
+                        page.title.toLowerCase().includes(searchQuery.toLowerCase())
+                      );
+                      
+                      if (filteredPages.length === 0) {
+                        return (
+                          <div className="p-3 text-sm text-muted-foreground text-center">
+                            No pages found for "{searchQuery}"
+                          </div>
+                        );
+                      }
+                      
+                      return filteredPages.map((page, index) => (
+                        <button
+                          key={index}
+                          className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent text-left transition-colors"
+                          onClick={() => {
+                            navigate(page.path);
+                            setSearchQuery("");
+                            setShowSearchResults(false);
+                          }}
+                        >
+                          <page.icon className="h-4 w-4 text-muted-foreground" />
+                          <div className="flex-1">
+                            <div className="text-sm font-medium">{page.title}</div>
+                          </div>
+                        </button>
+                      ));
+                    })()}
+                  </div>
+                )}
               </div>
               <Button
                 variant="outline"
@@ -346,22 +351,16 @@ const CustomerDashboard = () => {
             </TabsList>
 
             <TabsContent value="wishlist" className="space-y-4">
-              {filteredWishlist.length === 0 && !searchQuery ? (
+              {wishlistCars.length === 0 ? (
                 <Card className="glass-strong">
                   <CardContent className="pt-6">
                     <p className="text-muted-foreground text-center">Your whitelist is empty. Start browsing our catalogue!</p>
                     <Button onClick={() => navigate("/catalogue")} className="mt-4 mx-auto block">Browse Cars</Button>
                   </CardContent>
                 </Card>
-              ) : filteredWishlist.length === 0 && searchQuery ? (
-                <Card className="glass-strong">
-                  <CardContent className="pt-6">
-                    <p className="text-muted-foreground text-center">No vehicles found matching "{searchQuery}"</p>
-                  </CardContent>
-                </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredWishlist.map((item: any) => (
+                  {wishlistCars.map((item: any) => (
                     <Card key={item.id} className="glass-strong">
                       <CardContent className="p-4">
                         <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
@@ -381,21 +380,15 @@ const CustomerDashboard = () => {
             </TabsContent>
 
             <TabsContent value="bookings" className="space-y-4">
-              {filteredRentals.length === 0 && !searchQuery ? (
+              {rentalsCars.length === 0 ? (
                 <Card className="glass-strong">
                   <CardContent className="pt-6">
                     <p className="text-muted-foreground text-center">No active rentals</p>
                   </CardContent>
                 </Card>
-              ) : filteredRentals.length === 0 && searchQuery ? (
-                <Card className="glass-strong">
-                  <CardContent className="pt-6">
-                    <p className="text-muted-foreground text-center">No rentals found matching "{searchQuery}"</p>
-                  </CardContent>
-                </Card>
               ) : (
                 <div className="space-y-4">
-                  {filteredRentals.map((rental: any) => (
+                  {rentalsCars.map((rental: any) => (
                     <Card key={rental.id} className="glass-strong">
                       <CardContent className="p-4">
                         <div className="flex gap-4">
@@ -415,21 +408,15 @@ const CustomerDashboard = () => {
             </TabsContent>
 
             <TabsContent value="vehicles" className="space-y-4">
-              {filteredPurchases.length === 0 && !searchQuery ? (
+              {purchasedCars.length === 0 ? (
                 <Card className="glass-strong">
                   <CardContent className="pt-6">
                     <p className="text-muted-foreground text-center">No purchased vehicles yet</p>
                   </CardContent>
                 </Card>
-              ) : filteredPurchases.length === 0 && searchQuery ? (
-                <Card className="glass-strong">
-                  <CardContent className="pt-6">
-                    <p className="text-muted-foreground text-center">No vehicles found matching "{searchQuery}"</p>
-                  </CardContent>
-                </Card>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredPurchases.map((sale: any) => (
+                  {purchasedCars.map((sale: any) => (
                     <Card key={sale.id} className="glass-strong">
                       <CardContent className="p-4">
                         <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
