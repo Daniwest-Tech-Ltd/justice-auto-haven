@@ -67,11 +67,16 @@ const ResetPassword = () => {
         ? `${window.location.origin}/reset-password`
         : `${PRODUCTION_URL}/reset-password`;
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: redirectUrl,
+      // Use edge function to bypass captcha requirement for password reset
+      const { data, error } = await supabase.functions.invoke('send-password-reset', {
+        body: { 
+          email: email,
+          redirectTo: redirectUrl 
+        }
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       setEmailSent(true);
       toast({
