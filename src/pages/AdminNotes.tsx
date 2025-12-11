@@ -175,13 +175,22 @@ const AdminNotes = () => {
     }
   };
 
+  const openHtmlInNewTab = (htmlContent: string, title: string) => {
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+      newWindow.document.write(htmlContent);
+      newWindow.document.title = title;
+      newWindow.document.close();
+    }
+  };
+
   const generateSystemDocumentation = async () => {
     setGeneratingDoc(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      toast.info("Generating system documentation... This may take a few minutes.");
+      toast.info("Generating system documentation via ML analysis... This may take a few minutes.");
 
       const { data, error } = await supabase.functions.invoke("generate-system-documentation", {
         body: { admin_id: user.id }
@@ -192,8 +201,11 @@ const AdminNotes = () => {
       toast.success("System documentation generated successfully!");
       fetchGeneratedDocs();
       
-      // Open PDF in new tab if URL is available
-      if (data?.file_url) {
+      // Open HTML content in new tab for printing as PDF
+      if (data?.html_content) {
+        openHtmlInNewTab(data.html_content, "Justice Ultimate Automobiles - System Documentation");
+        toast.info("Use Ctrl+P (or Cmd+P) to print/save as PDF");
+      } else if (data?.file_url) {
         window.open(data.file_url, '_blank');
       }
     } catch (error) {
@@ -210,7 +222,7 @@ const AdminNotes = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      toast.info("Generating system report... This may take a few minutes.");
+      toast.info("Generating system report via ML analysis... This may take a few minutes.");
 
       const { data, error } = await supabase.functions.invoke("generate-system-report", {
         body: { admin_id: user.id }
@@ -221,8 +233,11 @@ const AdminNotes = () => {
       toast.success("System report generated successfully!");
       fetchGeneratedDocs();
       
-      // Open PDF in new tab if URL is available
-      if (data?.file_url) {
+      // Open HTML content in new tab for printing as PDF
+      if (data?.html_content) {
+        openHtmlInNewTab(data.html_content, "Justice Ultimate Automobiles - System Report");
+        toast.info("Use Ctrl+P (or Cmd+P) to print/save as PDF");
+      } else if (data?.file_url) {
         window.open(data.file_url, '_blank');
       }
     } catch (error) {

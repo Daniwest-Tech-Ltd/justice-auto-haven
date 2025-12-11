@@ -441,6 +441,14 @@ const AppContent = () => {
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/admin/notes" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminNotes />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Customer Routes */}
           <Route 
