@@ -849,7 +849,7 @@ function generateDocumentationHTML(content: string): string {
   <!-- Cover Page -->
   <div class="cover-page">
     <div class="watermark">JUSTICE ULTIMATE</div>
-    <img src="https://www.justiceultimateautomobiles.com/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+    <img src="https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/logo.png" alt="Justice Ultimate Automobiles Logo" class="logo" style="width: 180px; height: auto; margin-bottom: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%23dc2626%22 width=%22200%22 height=%22200%22 rx=%2220%22/%3E%3Ctext x=%22100%22 y=%22110%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2260%22 font-weight=%22bold%22%3EJUA%3C/text%3E%3C/svg%3E'">
     <h1>Justice Ultimate Automobiles</h1>
     <h2>System Documentation</h2>
     <div class="meta">
