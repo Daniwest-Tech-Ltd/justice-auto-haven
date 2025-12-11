@@ -656,6 +656,7 @@ function generateReportHTML(content: string, data: any): string {
 <body>
   <!-- Cover Page -->
   <div class="cover-page">
+    <img src="https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/logo.png" alt="Justice Ultimate Automobiles Logo" style="width: 150px; height: auto; margin-bottom: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect fill=%22%231e40af%22 width=%22200%22 height=%22200%22 rx=%2220%22/%3E%3Ctext x=%22100%22 y=%22110%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2260%22 font-weight=%22bold%22%3EJUA%3C/text%3E%3C/svg%3E'">
     <h1>SYSTEM REPORT</h1>
     <h2>Justice Ultimate Automobiles</h2>
     <h3>Comprehensive System Analysis & Status Report</h3>

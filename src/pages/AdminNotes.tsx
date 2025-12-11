@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,8 @@ import {
   Trash2, 
   Clock,
   Loader2,
-  Download
+  Download,
+  Eye
 } from "lucide-react";
 import {
   AlertDialog,
@@ -56,6 +57,9 @@ interface GeneratedDocument {
   generated_at: string;
   metadata: any;
 }
+
+// Store generated HTML content for download
+const documentCache: Record<string, string> = {};
 
 const AdminNotes = () => {
   const navigate = useNavigate();
@@ -184,6 +188,68 @@ const AdminNotes = () => {
     }
   };
 
+  const downloadAsPDF = (htmlContent: string, filename: string) => {
+    // Create a hidden iframe for printing
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(htmlContent);
+      doc.close();
+
+      // Wait for content to load then trigger print
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+        // Remove iframe after a delay
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      }, 500);
+    }
+  };
+
+  const handleDownloadDocument = async (doc: GeneratedDocument) => {
+    // Check cache first
+    if (documentCache[doc.id]) {
+      downloadAsPDF(documentCache[doc.id], `${doc.title.replace(/\s+/g, '_')}.pdf`);
+      toast.success("Opening print dialog - select 'Save as PDF' to download");
+      return;
+    }
+
+    // If no cache, regenerate the document
+    toast.info("Preparing document for download...");
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const functionName = doc.type === "documentation" 
+        ? "generate-system-documentation" 
+        : "generate-system-report";
+
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body: { admin_id: user.id }
+      });
+
+      if (error) throw error;
+
+      if (data?.html_content) {
+        documentCache[doc.id] = data.html_content;
+        downloadAsPDF(data.html_content, `${doc.title.replace(/\s+/g, '_')}.pdf`);
+        toast.success("Opening print dialog - select 'Save as PDF' to download");
+      }
+    } catch (error) {
+      console.error("Error downloading document:", error);
+      toast.error("Failed to prepare document for download");
+    }
+  };
+
   const generateSystemDocumentation = async () => {
     setGeneratingDoc(true);
     try {
@@ -201,10 +267,16 @@ const AdminNotes = () => {
       toast.success("System documentation generated successfully!");
       fetchGeneratedDocs();
       
-      // Open HTML content in new tab for printing as PDF
+      // Auto-download as PDF
       if (data?.html_content) {
-        openHtmlInNewTab(data.html_content, "Justice Ultimate Automobiles - System Documentation");
-        toast.info("Use Ctrl+P (or Cmd+P) to print/save as PDF");
+        // Store in cache
+        if (data?.document_id) {
+          documentCache[data.document_id] = data.html_content;
+        }
+        
+        // Auto-trigger download
+        downloadAsPDF(data.html_content, "Justice_Ultimate_Automobiles_System_Documentation.pdf");
+        toast.success("Opening print dialog - select 'Save as PDF' to download");
       } else if (data?.file_url) {
         window.open(data.file_url, '_blank');
       }
@@ -233,10 +305,16 @@ const AdminNotes = () => {
       toast.success("System report generated successfully!");
       fetchGeneratedDocs();
       
-      // Open HTML content in new tab for printing as PDF
+      // Auto-download as PDF
       if (data?.html_content) {
-        openHtmlInNewTab(data.html_content, "Justice Ultimate Automobiles - System Report");
-        toast.info("Use Ctrl+P (or Cmd+P) to print/save as PDF");
+        // Store in cache
+        if (data?.document_id) {
+          documentCache[data.document_id] = data.html_content;
+        }
+        
+        // Auto-trigger download
+        downloadAsPDF(data.html_content, "Justice_Ultimate_Automobiles_System_Report.pdf");
+        toast.success("Opening print dialog - select 'Save as PDF' to download");
       } else if (data?.file_url) {
         window.open(data.file_url, '_blank');
       }
@@ -424,14 +502,16 @@ const AdminNotes = () => {
                           </p>
                         </div>
                       </div>
-                      {doc.file_url && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-4 w-4 mr-2" />
-                            Download
-                          </a>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDownloadDocument(doc)}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download PDF
                         </Button>
-                      )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
