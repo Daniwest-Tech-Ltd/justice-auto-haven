@@ -229,6 +229,7 @@ const AdminDashboard = () => {
       items: [
         { title: "Videos", icon: Video, path: "/admin/videos" },
         { title: "Blogs", icon: BookOpen, path: "/admin/blogs" },
+        { title: "Notes", icon: FileText, path: "/admin/notes" },
       ]
     },
     {
