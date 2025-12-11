@@ -2884,6 +2884,7 @@ export type Database = {
           newsletter_enabled: boolean | null
           personalized_ads: boolean | null
           push_notifications: boolean | null
+          security_alerts: boolean | null
           sms_notifications: boolean | null
           updated_at: string | null
           user_id: string
@@ -2903,6 +2904,7 @@ export type Database = {
           newsletter_enabled?: boolean | null
           personalized_ads?: boolean | null
           push_notifications?: boolean | null
+          security_alerts?: boolean | null
           sms_notifications?: boolean | null
           updated_at?: string | null
           user_id: string
@@ -2922,6 +2924,7 @@ export type Database = {
           newsletter_enabled?: boolean | null
           personalized_ads?: boolean | null
           push_notifications?: boolean | null
+          security_alerts?: boolean | null
           sms_notifications?: boolean | null
           updated_at?: string | null
           user_id?: string
@@ -2946,6 +2949,39 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string | null
+          device_info: string | null
+          id: string
+          ip_address: string | null
+          is_active: boolean | null
+          last_active: string | null
+          session_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_active?: string | null
+          session_token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_active?: string | null
+          session_token?: string
           user_id?: string
         }
         Relationships: []
