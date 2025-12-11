@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, User, Shield, Bell, Palette, Menu, Lock, Send, LogOut, Loader2 } from "lucide-react";
+import { ArrowLeft, User, Shield, Bell, Palette, Menu, Lock, Send, LogOut, Loader2, KeyRound } from "lucide-react";
+import { PasswordChangeDialog } from "@/components/PasswordChangeDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -284,6 +285,25 @@ const CustomerSettings = () => {
 
         <TabsContent value="security">
           <div className="space-y-6">
+            {/* Password Change */}
+            <Card className="glass-strong">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <KeyRound className="h-5 w-5" />
+                  Change Password
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Update your password to keep your account secure. You will be logged out after changing your password.
+                </p>
+                <PasswordChangeDialog 
+                  userEmail={formData.email}
+                  userName={formData.full_name}
+                />
+              </CardContent>
+            </Card>
+            
             <TOTPSetup />
             <FingerprintSetup />
             <TrustedDevices userId={user?.id || ""} />
