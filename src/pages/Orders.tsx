@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { usePagination } from "@/hooks/usePagination";
 import LoadingScreen from "@/components/LoadingScreen";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import logo from "@/assets/logo.png";
 import { EmailTemplates } from "@/components/EmailTemplates";
 import { OrderAnalytics } from "@/components/OrderAnalytics";
@@ -203,61 +203,122 @@ const Orders = () => {
   const exportToPDF = async () => {
     try {
       const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      
+      // Brand colors (JUA red)
+      const brandRed: [number, number, number] = [220, 38, 38];
+      const darkGray: [number, number, number] = [51, 51, 51];
       
       // Add logo
       const logoImg = new Image();
       logoImg.src = logo;
-      await new Promise((resolve) => {
+      logoImg.crossOrigin = 'anonymous';
+      await new Promise((resolve, reject) => {
         logoImg.onload = resolve;
+        logoImg.onerror = reject;
       });
-      doc.addImage(logoImg, 'PNG', 14, 10, 30, 15);
+      doc.addImage(logoImg, 'PNG', 14, 10, 35, 18);
       
-      // Header
-      doc.setFontSize(20);
+      // Header line
+      doc.setDrawColor(...brandRed);
+      doc.setLineWidth(1);
+      doc.line(14, 32, pageWidth - 14, 32);
+      
+      // Company name header
+      doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
-      doc.text("JUSTICE ULTIMATE AUTOMOBILES", 50, 18);
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-      doc.text("Orders Report", 50, 24);
+      doc.setTextColor(...brandRed);
+      doc.text("JUSTICE ULTIMATE AUTOMOBILES", 55, 18);
       
+      // Subtitle
+      doc.setFontSize(14);
+      doc.setTextColor(...darkGray);
+      doc.text("ORDERS REPORT", 55, 26);
+      
+      // Report details
       doc.setFontSize(10);
-      doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 32);
-      doc.text(`Total Orders: ${filteredOrders.length}`, 14, 38);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Report Generated: ${new Date().toLocaleString('en-KE', { dateStyle: 'full', timeStyle: 'short' })}`, 14, 40);
+      doc.text(`Total Orders: ${filteredOrders.length}`, 14, 46);
+      doc.text(`Filter Applied: ${statusFilter === 'all' ? 'All Orders' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}`, 14, 52);
 
+      // Table data
       const tableData = filteredOrders.map(order => [
         order.full_name,
         `${order.car_make} ${order.car_model} (${order.car_year})`,
         `KSh ${Number(order.car_price).toLocaleString()}`,
         order.phone,
-        order.email,
-        order.contact_method,
-        order.status,
-        new Date(order.submitted_at).toLocaleDateString(),
+        order.status.toUpperCase(),
+        new Date(order.submitted_at).toLocaleDateString('en-KE'),
       ]);
 
-      (doc as any).autoTable({
-        head: [['Customer', 'Vehicle', 'Price', 'Phone', 'Email', 'Contact', 'Status', 'Date']],
+      // Generate table using autoTable
+      autoTable(doc, {
+        head: [['Customer Name', 'Vehicle', 'Price (KSh)', 'Phone', 'Status', 'Date']],
         body: tableData,
-        startY: 45,
-        theme: 'grid',
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [220, 38, 38] },
+        startY: 58,
+        theme: 'striped',
+        styles: { 
+          fontSize: 9, 
+          cellPadding: 3,
+          textColor: darkGray,
+          lineColor: [200, 200, 200],
+        },
+        headStyles: { 
+          fillColor: brandRed,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 10,
+        },
+        alternateRowStyles: {
+          fillColor: [252, 252, 252],
+        },
+        columnStyles: {
+          0: { cellWidth: 35 },
+          1: { cellWidth: 45 },
+          2: { cellWidth: 30, halign: 'right' },
+          3: { cellWidth: 30 },
+          4: { cellWidth: 22, halign: 'center' },
+          5: { cellWidth: 25 },
+        },
       });
 
-      // Watermark on each page
-      const pageCount = (doc as any).internal.getNumberOfPages();
+      // Add watermark and footer to each page
+      const pageCount = doc.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
-        doc.setFontSize(50);
-        doc.setTextColor(200, 200, 200);
+        
+        // Diagonal watermark
+        doc.setFontSize(55);
+        doc.setTextColor(240, 240, 240);
         doc.setFont("helvetica", "bold");
-        doc.text("JUSTICE ULTIMATE AUTOMOBILES", doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() / 2, {
+        doc.text("JUSTICE ULTIMATE AUTOMOBILES", pageWidth / 2, pageHeight / 2, {
           align: "center",
-          angle: 45
+          angle: 45,
         });
+        
+        // Footer separator line
+        doc.setDrawColor(...brandRed);
+        doc.setLineWidth(0.5);
+        doc.line(14, pageHeight - 25, pageWidth - 14, pageHeight - 25);
+        
+        // Footer content
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 100, 100);
+        doc.text("Justice Ultimate Automobiles | Premier Car Dealership in Kenya", 14, pageHeight - 20);
+        doc.text("Phone: 0722 827 458 | 0701 460 110", 14, pageHeight - 15);
+        doc.text("Email: info@justiceultimateautomobiles.com | Web: www.justiceultimateautomobiles.com", 14, pageHeight - 10);
+        
+        // Page number
+        doc.setFontSize(9);
+        doc.setTextColor(...brandRed);
+        doc.text(`Page ${i} of ${pageCount}`, pageWidth - 30, pageHeight - 10);
       }
 
-      doc.save(`orders-report-${new Date().toISOString().split('T')[0]}.pdf`);
+      doc.save(`JUA-Orders-Report-${new Date().toISOString().split('T')[0]}.pdf`);
       toast.success("PDF exported successfully!");
     } catch (error) {
       console.error("Error exporting PDF:", error);
