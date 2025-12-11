@@ -90,23 +90,21 @@ async function gatherSystemData(supabase: any) {
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-  // Get comprehensive statistics
+  // Get comprehensive statistics with error handling
   const [
-    { count: totalCars },
-    { count: availableCars },
-    { count: soldCars },
-    { count: totalUsers },
-    { count: activeUsers },
-    { count: totalRentals },
-    { count: pendingRentals },
-    { count: totalStaff },
-    { count: totalOrders },
-    { count: totalTradeIns },
-    { count: totalMessages },
-    { count: securityEvents },
-    { data: recentSales },
-    { data: recentLogins },
-    { data: topViewedCars }
+    carsResult,
+    availableCarsResult,
+    soldCarsResult,
+    usersResult,
+    activeUsersResult,
+    rentalsResult,
+    pendingRentalsResult,
+    staffResult,
+    ordersResult,
+    messagesResult,
+    securityResult,
+    salesResult,
+    auditResult
   ] = await Promise.all([
     supabase.from("cars").select("*", { count: "exact", head: true }),
     supabase.from("cars").select("*", { count: "exact", head: true }).eq("status", "available"),
@@ -117,13 +115,25 @@ async function gatherSystemData(supabase: any) {
     supabase.from("rental_bookings").select("*", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("staff").select("*", { count: "exact", head: true }),
     supabase.from("contact_submissions").select("*", { count: "exact", head: true }),
-    supabase.from("trade_ins").select("*", { count: "exact", head: true }).catch(() => ({ count: 0 })),
     supabase.from("messages").select("*", { count: "exact", head: true }),
     supabase.from("security_events").select("*", { count: "exact", head: true }).gte("created_at", thirtyDaysAgo.toISOString()),
     supabase.from("sales").select("*").order("sale_date", { ascending: false }).limit(10),
-    supabase.from("audit_logs").select("*").eq("action", "login_attempt").order("created_at", { ascending: false }).limit(100),
-    supabase.from("vehicle_views").select("car_id").order("viewed_at", { ascending: false }).limit(100).catch(() => ({ data: [] }))
+    supabase.from("audit_logs").select("*").eq("action", "login_attempt").order("created_at", { ascending: false }).limit(100)
   ]);
+
+  const totalCars = carsResult.count || 0;
+  const availableCars = availableCarsResult.count || 0;
+  const soldCars = soldCarsResult.count || 0;
+  const totalUsers = usersResult.count || 0;
+  const activeUsers = activeUsersResult.count || 0;
+  const totalRentals = rentalsResult.count || 0;
+  const pendingRentals = pendingRentalsResult.count || 0;
+  const totalStaff = staffResult.count || 0;
+  const totalOrders = ordersResult.count || 0;
+  const totalMessages = messagesResult.count || 0;
+  const securityEvents = securityResult.count || 0;
+  const recentSales = salesResult.data || [];
+  const recentLogins = auditResult.data || [];
 
   // Calculate sales metrics
   const totalSalesValue = recentSales?.reduce((sum: number, sale: any) => sum + (sale.sale_price || 0), 0) || 0;
@@ -169,7 +179,7 @@ async function gatherSystemData(supabase: any) {
     },
     communications: {
       totalOrders: totalOrders || 0,
-      totalTradeIns: totalTradeIns || 0,
+      totalTradeIns: 0,
       totalMessages: totalMessages || 0
     },
     security: {
