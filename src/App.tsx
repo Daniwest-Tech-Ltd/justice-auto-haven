@@ -107,12 +107,21 @@ const AppContent = () => {
         setTimeout(async () => {
           const { data: profile } = await supabase
             .from("profiles")
-            .select("theme")
+            .select("theme, avatar_url")
             .eq("user_id", session.user.id)
             .maybeSingle();
 
           if (profile?.theme) {
             applyTheme(profile.theme as Theme);
+          }
+
+          // Sync Google avatar to profile if user signed in with Google
+          const googleAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture;
+          if (googleAvatar && (!profile?.avatar_url || profile.avatar_url !== googleAvatar)) {
+            await supabase
+              .from("profiles")
+              .update({ avatar_url: googleAvatar })
+              .eq("user_id", session.user.id);
           }
         }, 0);
       } else {
