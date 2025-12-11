@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Mail, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+
+const PRODUCTION_URL = "https://www.justiceultimateautomobiles.com";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -16,6 +18,8 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   // Password strength checker
   const checkPasswordStrength = (pwd: string) => {
@@ -43,9 +47,12 @@ const ResetPassword = () => {
   const passwordStrength = checkPasswordStrength(newPassword);
 
   useEffect(() => {
-    // Check if we have a recovery token in URL
+    // Check if we have a recovery token in URL (type=recovery or access_token)
     const type = searchParams.get("type");
-    if (type === "recovery") {
+    const accessToken = searchParams.get("access_token");
+    const tokenHash = searchParams.get("token_hash");
+    
+    if (type === "recovery" || accessToken || tokenHash) {
       setIsResetMode(true);
     }
   }, [searchParams]);
@@ -55,22 +62,27 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
+      // Use production URL for redirect, fallback to current origin for development
+      const redirectUrl = window.location.hostname === "localhost" 
+        ? `${window.location.origin}/reset-password`
+        : `${PRODUCTION_URL}/reset-password`;
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: redirectUrl,
       });
 
       if (error) throw error;
 
+      setEmailSent(true);
       toast({
-        title: "Password reset email sent",
-        description: "Please check your inbox for the reset link.",
+        title: "Password Reset Email Sent",
+        description: "Please check your inbox for the reset link. The link will expire in 1 hour.",
       });
-      setEmail("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending reset email:", error);
       toast({
         title: "Error",
-        description: "Unable to send reset email. Please try again.",
+        description: error.message || "Unable to send reset email. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -108,34 +120,38 @@ const ResetPassword = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Your password has been successfully reset. Logging you in...",
-      });
-
-      // Auto-login: Navigate to appropriate dashboard
+      // Get current user to send notification email
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (user) {
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        setTimeout(() => {
-          if (roleData?.role === "admin") {
-            navigate("/admin-dashboard");
-          } else {
-            navigate("/customer-dashboard");
+      if (user?.email) {
+        // Send password change notification email (fire and forget)
+        supabase.functions.invoke('send-password-change-notification', {
+          body: { 
+            email: user.email,
+            name: user.user_metadata?.full_name || 'User'
           }
-        }, 1500);
+        }).catch(err => console.log('Email notification skipped:', err));
       }
-    } catch (error) {
+
+      // Sign out the user to force fresh login with new password
+      await supabase.auth.signOut();
+
+      setResetSuccess(true);
+      toast({
+        title: "Password Reset Successful",
+        description: "Your password has been successfully reset. Please login with your new password.",
+      });
+
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate("/auth?reset=success");
+      }, 3000);
+
+    } catch (error: any) {
       console.error("Error resetting password:", error);
       toast({
-        title: "Error",
-        description: "Reset failed. Token may be invalid or expired.",
+        title: "Password Reset Failed",
+        description: error.message || "The reset link may be invalid or expired. Please request a new one.",
         variant: "destructive",
       });
     } finally {
@@ -143,8 +159,79 @@ const ResetPassword = () => {
     }
   };
 
+  // Success screen after email sent
+  if (emailSent && !isResetMode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+        <div className="glass-strong rounded-3xl p-12 max-w-md w-full text-center">
+          <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Mail className="h-10 w-10 text-primary" />
+          </div>
+          <h1 className="text-3xl font-bold mb-4">Check Your Email</h1>
+          <p className="text-muted-foreground mb-6">
+            We've sent a password reset link to:
+          </p>
+          <p className="font-semibold text-lg mb-6">{email}</p>
+          <p className="text-sm text-muted-foreground mb-8">
+            Click the link in the email to reset your password. The link will expire in 1 hour.
+          </p>
+          <div className="space-y-4">
+            <Button 
+              onClick={() => setEmailSent(false)} 
+              variant="outline" 
+              className="w-full"
+            >
+              Send to a different email
+            </Button>
+            <Link to="/auth">
+              <Button className="w-full">
+                Back to Login
+              </Button>
+            </Link>
+          </div>
+          <p className="text-xs text-muted-foreground mt-6">
+            Didn't receive the email? Check your spam folder or try again.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Success screen after password reset
+  if (resetSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+        <div className="glass-strong rounded-3xl p-12 max-w-md w-full text-center">
+          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="h-10 w-10 text-green-500" />
+          </div>
+          <h1 className="text-3xl font-bold mb-4 text-green-600">Password Reset Successful!</h1>
+          <p className="text-muted-foreground mb-6">
+            Your password has been successfully updated.
+          </p>
+          <p className="text-sm text-muted-foreground mb-8">
+            You will be redirected to the login page in a few seconds...
+          </p>
+          <Link to="/auth?reset=success">
+            <Button className="w-full" size="lg">
+              Login Now
+            </Button>
+          </Link>
+          <div className="mt-8 p-4 bg-muted rounded-lg text-left">
+            <p className="text-sm font-medium mb-2">Security Notice:</p>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• A confirmation email has been sent to your registered email</li>
+              <li>• Your old password can no longer be used</li>
+              <li>• Please use your new password to login</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
       <div className="glass-strong rounded-3xl p-12 max-w-md w-full">
         <Link
           to="/auth"
@@ -156,9 +243,9 @@ const ResetPassword = () => {
 
         {!isResetMode ? (
           <>
-            <h1 className="text-4xl font-bold mb-4">Reset Password</h1>
+            <h1 className="text-4xl font-bold mb-4">Forgot Password?</h1>
             <p className="text-muted-foreground mb-8">
-              Enter your email address and we'll send you a link to reset your password.
+              Enter your email address and we'll send you a secure link to reset your password.
             </p>
 
             <form onSubmit={sendResetEmail} className="space-y-6">
@@ -168,7 +255,7 @@ const ResetPassword = () => {
                   placeholder="Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full"
+                  className="w-full h-12"
                   required
                 />
               </div>
@@ -179,17 +266,24 @@ const ResetPassword = () => {
 
               <p className="text-sm text-center text-muted-foreground">
                 Remember your password?{" "}
-                <Link to="/auth" className="text-primary hover:underline">
+                <Link to="/auth" className="text-primary hover:underline font-medium">
                   Sign in
                 </Link>
               </p>
             </form>
+
+            <div className="mt-8 p-4 bg-muted rounded-lg">
+              <p className="text-xs text-muted-foreground">
+                <strong>Note:</strong> The password reset link will be sent to your registered email address. 
+                The link expires in 1 hour for security purposes.
+              </p>
+            </div>
           </>
         ) : (
           <>
             <h1 className="text-4xl font-bold mb-4">Set New Password</h1>
             <p className="text-muted-foreground mb-8">
-              Enter your new password below.
+              Create a strong password for your account.
             </p>
 
             <form onSubmit={handlePasswordReset} className="space-y-6">
@@ -200,7 +294,7 @@ const ResetPassword = () => {
                     placeholder="New Password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full pr-10"
+                    className="w-full pr-10 h-12"
                     required
                   />
                   <button
@@ -218,7 +312,7 @@ const ResetPassword = () => {
                       {[1, 2, 3, 4, 5].map((level) => (
                         <div
                           key={level}
-                          className={`h-1 flex-1 rounded-full transition-all ${
+                          className={`h-1.5 flex-1 rounded-full transition-all ${
                             level <= passwordStrength.strength
                               ? passwordStrength.strength <= 2
                                 ? "bg-red-500"
@@ -230,21 +324,33 @@ const ResetPassword = () => {
                         />
                       ))}
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      Password Strength: {" "}
+                      <span className={
+                        passwordStrength.strength <= 2 
+                          ? "text-red-500 font-medium" 
+                          : passwordStrength.strength === 3 
+                          ? "text-yellow-500 font-medium" 
+                          : "text-green-500 font-medium"
+                      }>
+                        {passwordStrength.strength <= 2 ? "Weak" : passwordStrength.strength === 3 ? "Medium" : "Strong"}
+                      </span>
+                    </p>
                     <div className="text-xs space-y-1 text-muted-foreground">
                       <p className={passwordStrength.requirements.length ? "text-green-600" : ""}>
-                        ✓ At least 8 characters
+                        {passwordStrength.requirements.length ? "✓" : "○"} At least 8 characters
                       </p>
                       <p className={passwordStrength.requirements.upper ? "text-green-600" : ""}>
-                        ✓ One uppercase letter
+                        {passwordStrength.requirements.upper ? "✓" : "○"} One uppercase letter
                       </p>
                       <p className={passwordStrength.requirements.lower ? "text-green-600" : ""}>
-                        ✓ One lowercase letter
+                        {passwordStrength.requirements.lower ? "✓" : "○"} One lowercase letter
                       </p>
                       <p className={passwordStrength.requirements.number ? "text-green-600" : ""}>
-                        ✓ One number
+                        {passwordStrength.requirements.number ? "✓" : "○"} One number
                       </p>
                       <p className={passwordStrength.requirements.special ? "text-green-600" : ""}>
-                        ✓ One special character (!@#$%^&*...)
+                        {passwordStrength.requirements.special ? "✓" : "○"} One special character (!@#$%^&*...)
                       </p>
                     </div>
                   </div>
@@ -257,7 +363,7 @@ const ResetPassword = () => {
                   placeholder="Confirm Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full pr-10"
+                  className="w-full pr-10 h-12"
                   required
                 />
                 <button
@@ -271,6 +377,9 @@ const ResetPassword = () => {
                 {confirmPassword && newPassword !== confirmPassword && (
                   <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
                 )}
+                {confirmPassword && newPassword === confirmPassword && confirmPassword.length > 0 && (
+                  <p className="text-xs text-green-500 mt-1">✓ Passwords match</p>
+                )}
               </div>
 
               <Button 
@@ -280,9 +389,23 @@ const ResetPassword = () => {
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </Button>
+
+              <p className="text-xs text-center text-muted-foreground">
+                After resetting, you will be redirected to the login page to sign in with your new password.
+              </p>
             </form>
           </>
         )}
+
+        {/* Company Footer */}
+        <div className="mt-8 pt-6 border-t border-border text-center">
+          <p className="text-xs text-muted-foreground">
+            <strong>Justice Ultimate Automobiles</strong>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Phone: 0722827458 | Website: www.justiceultimateautomobiles.com
+          </p>
+        </div>
       </div>
     </div>
   );

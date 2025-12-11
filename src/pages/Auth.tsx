@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Facebook, Instagram, Linkedin, ArrowLeft, Mail, Chrome, Eye, EyeOff, Lock, UserPlus } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
@@ -47,6 +47,7 @@ const Auth = () => {
   const [preferred2FAMethod, setPreferred2FAMethod] = useState("email_otp");
   const [otpTimeLeft, setOtpTimeLeft] = useState(600); // 10 minutes in seconds
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { logLoginAttempt, logSuspiciousActivity } = useSecurityLogger();
   
@@ -85,6 +86,17 @@ const Auth = () => {
   useEffect(() => {
     // Check maintenance once on mount, don't check repeatedly
     checkMaintenanceMode();
+    
+    // Check for password reset success
+    const resetSuccess = searchParams.get("reset");
+    if (resetSuccess === "success") {
+      toast({
+        title: "Password Reset Successful",
+        description: "Your password has been reset. Please login with your new password.",
+      });
+      // Clear the URL parameter
+      window.history.replaceState({}, document.title, "/auth");
+    }
   }, []);
 
   useEffect(() => {
