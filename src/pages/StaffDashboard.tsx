@@ -5,7 +5,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Briefcase, Clock, LogOut } from "lucide-react";
+import { Calendar, Briefcase, Clock, LogOut, RefreshCw, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 interface JobCard {
@@ -118,10 +119,32 @@ export default function StaffDashboard() {
               {staff?.role} • {staff?.department}
             </p>
           </div>
-          <Button variant="outline" onClick={signOut}>
-            <LogOut className="h-5 w-5 mr-2" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search job cards..."
+                className="pl-10 w-64"
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                fetchStaffData();
+                fetchJobCards();
+                toast.success("Dashboard data refreshed");
+              }}
+              title="Refresh Dashboard"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" onClick={signOut}>
+              <LogOut className="h-5 w-5 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}

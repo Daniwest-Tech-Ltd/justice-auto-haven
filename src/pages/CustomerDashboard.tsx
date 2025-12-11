@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingCart, MessageSquare, Sun, Moon, Eye, EyeOff } from "lucide-react";
+import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingCart, MessageSquare, Sun, Moon, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import SessionTimeoutModal from "@/components/SessionTimeoutModal";
@@ -233,6 +233,17 @@ const CustomerDashboard = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  fetchCustomerData();
+                  toast({ title: "Refreshed", description: "Dashboard data has been refreshed" });
+                }}
+                title="Refresh Dashboard"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
             </div>
           </header>
 
