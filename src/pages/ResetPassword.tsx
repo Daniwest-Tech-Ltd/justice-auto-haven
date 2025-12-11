@@ -81,7 +81,7 @@ const ResetPassword = () => {
       setEmailSent(true);
       toast({
         title: "Password Reset Email Sent",
-        description: "Please check your inbox for the reset link. The link will expire in 1 hour.",
+        description: "If an account exists with this email, you will receive a reset link shortly.",
       });
     } catch (error: any) {
       console.error("Error sending reset email:", error);

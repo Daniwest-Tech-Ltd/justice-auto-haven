@@ -51,12 +51,15 @@ serve(async (req: Request) => {
       },
     });
 
+    // For security, always return success even if user doesn't exist
+    // This prevents user enumeration attacks
     if (error) {
-      console.error("Error generating reset link:", error);
+      console.log("User not found or error (silent):", error.message);
+      // Return success anyway - don't reveal if email exists
       return new Response(
-        JSON.stringify({ error: error.message }),
+        JSON.stringify({ success: true, message: "If an account exists with this email, a password reset link has been sent." }),
         { 
-          status: 400, 
+          status: 200, 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
         }
       );
