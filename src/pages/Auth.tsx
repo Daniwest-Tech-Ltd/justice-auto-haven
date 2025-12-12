@@ -29,6 +29,7 @@ import googleIcon from "@/assets/google-icon.svg";
 import kenyaLocations from "@/data/kenya-locations.json";
 import { Combobox } from "@/components/ui/combobox";
 import { PhoneInputWithCountryCode } from "@/components/PhoneInputWithCountryCode";
+import HolidayBanner from "@/components/HolidayBanner";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
 
@@ -844,6 +845,7 @@ const Auth = () => {
 
   return (
     <>
+      <HolidayBanner />
       <div 
         className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${authBg})` }}
