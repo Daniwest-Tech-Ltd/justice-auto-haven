@@ -3,14 +3,13 @@ import { getTodayHoliday, getThemeColors, scripture, Holiday } from "@/data/holi
 
 const HolidayBanner = () => {
   const [holiday, setHoliday] = useState<Holiday | null>(null);
-  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const todayHoliday = getTodayHoliday();
     setHoliday(todayHoliday);
   }, []);
 
-  if (!holiday || !isVisible) return null;
+  if (!holiday) return null;
 
   const colors = getThemeColors(holiday.theme);
 
@@ -41,15 +40,6 @@ const HolidayBanner = () => {
             </span>
           </div>
         </div>
-
-        {/* Close button */}
-        <button
-          onClick={() => setIsVisible(false)}
-          className="absolute top-1/2 -translate-y-1/2 right-2 text-white/60 hover:text-white transition-colors text-sm leading-none"
-          aria-label="Close banner"
-        >
-          ×
-        </button>
       </div>
     </div>
   );
