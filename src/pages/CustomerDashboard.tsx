@@ -29,7 +29,7 @@ import { CustomerLoyaltyBadge } from "@/components/CustomerLoyaltyBadge";
 import { LiveChatWidget } from "@/components/LiveChatWidget";
 import logo from "@/assets/logo.png";
 import { setTheme, Theme } from "@/lib/theme";
-import DashboardHolidayBanner from "@/components/DashboardHolidayBanner";
+import DashboardHolidayBanner, { DashboardSnowfall } from "@/components/DashboardHolidayBanner";
 
 const CustomerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -126,7 +126,7 @@ const CustomerDashboard = () => {
 
   return (
     <SidebarProvider>
-      
+      <DashboardSnowfall />
       <div className="min-h-screen flex w-full">
         <SessionTimeoutModal
           isOpen={showWarning}
