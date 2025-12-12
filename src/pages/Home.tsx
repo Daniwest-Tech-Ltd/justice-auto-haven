@@ -130,7 +130,7 @@ const Home = () => {
   return (
     <div className="min-h-screen animate-fade-in">
       {/* Hero Section with Slideshow */}
-      <section className="relative h-[600px] overflow-hidden" aria-label="Featured Vehicles Showcase">
+      <section className="relative h-[600px] overflow-hidden -mt-4" aria-label="Featured Vehicles Showcase">
         <div className="absolute inset-0">
           {heroCars.map((car, index) => (
             <div
