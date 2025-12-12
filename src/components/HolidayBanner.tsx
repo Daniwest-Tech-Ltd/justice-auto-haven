@@ -19,23 +19,23 @@ const HolidayBanner = () => {
       {/* Glassmorphism overlay */}
       <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
 
-      {/* Main content */}
-      <div className="relative z-10 py-1.5 px-4">
+      {/* Main content - compact height */}
+      <div className="relative z-10 py-0.5 px-4">
         <div className="overflow-hidden whitespace-nowrap">
-          <div className="inline-block animate-marquee">
-            <span className="text-white font-semibold text-xs md:text-sm px-4">
+          <div className="inline-block animate-marquee align-middle">
+            <span className="text-white font-semibold text-[11px] md:text-xs px-4">
               {holiday.emoji} Happy {holiday.name}! {holiday.message} {holiday.emoji}
             </span>
-            <span className="text-white/60 text-xs px-4">•</span>
-            <span className="text-white/80 text-xs italic px-4">
+            <span className="text-white/60 text-[10px] px-3">•</span>
+            <span className="text-white/80 text-[10px] italic px-4">
               {tagline}
             </span>
-            <span className="text-white/60 text-xs px-4">•</span>
-            <span className="text-white font-semibold text-xs md:text-sm px-4">
+            <span className="text-white/60 text-[10px] px-3">•</span>
+            <span className="text-white font-semibold text-[11px] md:text-xs px-4">
               {holiday.emoji} Happy {holiday.name}! {holiday.message} {holiday.emoji}
             </span>
-            <span className="text-white/60 text-xs px-4">•</span>
-            <span className="text-white/80 text-xs italic px-4">
+            <span className="text-white/60 text-[10px] px-3">•</span>
+            <span className="text-white/80 text-[10px] italic px-4">
               {tagline}
             </span>
           </div>
