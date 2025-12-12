@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getTodayHoliday, getThemeColors, Holiday } from "@/data/holidays";
+import { format } from "date-fns";
 
 // Import holiday background images
 import kenyanFlag from "@/assets/kenyan-flag.png";
@@ -9,6 +10,26 @@ import valentineBg from "@/assets/holiday-valentine.jpg";
 import easterBg from "@/assets/holiday-easter.jpg";
 import earthBg from "@/assets/holiday-earth.jpg";
 import eidBg from "@/assets/holiday-eid.jpg";
+
+// Get ordinal suffix for day (1st, 2nd, 3rd, 4th, etc.)
+const getOrdinalSuffix = (day: number): string => {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+};
+
+// Format date as "12th December 2025"
+const getFormattedDate = (): string => {
+  const today = new Date();
+  const day = today.getDate();
+  const month = format(today, 'MMMM');
+  const year = today.getFullYear();
+  return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
+};
 
 // Map themes to background images
 const getHolidayBackground = (theme: Holiday['theme']): string => {
@@ -31,23 +52,48 @@ const getHolidayBackground = (theme: Holiday['theme']): string => {
     case 'eid':
       return eidBg;
     case 'women':
-      return valentineBg; // Pink theme
+      return valentineBg;
     case 'cancer':
     case 'aids':
     case 'labour':
     default:
-      return kenyanFlag; // Default to Kenyan flag
+      return kenyanFlag;
   }
 };
 
 const HolidayBanner = () => {
   const [holiday, setHoliday] = useState<Holiday | null>(null);
+  const [formattedDate, setFormattedDate] = useState<string>("");
 
   useEffect(() => {
-    const todayHoliday = getTodayHoliday();
-    setHoliday(todayHoliday);
+    // Check holiday status immediately
+    const checkHoliday = () => {
+      const todayHoliday = getTodayHoliday();
+      setHoliday(todayHoliday);
+      setFormattedDate(getFormattedDate());
+    };
+
+    checkHoliday();
+
+    // Set up interval to check at midnight for date changes
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const msUntilMidnight = tomorrow.getTime() - now.getTime();
+
+    // Check at midnight and every hour after
+    const midnightTimeout = setTimeout(() => {
+      checkHoliday();
+      // After first midnight check, set up hourly interval
+      const hourlyInterval = setInterval(checkHoliday, 60 * 60 * 1000);
+      return () => clearInterval(hourlyInterval);
+    }, msUntilMidnight);
+
+    return () => clearTimeout(midnightTimeout);
   }, []);
 
+  // Only show if there's a holiday TODAY
   if (!holiday) return null;
 
   const colors = getThemeColors(holiday.theme);
@@ -69,8 +115,8 @@ const HolidayBanner = () => {
       <div className="absolute inset-0 backdrop-blur-md bg-black/30" />
       
       {/* Subtle border glow */}
-      <div className={`absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent`} />
-      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent`} />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
       {/* Main content */}
       <div className="relative z-10 h-full flex items-center px-4">
@@ -90,7 +136,7 @@ const HolidayBanner = () => {
         <div className="flex-1 overflow-hidden whitespace-nowrap">
           <div className="inline-block animate-marquee">
             <span className="text-white font-bold text-xs md:text-sm px-4 drop-shadow-lg">
-              {holiday.emoji} Happy {holiday.name}!
+              {holiday.emoji} Happy {holiday.name}! — {formattedDate}
             </span>
             <span className="text-white/90 font-medium text-xs md:text-sm px-2 drop-shadow-md">
               {holiday.message}
@@ -101,7 +147,7 @@ const HolidayBanner = () => {
             </span>
             <span className="text-white/50 text-xs px-3">•</span>
             <span className="text-white font-bold text-xs md:text-sm px-4 drop-shadow-lg">
-              {holiday.emoji} Happy {holiday.name}!
+              {holiday.emoji} Happy {holiday.name}! — {formattedDate}
             </span>
             <span className="text-white/90 font-medium text-xs md:text-sm px-2 drop-shadow-md">
               {holiday.message}
