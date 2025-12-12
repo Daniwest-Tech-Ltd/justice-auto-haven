@@ -2,6 +2,7 @@ import { ReactNode, useEffect } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
 import MouseTracker from "./MouseTracker";
+import HolidayBanner from "./HolidayBanner";
 import heroCar from "@/assets/hero-car.jpg";
 
 interface LayoutProps {
@@ -50,6 +51,7 @@ const Layout = ({ children }: LayoutProps) => {
 
       {/* Content */}
       <div className="relative z-10">
+        <HolidayBanner />
         <Header />
         <main className="pt-16">{children}</main>
         <Footer />
