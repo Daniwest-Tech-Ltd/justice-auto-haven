@@ -181,8 +181,13 @@ const HolidayBanner = () => {
             <span className="text-white font-bold text-xs md:text-sm px-4 drop-shadow-lg">
               {holiday.emoji} Happy {holiday.name}! — {formattedDate}
             </span>
+            <span className="text-white/50 text-xs px-3">•</span>
             <span className="text-white/90 font-medium text-xs md:text-sm px-2 drop-shadow-md">
               {holiday.message}
+            </span>
+            <span className="text-white/50 text-xs px-3">•</span>
+            <span className="text-yellow-300 font-bold text-xs md:text-sm px-4 drop-shadow-lg animate-pulse">
+              🎁 Get Exclusive Offers at Justice Ultimate Automobiles as we celebrate {holiday.name}! 🎁
             </span>
             <span className="text-white/50 text-xs px-3">•</span>
             <span className="text-white/80 text-xs italic px-4 drop-shadow-md">
@@ -192,8 +197,13 @@ const HolidayBanner = () => {
             <span className="text-white font-bold text-xs md:text-sm px-4 drop-shadow-lg">
               {holiday.emoji} Happy {holiday.name}! — {formattedDate}
             </span>
+            <span className="text-white/50 text-xs px-3">•</span>
             <span className="text-white/90 font-medium text-xs md:text-sm px-2 drop-shadow-md">
               {holiday.message}
+            </span>
+            <span className="text-white/50 text-xs px-3">•</span>
+            <span className="text-yellow-300 font-bold text-xs md:text-sm px-4 drop-shadow-lg animate-pulse">
+              🎁 Get Exclusive Offers at Justice Ultimate Automobiles as we celebrate {holiday.name}! 🎁
             </span>
             <span className="text-white/50 text-xs px-3">•</span>
             <span className="text-white/80 text-xs italic px-4 drop-shadow-md">
