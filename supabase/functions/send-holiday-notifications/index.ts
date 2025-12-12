@@ -139,7 +139,7 @@ serve(async (req: Request) => {
       }
 
       // 2. Send SMS Notification
-      const brevoApiKey = Deno.env.get("BREVO_API_KEY");
+      const brevoApiKey = Deno.env.get("BREVO_SMS_API_KEY");
       if (brevoApiKey && customer.phone && validatePhone(customer.phone)) {
         try {
           const formattedPhone = formatPhoneNumber(customer.phone);
