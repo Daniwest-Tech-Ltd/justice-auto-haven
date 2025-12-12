@@ -464,3 +464,19 @@ All colors MUST be HSL.
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Dashboard Snowfall Animation */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+.animate-snowfall {
+  animation: snowfall 10s linear infinite;
+}
