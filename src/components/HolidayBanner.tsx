@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getTodayHoliday, getThemeColors, Holiday } from "@/data/holidays";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import holiday background images
 import kenyanFlag from "@/assets/kenyan-flag.png";
@@ -61,6 +62,42 @@ const getHolidayBackground = (theme: Holiday['theme']): string => {
   }
 };
 
+// Send holiday notifications via edge function (once per day)
+const sendHolidayNotifications = async (holiday: Holiday, formattedDate: string) => {
+  const today = new Date().toISOString().split('T')[0];
+  const storageKey = `holiday_notif_sent_${today}`;
+  
+  // Check if notifications already sent today
+  if (localStorage.getItem(storageKey)) {
+    console.log("Holiday notifications already sent today");
+    return;
+  }
+
+  try {
+    console.log(`Sending holiday notifications for ${holiday.name}`);
+    const { error } = await supabase.functions.invoke('send-holiday-notifications', {
+      body: {
+        holiday: {
+          name: holiday.name,
+          message: holiday.message,
+          emoji: holiday.emoji || "🎉",
+          formattedDate: formattedDate
+        }
+      }
+    });
+
+    if (error) {
+      console.error("Failed to send holiday notifications:", error);
+    } else {
+      // Mark as sent for today
+      localStorage.setItem(storageKey, "true");
+      console.log("Holiday notifications sent successfully");
+    }
+  } catch (err) {
+    console.error("Error sending holiday notifications:", err);
+  }
+};
+
 const HolidayBanner = () => {
   const [holiday, setHoliday] = useState<Holiday | null>(null);
   const [formattedDate, setFormattedDate] = useState<string>("");
@@ -69,8 +106,14 @@ const HolidayBanner = () => {
     // Check holiday status immediately
     const checkHoliday = () => {
       const todayHoliday = getTodayHoliday();
+      const date = getFormattedDate();
       setHoliday(todayHoliday);
-      setFormattedDate(getFormattedDate());
+      setFormattedDate(date);
+      
+      // Send notifications if it's a holiday
+      if (todayHoliday) {
+        sendHolidayNotifications(todayHoliday, date);
+      }
     };
 
     checkHoliday();

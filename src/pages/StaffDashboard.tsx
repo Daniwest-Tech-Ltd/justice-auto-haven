@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Briefcase, Clock, LogOut, RefreshCw, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import HolidayBanner from "@/components/HolidayBanner";
 
 interface JobCard {
   id: string;
@@ -107,8 +108,9 @@ export default function StaffDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <HolidayBanner />
+      <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

@@ -83,3 +83,6 @@ verify_jwt = false
 
 [functions.send-registration-sms]
 verify_jwt = false
+
+[functions.send-holiday-notifications]
+verify_jwt = false
