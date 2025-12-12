@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getTodayHoliday, Holiday, getThemeColors } from "@/data/holidays";
+import { Badge } from "@/components/ui/badge";
 
 const DashboardHolidayBanner = () => {
   const [holiday, setHoliday] = useState<Holiday | null>(null);
@@ -14,11 +15,12 @@ const DashboardHolidayBanner = () => {
   const themeColors = getThemeColors(holiday.theme);
 
   return (
-    <div 
-      className={`w-full py-2 px-4 text-center ${themeColors.primary} text-white text-sm font-medium shadow-sm`}
+    <Badge 
+      variant="outline" 
+      className={`${themeColors.primary} text-white border-none px-3 py-1.5 text-xs font-medium whitespace-nowrap`}
     >
-      {holiday.emoji} Happy {holiday.name}! — {holiday.message}
-    </div>
+      {holiday.emoji} Happy {holiday.name}!
+    </Badge>
   );
 };
 

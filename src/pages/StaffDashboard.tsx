@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Briefcase, Clock, LogOut, RefreshCw, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
+import DashboardHolidayBanner from "@/components/DashboardHolidayBanner";
 
 interface JobCard {
   id: string;
@@ -130,6 +130,7 @@ export default function StaffDashboard() {
                 className="pl-10 w-64"
               />
             </div>
+            <DashboardHolidayBanner />
             <Button
               variant="outline"
               size="icon"
