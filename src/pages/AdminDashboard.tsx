@@ -31,7 +31,7 @@ import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";
 import { setTheme, Theme } from "@/lib/theme";
-import HolidayBanner from "@/components/HolidayBanner";
+import DashboardHolidayBanner from "@/components/DashboardHolidayBanner";
 
 const AdminDashboard = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -266,7 +266,7 @@ const AdminDashboard = () => {
 
   return (
     <SidebarProvider>
-      <HolidayBanner />
+      <DashboardHolidayBanner />
       <div className="min-h-screen flex w-full">
         <SessionTimeoutModal
           isOpen={showWarning}
