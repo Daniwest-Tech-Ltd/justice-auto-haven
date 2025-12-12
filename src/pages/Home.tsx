@@ -130,7 +130,7 @@ const Home = () => {
   return (
     <div className="min-h-screen animate-fade-in">
       {/* Hero Section with Slideshow */}
-      <section className="relative h-[600px] overflow-hidden -mt-4" aria-label="Featured Vehicles Showcase">
+      <section className="relative h-[600px] overflow-hidden" aria-label="Featured Vehicles Showcase">
         <div className="absolute inset-0">
           {heroCars.map((car, index) => (
             <div
@@ -150,8 +150,8 @@ const Home = () => {
             </div>
           ))}
         </div>
-        <div className="relative container mx-auto px-4 h-full flex items-center">
-          <div className="max-w-2xl space-y-6">
+        <div className="relative container mx-auto px-4 h-full flex items-start pt-6">
+          <div className="max-w-2xl space-y-4">
             <h1 className="text-3xl md:text-5xl font-bold leading-tight">
               Buy, Rent, or Trade-In Cars in Kenya – <span className="text-transparent bg-clip-text bg-gradient-gold">Justice Ultimate Automobiles</span>
             </h1>
