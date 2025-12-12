@@ -31,7 +31,7 @@ import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";
 import { setTheme, Theme } from "@/lib/theme";
-
+import DashboardHolidayBanner from "@/components/DashboardHolidayBanner";
 
 const AdminDashboard = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -422,6 +422,7 @@ const AdminDashboard = () => {
                   </div>
                 )}
               </div>
+              <DashboardHolidayBanner />
               <Button
                 variant="outline"
                 size="icon"
