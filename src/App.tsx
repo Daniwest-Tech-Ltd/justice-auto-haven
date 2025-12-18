@@ -92,6 +92,7 @@ const CookieManagement = lazy(() => import("./pages/CookieManagement"));
 const SMSManagement = lazy(() => import("./pages/SMSManagement"));
 const AdminNotes = lazy(() => import("./pages/AdminNotes"));
 const BackupRecovery = lazy(() => import("./pages/BackupRecovery"));
+const PaymentsManagement = lazy(() => import("./pages/PaymentsManagement"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
@@ -455,6 +456,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <BackupRecovery />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/payments" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <PaymentsManagement />
               </ProtectedRoute>
             } 
           />

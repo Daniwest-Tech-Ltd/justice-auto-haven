@@ -1674,6 +1674,124 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_ipn_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          ip_address: string | null
+          payload: Json
+          payment_id: string | null
+          pesapal_notification_type: string | null
+          pesapal_tracking_id: string | null
+          processed_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          payload: Json
+          payment_id?: string | null
+          pesapal_notification_type?: string | null
+          pesapal_tracking_id?: string | null
+          processed_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          payload?: Json
+          payment_id?: string | null
+          pesapal_notification_type?: string | null
+          pesapal_tracking_id?: string | null
+          processed_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_ipn_logs_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          completed_at: string | null
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          order_id: string | null
+          payment_method: string
+          pesapal_merchant_reference: string | null
+          pesapal_order_tracking_id: string | null
+          pesapal_tracking_id: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          payment_method?: string
+          pesapal_merchant_reference?: string | null
+          pesapal_order_tracking_id?: string | null
+          pesapal_tracking_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          payment_method?: string
+          pesapal_merchant_reference?: string | null
+          pesapal_order_tracking_id?: string | null
+          pesapal_tracking_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "whitelist_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payroll: {
         Row: {
           allowances: number | null
