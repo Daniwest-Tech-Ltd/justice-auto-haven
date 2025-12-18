@@ -15,6 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import LoadingScreen from "@/components/LoadingScreen";
 import { format } from "date-fns";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { 
   ArrowLeft, 
   CreditCard, 
@@ -33,6 +35,50 @@ import {
   Mail,
   MessageSquare
 } from "lucide-react";
+
+// Helper function to auto-download PDF from HTML
+const downloadPdfFromHtml = async (html: string, filename: string) => {
+  // Create a hidden container to render HTML
+  const container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.width = '800px';
+  container.innerHTML = html;
+  document.body.appendChild(container);
+
+  try {
+    // Wait a moment for styles to apply
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+    const imgY = 0;
+    
+    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+    pdf.save(filename);
+  } finally {
+    document.body.removeChild(container);
+  }
+};
 
 interface Payment {
   id: string;
@@ -305,14 +351,9 @@ const PaymentsManagement = () => {
 
       if (error) throw error;
 
-      // Download invoice PDF
+      // Auto-download invoice PDF
       if (data.html) {
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-          printWindow.document.write(data.html);
-          printWindow.document.close();
-          printWindow.print();
-        }
+        await downloadPdfFromHtml(data.html, `Invoice-${data.invoice_no}.pdf`);
       }
 
       toast({ title: "Success", description: `Invoice ${data.invoice_no} generated successfully!` });
@@ -351,14 +392,9 @@ const PaymentsManagement = () => {
 
       if (error) throw error;
 
-      // Download receipt PDF
+      // Auto-download receipt PDF
       if (data.html) {
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-          printWindow.document.write(data.html);
-          printWindow.document.close();
-          printWindow.print();
-        }
+        await downloadPdfFromHtml(data.html, `Receipt-${data.receipt_no}.pdf`);
       }
 
       toast({ title: "Success", description: `Receipt ${data.receipt_no} generated successfully!` });
@@ -411,12 +447,7 @@ const PaymentsManagement = () => {
     });
 
     if (data?.html) {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(data.html);
-        printWindow.document.close();
-        printWindow.print();
-      }
+      await downloadPdfFromHtml(data.html, `Invoice-${invoice.invoice_no}.pdf`);
     }
   };
 
