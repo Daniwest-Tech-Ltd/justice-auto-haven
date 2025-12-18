@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -12,7 +12,6 @@ import GeofenceManager from "@/components/tracking/GeofenceManager";
 import TripHistoryPanel from "@/components/tracking/TripHistoryPanel";
 import TrackingAlertsPanel from "@/components/tracking/TrackingAlertsPanel";
 import GPSDeviceManager from "@/components/tracking/GPSDeviceManager";
-import TrackingDemoSimulator from "@/components/tracking/TrackingDemoSimulator";
 import { 
   ArrowLeft, 
   Plus, 
@@ -23,7 +22,10 @@ import {
   Bell, 
   Cpu,
   Car,
-  Zap
+  Info,
+  Wifi,
+  Radio,
+  CheckCircle2
 } from "lucide-react";
 import {
   Table,
@@ -176,9 +178,9 @@ const RentalManagement = () => {
             <Cpu className="h-4 w-4" />
             <span className="hidden sm:inline">Devices</span>
           </TabsTrigger>
-          <TabsTrigger value="simulator" className="gap-2">
-            <Zap className="h-4 w-4" />
-            <span className="hidden sm:inline">Simulator</span>
+          <TabsTrigger value="setup" className="gap-2">
+            <Info className="h-4 w-4" />
+            <span className="hidden sm:inline">Setup</span>
           </TabsTrigger>
         </TabsList>
 
@@ -306,39 +308,107 @@ const RentalManagement = () => {
           <GPSDeviceManager />
         </TabsContent>
 
-        {/* Simulator Tab */}
-        <TabsContent value="simulator">
+        {/* Hardware Setup Guide Tab */}
+        <TabsContent value="setup">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <TrackingDemoSimulator />
+            {/* Webhook Endpoint */}
             <Card>
               <CardHeader>
-                <CardTitle>GPS Webhook Endpoint</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Wifi className="h-5 w-5" />
+                  GPS Webhook Endpoint
+                </CardTitle>
+                <CardDescription>
+                  Configure your GPS hardware to send data to this endpoint
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Real GPS trackers can send data to this endpoint:
-                </p>
-                <div className="p-3 bg-muted rounded-lg font-mono text-sm break-all">
+                <div className="p-3 bg-muted rounded-lg font-mono text-sm break-all border">
                   POST https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/gps-webhook
                 </div>
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Example Payload:</p>
-                  <pre className="p-3 bg-muted rounded-lg text-xs overflow-auto">
+                  <p className="text-sm font-medium">Required Payload Format:</p>
+                  <pre className="p-3 bg-muted rounded-lg text-xs overflow-auto border">
 {`{
-  "device_id": "GPS-001",
+  "device_id": "GPS-DEVICE-001",
   "latitude": -1.2921,
   "longitude": 36.8219,
   "speed": 45.5,
   "heading": 180,
   "ignition": true,
   "fuel_level": 75,
-  "battery_voltage": 12.6
+  "battery_voltage": 12.6,
+  "timestamp": "2025-12-18T12:00:00Z"
 }`}
                   </pre>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Supports: Teltonika, Queclink, Coban, and custom GPS formats
-                </p>
+              </CardContent>
+            </Card>
+
+            {/* Supported Hardware */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Radio className="h-5 w-5" />
+                  Supported GPS Hardware
+                </CardTitle>
+                <CardDescription>
+                  Compatible GPS tracker devices for real-time tracking
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { name: "Teltonika FMB920", desc: "Professional fleet tracker with OBD-II" },
+                    { name: "Queclink GV300", desc: "Compact vehicle tracker with 3G/4G" },
+                    { name: "Coban TK103B", desc: "Budget-friendly GPS tracker" },
+                    { name: "Concox GT06N", desc: "Popular fleet management device" },
+                    { name: "Tramigo T23", desc: "Advanced telematics device" },
+                  ].map((device) => (
+                    <div key={device.name} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                      <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+                      <div>
+                        <p className="font-medium">{device.name}</p>
+                        <p className="text-sm text-muted-foreground">{device.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Setup Steps */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Info className="h-5 w-5" />
+                  Hardware Setup Steps
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 border rounded-lg space-y-2">
+                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">1</div>
+                    <h4 className="font-semibold">Install GPS Device</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Install the GPS tracker hardware in your rental vehicle, typically connected to the OBD-II port or hardwired to the vehicle power.
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg space-y-2">
+                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">2</div>
+                    <h4 className="font-semibold">Configure Device</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Configure the GPS device to send data to the webhook endpoint above. Set reporting interval (recommended: 30 seconds).
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg space-y-2">
+                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">3</div>
+                    <h4 className="font-semibold">Register in System</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Go to the "Devices" tab and register the GPS device with its unique device ID and assign it to a rental car.
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
