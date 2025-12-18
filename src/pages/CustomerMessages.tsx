@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, MessageSquare, Send } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
+import { playNotificationSound } from "@/hooks/useNotificationSound";
 
 const CustomerMessages = () => {
   const [loading, setLoading] = useState(true);
@@ -21,10 +22,29 @@ const CustomerMessages = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const prevMessageCount = useRef(0);
 
   useEffect(() => {
     if (user) {
       fetchMessages();
+      
+      // Subscribe to new messages for real-time updates
+      const channel = supabase
+        .channel('customer-messages')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `receiver_id=eq.${user.id}`,
+        }, () => {
+          playNotificationSound();
+          fetchMessages();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 

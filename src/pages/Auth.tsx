@@ -257,6 +257,11 @@ const Auth = () => {
 
   const completeLogin = async (userId: string, userName?: string) => {
     try {
+      // Play login success sound
+      const loginSound = new Audio('/sounds/notification.mp3');
+      loginSound.volume = 0.5;
+      loginSound.play().catch(() => console.log('Audio play blocked'));
+      
       // Fetch role and update profile in parallel
       const [roleResult, profileResult] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
