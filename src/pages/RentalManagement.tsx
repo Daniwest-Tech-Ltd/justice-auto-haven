@@ -422,54 +422,10 @@ const RentalManagement = () => {
 
         {/* Demo Simulator Tab */}
         <TabsContent value="simulator">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <TrackingDemoSimulator />
-            <Card>
-              <CardHeader>
-                <CardTitle>How the Demo Works</CardTitle>
-                <CardDescription>
-                  Test the tracking system without real hardware
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">1</div>
-                    <div>
-                      <p className="font-medium">Turn on ignition</p>
-                      <p className="text-sm text-muted-foreground">Toggle the ignition switch to start the vehicle</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">2</div>
-                    <div>
-                      <p className="font-medium">Select a route</p>
-                      <p className="text-sm text-muted-foreground">Choose Nairobi CBD or Thika Highway route</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">3</div>
-                    <div>
-                      <p className="font-medium">Start simulation</p>
-                      <p className="text-sm text-muted-foreground">Click Start to begin vehicle movement</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">4</div>
-                    <div>
-                      <p className="font-medium">View in Live Map</p>
-                      <p className="text-sm text-muted-foreground">Switch to Live Map tab to see vehicle moving</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-3 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Note:</strong> The simulator writes real data to the database, so you can see it in the Live Map, Trips, and Alerts tabs. Speed alerts trigger when exceeding 80 km/h.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <TrackingDemoSimulator 
+            mapboxToken={mapboxToken}
+            onTokenChange={handleMapboxTokenChange}
+          />
         </TabsContent>
       </Tabs>
     </div>
