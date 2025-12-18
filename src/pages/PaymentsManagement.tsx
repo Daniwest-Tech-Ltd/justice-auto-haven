@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import LoadingScreen from "@/components/LoadingScreen";
 import { format } from "date-fns";
 import { 
@@ -24,7 +26,12 @@ import {
   Clock,
   FileText,
   Plus,
-  Eye
+  Eye,
+  Download,
+  Send,
+  Receipt,
+  Mail,
+  MessageSquare
 } from "lucide-react";
 
 interface Payment {
@@ -42,6 +49,39 @@ interface Payment {
   description: string | null;
   created_at: string;
   completed_at: string | null;
+}
+
+interface Invoice {
+  id: string;
+  invoice_no: string;
+  order_id: string | null;
+  customer_id: string;
+  customer_name: string;
+  customer_email: string | null;
+  customer_phone: string | null;
+  items: any[];
+  subtotal: number;
+  vat_rate: number;
+  vat_amount: number;
+  grand_total: number;
+  status: string;
+  sent_email: boolean;
+  sent_whatsapp: boolean;
+  created_at: string;
+}
+
+interface ReceiptRecord {
+  id: string;
+  receipt_no: string;
+  invoice_id: string | null;
+  customer_id: string;
+  customer_name: string;
+  amount_paid: number;
+  payment_method: string;
+  payment_reference: string | null;
+  sent_email: boolean;
+  sent_whatsapp: boolean;
+  created_at: string;
 }
 
 interface IPNLog {
@@ -63,12 +103,19 @@ const PaymentsManagement = () => {
   const { toast } = useToast();
   
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [receipts, setReceipts] = useState<ReceiptRecord[]>([]);
   const [ipnLogs, setIPNLogs] = useState<IPNLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showPOSDialog, setShowPOSDialog] = useState(false);
+  const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
+  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
   const [posLoading, setPOSLoading] = useState(false);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [receiptLoading, setReceiptLoading] = useState(false);
   const [selectedLog, setSelectedLog] = useState<IPNLog | null>(null);
+  const [customers, setCustomers] = useState<any[]>([]);
   
   const [posForm, setPOSForm] = useState({
     customer_name: "",
@@ -76,6 +123,29 @@ const PaymentsManagement = () => {
     customer_phone: "",
     amount: "",
     description: ""
+  });
+
+  const [invoiceForm, setInvoiceForm] = useState({
+    customer_id: "",
+    customer_name: "",
+    customer_email: "",
+    customer_phone: "",
+    customer_address: "",
+    item_description: "",
+    quantity: "1",
+    unit_price: "",
+    vat_rate: "16",
+    notes: ""
+  });
+
+  const [receiptForm, setReceiptForm] = useState({
+    customer_id: "",
+    customer_name: "",
+    invoice_id: "",
+    amount_paid: "",
+    payment_method: "cash",
+    payment_reference: "",
+    notes: ""
   });
 
   useEffect(() => {
@@ -86,10 +156,32 @@ const PaymentsManagement = () => {
 
   useEffect(() => {
     if (user && role?.role === "admin") {
-      fetchPayments();
-      fetchIPNLogs();
+      fetchAllData();
     }
   }, [user, role]);
+
+  const fetchAllData = async () => {
+    await Promise.all([
+      fetchPayments(),
+      fetchInvoices(),
+      fetchReceipts(),
+      fetchIPNLogs(),
+      fetchCustomers()
+    ]);
+    setLoading(false);
+  };
+
+  const fetchCustomers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email, phone")
+        .order("full_name");
+      if (!error) setCustomers(data || []);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    }
+  };
 
   const fetchPayments = async () => {
     try {
@@ -97,18 +189,33 @@ const PaymentsManagement = () => {
         .from("payments")
         .select("*")
         .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setPayments(data || []);
+      if (!error) setPayments(data || []);
     } catch (error) {
       console.error("Error fetching payments:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch payments",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const fetchInvoices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("invoices")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error && data) setInvoices(data.map(inv => ({ ...inv, items: Array.isArray(inv.items) ? inv.items : [] })) as Invoice[]);
+    } catch (error) {
+      console.error("Error fetching invoices:", error);
+    }
+  };
+
+  const fetchReceipts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("receipts")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error) setReceipts(data || []);
+    } catch (error) {
+      console.error("Error fetching receipts:", error);
     }
   };
 
@@ -119,9 +226,7 @@ const PaymentsManagement = () => {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(100);
-
-      if (error) throw error;
-      setIPNLogs(data || []);
+      if (!error) setIPNLogs(data || []);
     } catch (error) {
       console.error("Error fetching IPN logs:", error);
     }
@@ -129,11 +234,7 @@ const PaymentsManagement = () => {
 
   const handlePOSPayment = async () => {
     if (!posForm.amount || !posForm.customer_name) {
-      toast({
-        title: "Error",
-        description: "Please fill in required fields",
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: "Please fill in required fields", variant: "destructive" });
       return;
     }
 
@@ -152,26 +253,170 @@ const PaymentsManagement = () => {
       });
 
       if (error) throw error;
-
       if (data.redirect_url) {
         window.open(data.redirect_url, "_blank");
-        toast({
-          title: "Payment Initiated",
-          description: "Pesapal payment page opened in new tab"
-        });
+        toast({ title: "Payment Initiated", description: "Pesapal payment page opened" });
         setShowPOSDialog(false);
         setPOSForm({ customer_name: "", customer_email: "", customer_phone: "", amount: "", description: "" });
         fetchPayments();
       }
     } catch (error: any) {
-      console.error("POS payment error:", error);
-      toast({
-        title: "Payment Failed",
-        description: error.message || "Failed to initiate payment",
-        variant: "destructive"
-      });
+      toast({ title: "Payment Failed", description: error.message, variant: "destructive" });
     } finally {
       setPOSLoading(false);
+    }
+  };
+
+  const handleGenerateInvoice = async () => {
+    if (!invoiceForm.customer_name || !invoiceForm.item_description || !invoiceForm.unit_price) {
+      toast({ title: "Error", description: "Please fill in required fields", variant: "destructive" });
+      return;
+    }
+
+    setInvoiceLoading(true);
+    try {
+      const quantity = parseInt(invoiceForm.quantity) || 1;
+      const unitPrice = parseFloat(invoiceForm.unit_price);
+      const subtotal = quantity * unitPrice;
+      const vatRate = parseFloat(invoiceForm.vat_rate);
+      const vatAmount = (subtotal * vatRate) / 100;
+      const grandTotal = subtotal + vatAmount;
+
+      const { data, error } = await supabase.functions.invoke("generate-invoice-pdf", {
+        body: {
+          customer_id: invoiceForm.customer_id || user?.id,
+          customer_name: invoiceForm.customer_name,
+          customer_email: invoiceForm.customer_email,
+          customer_phone: invoiceForm.customer_phone,
+          customer_address: invoiceForm.customer_address,
+          items: [{
+            description: invoiceForm.item_description,
+            quantity: quantity,
+            unit_price: unitPrice,
+            amount: subtotal
+          }],
+          subtotal,
+          vat_rate: vatRate,
+          vat_amount: vatAmount,
+          grand_total: grandTotal,
+          notes: invoiceForm.notes
+        }
+      });
+
+      if (error) throw error;
+
+      // Download invoice PDF
+      if (data.html) {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(data.html);
+          printWindow.document.close();
+          printWindow.print();
+        }
+      }
+
+      toast({ title: "Success", description: `Invoice ${data.invoice_no} generated successfully!` });
+      setShowInvoiceDialog(false);
+      setInvoiceForm({
+        customer_id: "", customer_name: "", customer_email: "", customer_phone: "",
+        customer_address: "", item_description: "", quantity: "1", unit_price: "", vat_rate: "16", notes: ""
+      });
+      fetchInvoices();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
+  const handleGenerateReceipt = async () => {
+    if (!receiptForm.customer_name || !receiptForm.amount_paid) {
+      toast({ title: "Error", description: "Please fill in required fields", variant: "destructive" });
+      return;
+    }
+
+    setReceiptLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-receipt-pdf", {
+        body: {
+          customer_id: receiptForm.customer_id || user?.id,
+          customer_name: receiptForm.customer_name,
+          invoice_id: receiptForm.invoice_id || null,
+          amount_paid: parseFloat(receiptForm.amount_paid),
+          payment_method: receiptForm.payment_method,
+          payment_reference: receiptForm.payment_reference,
+          notes: receiptForm.notes
+        }
+      });
+
+      if (error) throw error;
+
+      // Download receipt PDF
+      if (data.html) {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(data.html);
+          printWindow.document.close();
+          printWindow.print();
+        }
+      }
+
+      toast({ title: "Success", description: `Receipt ${data.receipt_no} generated successfully!` });
+      setShowReceiptDialog(false);
+      setReceiptForm({
+        customer_id: "", customer_name: "", invoice_id: "", amount_paid: "",
+        payment_method: "cash", payment_reference: "", notes: ""
+      });
+      fetchReceipts();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setReceiptLoading(false);
+    }
+  };
+
+  const handleSendInvoiceNotification = async (invoiceId: string, method: 'email' | 'whatsapp') => {
+    try {
+      const { error } = await supabase.functions.invoke("send-invoice-notification", {
+        body: {
+          invoice_id: invoiceId,
+          send_email: method === 'email',
+          send_whatsapp: method === 'whatsapp'
+        }
+      });
+
+      if (error) throw error;
+      toast({ title: "Sent!", description: `Invoice sent via ${method}` });
+      fetchInvoices();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleDownloadInvoice = async (invoice: Invoice) => {
+    // Regenerate and download
+    const { data, error } = await supabase.functions.invoke("generate-invoice-pdf", {
+      body: {
+        invoice_id: invoice.id,
+        customer_id: invoice.customer_id,
+        customer_name: invoice.customer_name,
+        customer_email: invoice.customer_email,
+        customer_phone: invoice.customer_phone,
+        items: invoice.items,
+        subtotal: invoice.subtotal,
+        vat_rate: invoice.vat_rate,
+        vat_amount: invoice.vat_amount,
+        grand_total: invoice.grand_total
+      }
+    });
+
+    if (data?.html) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(data.html);
+        printWindow.document.close();
+        printWindow.print();
+      }
     }
   };
 
@@ -181,50 +426,234 @@ const PaymentsManagement = () => {
         return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" /> Completed</Badge>;
       case "failed":
         return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> Failed</Badge>;
-      case "reversed":
-        return <Badge variant="secondary">Reversed</Badge>;
+      case "issued":
+        return <Badge className="bg-blue-500"><FileText className="w-3 h-3 mr-1" /> Issued</Badge>;
+      case "paid":
+        return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" /> Paid</Badge>;
       default:
-        return <Badge variant="outline"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
+        return <Badge variant="outline"><Clock className="w-3 h-3 mr-1" /> {status}</Badge>;
     }
   };
 
-  const filteredPayments = payments.filter(payment => 
-    payment.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    payment.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    payment.pesapal_merchant_reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    payment.pesapal_tracking_id?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPayments = payments.filter(p => 
+    p.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.pesapal_merchant_reference?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredInvoices = invoices.filter(i =>
+    i.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    i.invoice_no?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredReceipts = receipts.filter(r =>
+    r.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.receipt_no?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const stats = {
-    total: payments.length,
-    completed: payments.filter(p => p.status === "completed").length,
-    pending: payments.filter(p => p.status === "pending").length,
-    failed: payments.filter(p => p.status === "failed").length,
-    totalAmount: payments.filter(p => p.status === "completed").reduce((sum, p) => sum + Number(p.amount), 0)
+    totalPayments: payments.length,
+    completedPayments: payments.filter(p => p.status === "completed").length,
+    totalInvoices: invoices.length,
+    totalReceipts: receipts.length,
+    totalRevenue: payments.filter(p => p.status === "completed").reduce((sum, p) => sum + Number(p.amount), 0)
   };
 
-  if (authLoading || loading) {
-    return <LoadingScreen />;
-  }
+  if (authLoading || loading) return <LoadingScreen />;
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
             <Button variant="outline" onClick={() => navigate("/admin")}>
               <ArrowLeft className="w-4 h-4 mr-2" /> Back
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Payments Management</h1>
-              <p className="text-muted-foreground">Pesapal transactions and IPN logs</p>
+              <h1 className="text-3xl font-bold">Payments & Invoicing</h1>
+              <p className="text-muted-foreground">Manage payments, invoices, and receipts</p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => { fetchPayments(); fetchIPNLogs(); }}>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={fetchAllData}>
               <RefreshCw className="w-4 h-4 mr-2" /> Refresh
             </Button>
+            <Dialog open={showInvoiceDialog} onOpenChange={setShowInvoiceDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <FileText className="w-4 h-4 mr-2" /> Generate Invoice
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Generate Invoice</DialogTitle>
+                  <DialogDescription>Create a professional invoice for a customer</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Customer Name *</Label>
+                      <Input 
+                        value={invoiceForm.customer_name}
+                        onChange={(e) => setInvoiceForm({ ...invoiceForm, customer_name: e.target.value })}
+                        placeholder="Customer name"
+                      />
+                    </div>
+                    <div>
+                      <Label>Email</Label>
+                      <Input 
+                        type="email"
+                        value={invoiceForm.customer_email}
+                        onChange={(e) => setInvoiceForm({ ...invoiceForm, customer_email: e.target.value })}
+                        placeholder="customer@email.com"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Phone</Label>
+                      <Input 
+                        value={invoiceForm.customer_phone}
+                        onChange={(e) => setInvoiceForm({ ...invoiceForm, customer_phone: e.target.value })}
+                        placeholder="+254..."
+                      />
+                    </div>
+                    <div>
+                      <Label>Address</Label>
+                      <Input 
+                        value={invoiceForm.customer_address}
+                        onChange={(e) => setInvoiceForm({ ...invoiceForm, customer_address: e.target.value })}
+                        placeholder="Customer address"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Item Description *</Label>
+                    <Textarea 
+                      value={invoiceForm.item_description}
+                      onChange={(e) => setInvoiceForm({ ...invoiceForm, item_description: e.target.value })}
+                      placeholder="e.g., Toyota Axio 2016 - Full Payment"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Quantity</Label>
+                      <Input 
+                        type="number"
+                        value={invoiceForm.quantity}
+                        onChange={(e) => setInvoiceForm({ ...invoiceForm, quantity: e.target.value })}
+                        placeholder="1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Unit Price (KES) *</Label>
+                      <Input 
+                        type="number"
+                        value={invoiceForm.unit_price}
+                        onChange={(e) => setInvoiceForm({ ...invoiceForm, unit_price: e.target.value })}
+                        placeholder="1,200,000"
+                      />
+                    </div>
+                    <div>
+                      <Label>VAT %</Label>
+                      <Input 
+                        type="number"
+                        value={invoiceForm.vat_rate}
+                        onChange={(e) => setInvoiceForm({ ...invoiceForm, vat_rate: e.target.value })}
+                        placeholder="16"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Notes</Label>
+                    <Textarea 
+                      value={invoiceForm.notes}
+                      onChange={(e) => setInvoiceForm({ ...invoiceForm, notes: e.target.value })}
+                      placeholder="Additional notes..."
+                    />
+                  </div>
+                  <Button onClick={handleGenerateInvoice} disabled={invoiceLoading} className="w-full">
+                    {invoiceLoading ? "Generating..." : "Generate Invoice"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Dialog open={showReceiptDialog} onOpenChange={setShowReceiptDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Receipt className="w-4 h-4 mr-2" /> Generate Receipt
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Generate Receipt</DialogTitle>
+                  <DialogDescription>Create a payment receipt</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Customer Name *</Label>
+                    <Input 
+                      value={receiptForm.customer_name}
+                      onChange={(e) => setReceiptForm({ ...receiptForm, customer_name: e.target.value })}
+                      placeholder="Customer name"
+                    />
+                  </div>
+                  <div>
+                    <Label>Link to Invoice (Optional)</Label>
+                    <Select value={receiptForm.invoice_id} onValueChange={(v) => setReceiptForm({ ...receiptForm, invoice_id: v })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select invoice" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {invoices.map(inv => (
+                          <SelectItem key={inv.id} value={inv.id}>
+                            {inv.invoice_no} - {inv.customer_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Amount Paid (KES) *</Label>
+                      <Input 
+                        type="number"
+                        value={receiptForm.amount_paid}
+                        onChange={(e) => setReceiptForm({ ...receiptForm, amount_paid: e.target.value })}
+                        placeholder="Amount"
+                      />
+                    </div>
+                    <div>
+                      <Label>Payment Method</Label>
+                      <Select value={receiptForm.payment_method} onValueChange={(v) => setReceiptForm({ ...receiptForm, payment_method: v })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cash">Cash</SelectItem>
+                          <SelectItem value="mpesa">M-Pesa</SelectItem>
+                          <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                          <SelectItem value="cheque">Cheque</SelectItem>
+                          <SelectItem value="card">Card</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Payment Reference</Label>
+                    <Input 
+                      value={receiptForm.payment_reference}
+                      onChange={(e) => setReceiptForm({ ...receiptForm, payment_reference: e.target.value })}
+                      placeholder="e.g., M-Pesa code"
+                    />
+                  </div>
+                  <Button onClick={handleGenerateReceipt} disabled={receiptLoading} className="w-full">
+                    {receiptLoading ? "Generating..." : "Generate Receipt"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Dialog open={showPOSDialog} onOpenChange={setShowPOSDialog}>
               <DialogTrigger asChild>
                 <Button>
@@ -234,7 +663,7 @@ const PaymentsManagement = () => {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Initiate POS Payment</DialogTitle>
-                  <DialogDescription>Create a payment for walk-in customers</DialogDescription>
+                  <DialogDescription>Create a Pesapal payment for walk-in customers</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
@@ -289,13 +718,13 @@ const PaymentsManagement = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
+              <div className="text-2xl font-bold">{stats.totalPayments}</div>
             </CardContent>
           </Card>
           <Card>
@@ -303,23 +732,23 @@ const PaymentsManagement = () => {
               <CardTitle className="text-sm font-medium text-green-600">Completed</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+              <div className="text-2xl font-bold text-green-600">{stats.completedPayments}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-yellow-600">Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-blue-600">Invoices</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+              <div className="text-2xl font-bold text-blue-600">{stats.totalInvoices}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-red-600">Failed</CardTitle>
+              <CardTitle className="text-sm font-medium text-purple-600">Receipts</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
+              <div className="text-2xl font-bold text-purple-600">{stats.totalReceipts}</div>
             </CardContent>
           </Card>
           <Card>
@@ -327,16 +756,33 @@ const PaymentsManagement = () => {
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">KES {stats.totalAmount.toLocaleString()}</div>
+              <div className="text-2xl font-bold">KES {stats.totalRevenue.toLocaleString()}</div>
             </CardContent>
           </Card>
         </div>
 
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input 
+            placeholder="Search payments, invoices, or receipts..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
         {/* Tabs */}
         <Tabs defaultValue="transactions">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="transactions">
               <CreditCard className="w-4 h-4 mr-2" /> Transactions
+            </TabsTrigger>
+            <TabsTrigger value="invoices">
+              <FileText className="w-4 h-4 mr-2" /> Invoices
+            </TabsTrigger>
+            <TabsTrigger value="receipts">
+              <Receipt className="w-4 h-4 mr-2" /> Receipts
             </TabsTrigger>
             <TabsTrigger value="quick-pay">
               <DollarSign className="w-4 h-4 mr-2" /> Quick Pay
@@ -346,19 +792,8 @@ const PaymentsManagement = () => {
             </TabsTrigger>
           </TabsList>
 
+          {/* Transactions Tab */}
           <TabsContent value="transactions" className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input 
-                  placeholder="Search by name, email, or reference..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
             <Card>
               <CardContent className="p-0">
                 <Table>
@@ -376,39 +811,21 @@ const PaymentsManagement = () => {
                     {filteredPayments.map((payment) => (
                       <TableRow key={payment.id}>
                         <TableCell>
-                          <div className="font-mono text-sm">
-                            {payment.pesapal_merchant_reference || payment.id.slice(0, 8)}
-                          </div>
-                          {payment.pesapal_tracking_id && (
-                            <div className="text-xs text-muted-foreground">
-                              Track: {payment.pesapal_tracking_id}
-                            </div>
-                          )}
+                          <div className="font-mono text-sm">{payment.pesapal_merchant_reference || payment.id.slice(0, 8)}</div>
                         </TableCell>
                         <TableCell>
                           <div>{payment.customer_name || "N/A"}</div>
                           <div className="text-xs text-muted-foreground">{payment.customer_email}</div>
                         </TableCell>
-                        <TableCell className="font-medium">
-                          {payment.currency} {Number(payment.amount).toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{payment.payment_method}</Badge>
-                        </TableCell>
+                        <TableCell className="font-medium">{payment.currency} {Number(payment.amount).toLocaleString()}</TableCell>
+                        <TableCell><Badge variant="outline">{payment.payment_method}</Badge></TableCell>
                         <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                        <TableCell>
-                          <div>{format(new Date(payment.created_at), "MMM dd, yyyy")}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {format(new Date(payment.created_at), "HH:mm:ss")}
-                          </div>
-                        </TableCell>
+                        <TableCell>{format(new Date(payment.created_at), "MMM dd, yyyy HH:mm")}</TableCell>
                       </TableRow>
                     ))}
                     {filteredPayments.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                          No payments found
-                        </TableCell>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No payments found</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -417,7 +834,107 @@ const PaymentsManagement = () => {
             </Card>
           </TabsContent>
 
-          {/* Quick Pay Tab - Pesapal Embed */}
+          {/* Invoices Tab */}
+          <TabsContent value="invoices" className="space-y-4">
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Invoice No</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Sent</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredInvoices.map((invoice) => (
+                      <TableRow key={invoice.id}>
+                        <TableCell className="font-mono font-medium">{invoice.invoice_no}</TableCell>
+                        <TableCell>
+                          <div>{invoice.customer_name}</div>
+                          <div className="text-xs text-muted-foreground">{invoice.customer_email}</div>
+                        </TableCell>
+                        <TableCell className="font-medium">KES {Number(invoice.grand_total).toLocaleString()}</TableCell>
+                        <TableCell>{getStatusBadge(invoice.status)}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {invoice.sent_email && <Badge variant="outline" className="text-xs"><Mail className="w-3 h-3" /></Badge>}
+                            {invoice.sent_whatsapp && <Badge variant="outline" className="text-xs"><MessageSquare className="w-3 h-3" /></Badge>}
+                          </div>
+                        </TableCell>
+                        <TableCell>{format(new Date(invoice.created_at), "MMM dd, yyyy")}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => handleDownloadInvoice(invoice)}>
+                              <Download className="w-4 h-4" />
+                            </Button>
+                            {invoice.customer_email && (
+                              <Button variant="ghost" size="sm" onClick={() => handleSendInvoiceNotification(invoice.id, 'email')}>
+                                <Mail className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {invoice.customer_phone && (
+                              <Button variant="ghost" size="sm" onClick={() => handleSendInvoiceNotification(invoice.id, 'whatsapp')}>
+                                <MessageSquare className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {filteredInvoices.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No invoices found</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Receipts Tab */}
+          <TabsContent value="receipts" className="space-y-4">
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Receipt No</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Method</TableHead>
+                      <TableHead>Reference</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredReceipts.map((receipt) => (
+                      <TableRow key={receipt.id}>
+                        <TableCell className="font-mono font-medium">{receipt.receipt_no}</TableCell>
+                        <TableCell>{receipt.customer_name}</TableCell>
+                        <TableCell className="font-medium">KES {Number(receipt.amount_paid).toLocaleString()}</TableCell>
+                        <TableCell><Badge variant="outline">{receipt.payment_method}</Badge></TableCell>
+                        <TableCell className="font-mono text-sm">{receipt.payment_reference || "N/A"}</TableCell>
+                        <TableCell>{format(new Date(receipt.created_at), "MMM dd, yyyy HH:mm")}</TableCell>
+                      </TableRow>
+                    ))}
+                    {filteredReceipts.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No receipts found</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Quick Pay Tab */}
           <TabsContent value="quick-pay" className="space-y-4">
             <Card className="overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-primary/10 via-background to-secondary/10">
@@ -427,94 +944,39 @@ const PaymentsManagement = () => {
                 </CardTitle>
                 <CardDescription>Accept payments directly from customers using Pesapal</CardDescription>
               </CardHeader>
-              <CardContent className="p-0">
-                {/* Glassmorphism Container */}
-                <div className="relative p-8">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-                  
-                  <div className="relative z-10 flex flex-col items-center justify-center space-y-6">
-                    {/* Payment Info Header */}
-                    <div className="text-center space-y-2">
-                      <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center backdrop-blur-sm border border-border/50">
-                        <CreditCard className="w-8 h-8 text-primary" />
-                      </div>
-                      <h3 className="text-xl font-bold">Accept Payment</h3>
-                      <p className="text-sm text-muted-foreground max-w-md">
-                        Click the button below to process a customer payment via M-Pesa, Visa, Mastercard, or Bank Transfer
-                      </p>
-                    </div>
-                    
-                    {/* Pesapal Embed Container */}
-                    <div className="p-6 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg">
-                      <div className="flex flex-col items-center space-y-4">
-                        <iframe 
-                          width="280" 
-                          height="60" 
-                          src="https://store.pesapal.com/embed-code?pageUrl=https://store.pesapal.com/justiceultimateautomobile" 
-                          frameBorder="0" 
-                          allowFullScreen
-                          className="rounded-lg"
-                          title="Pesapal Payment"
-                        />
-                        <p className="text-xs text-muted-foreground text-center">
-                          Powered by Pesapal • Secure Payment Gateway
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Accepted Methods */}
-                    <div className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-border/50 w-full max-w-lg">
-                      <span className="text-xs text-muted-foreground">Accepted:</span>
-                      <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/30">
-                        M-Pesa
-                      </Badge>
-                      <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/30">
-                        Visa
-                      </Badge>
-                      <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/30">
-                        Mastercard
-                      </Badge>
-                      <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-500/30">
-                        Bank Transfer
-                      </Badge>
-                    </div>
-                    
-                    {/* Security Notice */}
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground bg-accent/30 px-4 py-2 rounded-full">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>256-bit SSL Encrypted • PCI DSS Compliant</span>
-                    </div>
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center justify-center space-y-6">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
+                    <CreditCard className="w-8 h-8 text-primary" />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* IPN ID Info */}
-            <Card className="border-dashed">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <FileText className="w-4 h-4 text-primary" />
+                  <div className="p-6 rounded-2xl bg-card border shadow-lg">
+                    <iframe 
+                      width="280" 
+                      height="60" 
+                      src="https://store.pesapal.com/embed-code?pageUrl=https://store.pesapal.com/justiceultimateautomobile" 
+                      frameBorder="0" 
+                      allowFullScreen
+                      className="rounded-lg"
+                      title="Pesapal Payment"
+                    />
                   </div>
-                  <div className="space-y-1 flex-1">
-                    <p className="text-sm font-medium">Registered IPN ID</p>
-                    <code className="text-xs font-mono bg-muted px-2 py-1 rounded">
-                      d6b89291-8549-42fd-9974-daf5e5535ef6
-                    </code>
-                    <p className="text-xs text-muted-foreground">
-                      This ID is used by Pesapal to send payment notifications to your system
-                    </p>
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <Badge variant="outline" className="bg-green-500/10 text-green-600">M-Pesa</Badge>
+                    <Badge variant="outline" className="bg-blue-500/10 text-blue-600">Visa</Badge>
+                    <Badge variant="outline" className="bg-orange-500/10 text-orange-600">Mastercard</Badge>
+                    <Badge variant="outline" className="bg-purple-500/10 text-purple-600">Bank Transfer</Badge>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* IPN Logs Tab */}
           <TabsContent value="ipn-logs" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>IPN Notification Logs</CardTitle>
-                <CardDescription>Pesapal instant payment notifications for debugging and audits</CardDescription>
+                <CardDescription>Pesapal instant payment notifications</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
@@ -531,29 +993,17 @@ const PaymentsManagement = () => {
                   <TableBody>
                     {ipnLogs.map((log) => (
                       <TableRow key={log.id}>
-                        <TableCell className="font-mono text-sm">
-                          {log.pesapal_tracking_id || "N/A"}
-                        </TableCell>
+                        <TableCell className="font-mono text-sm">{log.pesapal_tracking_id || "N/A"}</TableCell>
                         <TableCell>{log.pesapal_notification_type || "N/A"}</TableCell>
                         <TableCell>
-                          <Badge variant={
-                            log.status === "processed" ? "default" :
-                            log.status === "error" ? "destructive" :
-                            log.status === "duplicate" ? "secondary" : "outline"
-                          }>
+                          <Badge variant={log.status === "processed" ? "default" : log.status === "error" ? "destructive" : "outline"}>
                             {log.status}
                           </Badge>
                         </TableCell>
                         <TableCell className="font-mono text-sm">{log.ip_address || "N/A"}</TableCell>
+                        <TableCell>{format(new Date(log.created_at), "MMM dd, HH:mm:ss")}</TableCell>
                         <TableCell>
-                          {format(new Date(log.created_at), "MMM dd, HH:mm:ss")}
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => setSelectedLog(log)}
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => setSelectedLog(log)}>
                             <Eye className="w-4 h-4" />
                           </Button>
                         </TableCell>
@@ -561,9 +1011,7 @@ const PaymentsManagement = () => {
                     ))}
                     {ipnLogs.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                          No IPN logs yet
-                        </TableCell>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No IPN logs yet</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -583,58 +1031,22 @@ const PaymentsManagement = () => {
             {selectedLog && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Tracking ID</Label>
-                    <p className="font-mono">{selectedLog.pesapal_tracking_id || "N/A"}</p>
-                  </div>
-                  <div>
-                    <Label>Status</Label>
-                    <p>{selectedLog.status}</p>
-                  </div>
-                  <div>
-                    <Label>Received At</Label>
-                    <p>{format(new Date(selectedLog.created_at), "PPpp")}</p>
-                  </div>
-                  <div>
-                    <Label>Processed At</Label>
-                    <p>{selectedLog.processed_at ? format(new Date(selectedLog.processed_at), "PPpp") : "N/A"}</p>
-                  </div>
+                  <div><Label>Tracking ID</Label><p className="font-mono">{selectedLog.pesapal_tracking_id || "N/A"}</p></div>
+                  <div><Label>Status</Label><p>{selectedLog.status}</p></div>
+                  <div><Label>Received At</Label><p>{format(new Date(selectedLog.created_at), "PPpp")}</p></div>
+                  <div><Label>Processed At</Label><p>{selectedLog.processed_at ? format(new Date(selectedLog.processed_at), "PPpp") : "N/A"}</p></div>
                 </div>
                 {selectedLog.error_message && (
-                  <div>
-                    <Label className="text-red-600">Error Message</Label>
-                    <p className="text-red-600">{selectedLog.error_message}</p>
-                  </div>
+                  <div><Label className="text-red-600">Error</Label><p className="text-red-600">{selectedLog.error_message}</p></div>
                 )}
                 <div>
                   <Label>Raw Payload</Label>
-                  <pre className="bg-muted p-4 rounded-lg overflow-auto max-h-64 text-xs">
-                    {JSON.stringify(selectedLog.payload, null, 2)}
-                  </pre>
+                  <pre className="bg-muted p-4 rounded-lg overflow-auto max-h-64 text-xs">{JSON.stringify(selectedLog.payload, null, 2)}</pre>
                 </div>
               </div>
             )}
           </DialogContent>
         </Dialog>
-
-        {/* IPN URL Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Pesapal IPN Configuration</CardTitle>
-            <CardDescription>Use this URL when registering your IPN in Pesapal dashboard</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-muted p-4 rounded-lg">
-              <Label>Your IPN URL:</Label>
-              <code className="block mt-2 p-3 bg-background rounded border font-mono text-sm break-all">
-                https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/pesapal-ipn
-              </code>
-              <p className="text-sm text-muted-foreground mt-2">
-                Request Type: <strong>POST</strong> | This URL receives payment notifications from Pesapal
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

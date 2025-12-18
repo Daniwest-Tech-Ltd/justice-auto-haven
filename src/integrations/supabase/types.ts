@@ -1294,6 +1294,107 @@ export type Database = {
           },
         ]
       }
+      invoice_sequence: {
+        Row: {
+          id: string
+          last_number: number
+          prefix: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          last_number?: number
+          prefix?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          last_number?: number
+          prefix?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          created_at: string
+          customer_address: string | null
+          customer_email: string | null
+          customer_id: string
+          customer_name: string
+          customer_phone: string | null
+          due_date: string | null
+          grand_total: number
+          id: string
+          invoice_no: string
+          items: Json
+          notes: string | null
+          order_id: string | null
+          pdf_url: string | null
+          sent_email: boolean | null
+          sent_whatsapp: boolean | null
+          status: string
+          subtotal: number
+          updated_at: string
+          vat_amount: number
+          vat_rate: number
+        }
+        Insert: {
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_id: string
+          customer_name: string
+          customer_phone?: string | null
+          due_date?: string | null
+          grand_total?: number
+          id?: string
+          invoice_no: string
+          items?: Json
+          notes?: string | null
+          order_id?: string | null
+          pdf_url?: string | null
+          sent_email?: boolean | null
+          sent_whatsapp?: boolean | null
+          status?: string
+          subtotal?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+        }
+        Update: {
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_id?: string
+          customer_name?: string
+          customer_phone?: string | null
+          due_date?: string | null
+          grand_total?: number
+          id?: string
+          invoice_no?: string
+          items?: Json
+          notes?: string | null
+          order_id?: string | null
+          pdf_url?: string | null
+          sent_email?: boolean | null
+          sent_whatsapp?: boolean | null
+          status?: string
+          subtotal?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "whitelist_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_cards: {
         Row: {
           assigned_to: string | null
@@ -1971,6 +2072,93 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      receipt_sequence: {
+        Row: {
+          id: string
+          last_number: number
+          prefix: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          last_number?: number
+          prefix?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          last_number?: number
+          prefix?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      receipts: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          customer_id: string
+          customer_name: string
+          id: string
+          invoice_id: string | null
+          notes: string | null
+          payment_id: string | null
+          payment_method: string
+          payment_reference: string | null
+          pdf_url: string | null
+          receipt_no: string
+          sent_email: boolean | null
+          sent_whatsapp: boolean | null
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          customer_id: string
+          customer_name: string
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_id?: string | null
+          payment_method?: string
+          payment_reference?: string | null
+          pdf_url?: string | null
+          receipt_no: string
+          sent_email?: boolean | null
+          sent_whatsapp?: boolean | null
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          customer_id?: string
+          customer_name?: string
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_id?: string | null
+          payment_method?: string
+          payment_reference?: string | null
+          pdf_url?: string | null
+          receipt_no?: string
+          sent_email?: boolean | null
+          sent_whatsapp?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipts_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rental_bookings: {
         Row: {
@@ -3592,7 +3780,9 @@ export type Database = {
         Returns: number
       }
       generate_activation_code: { Args: never; Returns: string }
+      generate_invoice_number: { Args: never; Returns: string }
       generate_job_number: { Args: never; Returns: string }
+      generate_receipt_number: { Args: never; Returns: string }
       generate_stock_id: { Args: never; Returns: string }
       has_role: {
         Args: {
