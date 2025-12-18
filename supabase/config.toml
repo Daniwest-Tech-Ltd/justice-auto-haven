@@ -89,3 +89,9 @@ verify_jwt = false
 
 [functions.run-backup]
 verify_jwt = false
+
+[functions.pesapal-ipn]
+verify_jwt = false
+
+[functions.pesapal-initiate]
+verify_jwt = false
