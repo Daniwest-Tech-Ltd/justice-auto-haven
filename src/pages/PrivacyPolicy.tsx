@@ -57,10 +57,23 @@ const PrivacyPolicy = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">4. Data Security</h2>
-            <p className="leading-relaxed">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">4. Data Security & Regulatory Compliance</h2>
+            <p className="leading-relaxed mb-3">
               We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. This includes encryption, access controls, and secure data storage practices.
             </p>
+            <p className="leading-relaxed mb-3 font-semibold">
+              Our data security and payment systems are certified and verified by Kenya's regulatory authorities:
+            </p>
+            <ul className="list-disc list-inside space-y-2 ml-4">
+              <li><strong>National Transport and Safety Authority (NTSA)</strong> - Vehicle data and registration compliance</li>
+              <li><strong>Kenya Bureau of Standards (KEBS)</strong> - Quality and security standards</li>
+              <li><strong>Kenya Revenue Authority (KRA)</strong> - Financial data and tax compliance</li>
+              <li><strong>Kenya Roads Board (KRB)</strong> - Transport data regulations</li>
+              <li><strong>Kenya National Highways Authority (KeNHA)</strong> - Highway transport data compliance</li>
+              <li><strong>Kenya Urban Roads Authority (KURA)</strong> - Urban transport data standards</li>
+              <li><strong>Competition Authority of Kenya</strong> - Consumer data protection compliance</li>
+              <li><strong>Local County Business Permit Authority</strong> - Business data compliance</li>
+            </ul>
           </section>
 
           <section>
