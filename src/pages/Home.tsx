@@ -36,6 +36,16 @@ const Home = () => {
     setFlippedCards(prev => ({ ...prev, [cardId]: !prev[cardId] }));
   };
 
+  // Play welcome sound when homepage loads
+  useEffect(() => {
+    const welcomeSound = new Audio('/sounds/notification.mp3');
+    welcomeSound.volume = 0.4;
+    welcomeSound.play().catch(() => {
+      // Audio autoplay may be blocked until user interacts
+      console.log('Welcome sound blocked - waiting for user interaction');
+    });
+  }, []);
+
   useEffect(() => {
     fetchAllData();
     const interval = setInterval(() => {
