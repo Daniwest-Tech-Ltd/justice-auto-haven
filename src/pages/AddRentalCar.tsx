@@ -113,7 +113,7 @@ const AddRentalCar = () => {
         description: "Rental car added successfully",
       });
 
-      navigate("/admin/car-management");
+      navigate("/admin/rentals");
     } catch (error: any) {
       toast({
         variant: "destructive",
