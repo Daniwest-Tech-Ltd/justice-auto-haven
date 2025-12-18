@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Car, Shield, Globe, Zap, Award, Users, Search, 
   TrendingUp, CheckCircle, Heart, ArrowRight, Star,
-  Clock, DollarSign, Settings, Phone, Gauge
+  Clock, DollarSign, Settings, Phone, Gauge, FileText, Github
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import BrandMarquee from "@/components/BrandMarquee";
@@ -627,7 +627,7 @@ const Home = () => {
                       </ul>
                     </div>
                   </div>
-                  <div>
+                  <div className="space-y-3">
                     <a 
                       href="https://wa.me/254701460110" 
                       target="_blank" 
@@ -637,6 +637,28 @@ const Home = () => {
                     >
                       WhatsApp: 0701460110
                     </a>
+                    <div className="flex gap-2 justify-center">
+                      <a 
+                        href="https://daniwest-digital-cv.vercel.app/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm py-2 px-4 rounded-lg transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <FileText className="w-4 h-4" />
+                        CV
+                      </a>
+                      <a 
+                        href="https://github.com/maishdan" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white text-sm py-2 px-4 rounded-lg transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Github className="w-4 h-4" />
+                        GitHub
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
