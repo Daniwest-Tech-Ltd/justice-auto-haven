@@ -9,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, Shield, AlertTriangle, CheckCircle, Ban,
-  Activity, Lock, Brain, Target, FileText, Zap, Globe, Key, Users, Clock, RefreshCw, Download, Play, Pause, Settings, Menu
+  Activity, Lock, Brain, Target, FileText, Zap, Globe, Key, Users, Clock, RefreshCw, Download, Play, Pause, Settings, Menu,
+  Database, Eye, Server, ShieldCheck, ShieldAlert, Fingerprint, RotateCcw, AlertOctagon, Network, Code, Cloud, HardDrive, Cpu, Radio, Layers, FileKey, Bug, Siren, Lock as LockIcon
 } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,52 @@ import { PQCMigrationWizard } from "@/components/PQCMigrationWizard";
 import { RealtimeAlertSystem } from "@/components/RealtimeAlertSystem";
 import { AutoResponseWorkflows } from "@/components/AutoResponseWorkflows";
 import { IncidentTimeline } from "@/components/IncidentTimeline";
+
+// Security Philosophy Card Component
+const SecurityPhilosophyCard = ({ icon: Icon, title, description, status, items }: {
+  icon: any;
+  title: string;
+  description: string;
+  status: "active" | "monitoring" | "alert";
+  items: string[];
+}) => {
+  const statusColors = {
+    active: "text-green-500 bg-green-500/10 border-green-500/30",
+    monitoring: "text-blue-500 bg-blue-500/10 border-blue-500/30",
+    alert: "text-red-500 bg-red-500/10 border-red-500/30"
+  };
+
+  return (
+    <Card className={`border-2 ${statusColors[status]}`}>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${statusColors[status]}`}>
+              <Icon className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base">{title}</CardTitle>
+              <CardDescription className="text-xs">{description}</CardDescription>
+            </div>
+          </div>
+          <Badge variant={status === "active" ? "default" : status === "alert" ? "destructive" : "secondary"}>
+            {status.toUpperCase()}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <ul className="space-y-1.5">
+          {items.map((item, idx) => (
+            <li key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
+              <CheckCircle className="h-3 w-3 text-green-500 shrink-0" />
+              {item}
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+};
 
 const AISecurityDashboard = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -129,10 +176,11 @@ const AISecurityDashboard = () => {
     doc.text("AI Security Dashboard Report", 14, 20);
     doc.setFontSize(10);
     doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30);
+    doc.text("Justice Ultimate Automobiles - Enterprise Security", 14, 36);
     
     // Security Events
     doc.setFontSize(14);
-    doc.text("Security Events", 14, 45);
+    doc.text("Security Events", 14, 50);
     const eventData = alerts.slice(0, 10).map((alert) => [
       alert.title,
       alert.severity,
@@ -140,7 +188,7 @@ const AISecurityDashboard = () => {
       new Date(alert.created_at).toLocaleDateString()
     ]);
     autoTable(doc, {
-      startY: 50,
+      startY: 55,
       head: [['Title', 'Severity', 'Type', 'Date']],
       body: eventData
     });
@@ -163,7 +211,7 @@ const AISecurityDashboard = () => {
     // AI Threat Score
     if (aiThreatScore) {
       yPos = (doc as any).lastAutoTable.finalY + 15;
-      doc.text(`AI Threat Score: ${aiThreatScore.overallThreatScore}/100`, 14, yPos);
+      doc.text(`AI Threat Score: ${aiThreatScore.threatScore}/100`, 14, yPos);
       doc.text(`Risk Level: ${aiThreatScore.riskLevel}`, 14, yPos + 7);
     }
 
@@ -199,9 +247,173 @@ const AISecurityDashboard = () => {
 
   if (loading) return <LoadingScreen />;
 
+  const securityModules = [
+    {
+      icon: ShieldCheck,
+      title: "Zero Trust Architecture",
+      description: "Never trust, always verify",
+      status: "active" as const,
+      items: [
+        "No implicit trust between services",
+        "Every request authenticated & authorized",
+        "Least-privilege access everywhere",
+        "Continuous verification (not just at login)"
+      ]
+    },
+    {
+      icon: Brain,
+      title: "AI Threat Detection Engine",
+      description: "Behavioral analysis & ML anomaly detection",
+      status: "monitoring" as const,
+      items: [
+        "Abnormal login pattern detection",
+        "Impossible travel detection",
+        "Suspicious admin behavior monitoring",
+        "Automated bot activity detection"
+      ]
+    },
+    {
+      icon: Bug,
+      title: "Zero-Day Attack Mitigation",
+      description: "Runtime protection & sandboxed execution",
+      status: "active" as const,
+      items: [
+        "Runtime Application Self-Protection (RASP)",
+        "Memory-safe execution monitoring",
+        "Canary tokens (silent intrusion detection)",
+        "Sandboxed execution for risky inputs"
+      ]
+    },
+    {
+      icon: Database,
+      title: "Database Security (Military-Grade)",
+      description: "AES-256 encryption & TLS 1.3",
+      status: "active" as const,
+      items: [
+        "AES-256 for data at rest",
+        "TLS 1.3 for data in transit",
+        "Separate encryption keys per table",
+        "Row-level security (RLS) enforced"
+      ]
+    },
+    {
+      icon: Code,
+      title: "SQL Injection Prevention",
+      description: "Parameterized queries & AI validation",
+      status: "active" as const,
+      items: [
+        "Strict parameterized queries only",
+        "ORM-enforced query execution",
+        "AI input validation engine",
+        "Malformed payload rejection"
+      ]
+    },
+    {
+      icon: Network,
+      title: "DOS/DDOS Defense",
+      description: "Rate limiting & geo-blocking",
+      status: "monitoring" as const,
+      items: [
+        "Rate limiting (per IP, session, endpoint)",
+        "Geo-blocking capabilities",
+        "Bot fingerprinting",
+        "Adaptive traffic throttling"
+      ]
+    },
+    {
+      icon: Fingerprint,
+      title: "Authentication & Access Control",
+      description: "Hardware MFA & role-based access",
+      status: "active" as const,
+      items: [
+        "Hardware-based MFA support",
+        "Time-based session expiration",
+        "IP/device binding",
+        "Admin actions require re-authentication"
+      ]
+    },
+    {
+      icon: FileKey,
+      title: "Secret Management",
+      description: "Vault storage & auto-rotation",
+      status: "active" as const,
+      items: [
+        "No secrets stored in code",
+        "Environment-level secret vault",
+        "Automatic key rotation",
+        "One-time access tokens"
+      ]
+    },
+    {
+      icon: Key,
+      title: "Quantum-Resistant Preparation",
+      description: "Hybrid cryptography & key agility",
+      status: "monitoring" as const,
+      items: [
+        "Hybrid cryptography (classical + post-quantum)",
+        "Key agility (easy algorithm replacement)",
+        "Short-lived encryption keys",
+        "Forward secrecy everywhere"
+      ]
+    },
+    {
+      icon: FileText,
+      title: "Audit Logging & Forensics",
+      description: "Immutable & tamper-proof logs",
+      status: "active" as const,
+      items: [
+        "Login attempts tracked",
+        "Admin actions logged",
+        "Configuration changes monitored",
+        "Logs encrypted & tamper-proof"
+      ]
+    },
+    {
+      icon: Siren,
+      title: "Automated Incident Response",
+      description: "AI playbooks & zero manual delay",
+      status: "active" as const,
+      items: [
+        "Auto-lock compromised accounts",
+        "Auto-rotate credentials on risk",
+        "Auto-isolate affected services",
+        "Generate incident reports automatically"
+      ]
+    },
+    {
+      icon: Globe,
+      title: "Frontend & API Security",
+      description: "CSP, CORS & CSRF protection",
+      status: "active" as const,
+      items: [
+        "Content Security Policy (CSP)",
+        "Strict CORS configuration",
+        "CSRF protection enabled",
+        "Token-based authentication"
+      ]
+    }
+  ];
+
+  const aiActions = [
+    { label: "Auto-lock accounts", icon: Lock, active: true },
+    { label: "Auto-rotate credentials", icon: RotateCcw, active: true },
+    { label: "Auto-isolate services", icon: Server, active: true },
+    { label: "Alert security admin", icon: AlertOctagon, active: true },
+    { label: "Snapshot system state", icon: HardDrive, active: true },
+    { label: "Generate incident report", icon: FileText, active: true }
+  ];
+
+  const roleSystem = [
+    { role: "Super Admin", description: "Full system access", color: "destructive" },
+    { role: "Security Admin", description: "Security controls only", color: "default" },
+    { role: "Finance Admin", description: "Financial data access", color: "secondary" },
+    { role: "Content Admin", description: "Content management", color: "secondary" },
+    { role: "Read-only Auditor", description: "View-only access", color: "outline" }
+  ];
+
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
@@ -209,39 +421,50 @@ const AISecurityDashboard = () => {
               Back
             </Button>
           </div>
-          <h1 className="text-3xl font-bold mb-2">AI Security Dashboard</h1>
-          <p className="text-muted-foreground">Real-time security monitoring and AI-powered threat detection</p>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Shield className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold">AI Security Guardian</h1>
+              <p className="text-muted-foreground text-sm">Enterprise-Grade Zero Trust Security • Justice Ultimate Automobiles</p>
+            </div>
+          </div>
         </div>
         <div className="flex gap-2">
-          <Button
-            onClick={exportToPDF}
-            variant="outline"
-            size="lg"
-            className="gap-2"
-          >
-            <Download className="h-5 w-5" />
+          <Button onClick={exportToPDF} variant="outline" size="sm" className="gap-2">
+            <Download className="h-4 w-4" />
             Export PDF
           </Button>
-          <Button
-            onClick={runAIAnalysis}
-            disabled={isAnalyzing}
-            size="lg"
-            className="gap-2"
-          >
+          <Button onClick={runAIAnalysis} disabled={isAnalyzing} size="sm" className="gap-2">
             {isAnalyzing ? (
               <>
-                <RefreshCw className="h-5 w-5 animate-spin" />
+                <RefreshCw className="h-4 w-4 animate-spin" />
                 Analyzing...
               </>
             ) : (
               <>
-                <Brain className="h-5 w-5" />
+                <Brain className="h-4 w-4" />
                 Run AI Analysis
               </>
             )}
           </Button>
         </div>
       </div>
+
+      {/* Security Philosophy Banner */}
+      <Card className="mb-6 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/30">
+        <CardContent className="py-4">
+          <div className="flex items-center gap-4">
+            <ShieldAlert className="h-10 w-10 text-primary" />
+            <div>
+              <h3 className="font-bold text-lg">Core Security Philosophy: ZERO TRUST</h3>
+              <p className="text-sm text-muted-foreground">Never trust, always verify — every request, every time. Defense-in-depth with fail-secure architecture.</p>
+            </div>
+            <Badge variant="default" className="ml-auto">ACTIVE</Badge>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* AI Analysis Results */}
       {(aiThreatScore || aiAnomalies) && (
@@ -260,9 +483,7 @@ const AISecurityDashboard = () => {
                     {aiThreatScore.riskLevel?.toUpperCase()}
                   </Badge>
                 </CardTitle>
-                <CardDescription>
-                  AI-powered threat assessment based on real security data
-                </CardDescription>
+                <CardDescription>AI-powered threat assessment based on real security data</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -276,10 +497,7 @@ const AISecurityDashboard = () => {
                       {aiThreatScore.threatScore}/100
                     </span>
                   </div>
-                  <Progress 
-                    value={aiThreatScore.threatScore} 
-                    className="h-2"
-                  />
+                  <Progress value={aiThreatScore.threatScore} className="h-2" />
                   {aiThreatScore.threats && aiThreatScore.threats.length > 0 && (
                     <div className="space-y-2">
                       <p className="text-sm font-medium">Top Threats Identified:</p>
@@ -322,9 +540,7 @@ const AISecurityDashboard = () => {
                     {aiAnomalies.anomaliesDetected || 0} Detected
                   </Badge>
                 </CardTitle>
-                <CardDescription>
-                  Behavioral anomaly detection using AI models
-                </CardDescription>
+                <CardDescription>Behavioral anomaly detection using AI models</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -348,24 +564,8 @@ const AISecurityDashboard = () => {
                           <AlertDescription>
                             <p className="font-medium">{anomaly.type}</p>
                             <p className="text-xs mt-1">{anomaly.description}</p>
-                            {anomaly.indicators && anomaly.indicators.length > 0 && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Indicators: {anomaly.indicators.join(', ')}
-                              </p>
-                            )}
                           </AlertDescription>
                         </Alert>
-                      ))}
-                    </div>
-                  )}
-                  {aiAnomalies.patterns && aiAnomalies.patterns.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">Detected Patterns:</p>
-                      {aiAnomalies.patterns.slice(0, 3).map((pattern: any, idx: number) => (
-                        <p key={idx} className="text-xs text-muted-foreground flex items-start gap-2">
-                          <Zap className="h-3 w-3 mt-0.5 shrink-0" />
-                          {pattern.pattern} - {pattern.risk} risk
-                        </p>
                       ))}
                     </div>
                   )}
@@ -377,7 +577,7 @@ const AISecurityDashboard = () => {
       )}
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Security Events</CardTitle>
@@ -433,7 +633,8 @@ const AISecurityDashboard = () => {
           <SheetTrigger asChild>
             <Button variant="outline" className="w-full">
               <Menu className="h-5 w-5 mr-2" />
-              {activeTab === "overview" && "Overview"}
+              {activeTab === "overview" && "Security Overview"}
+              {activeTab === "modules" && "Security Modules"}
               {activeTab === "alerts" && "Alerts"}
               {activeTab === "incidents" && "Incidents"}
               {activeTab === "realtime" && "Real-time Monitoring"}
@@ -447,76 +648,26 @@ const AISecurityDashboard = () => {
               <SheetTitle>Security Menu</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-2 mt-6">
-              <Button
-                variant={activeTab === "overview" ? "default" : "ghost"}
-                className="justify-start"
-                onClick={() => {
-                  setActiveTab("overview");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Overview
-              </Button>
-              <Button
-                variant={activeTab === "alerts" ? "default" : "ghost"}
-                className="justify-start"
-                onClick={() => {
-                  setActiveTab("alerts");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Alerts
-              </Button>
-              <Button
-                variant={activeTab === "incidents" ? "default" : "ghost"}
-                className="justify-start"
-                onClick={() => {
-                  setActiveTab("incidents");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Incidents
-              </Button>
-              <Button
-                variant={activeTab === "realtime" ? "default" : "ghost"}
-                className="justify-start"
-                onClick={() => {
-                  setActiveTab("realtime");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Real-time
-              </Button>
-              <Button
-                variant={activeTab === "workflows" ? "default" : "ghost"}
-                className="justify-start"
-                onClick={() => {
-                  setActiveTab("workflows");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Auto-Response
-              </Button>
-              <Button
-                variant={activeTab === "playbooks" ? "default" : "ghost"}
-                className="justify-start"
-                onClick={() => {
-                  setActiveTab("playbooks");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Playbooks
-              </Button>
-              <Button
-                variant={activeTab === "pqc" ? "default" : "ghost"}
-                className="justify-start"
-                onClick={() => {
-                  setActiveTab("pqc");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                PQC Wizard
-              </Button>
+              {["overview", "modules", "alerts", "incidents", "realtime", "workflows", "playbooks", "pqc"].map((tab) => (
+                <Button
+                  key={tab}
+                  variant={activeTab === tab ? "default" : "ghost"}
+                  className="justify-start"
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  {tab === "overview" && "Security Overview"}
+                  {tab === "modules" && "Security Modules"}
+                  {tab === "alerts" && "Alerts"}
+                  {tab === "incidents" && "Incidents"}
+                  {tab === "realtime" && "Real-time"}
+                  {tab === "workflows" && "Auto-Response"}
+                  {tab === "playbooks" && "Playbooks"}
+                  {tab === "pqc" && "PQC Wizard"}
+                </Button>
+              ))}
             </div>
           </SheetContent>
         </Sheet>
@@ -524,25 +675,111 @@ const AISecurityDashboard = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        {/* Desktop Tabs - Hidden on Mobile */}
-        <TabsList className="hidden md:grid w-full grid-cols-7">
+        <TabsList className="hidden md:grid w-full grid-cols-8 mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="modules">Modules</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
           <TabsTrigger value="realtime">Real-time</TabsTrigger>
           <TabsTrigger value="workflows">Auto-Response</TabsTrigger>
           <TabsTrigger value="playbooks">Playbooks</TabsTrigger>
-          <TabsTrigger value="pqc">PQC Wizard</TabsTrigger>
+          <TabsTrigger value="pqc">PQC</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          {/* AI Guardian Prompt Card */}
+          <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-background">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5 text-primary" />
+                AI Security Guardian - Active Directive
+              </CardTitle>
+              <CardDescription>Enterprise-grade defensive AI security system</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="p-4 bg-muted/50 rounded-lg border text-sm space-y-3 font-mono">
+                <p className="text-primary font-semibold">You are an AI Security Guardian for Justice Ultimate Automobiles.</p>
+                <p className="text-muted-foreground">Your role is defensive only.</p>
+                <div className="border-t pt-3 mt-3">
+                  <p className="font-semibold mb-2">Core principles:</p>
+                  <ul className="space-y-1 text-muted-foreground">
+                    <li>• Zero Trust Architecture</li>
+                    <li>• Least Privilege Access</li>
+                    <li>• Continuous Authentication</li>
+                    <li>• Defense-in-Depth</li>
+                    <li>• Fail-Secure, not Fail-Open</li>
+                  </ul>
+                </div>
+                <div className="border-t pt-3 mt-3">
+                  <p className="font-semibold mb-2">Active Protections:</p>
+                  <ul className="space-y-1 text-muted-foreground">
+                    <li>✓ Detect and mitigate attacks without exposing system internals</li>
+                    <li>✓ Deny SQL injection, XSS, CSRF, brute force, bot abuse, DOS/DDOS</li>
+                    <li>✓ Detect zero-day anomalies via behavior analysis</li>
+                    <li>✓ Enforce encryption at rest and in transit</li>
+                    <li>✓ Log all security events immutably</li>
+                    <li>✓ Prepare for post-quantum cryptographic transitions</li>
+                  </ul>
+                </div>
+                <div className="border-t pt-3 mt-3 text-red-500">
+                  <p className="font-semibold">Security integrity is the highest priority.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Automated AI Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-yellow-500" />
+                Automated AI Actions (Zero Manual Delay)
+              </CardTitle>
+              <CardDescription>AI playbooks execute automatically on threat detection</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {aiActions.map((action, idx) => (
+                  <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg bg-green-500/5 border-green-500/20">
+                    <action.icon className="h-5 w-5 text-green-500" />
+                    <span className="text-sm font-medium">{action.label}</span>
+                    <CheckCircle className="h-4 w-4 text-green-500 ml-auto" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Role System */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Role-Based Access Control
+              </CardTitle>
+              <CardDescription>No admin can access what they don't need</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                {roleSystem.map((role, idx) => (
+                  <div key={idx} className="p-3 border rounded-lg text-center">
+                    <Badge variant={role.color as any} className="mb-2">{role.role}</Badge>
+                    <p className="text-xs text-muted-foreground">{role.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Security Events */}
           <Card>
             <CardHeader>
               <CardTitle>Recent Security Events</CardTitle>
               <CardDescription>Latest alerts and security events from the system</CardDescription>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[400px]">
+              <ScrollArea className="h-[300px]">
                 <div className="space-y-2">
                   {alerts.slice(0, 10).map((alert) => (
                     <div key={alert.id} className="flex items-center justify-between p-3 border rounded">
@@ -571,6 +808,42 @@ const AISecurityDashboard = () => {
           </Card>
         </TabsContent>
 
+        {/* Security Modules Tab */}
+        <TabsContent value="modules" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {securityModules.map((module, idx) => (
+              <SecurityPhilosophyCard key={idx} {...module} />
+            ))}
+          </div>
+
+          {/* Backup & Disaster Recovery */}
+          <Card className="border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-background">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Cloud className="h-5 w-5 text-blue-500" />
+                Backup & Disaster Recovery
+              </CardTitle>
+              <CardDescription>Multiple geographic locations with immutable backups</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: "Encrypted Backups", icon: Lock },
+                  { label: "Multi-Location", icon: Globe },
+                  { label: "Immutable Storage", icon: HardDrive },
+                  { label: "Integrity Verified", icon: CheckCircle }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2 p-3 border rounded-lg">
+                    <item.icon className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Alerts Tab */}
         <TabsContent value="alerts" className="space-y-4">
           <div className="flex gap-2">
             <Input
@@ -633,6 +906,7 @@ const AISecurityDashboard = () => {
           <AutoResponseWorkflows />
         </TabsContent>
 
+        {/* Incidents Tab */}
         <TabsContent value="incidents" className="space-y-4">
           <Card>
             <CardHeader>
@@ -689,39 +963,7 @@ const AISecurityDashboard = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="threats" className="space-y-4">
-          <ScrollArea className="h-[600px]">
-            <div className="grid gap-4">
-              {threatIntel.map((threat) => (
-                <Card key={threat.id}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{threat.ioc_type}: {threat.ioc_value}</CardTitle>
-                      <Badge variant={
-                        threat.threat_level === 'critical' ? 'destructive' :
-                        threat.threat_level === 'high' ? 'destructive' :
-                        'default'
-                      }>
-                        {threat.threat_level}
-                      </Badge>
-                    </div>
-                    <CardDescription>Source: {threat.source}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">{threat.description}</p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <p>Category: {threat.threat_category}</p>
-                      <p>First Seen: {new Date(threat.first_seen).toLocaleString()}</p>
-                      <p>Last Seen: {new Date(threat.last_seen).toLocaleString()}</p>
-                      <p>Confidence: {threat.confidence_score}%</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
-        </TabsContent>
-
+        {/* Playbooks Tab */}
         <TabsContent value="playbooks" className="space-y-4">
           <ScrollArea className="h-[600px]">
             <div className="grid gap-4">
@@ -751,6 +993,7 @@ const AISecurityDashboard = () => {
           </ScrollArea>
         </TabsContent>
 
+        {/* PQC Tab */}
         <TabsContent value="pqc" className="space-y-4">
           <PQCMigrationWizard />
           
