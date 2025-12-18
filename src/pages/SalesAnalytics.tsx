@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, TrendingUp, DollarSign, Car, Users, Download } from "lucide-react";
+import { ArrowLeft, TrendingUp, DollarSign, Car, Users, Download, CreditCard } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 const SalesAnalytics = () => {
   const [loading, setLoading] = useState(true);
@@ -260,6 +261,38 @@ const SalesAnalytics = () => {
                 <Bar dataKey="revenue" fill="hsl(var(--primary))" name="Revenue (KSh)" />
               </BarChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Payment Gateway Section */}
+        <Card className="glass-strong lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5" />
+              Pesapal Payment Gateway
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gradient-to-br from-primary/10 via-background to-primary/5 rounded-xl p-6 border border-primary/20">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold">Accept Payments</h3>
+                  <p className="text-sm text-muted-foreground">Process sales payments via Pesapal</p>
+                </div>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+              </div>
+              
+              <div className="aspect-video max-w-xl mx-auto bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border/50">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  src="https://store.pesapal.com/embed-code?pageUrl=https://store.pesapal.com/justiceultimateautomobile" 
+                  frameBorder="0" 
+                  allowFullScreen
+                  className="rounded-lg"
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
