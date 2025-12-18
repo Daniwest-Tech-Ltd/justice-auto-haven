@@ -146,7 +146,7 @@ const RentalManagement = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
-        <Button onClick={() => navigate("/admin/dashboard")} variant="ghost">
+        <Button onClick={() => navigate("/admin-dashboard")} variant="ghost">
           <ArrowLeft className="mr-2" /> Back to Dashboard
         </Button>
         <Button onClick={() => navigate("/admin/add-rental-car")}>
