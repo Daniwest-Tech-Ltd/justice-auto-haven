@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, CreditCard, Phone, Building2 } from "lucide-react";
+import { PesapalPaymentModal } from "./PesapalPaymentModal";
 
 interface OrderSubmissionModalProps {
   open: boolean;
@@ -24,11 +26,13 @@ export const OrderSubmissionModal = ({ open, onOpenChange, car }: OrderSubmissio
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showPesapal, setShowPesapal] = useState(false);
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
     email: "",
     contact_method: "",
+    payment_method: "contact_later",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,6 +51,7 @@ export const OrderSubmissionModal = ({ open, onOpenChange, car }: OrderSubmissio
           phone: formData.phone,
           email: formData.email,
           contact_method: formData.contact_method,
+          payment_method: formData.payment_method,
           status: "pending",
         },
       ]);
@@ -71,13 +76,19 @@ export const OrderSubmissionModal = ({ open, onOpenChange, car }: OrderSubmissio
             type: "order",
             title: "New VIP Order",
             message: `${formData.full_name} placed an order for ${car.make} ${car.model}`,
-            metadata: { car_id: car.id, order_type: "whitelist" },
+            metadata: { car_id: car.id, order_type: "whitelist", payment_method: formData.payment_method },
           }))
         );
       }
 
-      setShowSuccess(true);
-      setFormData({ full_name: "", phone: "", email: "", contact_method: "" });
+      // If payment method is Pesapal, show payment modal
+      if (formData.payment_method === "pesapal") {
+        setShowPesapal(true);
+      } else {
+        setShowSuccess(true);
+      }
+      
+      setFormData({ full_name: "", phone: "", email: "", contact_method: "", payment_method: "contact_later" });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -91,8 +102,20 @@ export const OrderSubmissionModal = ({ open, onOpenChange, car }: OrderSubmissio
 
   const handleClose = () => {
     setShowSuccess(false);
+    setShowPesapal(false);
     onOpenChange(false);
   };
+
+  if (showPesapal) {
+    return (
+      <PesapalPaymentModal
+        open={open}
+        onOpenChange={handleClose}
+        amount={car.price}
+        description={`${car.year} ${car.make} ${car.model}`}
+      />
+    );
+  }
 
   if (showSuccess) {
     return (
@@ -122,7 +145,7 @@ export const OrderSubmissionModal = ({ open, onOpenChange, car }: OrderSubmissio
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Place VIP Order</DialogTitle>
           <DialogDescription>
@@ -184,13 +207,56 @@ export const OrderSubmissionModal = ({ open, onOpenChange, car }: OrderSubmissio
             </Select>
           </div>
 
-          <div className="flex gap-2">
+          {/* Payment Method Selection */}
+          <div className="space-y-3">
+            <Label>Payment Method *</Label>
+            <RadioGroup
+              value={formData.payment_method}
+              onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer">
+                <RadioGroupItem value="pesapal" id="pesapal" />
+                <Label htmlFor="pesapal" className="flex items-center gap-2 cursor-pointer flex-1">
+                  <CreditCard className="h-4 w-4 text-primary" />
+                  <div>
+                    <p className="font-medium">Pay with Pesapal</p>
+                    <p className="text-xs text-muted-foreground">M-Pesa, Visa, Mastercard, Bank Transfer</p>
+                  </div>
+                </Label>
+              </div>
+              
+              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer">
+                <RadioGroupItem value="contact_later" id="contact_later" />
+                <Label htmlFor="contact_later" className="flex items-center gap-2 cursor-pointer flex-1">
+                  <Phone className="h-4 w-4 text-green-500" />
+                  <div>
+                    <p className="font-medium">Contact to Arrange</p>
+                    <p className="text-xs text-muted-foreground">We'll call you to discuss payment</p>
+                  </div>
+                </Label>
+              </div>
+              
+              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer">
+                <RadioGroupItem value="bank_transfer" id="bank_transfer" />
+                <Label htmlFor="bank_transfer" className="flex items-center gap-2 cursor-pointer flex-1">
+                  <Building2 className="h-4 w-4 text-blue-500" />
+                  <div>
+                    <p className="font-medium">Bank Transfer</p>
+                    <p className="text-xs text-muted-foreground">Direct bank deposit</p>
+                  </div>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
               Cancel
             </Button>
             <Button type="submit" disabled={loading} className="flex-1">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Submit Order
+              {formData.payment_method === "pesapal" ? "Proceed to Payment" : "Submit Order"}
             </Button>
           </div>
         </form>

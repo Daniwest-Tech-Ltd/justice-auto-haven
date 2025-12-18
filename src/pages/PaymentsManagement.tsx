@@ -338,6 +338,9 @@ const PaymentsManagement = () => {
             <TabsTrigger value="transactions">
               <CreditCard className="w-4 h-4 mr-2" /> Transactions
             </TabsTrigger>
+            <TabsTrigger value="quick-pay">
+              <DollarSign className="w-4 h-4 mr-2" /> Quick Pay
+            </TabsTrigger>
             <TabsTrigger value="ipn-logs">
               <FileText className="w-4 h-4 mr-2" /> IPN Logs
             </TabsTrigger>
@@ -410,6 +413,99 @@ const PaymentsManagement = () => {
                     )}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Quick Pay Tab - Pesapal Embed */}
+          <TabsContent value="quick-pay" className="space-y-4">
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-primary/10 via-background to-secondary/10">
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5 text-primary" />
+                  Pesapal Quick Payment
+                </CardTitle>
+                <CardDescription>Accept payments directly from customers using Pesapal</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                {/* Glassmorphism Container */}
+                <div className="relative p-8">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+                  
+                  <div className="relative z-10 flex flex-col items-center justify-center space-y-6">
+                    {/* Payment Info Header */}
+                    <div className="text-center space-y-2">
+                      <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center backdrop-blur-sm border border-border/50">
+                        <CreditCard className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-bold">Accept Payment</h3>
+                      <p className="text-sm text-muted-foreground max-w-md">
+                        Click the button below to process a customer payment via M-Pesa, Visa, Mastercard, or Bank Transfer
+                      </p>
+                    </div>
+                    
+                    {/* Pesapal Embed Container */}
+                    <div className="p-6 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg">
+                      <div className="flex flex-col items-center space-y-4">
+                        <iframe 
+                          width="280" 
+                          height="60" 
+                          src="https://store.pesapal.com/embed-code?pageUrl=https://store.pesapal.com/justiceultimateautomobile" 
+                          frameBorder="0" 
+                          allowFullScreen
+                          className="rounded-lg"
+                          title="Pesapal Payment"
+                        />
+                        <p className="text-xs text-muted-foreground text-center">
+                          Powered by Pesapal • Secure Payment Gateway
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Accepted Methods */}
+                    <div className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-border/50 w-full max-w-lg">
+                      <span className="text-xs text-muted-foreground">Accepted:</span>
+                      <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/30">
+                        M-Pesa
+                      </Badge>
+                      <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/30">
+                        Visa
+                      </Badge>
+                      <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/30">
+                        Mastercard
+                      </Badge>
+                      <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-500/30">
+                        Bank Transfer
+                      </Badge>
+                    </div>
+                    
+                    {/* Security Notice */}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground bg-accent/30 px-4 py-2 rounded-full">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>256-bit SSL Encrypted • PCI DSS Compliant</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* IPN ID Info */}
+            <Card className="border-dashed">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <FileText className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="space-y-1 flex-1">
+                    <p className="text-sm font-medium">Registered IPN ID</p>
+                    <code className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                      d6b89291-8549-42fd-9974-daf5e5535ef6
+                    </code>
+                    <p className="text-xs text-muted-foreground">
+                      This ID is used by Pesapal to send payment notifications to your system
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
