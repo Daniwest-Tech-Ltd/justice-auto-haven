@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -359,6 +360,11 @@ const GeofenceManager = ({ mapboxToken }: GeofenceManagerProps) => {
               <DialogTitle>
                 {editingGeofence ? "Edit Geofence" : "Create New Geofence"}
               </DialogTitle>
+              <DialogDescription>
+                {editingGeofence 
+                  ? "Update the geofence zone settings and boundaries."
+                  : "Define a new geofence zone to monitor vehicle movements."}
+              </DialogDescription>
             </DialogHeader>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
