@@ -86,3 +86,6 @@ verify_jwt = false
 
 [functions.send-holiday-notifications]
 verify_jwt = false
+
+[functions.run-backup]
+verify_jwt = false

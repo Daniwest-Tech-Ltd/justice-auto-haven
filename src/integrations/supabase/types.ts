@@ -320,6 +320,57 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_history: {
+        Row: {
+          backup_type: string
+          completed_at: string | null
+          created_at: string | null
+          duration_seconds: number | null
+          error_message: string | null
+          files_backed_up: number | null
+          id: string
+          rows_backed_up: number | null
+          started_at: string | null
+          status: string
+          tables_backed_up: number | null
+          total_size_mb: number | null
+          triggered_by: string | null
+          users_backed_up: number | null
+        }
+        Insert: {
+          backup_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          files_backed_up?: number | null
+          id?: string
+          rows_backed_up?: number | null
+          started_at?: string | null
+          status?: string
+          tables_backed_up?: number | null
+          total_size_mb?: number | null
+          triggered_by?: string | null
+          users_backed_up?: number | null
+        }
+        Update: {
+          backup_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          files_backed_up?: number | null
+          id?: string
+          rows_backed_up?: number | null
+          started_at?: string | null
+          status?: string
+          tables_backed_up?: number | null
+          total_size_mb?: number | null
+          triggered_by?: string | null
+          users_backed_up?: number | null
+        }
+        Relationships: []
+      }
       backup_logs: {
         Row: {
           backup_type: string
@@ -353,6 +404,93 @@ export type Database = {
           id?: string
           started_at?: string | null
           status?: string | null
+        }
+        Relationships: []
+      }
+      backup_settings: {
+        Row: {
+          auto_backup_enabled: boolean | null
+          backup_auth_users: boolean | null
+          backup_database: boolean | null
+          backup_frequency: string | null
+          backup_storage: boolean | null
+          backup_time: string | null
+          backup_timezone: string | null
+          created_at: string | null
+          id: string
+          last_backup_at: string | null
+          next_scheduled_backup: string | null
+          retention_days: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          auto_backup_enabled?: boolean | null
+          backup_auth_users?: boolean | null
+          backup_database?: boolean | null
+          backup_frequency?: string | null
+          backup_storage?: boolean | null
+          backup_time?: string | null
+          backup_timezone?: string | null
+          created_at?: string | null
+          id?: string
+          last_backup_at?: string | null
+          next_scheduled_backup?: string | null
+          retention_days?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          auto_backup_enabled?: boolean | null
+          backup_auth_users?: boolean | null
+          backup_database?: boolean | null
+          backup_frequency?: string | null
+          backup_storage?: boolean | null
+          backup_time?: string | null
+          backup_timezone?: string | null
+          created_at?: string | null
+          id?: string
+          last_backup_at?: string | null
+          next_scheduled_backup?: string | null
+          retention_days?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      backup_stats: {
+        Row: {
+          backup_health: string | null
+          database_size_mb: number | null
+          id: string
+          last_successful_backup: string | null
+          storage_size_mb: number | null
+          total_files: number | null
+          total_rows: number | null
+          total_tables: number | null
+          total_users: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          backup_health?: string | null
+          database_size_mb?: number | null
+          id?: string
+          last_successful_backup?: string | null
+          storage_size_mb?: number | null
+          total_files?: number | null
+          total_rows?: number | null
+          total_tables?: number | null
+          total_users?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          backup_health?: string | null
+          database_size_mb?: number | null
+          id?: string
+          last_successful_backup?: string | null
+          storage_size_mb?: number | null
+          total_files?: number | null
+          total_rows?: number | null
+          total_tables?: number | null
+          total_users?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }
