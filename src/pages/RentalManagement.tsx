@@ -12,6 +12,7 @@ import GeofenceManager from "@/components/tracking/GeofenceManager";
 import TripHistoryPanel from "@/components/tracking/TripHistoryPanel";
 import TrackingAlertsPanel from "@/components/tracking/TrackingAlertsPanel";
 import GPSDeviceManager from "@/components/tracking/GPSDeviceManager";
+import TrackingDemoSimulator from "@/components/tracking/TrackingDemoSimulator";
 import { 
   ArrowLeft, 
   Plus, 
@@ -25,7 +26,8 @@ import {
   Info,
   Wifi,
   Radio,
-  CheckCircle2
+  CheckCircle2,
+  Zap
 } from "lucide-react";
 import {
   Table,
@@ -153,7 +155,7 @@ const RentalManagement = () => {
       </div>
 
       <Tabs defaultValue="bookings" className="space-y-6">
-        <TabsList className="grid grid-cols-3 md:grid-cols-7 gap-2 h-auto p-1">
+        <TabsList className="grid grid-cols-4 md:grid-cols-8 gap-2 h-auto p-1">
           <TabsTrigger value="bookings" className="gap-2">
             <Calendar className="h-4 w-4" />
             <span className="hidden sm:inline">Bookings</span>
@@ -177,6 +179,10 @@ const RentalManagement = () => {
           <TabsTrigger value="devices" className="gap-2">
             <Cpu className="h-4 w-4" />
             <span className="hidden sm:inline">Devices</span>
+          </TabsTrigger>
+          <TabsTrigger value="simulator" className="gap-2">
+            <Zap className="h-4 w-4" />
+            <span className="hidden sm:inline">Demo</span>
           </TabsTrigger>
           <TabsTrigger value="setup" className="gap-2">
             <Info className="h-4 w-4" />
@@ -408,6 +414,58 @@ const RentalManagement = () => {
                       Go to the "Devices" tab and register the GPS device with its unique device ID and assign it to a rental car.
                     </p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Demo Simulator Tab */}
+        <TabsContent value="simulator">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TrackingDemoSimulator />
+            <Card>
+              <CardHeader>
+                <CardTitle>How the Demo Works</CardTitle>
+                <CardDescription>
+                  Test the tracking system without real hardware
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">1</div>
+                    <div>
+                      <p className="font-medium">Turn on ignition</p>
+                      <p className="text-sm text-muted-foreground">Toggle the ignition switch to start the vehicle</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">2</div>
+                    <div>
+                      <p className="font-medium">Select a route</p>
+                      <p className="text-sm text-muted-foreground">Choose Nairobi CBD or Thika Highway route</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">3</div>
+                    <div>
+                      <p className="font-medium">Start simulation</p>
+                      <p className="text-sm text-muted-foreground">Click Start to begin vehicle movement</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">4</div>
+                    <div>
+                      <p className="font-medium">View in Live Map</p>
+                      <p className="text-sm text-muted-foreground">Switch to Live Map tab to see vehicle moving</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Note:</strong> The simulator writes real data to the database, so you can see it in the Live Map, Trips, and Alerts tabs. Speed alerts trigger when exceeding 80 km/h.
+                  </p>
                 </div>
               </CardContent>
             </Card>
