@@ -25,7 +25,7 @@ const TermsOfUse = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">2. Company Certification</h2>
+            <h2 className="text-2xl font-bold mb-4 text-foreground">2. Company Certification & Regulatory Compliance</h2>
             <p className="leading-relaxed mb-3">
               <strong>Justice Ultimate Automobiles is a certified automotive dealer in Kenya</strong>, operating with officially recognized business credentials. We are fully registered and compliant with all regulatory requirements including:
             </p>
@@ -34,6 +34,19 @@ const TermsOfUse = () => {
               <li>KRA PIN and Tax Compliance</li>
               <li>NTSA Motor Dealer License</li>
               <li>Valid Business Permits</li>
+            </ul>
+            <p className="leading-relaxed mb-3 font-semibold">
+              Our operations are certified and verified by the following Kenya authorities:
+            </p>
+            <ul className="list-disc list-inside space-y-2 ml-4 mb-4">
+              <li><strong>National Transport and Safety Authority (NTSA)</strong> - Vehicle registration and transfer compliance</li>
+              <li><strong>Kenya Bureau of Standards (KEBS)</strong> - Quality and safety standards</li>
+              <li><strong>Kenya Revenue Authority (KRA)</strong> - Tax compliance and documentation</li>
+              <li><strong>Kenya Roads Board (KRB)</strong> - Road transport regulations</li>
+              <li><strong>Kenya National Highways Authority (KeNHA)</strong> - Highway transport compliance</li>
+              <li><strong>Kenya Urban Roads Authority (KURA)</strong> - Urban transport standards</li>
+              <li><strong>Competition Authority of Kenya</strong> - Consumer protection compliance</li>
+              <li><strong>Local County Business Permit Authority</strong> - Business operations permit</li>
             </ul>
             <Button
               onClick={() => setShowCertificate(true)}
@@ -94,22 +107,32 @@ const TermsOfUse = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">6. Payment Terms</h2>
+            <h2 className="text-2xl font-bold mb-4 text-foreground">6. Payment Terms & Secure Payment Methods</h2>
             <p className="leading-relaxed mb-3">
               Payment terms and conditions:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong>Approved Payment Methods:</strong> M-Pesa, bank transfer, cash (in-office), and approved financing partners</li>
-              <li><strong>Security:</strong> All transactions are processed through secure, encrypted channels</li>
+              <li><strong>Approved Payment Methods:</strong> M-Pesa, bank transfer, cash (in-office), Pesapal secure gateway, and approved financing partners</li>
+              <li><strong>Security:</strong> All transactions are processed through secure, encrypted channels certified by Kenya authorities</li>
               <li><strong>Deposits:</strong> Non-refundable deposits may be required to reserve vehicles</li>
               <li><strong>Full Payment:</strong> Required before vehicle delivery or transfer of ownership</li>
               <li><strong>Receipts:</strong> Official receipts are issued for all payments</li>
               <li><strong>Refunds:</strong> Subject to specific refund policy (detailed below)</li>
               <li><strong>Currency:</strong> All prices are in Kenyan Shillings (KES) unless otherwise stated</li>
             </ul>
-            <p className="leading-relaxed mt-3">
+            <p className="leading-relaxed mt-3 mb-3">
               <strong>Refund Policy:</strong> Refunds are processed based on transaction stage: Full refund (minus processing fee) before inspection; 10% cancellation fee after inspection but before delivery; No refunds after delivery (after-sales support available). Refunds are processed within 7-14 business days.
             </p>
+            <p className="leading-relaxed mb-3 font-semibold">
+              Our secure payment methods are certified and verified by:
+            </p>
+            <ul className="list-disc list-inside space-y-2 ml-4">
+              <li><strong>Kenya Revenue Authority (KRA)</strong> - Tax compliance</li>
+              <li><strong>Kenya Bureau of Standards (KEBS)</strong> - Quality standards</li>
+              <li><strong>National Transport and Safety Authority (NTSA)</strong> - Vehicle transaction compliance</li>
+              <li><strong>Competition Authority of Kenya</strong> - Consumer protection</li>
+              <li><strong>Central Bank of Kenya</strong> - Payment systems regulation</li>
+            </ul>
           </section>
 
           <section>

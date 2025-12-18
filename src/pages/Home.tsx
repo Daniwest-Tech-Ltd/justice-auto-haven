@@ -729,12 +729,17 @@ const Home = () => {
                 <h3 className="text-lg font-bold">Certified Dealer</h3>
               </div>
               <p className="text-sm text-muted-foreground mb-3">
-                Justice Ultimate Automobiles is officially recognized as a Qualified Automotive Industry Partner in Kenya.
+                Justice Ultimate Automobiles is officially recognized and certified by Kenya's regulatory authorities.
               </p>
-              <div className="text-xs text-muted-foreground space-y-1 mb-4">
+              <div className="text-xs text-muted-foreground space-y-1 mb-3">
                 <p>📜 Certificate No: ULT-KE-2025-2581</p>
                 <p>📅 Issued: 2025-11-21</p>
                 <p>🏛 Authority: HARAMBEE - Republic of Kenya</p>
+              </div>
+              <div className="text-xs text-muted-foreground space-y-1 mb-4 border-t border-border/50 pt-2">
+                <p className="font-semibold text-foreground/80 mb-1">Verified By:</p>
+                <p>✔ NTSA • KEBS • KRA</p>
+                <p>✔ KeNHA • KURA • KRB</p>
               </div>
               <Button
                 onClick={() => setShowCertificate(true)}
@@ -751,13 +756,17 @@ const Home = () => {
                 <h3 className="text-lg font-bold">Safe Payment</h3>
               </div>
               <p className="text-sm text-muted-foreground mb-3">
-                To protect our clients from fraud:
+                Secure payment methods certified & verified by Kenya authorities:
               </p>
-              <div className="text-xs text-muted-foreground space-y-2 mb-4">
-                <p>✔ NO online payments allowed</p>
-                <p>✔ Visit our yard physically</p>
+              <div className="text-xs text-muted-foreground space-y-1 mb-3">
                 <p>✔ Cash, M-Pesa, Bank Transfer</p>
                 <p>✔ Lipa Mdogo Mdogo available</p>
+                <p>✔ Pesapal secure gateway</p>
+              </div>
+              <div className="text-xs text-muted-foreground space-y-1 mb-3 border-t border-border/50 pt-2">
+                <p className="font-semibold text-foreground/80 mb-1">Verified By:</p>
+                <p>✔ KRA • KEBS • NTSA</p>
+                <p>✔ Competition Authority</p>
               </div>
               <div className="text-xs font-semibold text-primary">
                 📍 Mpesi Lane 11, Westlands, Nairobi
@@ -770,18 +779,21 @@ const Home = () => {
                 <Car className="h-8 w-8 text-primary" />
                 <h3 className="text-lg font-bold">How to Purchase</h3>
               </div>
-              <div className="text-xs text-muted-foreground space-y-2">
+              <div className="text-xs text-muted-foreground space-y-1 mb-3">
                 <p>1️⃣ Visit Our Yard</p>
                 <p>2️⃣ Vehicle Assessment</p>
                 <p>3️⃣ Test Drive</p>
                 <p>4️⃣ Payment & Agreement</p>
                 <p>5️⃣ Ownership Transfer (NTSA)</p>
                 <p>6️⃣ Logbook Processing (7-21 days)</p>
-                <p>7️⃣ Car Release with Documents</p>
+              </div>
+              <div className="text-xs text-muted-foreground border-t border-border/50 pt-2 mb-3">
+                <p className="font-semibold text-foreground/80 mb-1">Compliant With:</p>
+                <p>✔ NTSA • KRA • KeNHA</p>
               </div>
               <Button 
                 size="sm" 
-                className="w-full mt-4"
+                className="w-full"
                 onClick={() => navigate("/catalogue")}
               >
                 View Inventory
@@ -794,14 +806,18 @@ const Home = () => {
                 <Users className="h-8 w-8 text-accent" />
                 <h3 className="text-lg font-bold">After-Sales</h3>
               </div>
-              <p className="text-sm text-muted-foreground mb-3">
-                We provide comprehensive support:
+              <p className="text-sm text-muted-foreground mb-2">
+                Comprehensive support backed by:
               </p>
-              <div className="text-xs text-muted-foreground space-y-2 mb-4">
+              <div className="text-xs text-muted-foreground space-y-1 mb-3">
                 <p>✔ 7-day mechanical check guarantee</p>
                 <p>✔ Road assistance on request</p>
                 <p>✔ Free servicing guidance</p>
                 <p>✔ Spare parts supplier access</p>
+              </div>
+              <div className="text-xs text-muted-foreground border-t border-border/50 pt-2 mb-3">
+                <p className="font-semibold text-foreground/80 mb-1">Standards By:</p>
+                <p>✔ KEBS • KRB • KURA</p>
               </div>
               <a 
                 href="https://wa.me/254722827458"
