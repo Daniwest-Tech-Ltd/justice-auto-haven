@@ -3488,6 +3488,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          payment_method: string | null
           phone: string
           reviewed_at: string | null
           reviewed_by: string | null
@@ -3506,6 +3507,7 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          payment_method?: string | null
           phone: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -3524,6 +3526,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          payment_method?: string | null
           phone?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
