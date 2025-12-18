@@ -1247,6 +1247,170 @@ export type Database = {
         }
         Relationships: []
       }
+      geofence_violations: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          alert_channels: Json | null
+          alert_sent: boolean | null
+          booking_id: string | null
+          created_at: string
+          geofence_id: string
+          id: string
+          latitude: number
+          longitude: number
+          notes: string | null
+          rental_car_id: string
+          speed: number | null
+          violation_type: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_channels?: Json | null
+          alert_sent?: boolean | null
+          booking_id?: string | null
+          created_at?: string
+          geofence_id: string
+          id?: string
+          latitude: number
+          longitude: number
+          notes?: string | null
+          rental_car_id: string
+          speed?: number | null
+          violation_type: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_channels?: Json | null
+          alert_sent?: boolean | null
+          booking_id?: string | null
+          created_at?: string
+          geofence_id?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          notes?: string | null
+          rental_car_id?: string
+          speed?: number | null
+          violation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "geofence_violations_geofence_id_fkey"
+            columns: ["geofence_id"]
+            isOneToOne: false
+            referencedRelation: "geofences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      geofences: {
+        Row: {
+          alert_on_entry: boolean | null
+          alert_on_exit: boolean | null
+          center_lat: number | null
+          center_lng: number | null
+          coordinates: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          geofence_type: string
+          id: string
+          is_active: boolean | null
+          name: string
+          radius_meters: number | null
+          speed_limit: number | null
+          updated_at: string
+        }
+        Insert: {
+          alert_on_entry?: boolean | null
+          alert_on_exit?: boolean | null
+          center_lat?: number | null
+          center_lng?: number | null
+          coordinates: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          geofence_type?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          radius_meters?: number | null
+          speed_limit?: number | null
+          updated_at?: string
+        }
+        Update: {
+          alert_on_entry?: boolean | null
+          alert_on_exit?: boolean | null
+          center_lat?: number | null
+          center_lng?: number | null
+          coordinates?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          geofence_type?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          radius_meters?: number | null
+          speed_limit?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gps_devices: {
+        Row: {
+          battery_level: number | null
+          created_at: string
+          device_id: string
+          device_name: string | null
+          device_type: string | null
+          firmware_version: string | null
+          id: string
+          imei: string | null
+          is_active: boolean | null
+          last_ping: string | null
+          rental_car_id: string | null
+          sim_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          battery_level?: number | null
+          created_at?: string
+          device_id: string
+          device_name?: string | null
+          device_type?: string | null
+          firmware_version?: string | null
+          id?: string
+          imei?: string | null
+          is_active?: boolean | null
+          last_ping?: string | null
+          rental_car_id?: string | null
+          sim_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          battery_level?: number | null
+          created_at?: string
+          device_id?: string
+          device_name?: string | null
+          device_type?: string | null
+          firmware_version?: string | null
+          id?: string
+          imei?: string | null
+          is_active?: boolean | null
+          last_ping?: string | null
+          rental_car_id?: string | null
+          sim_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       incident_timeline: {
         Row: {
           created_at: string | null
@@ -3178,6 +3342,63 @@ export type Database = {
         }
         Relationships: []
       }
+      tracking_alerts: {
+        Row: {
+          alert_type: string
+          booking_id: string | null
+          created_at: string
+          id: string
+          is_read: boolean | null
+          is_resolved: boolean | null
+          latitude: number | null
+          longitude: number | null
+          message: string
+          metadata: Json | null
+          rental_car_id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          message: string
+          metadata?: Json | null
+          rental_car_id: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          message?: string
+          metadata?: Json | null
+          rental_car_id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: []
+      }
       trade_ins: {
         Row: {
           admin_notes: string | null
@@ -3235,6 +3456,72 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      trip_history: {
+        Row: {
+          avg_speed: number | null
+          booking_id: string | null
+          created_at: string
+          driver_name: string | null
+          driver_phone: string | null
+          end_location: Json | null
+          end_time: string | null
+          fuel_consumed: number | null
+          id: string
+          idle_time_minutes: number | null
+          max_speed: number | null
+          rental_car_id: string
+          route_points: Json | null
+          start_location: Json
+          start_time: string
+          total_distance_km: number | null
+          trip_status: string | null
+          updated_at: string
+          violations_count: number | null
+        }
+        Insert: {
+          avg_speed?: number | null
+          booking_id?: string | null
+          created_at?: string
+          driver_name?: string | null
+          driver_phone?: string | null
+          end_location?: Json | null
+          end_time?: string | null
+          fuel_consumed?: number | null
+          id?: string
+          idle_time_minutes?: number | null
+          max_speed?: number | null
+          rental_car_id: string
+          route_points?: Json | null
+          start_location: Json
+          start_time: string
+          total_distance_km?: number | null
+          trip_status?: string | null
+          updated_at?: string
+          violations_count?: number | null
+        }
+        Update: {
+          avg_speed?: number | null
+          booking_id?: string | null
+          created_at?: string
+          driver_name?: string | null
+          driver_phone?: string | null
+          end_location?: Json | null
+          end_time?: string | null
+          fuel_consumed?: number | null
+          id?: string
+          idle_time_minutes?: number | null
+          max_speed?: number | null
+          rental_car_id?: string
+          route_points?: Json | null
+          start_location?: Json
+          start_time?: string
+          total_distance_km?: number | null
+          trip_status?: string | null
+          updated_at?: string
+          violations_count?: number | null
         }
         Relationships: []
       }
@@ -3535,6 +3822,60 @@ export type Database = {
           id?: string
           secret_key?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      vehicle_tracking: {
+        Row: {
+          accuracy: number | null
+          altitude: number | null
+          battery_voltage: number | null
+          booking_id: string | null
+          created_at: string
+          device_id: string | null
+          fuel_level: number | null
+          heading: number | null
+          id: string
+          ignition_status: boolean | null
+          latitude: number
+          longitude: number
+          recorded_at: string
+          rental_car_id: string
+          speed: number | null
+        }
+        Insert: {
+          accuracy?: number | null
+          altitude?: number | null
+          battery_voltage?: number | null
+          booking_id?: string | null
+          created_at?: string
+          device_id?: string | null
+          fuel_level?: number | null
+          heading?: number | null
+          id?: string
+          ignition_status?: boolean | null
+          latitude: number
+          longitude: number
+          recorded_at?: string
+          rental_car_id: string
+          speed?: number | null
+        }
+        Update: {
+          accuracy?: number | null
+          altitude?: number | null
+          battery_voltage?: number | null
+          booking_id?: string | null
+          created_at?: string
+          device_id?: string | null
+          fuel_level?: number | null
+          heading?: number | null
+          id?: string
+          ignition_status?: boolean | null
+          latitude?: number
+          longitude?: number
+          recorded_at?: string
+          rental_car_id?: string
+          speed?: number | null
         }
         Relationships: []
       }
