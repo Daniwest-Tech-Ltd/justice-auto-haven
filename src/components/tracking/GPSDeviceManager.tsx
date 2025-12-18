@@ -107,11 +107,10 @@ const GPSDeviceManager = () => {
     try {
       const { data, error } = await supabase
         .from("rental_cars")
-        .select("id, name, make, model")
-        .eq("is_available", true);
+        .select("id, name, make, model");
 
       if (error) throw error;
-      setRentalCars(data || []);
+      setRentalCars((data as RentalCar[]) || []);
     } catch (error) {
       console.error("Error fetching rental cars:", error);
     }

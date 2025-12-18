@@ -50,7 +50,7 @@ interface Trip {
   end_time: string;
   start_location: any;
   end_location: any;
-  route_points: any[];
+  route_points: any;
   total_distance_km: number;
   max_speed: number;
   avg_speed: number;
@@ -99,7 +99,7 @@ const TripHistoryPanel = ({ mapboxToken }: TripHistoryPanelProps) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setTrips(data || []);
+      setTrips((data || []) as Trip[]);
     } catch (error) {
       console.error("Error fetching trips:", error);
     } finally {
