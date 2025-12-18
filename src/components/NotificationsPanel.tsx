@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Bell, Filter, CheckCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -6,12 +6,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { playNotificationSound } from "@/hooks/useNotificationSound";
 
 const NotificationsPanel = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [filter, setFilter] = useState<string>("all");
   const { user } = useAuth();
+  const prevUnreadCount = useRef(0);
 
   useEffect(() => {
     if (user) {
@@ -26,6 +28,8 @@ const NotificationsPanel = () => {
           table: 'notifications',
           filter: `user_id=eq.${user.id}`,
         }, () => {
+          // Play sound when new notification arrives
+          playNotificationSound();
           fetchNotifications();
         })
         .subscribe();
