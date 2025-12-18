@@ -16,10 +16,20 @@ interface Brand {
 }
 
 const PREDEFINED_BRANDS = [
+  // Car Brands
   "Toyota", "BMW", "Mercedes-Benz", "Mazda", "Nissan", "Volkswagen", "Volvo",
   "Ford", "Kia", "Hyundai", "Audi", "Honda", "Subaru", "Peugeot", "Renault",
   "Fiat", "Alfa Romeo", "Citroën", "Skoda", "Opel", "Mitsubishi", "Land Rover",
-  "Lexus", "Jaguar", "Porsche", "Tesla", "Suzuki", "Chevrolet", "Jeep", "Bentley"
+  "Lexus", "Jaguar", "Porsche", "Tesla", "Suzuki", "Chevrolet", "Jeep", "Bentley",
+  // Kenya Regulatory Authorities
+  "NTSA (National Transport and Safety Authority)",
+  "KEBS (Kenya Bureau of Standards)",
+  "KRA (Kenya Revenue Authority)",
+  "KRB (Kenya Roads Board)",
+  "KeNHA (Kenya National Highways Authority)",
+  "KURA (Kenya Urban Roads Authority)",
+  "Competition Authority of Kenya",
+  "County Business Permit Authority"
 ];
 
 const BrandManagement = () => {
