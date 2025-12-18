@@ -12,6 +12,7 @@ import GeofenceManager from "@/components/tracking/GeofenceManager";
 import TripHistoryPanel from "@/components/tracking/TripHistoryPanel";
 import TrackingAlertsPanel from "@/components/tracking/TrackingAlertsPanel";
 import GPSDeviceManager from "@/components/tracking/GPSDeviceManager";
+import TrackingDemoSimulator from "@/components/tracking/TrackingDemoSimulator";
 import { 
   ArrowLeft, 
   Plus, 
@@ -21,7 +22,8 @@ import {
   Route, 
   Bell, 
   Cpu,
-  Car
+  Car,
+  Zap
 } from "lucide-react";
 import {
   Table,
@@ -149,7 +151,7 @@ const RentalManagement = () => {
       </div>
 
       <Tabs defaultValue="bookings" className="space-y-6">
-        <TabsList className="grid grid-cols-2 md:grid-cols-6 gap-2 h-auto p-1">
+        <TabsList className="grid grid-cols-3 md:grid-cols-7 gap-2 h-auto p-1">
           <TabsTrigger value="bookings" className="gap-2">
             <Calendar className="h-4 w-4" />
             <span className="hidden sm:inline">Bookings</span>
@@ -164,7 +166,7 @@ const RentalManagement = () => {
           </TabsTrigger>
           <TabsTrigger value="trips" className="gap-2">
             <Route className="h-4 w-4" />
-            <span className="hidden sm:inline">Trip History</span>
+            <span className="hidden sm:inline">Trips</span>
           </TabsTrigger>
           <TabsTrigger value="alerts" className="gap-2">
             <Bell className="h-4 w-4" />
@@ -172,7 +174,11 @@ const RentalManagement = () => {
           </TabsTrigger>
           <TabsTrigger value="devices" className="gap-2">
             <Cpu className="h-4 w-4" />
-            <span className="hidden sm:inline">GPS Devices</span>
+            <span className="hidden sm:inline">Devices</span>
+          </TabsTrigger>
+          <TabsTrigger value="simulator" className="gap-2">
+            <Zap className="h-4 w-4" />
+            <span className="hidden sm:inline">Simulator</span>
           </TabsTrigger>
         </TabsList>
 
@@ -298,6 +304,44 @@ const RentalManagement = () => {
         {/* GPS Devices Tab */}
         <TabsContent value="devices">
           <GPSDeviceManager />
+        </TabsContent>
+
+        {/* Simulator Tab */}
+        <TabsContent value="simulator">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TrackingDemoSimulator />
+            <Card>
+              <CardHeader>
+                <CardTitle>GPS Webhook Endpoint</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Real GPS trackers can send data to this endpoint:
+                </p>
+                <div className="p-3 bg-muted rounded-lg font-mono text-sm break-all">
+                  POST https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/gps-webhook
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Example Payload:</p>
+                  <pre className="p-3 bg-muted rounded-lg text-xs overflow-auto">
+{`{
+  "device_id": "GPS-001",
+  "latitude": -1.2921,
+  "longitude": 36.8219,
+  "speed": 45.5,
+  "heading": 180,
+  "ignition": true,
+  "fuel_level": 75,
+  "battery_voltage": 12.6
+}`}
+                  </pre>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Supports: Teltonika, Queclink, Coban, and custom GPS formats
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
