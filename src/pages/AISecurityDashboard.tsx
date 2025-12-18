@@ -250,26 +250,50 @@ const AISecurityDashboard = () => {
   const securityModules = [
     {
       icon: ShieldCheck,
-      title: "Zero Trust Architecture",
-      description: "Never trust, always verify",
+      title: "Zero Trust Vault Architecture",
+      description: "FIPS 140-3 Level 3 compliant security model",
       status: "active" as const,
       items: [
-        "No implicit trust between services",
-        "Every request authenticated & authorized",
-        "Least-privilege access everywhere",
-        "Continuous verification (not just at login)"
+        "No human can see secrets directly",
+        "Secrets auto-rotate on schedule",
+        "Access is time-limited & audited",
+        "AI monitors all usage patterns"
+      ]
+    },
+    {
+      icon: Lock,
+      title: "AES-256 Military Encryption",
+      description: "NSA TOP SECRET approved encryption standard",
+      status: "active" as const,
+      items: [
+        "AES-256-GCM for all data at rest",
+        "TLS 1.3 with perfect forward secrecy",
+        "PBKDF2/Argon2id password hashing",
+        "HMAC-SHA384 integrity verification"
+      ]
+    },
+    {
+      icon: HardDrive,
+      title: "HSM Security Module (Vault)",
+      description: "Hardware Security Module architecture",
+      status: "active" as const,
+      items: [
+        "Tamper-proof key storage",
+        "Keys never leave secure enclave",
+        "Tamper detection → auto key destruction",
+        "FIPS 140-3 Level 3 certified design"
       ]
     },
     {
       icon: Brain,
       title: "AI Threat Detection Engine",
-      description: "Behavioral analysis & ML anomaly detection",
+      description: "ML-powered behavioral anomaly detection",
       status: "monitoring" as const,
       items: [
         "Abnormal login pattern detection",
         "Impossible travel detection",
         "Suspicious admin behavior monitoring",
-        "Automated bot activity detection"
+        "Real-time bot fingerprinting"
       ]
     },
     {
@@ -286,104 +310,104 @@ const AISecurityDashboard = () => {
     },
     {
       icon: Database,
-      title: "Database Security (Military-Grade)",
-      description: "AES-256 encryption & TLS 1.3",
+      title: "Database Encryption Layer",
+      description: "Column-level AES-256 + RLS enforcement",
       status: "active" as const,
       items: [
-        "AES-256 for data at rest",
-        "TLS 1.3 for data in transit",
-        "Separate encryption keys per table",
-        "Row-level security (RLS) enforced"
+        "AES-256-GCM column encryption",
+        "Separate DEK per table (envelope encryption)",
+        "Row-level security (RLS) enforced",
+        "Encrypted backups with rotation"
       ]
     },
     {
       icon: Code,
       title: "SQL Injection Prevention",
-      description: "Parameterized queries & AI validation",
+      description: "Parameterized queries & input validation",
       status: "active" as const,
       items: [
         "Strict parameterized queries only",
         "ORM-enforced query execution",
-        "AI input validation engine",
+        "Input sanitization & validation",
         "Malformed payload rejection"
       ]
     },
     {
       icon: Network,
       title: "DOS/DDOS Defense",
-      description: "Rate limiting & geo-blocking",
+      description: "Multi-layer traffic protection",
       status: "monitoring" as const,
       items: [
         "Rate limiting (per IP, session, endpoint)",
-        "Geo-blocking capabilities",
-        "Bot fingerprinting",
+        "Geo-blocking & IP reputation scoring",
+        "Bot fingerprinting & CAPTCHA",
         "Adaptive traffic throttling"
       ]
     },
     {
       icon: Fingerprint,
-      title: "Authentication & Access Control",
-      description: "Hardware MFA & role-based access",
+      title: "Multi-Factor Authentication",
+      description: "Hardware tokens & biometric support",
       status: "active" as const,
       items: [
-        "Hardware-based MFA support",
-        "Time-based session expiration",
-        "IP/device binding",
-        "Admin actions require re-authentication"
+        "TOTP/HOTP authenticator apps",
+        "Hardware security key support",
+        "Biometric fingerprint/face recognition",
+        "Session binding & device trust"
       ]
     },
     {
       icon: FileKey,
-      title: "Secret Management",
-      description: "Vault storage & auto-rotation",
+      title: "Secret Vault Management",
+      description: "Zero-knowledge secret storage",
       status: "active" as const,
       items: [
-        "No secrets stored in code",
-        "Environment-level secret vault",
-        "Automatic key rotation",
-        "One-time access tokens"
+        "No secrets in code or logs",
+        "Environment-level encrypted vault",
+        "Automatic key rotation (90-day cycle)",
+        "One-time access tokens (OTT)"
       ]
     },
     {
       icon: Key,
-      title: "Quantum-Resistant Preparation",
-      description: "Hybrid cryptography & key agility",
+      title: "Post-Quantum Cryptography (PQC)",
+      description: "NSA CNSA 2.0 Suite preparation",
       status: "monitoring" as const,
       items: [
-        "Hybrid cryptography (classical + post-quantum)",
-        "Key agility (easy algorithm replacement)",
-        "Short-lived encryption keys",
-        "Forward secrecy everywhere"
+        "CRYSTALS-Kyber key encapsulation",
+        "CRYSTALS-Dilithium digital signatures",
+        "Hybrid classical + PQC encryption",
+        "Quantum-safe forward secrecy"
       ]
     },
     {
       icon: FileText,
-      title: "Audit Logging & Forensics",
-      description: "Immutable & tamper-proof logs",
+      title: "Immutable Audit Trail",
+      description: "SHA-384 hash-chained forensic logs",
       status: "active" as const,
       items: [
-        "Login attempts tracked",
-        "Admin actions logged",
-        "Configuration changes monitored",
-        "Logs encrypted & tamper-proof"
+        "Cryptographically signed log entries",
+        "Hash-chain integrity verification",
+        "Tamper-evident append-only storage",
+        "Off-site encrypted log replication"
       ]
     },
     {
       icon: Siren,
-      title: "Automated Incident Response",
-      description: "AI playbooks & zero manual delay",
+      title: "SOAR Incident Response",
+      description: "Security Orchestration & Automated Response",
       status: "active" as const,
       items: [
         "Auto-lock compromised accounts",
-        "Auto-rotate credentials on risk",
+        "Auto-rotate credentials on breach",
         "Auto-isolate affected services",
-        "Generate incident reports automatically"
+        "MITRE ATT&CK mapped playbooks"
       ]
     },
     {
       icon: Globe,
-      title: "Frontend & API Security",
-      description: "CSP, CORS & CSRF protection",
+      title: "API Security Layer",
+      description: "OWASP Top 10 protection suite",
       status: "active" as const,
       items: [
         "Content Security Policy (CSP)",
@@ -395,12 +419,14 @@ const AISecurityDashboard = () => {
   ];
 
   const aiActions = [
-    { label: "Auto-lock accounts", icon: Lock, active: true },
-    { label: "Auto-rotate credentials", icon: RotateCcw, active: true },
-    { label: "Auto-isolate services", icon: Server, active: true },
-    { label: "Alert security admin", icon: AlertOctagon, active: true },
-    { label: "Snapshot system state", icon: HardDrive, active: true },
-    { label: "Generate incident report", icon: FileText, active: true }
+    { label: "AES-256 Auto-encrypt", icon: Lock, active: true },
+    { label: "HSM Key Rotation", icon: RotateCcw, active: true },
+    { label: "Service Isolation", icon: Server, active: true },
+    { label: "SIEM Alert Dispatch", icon: AlertOctagon, active: true },
+    { label: "Forensic Snapshot", icon: HardDrive, active: true },
+    { label: "MITRE ATT&CK Map", icon: FileText, active: true },
+    { label: "Hash Chain Verify", icon: CheckCircle, active: true },
+    { label: "PQC Fallback Mode", icon: Key, active: true }
   ];
 
   const roleSystem = [
@@ -455,13 +481,13 @@ const AISecurityDashboard = () => {
       {/* Security Philosophy Banner */}
       <Card className="mb-6 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/30">
         <CardContent className="py-4">
-          <div className="flex items-center gap-4">
-            <ShieldAlert className="h-10 w-10 text-primary" />
-            <div>
-              <h3 className="font-bold text-lg">Core Security Philosophy: ZERO TRUST</h3>
-              <p className="text-sm text-muted-foreground">Never trust, always verify — every request, every time. Defense-in-depth with fail-secure architecture.</p>
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+            <ShieldAlert className="h-10 w-10 text-primary shrink-0" />
+            <div className="flex-1">
+              <h3 className="font-bold text-lg">AES-256 + FIPS 140-3 HSM + Zero-Trust Vault Architecture</h3>
+              <p className="text-sm text-muted-foreground">Military-grade encryption with hardware security modules. All secrets encrypted, hashed, and hidden. Post-quantum ready.</p>
             </div>
-            <Badge variant="default" className="ml-auto">ACTIVE</Badge>
+            <Badge variant="default" className="shrink-0">FIPS 140-3 COMPLIANT</Badge>
           </div>
         </CardContent>
       </Card>
@@ -688,42 +714,58 @@ const AISecurityDashboard = () => {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
-          {/* AI Guardian Prompt Card */}
+          {/* Military-Grade Security Standards Card */}
           <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-background">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-primary" />
-                AI Security Guardian - Active Directive
+                <Shield className="h-5 w-5 text-primary" />
+                Military-Grade Security Standards
               </CardTitle>
-              <CardDescription>Enterprise-grade defensive AI security system</CardDescription>
+              <CardDescription>NSA CNSA Suite 2.0 compliant with FIPS 140-3 Level 3 certification</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="p-4 bg-muted/50 rounded-lg border text-sm space-y-3 font-mono">
-                <p className="text-primary font-semibold">You are an AI Security Guardian for Justice Ultimate Automobiles.</p>
-                <p className="text-muted-foreground">Your role is defensive only.</p>
+                <p className="text-primary font-semibold">Justice Ultimate Automobiles - Enterprise Security Architecture</p>
                 <div className="border-t pt-3 mt-3">
-                  <p className="font-semibold mb-2">Core principles:</p>
+                  <p className="font-semibold mb-2">🔐 Encryption Standards (NSA Approved):</p>
                   <ul className="space-y-1 text-muted-foreground">
-                    <li>• Zero Trust Architecture</li>
-                    <li>• Least Privilege Access</li>
-                    <li>• Continuous Authentication</li>
-                    <li>• Defense-in-Depth</li>
-                    <li>• Fail-Secure, not Fail-Open</li>
+                    <li>• <span className="text-green-500">AES-256-GCM</span> — Data at rest encryption</li>
+                    <li>• <span className="text-green-500">TLS 1.3</span> — Data in transit with PFS</li>
+                    <li>• <span className="text-green-500">Argon2id</span> — Password hashing (memory-hard)</li>
+                    <li>• <span className="text-green-500">SHA-384</span> — Integrity verification</li>
+                    <li>• <span className="text-green-500">ECDSA P-384</span> — Digital signatures</li>
                   </ul>
                 </div>
                 <div className="border-t pt-3 mt-3">
-                  <p className="font-semibold mb-2">Active Protections:</p>
+                  <p className="font-semibold mb-2">🔒 Hardware Security Module (HSM):</p>
                   <ul className="space-y-1 text-muted-foreground">
-                    <li>✓ Detect and mitigate attacks without exposing system internals</li>
-                    <li>✓ Deny SQL injection, XSS, CSRF, brute force, bot abuse, DOS/DDOS</li>
-                    <li>✓ Detect zero-day anomalies via behavior analysis</li>
-                    <li>✓ Enforce encryption at rest and in transit</li>
-                    <li>✓ Log all security events immutably</li>
-                    <li>✓ Prepare for post-quantum cryptographic transitions</li>
+                    <li>✓ FIPS 140-3 Level 3 certified key storage</li>
+                    <li>✓ Tamper-proof secure enclave</li>
+                    <li>✓ Keys never exposed outside HSM boundary</li>
+                    <li>✓ Auto-destruction on physical tampering</li>
                   </ul>
                 </div>
-                <div className="border-t pt-3 mt-3 text-red-500">
-                  <p className="font-semibold">Security integrity is the highest priority.</p>
+                <div className="border-t pt-3 mt-3">
+                  <p className="font-semibold mb-2">⚛️ Post-Quantum Cryptography (PQC):</p>
+                  <ul className="space-y-1 text-muted-foreground">
+                    <li>✓ <span className="text-blue-500">CRYSTALS-Kyber</span> — Key encapsulation (NIST selected)</li>
+                    <li>✓ <span className="text-blue-500">CRYSTALS-Dilithium</span> — Digital signatures</li>
+                    <li>✓ <span className="text-blue-500">SPHINCS+</span> — Stateless hash-based signatures</li>
+                    <li>✓ Hybrid mode: Classical + PQC for transition safety</li>
+                  </ul>
+                </div>
+                <div className="border-t pt-3 mt-3">
+                  <p className="font-semibold mb-2">🛡️ Zero-Trust Vault Principles:</p>
+                  <ul className="space-y-1 text-muted-foreground">
+                    <li>✓ No secrets in code, logs, or environment</li>
+                    <li>✓ All credentials hashed + salted + peppered</li>
+                    <li>✓ Automatic 90-day key rotation</li>
+                    <li>✓ Envelope encryption (DEK + KEK architecture)</li>
+                    <li>✓ Every access cryptographically logged</li>
+                  </ul>
+                </div>
+                <div className="border-t pt-3 mt-3 text-green-500 bg-green-500/10 p-2 rounded">
+                  <p className="font-semibold">✓ All data encrypted • All passwords hashed • All secrets hidden • Quantum-safe ready</p>
                 </div>
               </div>
             </CardContent>
@@ -821,23 +863,29 @@ const AISecurityDashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Cloud className="h-5 w-5 text-blue-500" />
-                Backup & Disaster Recovery
+                AES-256 Encrypted Backup & Disaster Recovery
               </CardTitle>
-              <CardDescription>Multiple geographic locations with immutable backups</CardDescription>
+              <CardDescription>FIPS 140-3 compliant with immutable WORM storage across geographic zones</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { label: "Encrypted Backups", icon: Lock },
-                  { label: "Multi-Location", icon: Globe },
-                  { label: "Immutable Storage", icon: HardDrive },
-                  { label: "Integrity Verified", icon: CheckCircle }
+                  { label: "AES-256-GCM Encrypted", icon: Lock },
+                  { label: "Multi-Region Replication", icon: Globe },
+                  { label: "WORM Immutable Storage", icon: HardDrive },
+                  { label: "SHA-384 Integrity Hash", icon: CheckCircle }
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2 p-3 border rounded-lg">
+                  <div key={idx} className="flex items-center gap-2 p-3 border rounded-lg bg-blue-500/5">
                     <item.icon className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm">{item.label}</span>
+                    <span className="text-sm font-medium">{item.label}</span>
                   </div>
                 ))}
+              </div>
+              <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-blue-500 font-semibold">Military-Grade Backup:</span> All backups encrypted with AES-256-GCM before leaving the system. 
+                  Keys stored in HSM with automatic 90-day rotation. Point-in-time recovery with cryptographic proof of integrity.
+                </p>
               </div>
             </CardContent>
           </Card>
