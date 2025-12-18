@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound } from "lucide-react";
+import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound, Database, Users, HardDrive, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw, Play, Shield, Calendar, Settings } from "lucide-react";
 import { PasswordChangeDialog } from "@/components/PasswordChangeDialog";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +22,47 @@ import { TOTPSetup } from "@/components/TOTPSetup";
 import { FingerprintSetup } from "@/components/FingerprintSetup";
 import { TrustedDevices } from "@/components/TrustedDevices";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { format } from "date-fns";
+import { toast as sonnerToast } from "sonner";
+
+interface BackupSettings {
+  id: string;
+  auto_backup_enabled: boolean;
+  backup_frequency: string;
+  backup_time: string;
+  retention_days: number;
+  backup_database: boolean;
+  backup_auth_users: boolean;
+  backup_storage: boolean;
+  last_backup_at: string | null;
+}
+
+interface BackupStats {
+  total_tables: number;
+  total_rows: number;
+  total_users: number;
+  total_files: number;
+  database_size_mb: number;
+  storage_size_mb: number;
+  last_successful_backup: string | null;
+  backup_health: string;
+}
+
+interface BackupHistory {
+  id: string;
+  backup_type: string;
+  status: string;
+  started_at: string;
+  completed_at: string | null;
+  duration_seconds: number | null;
+  tables_backed_up: number;
+  rows_backed_up: number;
+  users_backed_up: number;
+  error_message: string | null;
+}
 
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
@@ -58,6 +99,11 @@ const AdminSettings = () => {
     message: "System under maintenance. Please check back later."
   });
   const [maintenanceId, setMaintenanceId] = useState<string | null>(null);
+  // Backup states
+  const [backupInProgress, setBackupInProgress] = useState(false);
+  const [backupSettings, setBackupSettings] = useState<BackupSettings | null>(null);
+  const [backupStats, setBackupStats] = useState<BackupStats | null>(null);
+  const [backupHistory, setBackupHistory] = useState<BackupHistory[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -76,6 +122,7 @@ const AdminSettings = () => {
     fetchProfile();
     fetchCompanySettings();
     fetchMaintenanceStatus();
+    fetchBackupData();
   }, []);
   
   const loadFingerprintDevices = async () => {
@@ -326,6 +373,94 @@ const AdminSettings = () => {
     }
   };
 
+  // Backup functions
+  const fetchBackupData = async () => {
+    try {
+      const { data: settingsData } = await supabase
+        .from('backup_settings')
+        .select('*')
+        .single();
+
+      const { data: statsData } = await supabase
+        .from('backup_stats')
+        .select('*')
+        .single();
+
+      const { data: historyData } = await supabase
+        .from('backup_history')
+        .select('*')
+        .order('started_at', { ascending: false })
+        .limit(10);
+
+      if (settingsData) setBackupSettings(settingsData);
+      if (statsData) setBackupStats(statsData);
+      if (historyData) setBackupHistory(historyData);
+    } catch (error) {
+      console.error('Error fetching backup data:', error);
+    }
+  };
+
+  const updateBackupSettings = async (updates: Partial<BackupSettings>) => {
+    if (!backupSettings) return;
+    try {
+      const { error } = await supabase
+        .from('backup_settings')
+        .update(updates)
+        .eq('id', backupSettings.id);
+
+      if (error) throw error;
+      setBackupSettings({ ...backupSettings, ...updates });
+      sonnerToast.success('Backup settings updated');
+    } catch (error) {
+      console.error('Error updating backup settings:', error);
+      sonnerToast.error('Failed to update settings');
+    }
+  };
+
+  const runBackup = async () => {
+    setBackupInProgress(true);
+    sonnerToast.info('Starting backup... This may take a few minutes.');
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase.functions.invoke('run-backup', {
+        body: { backup_type: 'manual', triggered_by: user?.id }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        sonnerToast.success(`Backup completed! ${data.stats.tables_backed_up} tables, ${data.stats.rows_backed_up} rows backed up.`);
+        fetchBackupData();
+      } else {
+        throw new Error(data?.error || 'Backup failed');
+      }
+    } catch (error) {
+      console.error('Backup failed:', error);
+      sonnerToast.error('Backup failed. Check the logs for details.');
+    } finally {
+      setBackupInProgress(false);
+    }
+  };
+
+  const getBackupStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'in_progress': return <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />;
+      default: return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+    }
+  };
+
+  const getBackupHealthColor = (health: string) => {
+    switch (health) {
+      case 'healthy': return 'bg-green-500';
+      case 'warning': return 'bg-yellow-500';
+      case 'failed': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
   if (loading) return <LoadingScreen />;
 
   return (
@@ -431,6 +566,16 @@ const AdminSettings = () => {
                     Maintenance
                   </Button>
                   <Button
+                    variant={activeTab === "backup" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => {
+                      setActiveTab("backup");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Backup
+                  </Button>
+                  <Button
                     variant={activeTab === "danger" ? "default" : "ghost"}
                     className="justify-start"
                     onClick={() => {
@@ -448,7 +593,7 @@ const AdminSettings = () => {
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Desktop Tabs - Hidden on Mobile */}
-            <TabsList className="hidden md:grid w-full grid-cols-8 overflow-x-auto">
+            <TabsList className="hidden md:grid w-full grid-cols-9 overflow-x-auto">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
               <TabsTrigger value="preferences">Preferences</TabsTrigger>
@@ -456,6 +601,7 @@ const AdminSettings = () => {
               <TabsTrigger value="privacy">Privacy</TabsTrigger>
               <TabsTrigger value="company">Company</TabsTrigger>
               <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+              <TabsTrigger value="backup">Backup</TabsTrigger>
               <TabsTrigger value="danger">Danger Zone</TabsTrigger>
             </TabsList>
 
@@ -998,6 +1144,258 @@ const AdminSettings = () => {
                     <li>Maintenance mode will automatically end after the selected duration</li>
                   </ul>
                 </div>
+              </div>
+            </TabsContent>
+
+            {/* Backup Tab */}
+            <TabsContent value="backup" className="space-y-6 pt-6">
+              <div className="space-y-6">
+                {/* Backup Header */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Database className="h-5 w-5" />
+                      Backup & Recovery
+                    </h3>
+                    <p className="text-sm text-muted-foreground">Enterprise-grade backup management</p>
+                  </div>
+                  <Button 
+                    onClick={runBackup} 
+                    disabled={backupInProgress}
+                    className="gap-2"
+                  >
+                    {backupInProgress ? (
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Play className="h-4 w-4" />
+                    )}
+                    {backupInProgress ? 'Backing Up...' : 'Run Backup Now'}
+                  </Button>
+                </div>
+
+                {/* Status Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">Backup Status</CardTitle>
+                      <Shield className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-2">
+                        <div className={`h-3 w-3 rounded-full ${getBackupHealthColor(backupStats?.backup_health || 'unknown')}`} />
+                        <span className="text-xl font-bold capitalize">{backupStats?.backup_health || 'Unknown'}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {backupSettings?.auto_backup_enabled ? 'Auto-backup enabled' : 'Auto-backup disabled'}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">Last Backup</CardTitle>
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-xl font-bold">
+                        {backupStats?.last_successful_backup 
+                          ? format(new Date(backupStats.last_successful_backup), 'MMM d, HH:mm')
+                          : 'Never'}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {backupStats?.last_successful_backup 
+                          ? format(new Date(backupStats.last_successful_backup), 'yyyy')
+                          : 'No backups yet'}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">Database</CardTitle>
+                      <Database className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-xl font-bold">{backupStats?.total_rows?.toLocaleString() || 0}</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {backupStats?.total_tables || 0} tables backed up
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">Auth Users</CardTitle>
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-xl font-bold">{backupStats?.total_users?.toLocaleString() || 0}</div>
+                      <p className="text-xs text-muted-foreground mt-1">Users backed up</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Backup Settings */}
+                  <Card className="lg:col-span-1">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Settings className="h-4 w-4" />
+                        Backup Settings
+                      </CardTitle>
+                      <CardDescription>Configure automatic backups</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-sm">Automatic Backup</p>
+                          <p className="text-xs text-muted-foreground">Enable scheduled backups</p>
+                        </div>
+                        <Switch
+                          checked={backupSettings?.auto_backup_enabled || false}
+                          onCheckedChange={(checked) => updateBackupSettings({ auto_backup_enabled: checked })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Backup Frequency</label>
+                        <Select
+                          value={backupSettings?.backup_frequency || 'daily'}
+                          onValueChange={(value) => updateBackupSettings({ backup_frequency: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="hourly">Hourly</SelectItem>
+                            <SelectItem value="daily">Daily</SelectItem>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Retention Period</label>
+                        <Select
+                          value={String(backupSettings?.retention_days || 30)}
+                          onValueChange={(value) => updateBackupSettings({ retention_days: parseInt(value) })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="7">7 days</SelectItem>
+                            <SelectItem value="14">14 days</SelectItem>
+                            <SelectItem value="30">30 days</SelectItem>
+                            <SelectItem value="60">60 days</SelectItem>
+                            <SelectItem value="90">90 days</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-3 pt-4 border-t">
+                        <p className="text-sm font-medium">What to Backup</p>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Database Tables</span>
+                          <Switch
+                            checked={backupSettings?.backup_database ?? true}
+                            onCheckedChange={(checked) => updateBackupSettings({ backup_database: checked })}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Auth Users</span>
+                          <Switch
+                            checked={backupSettings?.backup_auth_users ?? true}
+                            onCheckedChange={(checked) => updateBackupSettings({ backup_auth_users: checked })}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Storage Files</span>
+                          <Switch
+                            checked={backupSettings?.backup_storage || false}
+                            onCheckedChange={(checked) => updateBackupSettings({ backup_storage: checked })}
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Backup History */}
+                  <Card className="lg:col-span-2">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Calendar className="h-4 w-4" />
+                        Backup History
+                      </CardTitle>
+                      <CardDescription>Recent backup operations</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Records</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {backupHistory.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                                No backup history yet. Run your first backup!
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            backupHistory.map((item) => (
+                              <TableRow key={item.id}>
+                                <TableCell className="text-sm">
+                                  {format(new Date(item.started_at), 'MMM d, HH:mm')}
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className="capitalize text-xs">
+                                    {item.backup_type}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    {getBackupStatusIcon(item.status)}
+                                    <span className="capitalize text-sm">{item.status}</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                  {item.rows_backed_up?.toLocaleString() || 0} rows
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Progress Indicator when backup is running */}
+                {backupInProgress && (
+                  <Card className="border-primary">
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Backup in progress...</span>
+                          <RefreshCw className="h-4 w-4 animate-spin text-primary" />
+                        </div>
+                        <Progress value={undefined} className="h-2" />
+                        <p className="text-xs text-muted-foreground">
+                          Please wait while we back up your data.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </TabsContent>
           </Tabs>
