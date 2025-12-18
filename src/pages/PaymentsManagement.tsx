@@ -980,14 +980,14 @@ const PaymentsManagement = () => {
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
                     <CreditCard className="w-8 h-8 text-primary" />
                   </div>
-                  <div className="p-6 rounded-2xl bg-card border shadow-lg">
+                  <div className="p-6 rounded-2xl bg-card border shadow-lg w-full max-w-2xl">
                     <iframe 
-                      width="280" 
-                      height="60" 
+                      width="100%" 
+                      height="500" 
                       src="https://store.pesapal.com/embed-code?pageUrl=https://store.pesapal.com/justiceultimateautomobile" 
                       frameBorder="0" 
                       allowFullScreen
-                      className="rounded-lg"
+                      className="rounded-lg min-h-[500px]"
                       title="Pesapal Payment"
                     />
                   </div>
