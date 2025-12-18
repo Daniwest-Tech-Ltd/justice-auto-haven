@@ -17,6 +17,9 @@ interface ReceiptRequest {
   notes?: string;
 }
 
+// Kenya Coat of Arms URL
+const kenyaCoatOfArmsUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Coat_of_arms_of_Kenya_%28Official%29.svg/200px-Coat_of_arms_of_Kenya_%28Official%29.svg.png";
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -57,7 +60,7 @@ serve(async (req: Request) => {
         currency: 'KES',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      }).format(amount).replace('KES', 'KES ');
+      }).format(amount).replace('KES', 'Ksh ');
     };
 
     // Get invoice details if provided
@@ -71,7 +74,7 @@ serve(async (req: Request) => {
       if (invoice) invoiceNo = invoice.invoice_no;
     }
 
-    // Generate HTML receipt
+    // Generate HTML receipt with blue theme
     const receiptHtml = `
 <!DOCTYPE html>
 <html>
@@ -80,10 +83,13 @@ serve(async (req: Request) => {
   <title>Receipt ${receiptNo}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
-      padding: 40px;
+      padding: 30px;
       background: #ffffff;
       color: #1f2937;
     }
@@ -91,105 +97,158 @@ serve(async (req: Request) => {
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) rotate(-45deg);
-      font-size: 60px;
+      transform: translate(-50%, -50%) rotate(-30deg);
+      font-size: 50px;
       font-weight: 700;
-      color: rgba(34, 197, 94, 0.05);
+      color: rgba(30, 64, 175, 0.06);
       white-space: nowrap;
       pointer-events: none;
+      text-align: center;
+      line-height: 1.2;
     }
     .container {
       max-width: 500px;
       margin: 0 auto;
       background: white;
-      border: 2px solid #22c55e;
+      border: 3px solid #1e40af;
       border-radius: 12px;
       overflow: hidden;
+      position: relative;
+      z-index: 1;
     }
     .header {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
+      background: linear-gradient(135deg, #1e40af, #1e3a8a);
       color: white;
-      padding: 30px;
+      padding: 25px;
       text-align: center;
+      position: relative;
+    }
+    .header-logos {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .logo {
+      width: 50px;
+      height: 50px;
+      background: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1e40af;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .kenya-logo {
+      width: 50px;
+      height: auto;
+      background: white;
+      border-radius: 8px;
+      padding: 4px;
     }
     .header h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 22px;
+      letter-spacing: 1px;
     }
     .header .company {
-      font-size: 14px;
+      font-size: 13px;
       margin-top: 5px;
       opacity: 0.9;
     }
     .paid-badge {
       background: white;
-      color: #22c55e;
+      color: #1e40af;
       padding: 8px 20px;
       border-radius: 20px;
       display: inline-block;
       margin-top: 15px;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13px;
     }
     .content {
-      padding: 30px;
+      padding: 25px;
     }
     .receipt-info {
-      background: #f0fdf4;
-      padding: 20px;
+      background: #f0f4ff;
+      padding: 18px;
       border-radius: 8px;
       margin-bottom: 20px;
+      border-left: 4px solid #1e40af;
     }
     .receipt-info p {
       margin: 8px 0;
       display: flex;
       justify-content: space-between;
+      font-size: 13px;
+      color: #374151;
     }
     .receipt-info strong {
-      color: #166534;
+      color: #1e40af;
+      font-weight: 600;
     }
     .amount-box {
-      background: #22c55e;
+      background: linear-gradient(135deg, #1e40af, #1e3a8a);
       color: white;
-      padding: 25px;
+      padding: 22px;
       border-radius: 8px;
       text-align: center;
       margin-bottom: 20px;
     }
     .amount-box .label {
-      font-size: 14px;
+      font-size: 13px;
       opacity: 0.9;
     }
     .amount-box .amount {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
       margin-top: 5px;
     }
     .details {
-      border-top: 1px dashed #e5e7eb;
-      padding-top: 20px;
+      border-top: 2px dashed #e5e7eb;
+      padding-top: 18px;
     }
     .details p {
       margin: 10px 0;
-      font-size: 14px;
+      font-size: 13px;
+      color: #374151;
+    }
+    .details strong {
+      color: #1f2937;
     }
     .footer {
-      background: #f9fafb;
-      padding: 20px;
+      background: #f8fafc;
+      padding: 18px;
       text-align: center;
-      font-size: 12px;
+      font-size: 11px;
       color: #6b7280;
+      border-top: 1px solid #e5e7eb;
     }
     .footer strong {
-      color: #374151;
+      color: #1e40af;
+      font-size: 13px;
+    }
+    .footer-contacts {
+      margin-top: 8px;
+    }
+    .dev-credit {
+      margin-top: 12px;
+      font-size: 10px;
+      color: #9ca3af;
     }
   </style>
 </head>
 <body>
-  <div class="watermark">PAID</div>
+  <div class="watermark">JUSTICE ULTIMATE<br/>AUTOMOBILES</div>
   
   <div class="container">
     <div class="header">
+      <div class="header-logos">
+        <div class="logo">JUA</div>
+        <img src="${kenyaCoatOfArmsUrl}" alt="Kenya" class="kenya-logo" />
+      </div>
       <h1>🧾 PAYMENT RECEIPT</h1>
       <div class="company">Justice Ultimate Automobiles</div>
       <div class="paid-badge">✓ PAYMENT CONFIRMED</div>
@@ -218,9 +277,11 @@ serve(async (req: Request) => {
 
     <div class="footer">
       <p><strong>Thank you for your payment!</strong></p>
-      <p>📞 0722 827 458 | 📧 info@justiceultimateautomobiles.com</p>
-      <p>www.justiceultimateautomobiles.com</p>
-      <p style="margin-top: 10px; font-size: 10px;">Developed by Daniwest Tech Sol</p>
+      <div class="footer-contacts">
+        <p>📞 0722 827 458 | 📧 info@justiceultimateautomobiles.com</p>
+        <p>🌐 www.justiceultimateautomobiles.com</p>
+      </div>
+      <p class="dev-credit">Developed by Daniwest Tech Sol</p>
     </div>
   </div>
 </body>
