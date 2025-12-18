@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Phone, MessageSquare, Mail, Send, CheckCircle, XCircle, Download, Edit, Trash2, Volume2, VolumeX, Filter, Search, Upload, FileDown, BarChart3 } from "lucide-react";
+import { ArrowLeft, Phone, MessageSquare, Mail, Send, CheckCircle, XCircle, Download, Edit, Trash2, Volume2, VolumeX, Filter, Search, Upload, FileDown, BarChart3, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { usePagination } from "@/hooks/usePagination";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -22,6 +22,7 @@ import { EmailTemplates } from "@/components/EmailTemplates";
 import { OrderAnalytics } from "@/components/OrderAnalytics";
 import { AutomatedFollowUp } from "@/components/AutomatedFollowUp";
 import * as XLSX from "xlsx";
+import { PesapalPaymentModal } from "@/components/PesapalPaymentModal";
 
 interface Order {
   id: string;
@@ -55,7 +56,9 @@ const Orders = () => {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"orders" | "analytics" | "templates" | "followup">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "analytics" | "templates" | "followup" | "payments">("orders");
+  const [showPesapalModal, setShowPesapalModal] = useState(false);
+  const [selectedOrderForPayment, setSelectedOrderForPayment] = useState<Order | null>(null);
 
   const filteredOrders = orders.filter(o => {
     const matchesStatus = statusFilter === "all" || o.status === statusFilter;
@@ -573,11 +576,73 @@ const Orders = () => {
           >
             Follow-up
           </Button>
+          <Button
+            variant={activeTab === "payments" ? "default" : "ghost"}
+            onClick={() => setActiveTab("payments")}
+            className="gap-2"
+          >
+            <CreditCard className="w-4 h-4" />
+            Payments
+          </Button>
         </div>
 
         {activeTab === "analytics" && <OrderAnalytics />}
         {activeTab === "templates" && <EmailTemplates />}
         {activeTab === "followup" && <AutomatedFollowUp />}
+        
+        {activeTab === "payments" && (
+          <Card className="glass-strong">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="w-5 h-5" />
+                Pesapal Payment Gateway
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="bg-gradient-to-br from-primary/10 via-background to-primary/5 rounded-xl p-6 border border-primary/20">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Quick POS Payment</h3>
+                    <p className="text-sm text-muted-foreground">Accept payments from walk-in customers</p>
+                  </div>
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">IPN Active</Badge>
+                </div>
+                
+                <div className="aspect-video max-w-2xl mx-auto bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border/50">
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src="https://store.pesapal.com/embed-code?pageUrl=https://store.pesapal.com/justiceultimateautomobile" 
+                    frameBorder="0" 
+                    allowFullScreen
+                    className="rounded-lg"
+                  />
+                </div>
+                
+                <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                  <p className="text-xs text-muted-foreground">
+                    <strong>IPN ID:</strong> d6b89291-8549-42fd-9974-daf5e5535ef6
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="p-4 bg-blue-500/10 border-blue-500/20">
+                  <h4 className="font-medium text-blue-400">M-Pesa</h4>
+                  <p className="text-sm text-muted-foreground">Mobile money payments</p>
+                </Card>
+                <Card className="p-4 bg-purple-500/10 border-purple-500/20">
+                  <h4 className="font-medium text-purple-400">Card Payments</h4>
+                  <p className="text-sm text-muted-foreground">Visa, Mastercard supported</p>
+                </Card>
+                <Card className="p-4 bg-green-500/10 border-green-500/20">
+                  <h4 className="font-medium text-green-400">Bank Transfer</h4>
+                  <p className="text-sm text-muted-foreground">Direct bank payments</p>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {activeTab === "orders" && (
           <>
