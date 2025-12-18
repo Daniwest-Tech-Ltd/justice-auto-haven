@@ -3495,6 +3495,11 @@ export type Database = {
         }
         Returns: string
       }
+      run_daily_backup: { Args: never; Returns: undefined }
+      run_hourly_backup: { Args: never; Returns: undefined }
+      run_monthly_backup: { Args: never; Returns: undefined }
+      run_weekly_backup: { Args: never; Returns: undefined }
+      trigger_scheduled_backup: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "customer"
