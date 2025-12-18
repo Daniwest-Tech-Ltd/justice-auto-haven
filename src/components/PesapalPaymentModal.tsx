@@ -85,14 +85,14 @@ export const PesapalPaymentModal = ({
                 </div>
                 
                 {/* Pesapal Button Iframe */}
-                <div className="p-4 rounded-xl bg-background/80 border border-border shadow-lg">
+                <div className="p-6 rounded-xl bg-background/80 border border-border shadow-lg w-full max-w-md">
                   <iframe 
-                    width="280" 
-                    height="60" 
+                    width="100%" 
+                    height="400" 
                     src="https://store.pesapal.com/embed-code?pageUrl=https://store.pesapal.com/justiceultimateautomobile" 
                     frameBorder="0" 
                     allowFullScreen
-                    className="rounded-lg"
+                    className="rounded-lg w-full"
                     title="Pesapal Payment"
                   />
                 </div>
