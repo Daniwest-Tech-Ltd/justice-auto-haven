@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -38,7 +39,9 @@ import {
   WifiOff,
   Battery,
   Signal,
-  RefreshCw
+  RefreshCw,
+  BookOpen,
+  CheckCircle2
 } from "lucide-react";
 
 interface GPSDevice {
@@ -262,6 +265,11 @@ const GPSDeviceManager = () => {
                 <DialogTitle>
                   {editingDevice ? "Edit Device" : "Register GPS Device"}
                 </DialogTitle>
+                <DialogDescription>
+                  {editingDevice 
+                    ? "Update the GPS device information and vehicle assignment."
+                    : "Register a new GPS tracking device and assign it to a rental vehicle."}
+                </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4">
@@ -305,14 +313,14 @@ const GPSDeviceManager = () => {
                 <div>
                   <Label>Assign to Vehicle</Label>
                   <Select
-                    value={formData.rental_car_id}
-                    onValueChange={(value) => setFormData({ ...formData, rental_car_id: value })}
+                    value={formData.rental_car_id || "unassigned"}
+                    onValueChange={(value) => setFormData({ ...formData, rental_car_id: value === "unassigned" ? "" : value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select vehicle..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Unassigned</SelectItem>
+                      <SelectItem value="unassigned">— Unassigned —</SelectItem>
                       {rentalCars.map((car) => (
                         <SelectItem key={car.id} value={car.id}>
                           {car.name || `${car.make} ${car.model}`}
@@ -526,6 +534,78 @@ const GPSDeviceManager = () => {
               )}
             </TableBody>
           </Table>
+        </CardContent>
+      </Card>
+
+      {/* Setup Guide */}
+      <Card className="border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <BookOpen className="h-5 w-5 text-primary" />
+            How to Set Up GPS Tracking for a Real Car
+          </CardTitle>
+          <CardDescription>
+            Follow these steps to track your rental vehicles in real-time
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 border rounded-lg space-y-2 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">1</div>
+                <h4 className="font-semibold">Purchase GPS Device</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Buy a compatible GPS tracker: Teltonika FMB920, Coban TK103B, Queclink GV300, or similar devices available in Kenya.
+              </p>
+            </div>
+            
+            <div className="p-4 border rounded-lg space-y-2 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">2</div>
+                <h4 className="font-semibold">Install in Vehicle</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Connect the GPS device to the car's OBD-II port or hardwire it to the 12V power supply. Hide it securely under the dashboard.
+              </p>
+            </div>
+            
+            <div className="p-4 border rounded-lg space-y-2 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">3</div>
+                <h4 className="font-semibold">Configure Device</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Set the device to send data via HTTP POST to:
+              </p>
+              <code className="text-xs bg-background p-1 rounded block mt-1 break-all">
+                https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/gps-webhook
+              </code>
+            </div>
+            
+            <div className="p-4 border rounded-lg space-y-2 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">4</div>
+                <h4 className="font-semibold">Register Here</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Click "Add Device" above. Enter the Device ID (printed on your GPS unit), assign it to a rental car, and activate tracking.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+              <div>
+                <h5 className="font-semibold text-green-700 dark:text-green-400">Once Set Up:</h5>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Your vehicle will appear on the <strong>Live Map</strong> tab with real-time location, speed, heading, fuel level, and battery status. 
+                  The system automatically detects <strong>geofence violations</strong>, <strong>speed alerts</strong>, and records complete <strong>trip history</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
