@@ -4227,6 +4227,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       is_verified_buyer: {
         Args: { p_car_id: string; p_user_id: string }
         Returns: boolean
@@ -4248,7 +4249,7 @@ export type Database = {
       trigger_scheduled_backup: { Args: never; Returns: undefined }
     }
     Enums: {
-      app_role: "admin" | "customer"
+      app_role: "admin" | "customer" | "super_admin" | "staff"
       staff_role:
         | "operations_manager"
         | "sales_manager"
@@ -4394,7 +4395,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "customer"],
+      app_role: ["admin", "customer", "super_admin", "staff"],
       staff_role: [
         "operations_manager",
         "sales_manager",

@@ -130,20 +130,24 @@ const RBACManagement = () => {
   };
 
   const fetchAdminUsers = async () => {
-    // Get all admin users with their permissions
+    // Get all users with admin, super_admin, or staff roles
+    const { data: userRoles, error: rolesError } = await supabase
+      .from("user_roles")
+      .select("user_id, role")
+      .in("role", ["admin", "super_admin", "staff"]);
+
+    if (rolesError || !userRoles) return;
+
+    const userIds = userRoles.map(r => r.user_id);
+    
     const { data: admins, error } = await supabase
       .from("profiles")
-      .select(`
-        user_id,
-        full_name,
-        email
-      `)
-      .in("user_id", 
-        (await supabase.from("user_roles").select("user_id").eq("role", "admin")).data?.map(r => r.user_id) || []
-      );
+      .select(`user_id, full_name, email`)
+      .in("user_id", userIds);
 
     if (!error && admins) {
       const adminsWithPerms = await Promise.all(admins.map(async (admin) => {
+        const userRole = userRoles.find(r => r.user_id === admin.user_id);
         const { data: perms } = await supabase
           .rpc('get_user_permissions', { _user_id: admin.user_id });
         
@@ -151,11 +155,17 @@ const RBACManagement = () => {
         
         return {
           ...admin,
-          role: 'admin',
+          role: userRole?.role || 'admin',
           permissions: permNames,
-          isSuperAdmin: permNames.includes('super_admin')
+          isSuperAdmin: userRole?.role === 'super_admin'
         };
       }));
+      
+      // Sort: super_admin first, then admin, then staff
+      adminsWithPerms.sort((a, b) => {
+        const order = { super_admin: 0, admin: 1, staff: 2 };
+        return (order[a.role as keyof typeof order] || 3) - (order[b.role as keyof typeof order] || 3);
+      });
       
       setAdminUsers(adminsWithPerms);
     }
@@ -329,7 +339,7 @@ const RBACManagement = () => {
 
       <main className="p-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -344,20 +354,6 @@ const RBACManagement = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-500/20">
-                  <Users className="h-5 w-5 text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Admin Users</p>
-                  <p className="text-2xl font-bold">{adminUsers.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/20">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -366,7 +362,35 @@ const RBACManagement = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Super Admins</p>
-                  <p className="text-2xl font-bold">{adminUsers.filter(a => a.isSuperAdmin).length}</p>
+                  <p className="text-2xl font-bold">{adminUsers.filter(a => a.role === 'super_admin').length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-500/20">
+                  <Shield className="h-5 w-5 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Admins</p>
+                  <p className="text-2xl font-bold">{adminUsers.filter(a => a.role === 'admin').length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-500/10 to-pink-600/5 border-purple-500/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-500/20">
+                  <UserCog className="h-5 w-5 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Staff</p>
+                  <p className="text-2xl font-bold">{adminUsers.filter(a => a.role === 'staff').length}</p>
                 </div>
               </div>
             </CardContent>
@@ -411,7 +435,7 @@ const RBACManagement = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {adminUsers.filter(a => a.isSuperAdmin).map(admin => (
+                    {adminUsers.filter(a => a.role === 'super_admin').map(admin => (
                       <div key={admin.user_id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold">
@@ -599,23 +623,115 @@ const RBACManagement = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Role-Permission Matrix</CardTitle>
-                <CardDescription>Manage which roles have which permissions</CardDescription>
+                <CardDescription>Real-World RBAC: Super Admin has full access, Admin can manage users, Staff and User have limited access</CardDescription>
               </CardHeader>
               <CardContent>
-                <ScrollArea className="h-[500px]">
+                {/* Role Capability Overview */}
+                <div className="mb-6 p-4 rounded-lg bg-muted/50 border">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    Role Capabilities Overview
+                  </h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Role</TableHead>
+                        <TableHead className="text-center">Can Login</TableHead>
+                        <TableHead className="text-center">Manage Users</TableHead>
+                        <TableHead className="text-center">Delete Data</TableHead>
+                        <TableHead className="text-center">System Settings</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Crown className="h-4 w-4 text-amber-500" />
+                            <span className="font-semibold">Super Admin</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center"><CheckCircle className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><CheckCircle className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><CheckCircle className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><CheckCircle className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Shield className="h-4 w-4 text-blue-500" />
+                            <span className="font-semibold">Admin</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center"><CheckCircle className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><CheckCircle className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><XCircle className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><XCircle className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <UserCog className="h-4 w-4 text-purple-500" />
+                            <span className="font-semibold">Staff</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center"><CheckCircle className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><XCircle className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><XCircle className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><XCircle className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-gray-500" />
+                            <span className="font-semibold">User</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center"><CheckCircle className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><XCircle className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><XCircle className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><XCircle className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Full Permission Matrix */}
+                <ScrollArea className="h-[400px]">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="sticky left-0 bg-background">Permission</TableHead>
-                        <TableHead className="text-center">Admin</TableHead>
-                        <TableHead className="text-center">Customer</TableHead>
+                        <TableHead className="text-center">
+                          <div className="flex flex-col items-center">
+                            <Crown className="h-4 w-4 text-amber-500 mb-1" />
+                            Super Admin
+                          </div>
+                        </TableHead>
+                        <TableHead className="text-center">
+                          <div className="flex flex-col items-center">
+                            <Shield className="h-4 w-4 text-blue-500 mb-1" />
+                            Admin
+                          </div>
+                        </TableHead>
+                        <TableHead className="text-center">
+                          <div className="flex flex-col items-center">
+                            <UserCog className="h-4 w-4 text-purple-500 mb-1" />
+                            Staff
+                          </div>
+                        </TableHead>
+                        <TableHead className="text-center">
+                          <div className="flex flex-col items-center">
+                            <Users className="h-4 w-4 text-gray-500 mb-1" />
+                            Customer
+                          </div>
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {Object.entries(groupedPermissions).map(([category, perms]) => (
                         <>
                           <TableRow key={category} className="bg-muted/50">
-                            <TableCell colSpan={3} className="font-semibold capitalize">
+                            <TableCell colSpan={5} className="font-semibold capitalize">
                               {category}
                             </TableCell>
                           </TableRow>
@@ -628,17 +744,27 @@ const RBACManagement = () => {
                                 </div>
                               </TableCell>
                               <TableCell className="text-center">
+                                <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                              </TableCell>
+                              <TableCell className="text-center">
                                 <Checkbox
                                   checked={roleHasPermission('admin', perm.id)}
                                   onCheckedChange={() => handleToggleRolePermission('admin', perm.id, roleHasPermission('admin', perm.id))}
-                                  disabled={perm.name === 'super_admin'}
+                                  disabled={perm.name === 'super_admin' || perm.name === 'delete_data' || perm.name === 'system_settings'}
+                                />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Checkbox
+                                  checked={roleHasPermission('staff', perm.id)}
+                                  onCheckedChange={() => handleToggleRolePermission('staff' as any, perm.id, roleHasPermission('staff', perm.id))}
+                                  disabled={perm.name === 'super_admin' || perm.name === 'manage_users' || perm.name === 'delete_data' || perm.name === 'system_settings'}
                                 />
                               </TableCell>
                               <TableCell className="text-center">
                                 <Checkbox
                                   checked={roleHasPermission('customer', perm.id)}
                                   onCheckedChange={() => handleToggleRolePermission('customer', perm.id, roleHasPermission('customer', perm.id))}
-                                  disabled={perm.name === 'super_admin'}
+                                  disabled={perm.name === 'super_admin' || perm.name === 'manage_users' || perm.name === 'delete_data' || perm.name === 'system_settings'}
                                 />
                               </TableCell>
                             </TableRow>
@@ -664,38 +790,73 @@ const RBACManagement = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {adminUsers.map(admin => (
-                    <div key={admin.user_id} className="p-4 rounded-lg border bg-card">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold ${
-                            admin.isSuperAdmin 
-                              ? 'bg-gradient-to-br from-amber-500 to-orange-600' 
-                              : 'bg-gradient-to-br from-blue-500 to-purple-600'
-                          }`}>
-                            {admin.full_name?.charAt(0) || 'A'}
+                  {adminUsers.map(admin => {
+                    const getRoleBadge = () => {
+                      switch (admin.role) {
+                        case 'super_admin':
+                          return (
+                            <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0">
+                              <Crown className="h-3 w-3 mr-1" />
+                              Super Admin
+                            </Badge>
+                          );
+                        case 'admin':
+                          return (
+                            <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0">
+                              <Shield className="h-3 w-3 mr-1" />
+                              Admin
+                            </Badge>
+                          );
+                        case 'staff':
+                          return (
+                            <Badge className="bg-gradient-to-r from-purple-500 to-pink-600 text-white border-0">
+                              <UserCog className="h-3 w-3 mr-1" />
+                              Staff
+                            </Badge>
+                          );
+                        default:
+                          return <Badge variant="secondary">{admin.role}</Badge>;
+                      }
+                    };
+
+                    const getAvatarColor = () => {
+                      switch (admin.role) {
+                        case 'super_admin': return 'bg-gradient-to-br from-amber-500 to-orange-600';
+                        case 'admin': return 'bg-gradient-to-br from-blue-500 to-purple-600';
+                        case 'staff': return 'bg-gradient-to-br from-purple-500 to-pink-600';
+                        default: return 'bg-gradient-to-br from-gray-500 to-gray-600';
+                      }
+                    };
+
+                    return (
+                      <div key={admin.user_id} className="p-4 rounded-lg border bg-card">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold ${getAvatarColor()}`}>
+                              {admin.full_name?.charAt(0) || 'A'}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-lg">{admin.full_name}</p>
+                              <p className="text-sm text-muted-foreground">{admin.email}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-semibold text-lg">{admin.full_name}</p>
-                            <p className="text-sm text-muted-foreground">{admin.email}</p>
-                          </div>
+                          {getRoleBadge()}
                         </div>
-                        {admin.isSuperAdmin && (
-                          <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0">
-                            <Crown className="h-3 w-3 mr-1" />
-                            Super Admin
-                          </Badge>
-                        )}
+                        <div className="flex flex-wrap gap-1">
+                          {admin.permissions.slice(0, 10).map(perm => (
+                            <Badge key={perm} variant="secondary" className="text-xs">
+                              {perm}
+                            </Badge>
+                          ))}
+                          {admin.permissions.length > 10 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{admin.permissions.length - 10} more
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-1">
-                        {admin.permissions.map(perm => (
-                          <Badge key={perm} variant="secondary" className="text-xs">
-                            {perm}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

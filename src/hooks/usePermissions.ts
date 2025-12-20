@@ -6,10 +6,13 @@ interface PermissionResult {
   permission_category: string;
 }
 
+export type AppRole = 'super_admin' | 'admin' | 'staff' | 'customer';
+
 export const usePermissions = (userId: string | undefined) => {
   const [permissions, setPermissions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<AppRole | null>(null);
 
   useEffect(() => {
     if (!userId) {
@@ -19,6 +22,18 @@ export const usePermissions = (userId: string | undefined) => {
 
     const fetchPermissions = async () => {
       try {
+        // First get the user's role
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .single();
+
+        if (roleData) {
+          setUserRole(roleData.role as AppRole);
+          setIsSuperAdmin(roleData.role === 'super_admin');
+        }
+
         // Get user permissions using the database function
         const { data, error } = await supabase
           .rpc('get_user_permissions', { _user_id: userId });
@@ -30,7 +45,11 @@ export const usePermissions = (userId: string | undefined) => {
           const results = data as PermissionResult[] | null;
           const permissionNames = results?.map(p => p.permission_name) || [];
           setPermissions(permissionNames);
-          setIsSuperAdmin(permissionNames.includes('super_admin'));
+          
+          // Also check for super_admin permission
+          if (permissionNames.includes('super_admin')) {
+            setIsSuperAdmin(true);
+          }
         }
       } catch (error) {
         console.error("Error:", error);
@@ -57,13 +76,34 @@ export const usePermissions = (userId: string | undefined) => {
     return perms.every(p => permissions.includes(p));
   };
 
+  // Check role-based capabilities
+  const canManageUsers = (): boolean => {
+    if (isSuperAdmin) return true;
+    if (userRole === 'admin') return true;
+    return hasPermission('manage_users');
+  };
+
+  const canDeleteData = (): boolean => {
+    if (isSuperAdmin) return true;
+    return hasPermission('delete_data');
+  };
+
+  const canAccessSystemSettings = (): boolean => {
+    if (isSuperAdmin) return true;
+    return hasPermission('system_settings');
+  };
+
   return {
     permissions,
     loading,
     isSuperAdmin,
+    userRole,
     hasPermission,
     hasAnyPermission,
-    hasAllPermissions
+    hasAllPermissions,
+    canManageUsers,
+    canDeleteData,
+    canAccessSystemSettings
   };
 };
 
