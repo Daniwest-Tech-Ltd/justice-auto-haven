@@ -269,6 +269,7 @@ const AdminDashboard = () => {
       permission: "system_settings",
       items: [
         { title: "Settings", icon: Settings, path: "/admin/settings", permission: "system_settings" },
+        { title: "RBAC Management", icon: Shield, path: "/admin/rbac", permission: "manage_admins" },
         { title: "System Health", icon: Activity, path: "/system-health", permission: "system_settings" },
         { title: "Auth Details", icon: Key, path: "/system-auth-details", permission: "system_settings" },
         { title: "Database Details", icon: Database, path: "/system-database-details", permission: "system_settings" },
