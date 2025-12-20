@@ -204,14 +204,16 @@ const Auth = () => {
     }
   }, [isSignUp]);
 
-  // Google OAuth login
+  // Google OAuth login - redirects to dashboard after success
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
+      const redirectUrl = `${window.location.origin}/auth?google_callback=true`;
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://www.justiceultimateautomobiles.com'
+          redirectTo: redirectUrl
         }
       });
 
@@ -232,6 +234,95 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Handle Google OAuth callback - redirect to dashboard immediately
+  useEffect(() => {
+    const handleGoogleCallback = async () => {
+      const isGoogleCallback = searchParams.get("google_callback") === "true";
+      const hasAuthTokens = window.location.hash.includes("access_token") || 
+                           searchParams.get("code") !== null;
+      
+      if (isGoogleCallback || hasAuthTokens) {
+        setLoading(true);
+        
+        // Wait for session to be established
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // Play login success sound
+          const loginSound = new Audio('/sounds/notification.mp3');
+          loginSound.volume = 0.5;
+          loginSound.play().catch(() => console.log('Audio play blocked'));
+          
+          // Check if user profile exists, create if new Google user
+          const { data: existingProfile } = await supabase
+            .from("profiles")
+            .select("id, full_name")
+            .eq("user_id", session.user.id)
+            .maybeSingle();
+          
+          if (!existingProfile) {
+            // New Google user - create profile
+            const googleName = session.user.user_metadata?.full_name || 
+                              session.user.user_metadata?.name || 
+                              session.user.email?.split('@')[0] || 'User';
+            const googleAvatar = session.user.user_metadata?.avatar_url || 
+                                session.user.user_metadata?.picture;
+            
+            await supabase.from("profiles").insert({
+              user_id: session.user.id,
+              email: session.user.email || '',
+              full_name: googleName,
+              phone: '',
+              avatar_url: googleAvatar,
+              is_online: true,
+              last_seen: new Date().toISOString()
+            });
+            
+            // Assign customer role for new users
+            await supabase.from("user_roles").insert({
+              user_id: session.user.id,
+              role: "customer"
+            });
+            
+            sonnerToast.success(`Welcome, ${googleName}! 🎉`, {
+              description: "Your account has been created successfully!",
+            });
+            
+            navigate("/customer-dashboard");
+          } else {
+            // Existing user - update online status and redirect based on role
+            await supabase.from("profiles").update({
+              is_online: true,
+              last_seen: new Date().toISOString()
+            }).eq("user_id", session.user.id);
+            
+            const { data: roleData } = await supabase
+              .from("user_roles")
+              .select("role")
+              .eq("user_id", session.user.id)
+              .maybeSingle();
+            
+            const displayName = existingProfile.full_name || session.user.email;
+            
+            sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
+              description: `Logged in as ${roleData?.role || "customer"}`,
+            });
+            
+            // Redirect based on role immediately
+            if (roleData?.role === "admin") {
+              navigate("/admin-dashboard");
+            } else {
+              navigate("/customer-dashboard");
+            }
+          }
+        }
+        setLoading(false);
+      }
+    };
+    
+    handleGoogleCallback();
+  }, [searchParams, navigate]);
 
   // Password strength checker
   const checkPasswordStrength = (pwd: string) => {
