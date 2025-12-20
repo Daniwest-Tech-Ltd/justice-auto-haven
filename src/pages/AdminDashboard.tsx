@@ -32,6 +32,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";
 import { setTheme, Theme } from "@/lib/theme";
 import DashboardHolidayBanner, { DashboardSnowfall } from "@/components/DashboardHolidayBanner";
+import { usePermissions, logAdminAction } from "@/hooks/usePermissions";
 
 const AdminDashboard = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -45,6 +46,7 @@ const AdminDashboard = () => {
     return saved || "dark";
   });
   const { user, profile, role, loading, signOut } = useAuth();
+  const { permissions, isSuperAdmin, hasPermission, loading: permissionsLoading } = usePermissions(user?.id);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
@@ -175,6 +177,9 @@ const AdminDashboard = () => {
   };
 
   const handleSignOut = async () => {
+    if (user?.id) {
+      await logAdminAction(user.id, 'logout', { timestamp: new Date().toISOString() });
+    }
     await signOut();
     toast({
       title: "Logged Out",
@@ -183,87 +188,104 @@ const AdminDashboard = () => {
     navigate("/");
   };
 
-  if (loading) {
+  if (loading || permissionsLoading) {
     return <LoadingScreen />;
   }
 
   if (!user || !profile || role?.role !== "admin") return null;
 
+  // Define menu groups with required permissions
   const menuGroups = [
     {
       name: "dashboard",
       label: "Dashboard",
+      permission: null, // Always visible to admins
       items: [
-        { title: "Overview", icon: Home, path: "/admin-dashboard" },
-        { title: "Activity Analytics", icon: Activity, path: "/admin/analytics" },
-        { title: "Sales Analytics", icon: DollarSign, path: "/admin/sales" },
-        { title: "Sales Forecasting", icon: TrendingUp, path: "/admin/sales/forecasting" },
+        { title: "Overview", icon: Home, path: "/admin-dashboard", permission: null },
+        { title: "Activity Analytics", icon: Activity, path: "/admin/analytics", permission: "view_reports" },
+        { title: "Sales Analytics", icon: DollarSign, path: "/admin/sales", permission: "view_reports" },
+        { title: "Sales Forecasting", icon: TrendingUp, path: "/admin/sales/forecasting", permission: "view_reports" },
       ]
     },
     {
       name: "vehicle-management",
       label: "Vehicle Management",
+      permission: "manage_inventory",
       items: [
-        { title: "Vehicles", icon: Car, path: "/admin/cars" },
-        { title: "Vehicle Analytics", icon: TrendingUp, path: "/admin/vehicle-analytics" },
-        { title: "Brands", icon: Grid3x3, path: "/admin/brands" },
-        { title: "Trade-Ins", icon: Package, path: "/admin/trade-ins" },
-        { title: "Rental Bookings", icon: Clock, path: "/admin/rental-management" },
-        { title: "Rentals (Legacy)", icon: Clock, path: "/admin/rentals" },
+        { title: "Vehicles", icon: Car, path: "/admin/cars", permission: "manage_inventory" },
+        { title: "Vehicle Analytics", icon: TrendingUp, path: "/admin/vehicle-analytics", permission: "view_reports" },
+        { title: "Brands", icon: Grid3x3, path: "/admin/brands", permission: "manage_inventory" },
+        { title: "Trade-Ins", icon: Package, path: "/admin/trade-ins", permission: "manage_inventory" },
+        { title: "Rental Bookings", icon: Clock, path: "/admin/rental-management", permission: "manage_rentals" },
+        { title: "Rentals (Legacy)", icon: Clock, path: "/admin/rentals", permission: "manage_rentals" },
       ]
     },
     {
       name: "orders-customers",
       label: "Orders & Customers",
+      permission: "manage_orders",
       items: [
-        { title: "Orders", icon: Package, path: "/admin/orders" },
-        { title: "Customers", icon: Users, path: "/admin/customers" },
-        { title: "SMS Management", icon: Phone, path: "/admin/sms" },
-        { title: "CRM", icon: Activity, path: "/admin/crm" },
-        { title: "Messages", icon: MessageSquare, path: "/admin/messages" },
-        { title: "Staff Management", icon: UserCog, path: "/admin/staff" },
+        { title: "Orders", icon: Package, path: "/admin/orders", permission: "manage_orders" },
+        { title: "Customers", icon: Users, path: "/admin/customers", permission: "manage_users" },
+        { title: "SMS Management", icon: Phone, path: "/admin/sms", permission: "manage_messages" },
+        { title: "CRM", icon: Activity, path: "/admin/crm", permission: "manage_crm" },
+        { title: "Messages", icon: MessageSquare, path: "/admin/messages", permission: "manage_messages" },
+        { title: "Staff Management", icon: UserCog, path: "/admin/staff", permission: "manage_staff" },
       ]
     },
     {
       name: "content-management",
       label: "Content Management",
+      permission: "manage_blogs",
       items: [
-        { title: "Videos", icon: Video, path: "/admin/videos" },
-        { title: "Blogs", icon: BookOpen, path: "/admin/blogs" },
-        { title: "Notes", icon: FileText, path: "/admin/notes" },
+        { title: "Videos", icon: Video, path: "/admin/videos", permission: "manage_blogs" },
+        { title: "Blogs", icon: BookOpen, path: "/admin/blogs", permission: "manage_blogs" },
+        { title: "Notes", icon: FileText, path: "/admin/notes", permission: "manage_blogs" },
       ]
     },
     {
       name: "business-intelligence",
       label: "Business Intelligence",
+      permission: "view_reports",
       items: [
-        { title: "Reports", icon: BarChart3, path: "/admin/reports" },
-        { title: "Daily Reports", icon: FileText, path: "/admin/daily-reports" },
-        { title: "Payments", icon: CreditCard, path: "/admin/payments" },
-        { title: "AI Security", icon: Shield, path: "/admin/security" },
+        { title: "Reports", icon: BarChart3, path: "/admin/reports", permission: "view_reports" },
+        { title: "Daily Reports", icon: FileText, path: "/admin/daily-reports", permission: "view_reports" },
+        { title: "Payments", icon: CreditCard, path: "/admin/payments", permission: "manage_payments" },
+        { title: "AI Security", icon: Shield, path: "/admin/security", permission: "manage_security" },
       ]
     },
     {
       name: "hr-internal",
       label: "HR & Internal Systems",
+      permission: "manage_staff",
       items: [
-        { title: "HR Management", icon: UserCog, path: "/admin/hr" },
-        { title: "Cookie Management", icon: Cookie, path: "/admin/cookie-management" },
+        { title: "HR Management", icon: UserCog, path: "/admin/hr", permission: "manage_staff" },
+        { title: "Cookie Management", icon: Cookie, path: "/admin/cookie-management", permission: "system_settings" },
       ]
     },
     {
       name: "system-settings",
       label: "System Settings",
+      permission: "system_settings",
       items: [
-        { title: "Settings", icon: Settings, path: "/admin/settings" },
-        { title: "System Health", icon: Activity, path: "/system-health" },
-        { title: "Auth Details", icon: Key, path: "/system-auth-details" },
-        { title: "Database Details", icon: Database, path: "/system-database-details" },
-        { title: "Storage Details", icon: Server, path: "/system-storage-details" },
-        { title: "Security Details", icon: Shield, path: "/system-security-details" },
+        { title: "Settings", icon: Settings, path: "/admin/settings", permission: "system_settings" },
+        { title: "System Health", icon: Activity, path: "/system-health", permission: "system_settings" },
+        { title: "Auth Details", icon: Key, path: "/system-auth-details", permission: "system_settings" },
+        { title: "Database Details", icon: Database, path: "/system-database-details", permission: "system_settings" },
+        { title: "Storage Details", icon: Server, path: "/system-storage-details", permission: "system_settings" },
+        { title: "Security Details", icon: Shield, path: "/system-security-details", permission: "manage_security" },
       ]
     },
   ];
+
+  // Filter menu groups and items based on permissions (Super Admins see everything)
+  const filteredMenuGroups = menuGroups
+    .filter(group => isSuperAdmin || !group.permission || hasPermission(group.permission))
+    .map(group => ({
+      ...group,
+      items: group.items.filter(item => isSuperAdmin || !item.permission || hasPermission(item.permission))
+    }))
+    .filter(group => group.items.length > 0);
 
   return (
     <SidebarProvider>
@@ -282,7 +304,7 @@ const AdminDashboard = () => {
               <h2 className="mb-2 text-lg font-semibold">Admin Dashboard</h2>
             </div>
             
-            {menuGroups.map((group) => (
+            {filteredMenuGroups.map((group) => (
               <Collapsible
                 key={group.name}
                 open={openGroups.includes(group.name)}
@@ -340,6 +362,12 @@ const AdminDashboard = () => {
                 <SidebarTrigger />
                 <img src={logo} alt="Justice Ultimate Automobiles" className="h-10 w-auto" />
                 <h1 className="text-xl font-bold">Justice Ultimate Automobiles Admin Dashboard</h1>
+                {isSuperAdmin && (
+                  <Badge variant="default" className="bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0">
+                    <Shield className="h-3 w-3 mr-1" />
+                    Super Admin
+                  </Badge>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={() => navigate("/")} title="Home">
