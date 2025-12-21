@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, isAdminRole } from "@/hooks/useAuth";
 import LoadingScreen from "./LoadingScreen";
 import { SuspendedUserModal } from "./SuspendedUserModal";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,8 +68,20 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     );
   }
 
-  if (requiredRole && role?.role !== requiredRole) {
-    return <Navigate to={role?.role === "admin" ? "/admin-dashboard" : "/customer-dashboard"} replace />;
+  // Check role-based access
+  const userIsAdmin = isAdminRole(role?.role);
+  
+  if (requiredRole === "admin" && !userIsAdmin) {
+    return <Navigate to="/customer-dashboard" replace />;
+  }
+  
+  if (requiredRole === "customer" && userIsAdmin) {
+    return <Navigate to="/admin-dashboard" replace />;
+  }
+  
+  // Default redirect based on role if no specific role required but user is on wrong dashboard
+  if (!requiredRole && userIsAdmin && window.location.pathname === "/customer-dashboard") {
+    return <Navigate to="/admin-dashboard" replace />;
   }
 
   return <>{children}</>;

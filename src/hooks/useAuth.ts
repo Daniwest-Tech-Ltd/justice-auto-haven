@@ -17,9 +17,16 @@ export interface UserProfile {
   avatar_url?: string | null;
 }
 
+export type AppRole = "super_admin" | "admin" | "staff" | "customer";
+
 export interface UserRole {
-  role: "admin" | "customer";
+  role: AppRole;
 }
+
+// Helper to check if role is an admin-type role
+export const isAdminRole = (role: AppRole | undefined): boolean => {
+  return role === "super_admin" || role === "admin";
+};
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
