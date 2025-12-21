@@ -14,26 +14,11 @@ export interface UserProfile {
   preferred_contact?: string;
   account_status?: "active" | "suspended" | "blocked";
   is_suspended?: boolean;
-  suspended_reason?: string;
-  suspended_at?: string;
-  blocked_at?: string;
-  deleted_at?: string;
-  lock_until?: string;
-  reactivation_otp?: string;
-  reactivation_otp_expires?: string;
   avatar_url?: string | null;
 }
 
 export interface UserRole {
-  role: "admin" | "customer" | "super_admin" | "staff";
-}
-
-export interface AccountStatus {
-  canLogin: boolean;
-  reason?: 'suspended' | 'blocked' | 'deleted' | 'locked' | 'profile_not_found';
-  message?: string;
-  requiresOtp?: boolean;
-  lockUntil?: string;
+  role: "admin" | "customer";
 }
 
 export const useAuth = () => {
@@ -41,7 +26,6 @@ export const useAuth = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
-  const [accountStatus, setAccountStatus] = useState<AccountStatus | null>(null);
 
   useEffect(() => {
     // Listen for auth changes first to avoid missing events
@@ -57,7 +41,6 @@ export const useAuth = () => {
       } else {
         setProfile(null);
         setRole(null);
-        setAccountStatus(null);
         setLoading(false);
       }
     });
@@ -76,42 +59,8 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const checkAccountStatus = async (userId: string): Promise<AccountStatus> => {
-    try {
-      const { data, error } = await supabase.rpc('can_user_login', { _user_id: userId });
-      
-      if (error) {
-        console.error("Error checking account status:", error);
-        return { canLogin: true }; // Default to allowing login if check fails
-      }
-
-      const result = data as { 
-        can_login: boolean; 
-        reason?: string; 
-        message?: string;
-        requires_otp?: boolean;
-        lock_until?: string;
-      };
-
-      return {
-        canLogin: result.can_login,
-        reason: result.reason as AccountStatus['reason'],
-        message: result.message,
-        requiresOtp: result.requires_otp,
-        lockUntil: result.lock_until
-      };
-    } catch (error) {
-      console.error("Error in checkAccountStatus:", error);
-      return { canLogin: true };
-    }
-  };
-
   const fetchUserData = async (userId: string) => {
     try {
-      // Check account status first
-      const status = await checkAccountStatus(userId);
-      setAccountStatus(status);
-
       // Fetch profile
       const { data: profileData } = await supabase
         .from("profiles")
@@ -136,43 +85,13 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
-    // Update online status before signing out
-    if (user?.id) {
-      await supabase.from("profiles").update({
-        is_online: false,
-        last_seen: new Date().toISOString()
-      }).eq("user_id", user.id);
-    }
-    
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
     setRole(null);
-    setAccountStatus(null);
   };
 
-  const refreshAccountStatus = async () => {
-    if (user?.id) {
-      const status = await checkAccountStatus(user.id);
-      setAccountStatus(status);
-      return status;
-    }
-    return null;
-  };
-
-  return { 
-    user, 
-    profile, 
-    role, 
-    loading, 
-    signOut, 
-    accountStatus,
-    refreshAccountStatus,
-    isBlocked: accountStatus?.reason === 'blocked',
-    isSuspended: accountStatus?.reason === 'suspended',
-    isDeleted: accountStatus?.reason === 'deleted',
-    isLocked: accountStatus?.reason === 'locked'
-  };
+  return { user, profile, role, loading, signOut };
 };
 
 export const getGreeting = (name: string) => {

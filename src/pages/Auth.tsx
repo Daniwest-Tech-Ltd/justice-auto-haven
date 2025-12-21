@@ -310,10 +310,8 @@ const Auth = () => {
             });
             
             // Redirect based on role immediately
-            if (roleData?.role === "admin" || roleData?.role === "super_admin") {
+            if (roleData?.role === "admin") {
               navigate("/admin-dashboard");
-            } else if (roleData?.role === "staff") {
-              navigate("/staff-dashboard");
             } else {
               navigate("/customer-dashboard");
             }
@@ -372,10 +370,8 @@ const Auth = () => {
       });
 
       // Redirect based on role immediately
-      if (roleResult.data?.role === "admin" || roleResult.data?.role === "super_admin") {
+      if (roleResult.data?.role === "admin") {
         navigate("/admin-dashboard");
-      } else if (roleResult.data?.role === "staff") {
-        navigate("/staff-dashboard");
       } else {
         navigate("/customer-dashboard");
       }
@@ -514,22 +510,19 @@ const Auth = () => {
       // Check profile with optimized query (select only needed fields)
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("user_id, email, full_name, is_suspended, account_status, suspended_reason, suspended_at, login_attempts, two_fa_enabled, preferred_2fa, totp_enabled, fingerprint_enabled, blocked_at, deleted_at, lock_until, reactivation_otp")
+        .select("user_id, email, full_name, is_suspended, account_status, suspended_reason, suspended_at, login_attempts, two_fa_enabled, preferred_2fa, totp_enabled, fingerprint_enabled")
         .eq("email", email)
         .maybeSingle();
 
-      // Check if account is suspended, blocked, or deleted - CANNOT LOGIN
-      if (profileData?.is_suspended || profileData?.account_status === "suspended" || 
-          profileData?.account_status === "blocked" || profileData?.deleted_at || profileData?.blocked_at) {
-        
-        const status = profileData?.blocked_at ? 'blocked' : 
-                       profileData?.deleted_at ? 'deleted' : 
-                       profileData?.account_status === "blocked" ? 'blocked' : 'suspended';
-        
-        setShowSuspendedModal(true);
-        setSuspensionReason(profileData.suspended_reason || `Account ${status}. Contact support@justiceultimateautomobiles.com for assistance.`);
-        setLoading(false);
-        return;
+      // Check if account is suspended or blocked - CANNOT LOGIN
+      if (profileData?.is_suspended || profileData?.account_status === "suspended" || profileData?.account_status === "blocked") {
+        // If account is blocked, always show the modal (requires admin intervention)
+        if (profileData?.account_status === "blocked") {
+          setShowSuspendedModal(true);
+          setSuspensionReason(profileData.suspended_reason || "Account blocked. Contact administrator for assistance.");
+          setLoading(false);
+          return;
+        }
         
         // For temporary suspensions, check if suspension has expired
         if (profileData.suspended_at) {

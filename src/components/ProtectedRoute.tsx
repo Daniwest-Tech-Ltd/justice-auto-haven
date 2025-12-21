@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: "admin" | "super_admin" | "staff" | "customer";
+  requiredRole?: "admin" | "customer";
 }
 
 const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
@@ -17,8 +17,7 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const [suspensionDetails, setSuspensionDetails] = useState<{ reason?: string; until?: string }>({});
 
   useEffect(() => {
-    // Check account status for all users except admins
-    if (user && role?.role !== "admin" && role?.role !== "super_admin") {
+    if (user && role?.role === "customer") {
       checkAccountStatus();
     } else {
       setCheckingStatus(false);
@@ -57,8 +56,8 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check if non-admin account is suspended or blocked
-  if ((role?.role === "customer" || role?.role === "staff") && (accountStatus === "suspended" || accountStatus === "blocked")) {
+  // Check if customer account is suspended or blocked
+  if (role?.role === "customer" && (accountStatus === "suspended" || accountStatus === "blocked")) {
     return (
       <SuspendedUserModal
         isOpen={true}
@@ -69,21 +68,8 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     );
   }
 
-  // Handle role-based redirects
   if (requiredRole && role?.role !== requiredRole) {
-    // Admin required route - allow both admin and super_admin
-    if (requiredRole === "admin" && (role?.role === "admin" || role?.role === "super_admin")) {
-      return <>{children}</>;
-    }
-    
-    // Redirect based on actual role
-    if (role?.role === "admin" || role?.role === "super_admin") {
-      return <Navigate to="/admin-dashboard" replace />;
-    } else if (role?.role === "staff") {
-      return <Navigate to="/staff-dashboard" replace />;
-    } else {
-      return <Navigate to="/customer-dashboard" replace />;
-    }
+    return <Navigate to={role?.role === "admin" ? "/admin-dashboard" : "/customer-dashboard"} replace />;
   }
 
   return <>{children}</>;
