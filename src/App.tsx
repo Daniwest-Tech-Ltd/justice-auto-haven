@@ -93,7 +93,6 @@ const SMSManagement = lazy(() => import("./pages/SMSManagement"));
 const AdminNotes = lazy(() => import("./pages/AdminNotes"));
 const BackupRecovery = lazy(() => import("./pages/BackupRecovery"));
 const PaymentsManagement = lazy(() => import("./pages/PaymentsManagement"));
-const RBACManagement = lazy(() => import("./pages/RBACManagement"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
@@ -409,14 +408,6 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <AdminSettings />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/rbac" 
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <RBACManagement />
               </ProtectedRoute>
             } 
           />

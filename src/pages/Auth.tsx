@@ -310,7 +310,7 @@ const Auth = () => {
             });
             
             // Redirect based on role immediately
-            if (roleData?.role === "admin" || roleData?.role === "super_admin") {
+            if (roleData?.role === "admin") {
               navigate("/admin-dashboard");
             } else {
               navigate("/customer-dashboard");
@@ -370,7 +370,7 @@ const Auth = () => {
       });
 
       // Redirect based on role immediately
-      if (roleResult.data?.role === "admin" || roleResult.data?.role === "super_admin") {
+      if (roleResult.data?.role === "admin") {
         navigate("/admin-dashboard");
       } else {
         navigate("/customer-dashboard");
