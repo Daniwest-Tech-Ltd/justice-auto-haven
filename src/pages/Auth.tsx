@@ -386,38 +386,43 @@ const Auth = () => {
       loginSound.volume = 0.5;
       loginSound.play().catch(() => console.log('Audio play blocked'));
       
-      // Check if superadmin email
-      const emailLower = userEmail?.toLowerCase() || '';
-      const isSuperAdmin = SUPERADMIN_EMAILS.includes(emailLower);
-      
-      // Fetch role and update profile in parallel
-      const [roleResult, profileResult] = await Promise.all([
-        supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
-        supabase.from("profiles").update({
+      // Fetch profile first to get email
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .update({
           is_online: true,
           last_seen: new Date().toISOString(),
           login_attempts: 0
-        }).eq("user_id", userId).select("full_name, email").single()
-      ]);
-
-      // Double-check email from profile if not provided
-      const actualEmail = emailLower || profileResult.data?.email?.toLowerCase() || '';
-      const isSuperAdminFinal = SUPERADMIN_EMAILS.includes(actualEmail);
+        })
+        .eq("user_id", userId)
+        .select("full_name, email")
+        .single();
       
-      // If superadmin but role is not admin, upgrade it
-      if (isSuperAdminFinal && roleResult.data?.role !== "admin") {
+      // Check if superadmin email - use provided email or fetch from profile
+      const actualEmail = (userEmail || profileData?.email || '').toLowerCase();
+      const isSuperAdmin = SUPERADMIN_EMAILS.includes(actualEmail);
+      
+      // If superadmin, ensure admin role exists
+      if (isSuperAdmin) {
         await supabase.from("user_roles")
           .upsert({ user_id: userId, role: "admin" }, { onConflict: 'user_id' });
       }
-
-      const displayName = userName || profileResult.data?.full_name || "User";
-      const isAdmin = isSuperAdminFinal || roleResult.data?.role === "admin";
+      
+      // Fetch the CURRENT role after any upgrade
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
+      
+      const isAdmin = isSuperAdmin || roleData?.role === "admin";
+      const displayName = userName || profileData?.full_name || "User";
       
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
         description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
       });
 
-      // Redirect based on role immediately - admins/superadmins go to admin-dashboard
+      // Redirect based on role - admins/superadmins go to admin-dashboard
       if (isAdmin) {
         navigate("/admin-dashboard", { replace: true });
       } else {
