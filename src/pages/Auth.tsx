@@ -235,6 +235,12 @@ const Auth = () => {
     }
   };
 
+  // Superadmin emails - these users always get admin role
+  const SUPERADMIN_EMAILS = [
+    'daniwesttechnologies@gmail.com',
+    'justicevincent@gmail.com'
+  ];
+
   // Handle Google OAuth callback - redirect to dashboard immediately
   useEffect(() => {
     const handleGoogleCallback = async () => {
@@ -245,10 +251,16 @@ const Auth = () => {
       if (isGoogleCallback || hasAuthTokens) {
         setLoading(true);
         
+        // Small delay to ensure session is established
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Wait for session to be established
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
+          const userEmail = session.user.email?.toLowerCase() || '';
+          const isSuperAdmin = SUPERADMIN_EMAILS.includes(userEmail);
+          
           // Play login success sound
           const loginSound = new Audio('/sounds/notification.mp3');
           loginSound.volume = 0.5;
@@ -279,43 +291,64 @@ const Auth = () => {
               last_seen: new Date().toISOString()
             });
             
-            // Assign customer role for new users
+            // Assign role based on superadmin status
+            const assignedRole = isSuperAdmin ? "admin" : "customer";
             await supabase.from("user_roles").insert({
               user_id: session.user.id,
-              role: "customer"
+              role: assignedRole
             });
             
             sonnerToast.success(`Welcome, ${googleName}! 🎉`, {
-              description: "Your account has been created successfully!",
+              description: isSuperAdmin 
+                ? "You have been granted superadmin access!" 
+                : "Your account has been created successfully!",
             });
             
-            navigate("/customer-dashboard");
+            // Redirect based on role
+            if (isSuperAdmin) {
+              navigate("/admin-dashboard", { replace: true });
+            } else {
+              navigate("/customer-dashboard", { replace: true });
+            }
           } else {
-            // Existing user - update online status and redirect based on role
+            // Existing user - update online status
             await supabase.from("profiles").update({
               is_online: true,
               last_seen: new Date().toISOString()
             }).eq("user_id", session.user.id);
             
+            // Check current role
             const { data: roleData } = await supabase
               .from("user_roles")
               .select("role")
               .eq("user_id", session.user.id)
               .maybeSingle();
             
+            // If superadmin email but not admin role, upgrade to admin
+            if (isSuperAdmin && roleData?.role !== "admin") {
+              await supabase.from("user_roles")
+                .upsert({ user_id: session.user.id, role: "admin" }, 
+                        { onConflict: 'user_id' });
+            }
+            
+            const isAdmin = isSuperAdmin || roleData?.role === "admin";
             const displayName = existingProfile.full_name || session.user.email;
             
             sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-              description: `Logged in as ${roleData?.role || "customer"}`,
+              description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
             });
             
-            // Redirect based on role immediately
-            if (roleData?.role === "admin") {
-              navigate("/admin-dashboard");
+            // Redirect to admin-dashboard for any admin/superadmin
+            if (isAdmin) {
+              navigate("/admin-dashboard", { replace: true });
             } else {
-              navigate("/customer-dashboard");
+              navigate("/customer-dashboard", { replace: true });
             }
           }
+        } else {
+          // No session found - stay on auth page
+          setLoading(false);
+          return;
         }
         setLoading(false);
       }
