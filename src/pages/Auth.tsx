@@ -379,12 +379,16 @@ const Auth = () => {
 
   const passwordStrength = checkPasswordStrength(regPassword);
 
-  const completeLogin = async (userId: string, userName?: string) => {
+  const completeLogin = async (userId: string, userName?: string, userEmail?: string) => {
     try {
       // Play login success sound
       const loginSound = new Audio('/sounds/notification.mp3');
       loginSound.volume = 0.5;
       loginSound.play().catch(() => console.log('Audio play blocked'));
+      
+      // Check if superadmin email
+      const emailLower = userEmail?.toLowerCase() || '';
+      const isSuperAdmin = SUPERADMIN_EMAILS.includes(emailLower);
       
       // Fetch role and update profile in parallel
       const [roleResult, profileResult] = await Promise.all([
@@ -393,20 +397,31 @@ const Auth = () => {
           is_online: true,
           last_seen: new Date().toISOString(),
           login_attempts: 0
-        }).eq("user_id", userId).select("full_name").single()
+        }).eq("user_id", userId).select("full_name, email").single()
       ]);
 
+      // Double-check email from profile if not provided
+      const actualEmail = emailLower || profileResult.data?.email?.toLowerCase() || '';
+      const isSuperAdminFinal = SUPERADMIN_EMAILS.includes(actualEmail);
+      
+      // If superadmin but role is not admin, upgrade it
+      if (isSuperAdminFinal && roleResult.data?.role !== "admin") {
+        await supabase.from("user_roles")
+          .upsert({ user_id: userId, role: "admin" }, { onConflict: 'user_id' });
+      }
+
       const displayName = userName || profileResult.data?.full_name || "User";
+      const isAdmin = isSuperAdminFinal || roleResult.data?.role === "admin";
       
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-        description: `Logged in as ${roleResult.data?.role || "customer"}`,
+        description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
       });
 
-      // Redirect based on role immediately
-      if (roleResult.data?.role === "admin") {
-        navigate("/admin-dashboard");
+      // Redirect based on role immediately - admins/superadmins go to admin-dashboard
+      if (isAdmin) {
+        navigate("/admin-dashboard", { replace: true });
       } else {
-        navigate("/customer-dashboard");
+        navigate("/customer-dashboard", { replace: true });
       }
     } catch (error: any) {
       toast({
@@ -461,7 +476,7 @@ const Auth = () => {
 
         // TOTP verified successfully
         setShow2FADialog(false);
-        await completeLogin(pendingUserId);
+        await completeLogin(pendingUserId, undefined, pendingUserEmail);
         return;
       }
 
@@ -499,7 +514,7 @@ const Auth = () => {
         .eq("id", twoFAData.id);
 
       setShow2FADialog(false);
-      await completeLogin(pendingUserId);
+      await completeLogin(pendingUserId, undefined, pendingUserEmail);
     } catch (error: any) {
       toast({
         title: "Verification Failed",
@@ -1441,7 +1456,7 @@ const Auth = () => {
         onSuccess={async () => {
           if (pendingUserId) {
             setShow2FADialog(false);
-            await completeLogin(pendingUserId);
+            await completeLogin(pendingUserId, undefined, pendingUserEmail);
           }
         }}
       />
