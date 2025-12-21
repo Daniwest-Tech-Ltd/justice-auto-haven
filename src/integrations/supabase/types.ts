@@ -74,6 +74,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_logs: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       admin_notes: {
         Row: {
           admin_id: string
@@ -2105,6 +2135,30 @@ export type Database = {
         }
         Relationships: []
       }
+      permissions: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       privacy_settings: {
         Row: {
           allow_data_deletion: boolean | null
@@ -2149,11 +2203,14 @@ export type Database = {
           account_status: string | null
           activation_code: string | null
           avatar_url: string | null
+          blocked_at: string | null
           country_code: string | null
           county_city: string | null
           created_at: string | null
+          deleted_at: string | null
           email: string
           exact_location: string | null
+          failed_attempts: number | null
           fingerprint_enabled: boolean | null
           full_name: string
           gender: string | null
@@ -2162,11 +2219,16 @@ export type Database = {
           is_suspended: boolean | null
           last_login_attempt: string | null
           last_seen: string | null
+          lock_until: string | null
           login_attempts: number | null
           phone: string
           preferred_2fa: string | null
           preferred_contact: string | null
+          reactivation_otp: string | null
+          reactivation_otp_expires: string | null
+          security_notes: string | null
           suspended_at: string | null
+          suspended_by: string | null
           suspended_reason: string | null
           theme: string | null
           theme_mode: string | null
@@ -2179,11 +2241,14 @@ export type Database = {
           account_status?: string | null
           activation_code?: string | null
           avatar_url?: string | null
+          blocked_at?: string | null
           country_code?: string | null
           county_city?: string | null
           created_at?: string | null
+          deleted_at?: string | null
           email: string
           exact_location?: string | null
+          failed_attempts?: number | null
           fingerprint_enabled?: boolean | null
           full_name: string
           gender?: string | null
@@ -2192,11 +2257,16 @@ export type Database = {
           is_suspended?: boolean | null
           last_login_attempt?: string | null
           last_seen?: string | null
+          lock_until?: string | null
           login_attempts?: number | null
           phone: string
           preferred_2fa?: string | null
           preferred_contact?: string | null
+          reactivation_otp?: string | null
+          reactivation_otp_expires?: string | null
+          security_notes?: string | null
           suspended_at?: string | null
+          suspended_by?: string | null
           suspended_reason?: string | null
           theme?: string | null
           theme_mode?: string | null
@@ -2209,11 +2279,14 @@ export type Database = {
           account_status?: string | null
           activation_code?: string | null
           avatar_url?: string | null
+          blocked_at?: string | null
           country_code?: string | null
           county_city?: string | null
           created_at?: string | null
+          deleted_at?: string | null
           email?: string
           exact_location?: string | null
+          failed_attempts?: number | null
           fingerprint_enabled?: boolean | null
           full_name?: string
           gender?: string | null
@@ -2222,11 +2295,16 @@ export type Database = {
           is_suspended?: boolean | null
           last_login_attempt?: string | null
           last_seen?: string | null
+          lock_until?: string | null
           login_attempts?: number | null
           phone?: string
           preferred_2fa?: string | null
           preferred_contact?: string | null
+          reactivation_otp?: string | null
+          reactivation_otp_expires?: string | null
+          security_notes?: string | null
           suspended_at?: string | null
+          suspended_by?: string | null
           suspended_reason?: string | null
           theme?: string | null
           theme_mode?: string | null
@@ -2539,6 +2617,35 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          permission_id: string | null
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          permission_id?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          permission_id?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
             referencedColumns: ["id"]
           },
         ]
@@ -4116,6 +4223,11 @@ export type Database = {
       }
     }
     Functions: {
+      block_user: {
+        Args: { _admin_id: string; _reason?: string; _user_id: string }
+        Returns: boolean
+      }
+      can_user_login: { Args: { _user_id: string }; Returns: Json }
       create_daily_attendance: {
         Args: { attendance_date?: string }
         Returns: number
@@ -4123,8 +4235,27 @@ export type Database = {
       generate_activation_code: { Args: never; Returns: string }
       generate_invoice_number: { Args: never; Returns: string }
       generate_job_number: { Args: never; Returns: string }
+      generate_reactivation_otp: {
+        Args: { _admin_id: string; _user_id: string }
+        Returns: string
+      }
       generate_receipt_number: { Args: never; Returns: string }
       generate_stock_id: { Args: never; Returns: string }
+      get_user_permissions: {
+        Args: { _user_id: string }
+        Returns: {
+          permission_category: string
+          permission_name: string
+        }[]
+      }
+      handle_failed_login: {
+        Args: { _ip?: string; _user_id: string }
+        Returns: Json
+      }
+      has_permission: {
+        Args: { _permission: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -4133,6 +4264,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       is_verified_buyer: {
         Args: { p_car_id: string; p_user_id: string }
         Returns: boolean
@@ -4147,14 +4279,31 @@ export type Database = {
         }
         Returns: string
       }
+      reactivate_user: {
+        Args: { _admin_id: string; _user_id: string }
+        Returns: boolean
+      }
+      reset_login_attempts: { Args: { _user_id: string }; Returns: undefined }
       run_daily_backup: { Args: never; Returns: undefined }
       run_hourly_backup: { Args: never; Returns: undefined }
       run_monthly_backup: { Args: never; Returns: undefined }
       run_weekly_backup: { Args: never; Returns: undefined }
+      soft_delete_user: {
+        Args: { _admin_id: string; _reason?: string; _user_id: string }
+        Returns: boolean
+      }
+      suspend_user: {
+        Args: { _admin_id: string; _reason?: string; _user_id: string }
+        Returns: boolean
+      }
       trigger_scheduled_backup: { Args: never; Returns: undefined }
+      verify_reactivation_otp: {
+        Args: { _otp: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "admin" | "customer"
+      app_role: "admin" | "customer" | "super_admin" | "staff"
       staff_role:
         | "operations_manager"
         | "sales_manager"
@@ -4300,7 +4449,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "customer"],
+      app_role: ["admin", "customer", "super_admin", "staff"],
       staff_role: [
         "operations_manager",
         "sales_manager",
