@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { getTodayHoliday, getThemeColors, Holiday, isChristmasActive, getMsUntilChristmas } from "@/data/holidays";
+import { getTodayHoliday, getThemeColors, Holiday, isChristmasActive, getMsUntilChristmas, getMsUntilNairobiMidnight, getNairobiTime } from "@/data/holidays";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -23,12 +23,12 @@ const getOrdinalSuffix = (day: number): string => {
   }
 };
 
-// Format date as "12th December 2025"
+// Format date as "12th December 2025" using Nairobi time
 const getFormattedDate = (): string => {
-  const today = new Date();
-  const day = today.getDate();
-  const month = format(today, 'MMMM');
-  const year = today.getFullYear();
+  const nairobiNow = getNairobiTime();
+  const day = nairobiNow.getDate();
+  const month = format(nairobiNow, 'MMMM');
+  const year = nairobiNow.getFullYear();
   return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
 };
 
@@ -120,25 +120,28 @@ const HolidayBanner = () => {
 
     checkHoliday();
 
-    // Check for Christmas specifically - trigger at midnight Dec 25
+    // Check for Christmas specifically - trigger at midnight Dec 25 Nairobi time
     const msUntilChristmas = getMsUntilChristmas();
-    if (msUntilChristmas > 0 && msUntilChristmas < 24 * 60 * 60 * 1000) {
-      // Christmas is within the next 24 hours, set timeout to trigger at midnight
-      console.log(`Christmas banner will appear in ${Math.round(msUntilChristmas / 1000 / 60)} minutes`);
+    if (msUntilChristmas > 0 && msUntilChristmas < 48 * 60 * 60 * 1000) {
+      // Christmas is within the next 48 hours, set timeout to trigger at Nairobi midnight
+      console.log(`🎄 Christmas banner will appear in ${Math.round(msUntilChristmas / 1000 / 60)} minutes (Nairobi time)`);
       christmasTimeoutRef.current = setTimeout(() => {
-        console.log("🎄 Christmas has arrived! Showing banner and sending notifications...");
+        console.log("🎄 Christmas has arrived in Nairobi! Showing banner and sending notifications...");
         checkHoliday();
       }, msUntilChristmas);
     }
 
-    // Set up interval to check at midnight for date changes
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    const msUntilMidnight = tomorrow.getTime() - now.getTime();
+    // Set up interval to check at Nairobi midnight for date changes
+    const msUntilMidnight = getMsUntilNairobiMidnight();
+    console.log(`Next Nairobi midnight check in ${Math.round(msUntilMidnight / 1000 / 60)} minutes`);
 
-    // Check at midnight and every hour after
+    // Check at Nairobi midnight and every hour after
+    midnightTimeoutRef.current = setTimeout(() => {
+      checkHoliday();
+      // After first midnight check, set up hourly interval
+      const hourlyInterval = setInterval(checkHoliday, 60 * 60 * 1000);
+      return () => clearInterval(hourlyInterval);
+    }, msUntilMidnight);
     midnightTimeoutRef.current = setTimeout(() => {
       checkHoliday();
       // After first midnight check, set up hourly interval
