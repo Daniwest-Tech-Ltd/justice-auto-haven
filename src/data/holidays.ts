@@ -206,9 +206,9 @@ export const movableHolidays2025: Record<string, Holiday> = {
 };
 
 export const getTodayHoliday = (): Holiday | null => {
-  const today = new Date();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
   const key = `${month}-${day}`;
   
   // Check fixed holidays first
@@ -222,6 +222,33 @@ export const getTodayHoliday = (): Holiday | null => {
   }
   
   return null;
+};
+
+// Check if Christmas banner should show (Dec 25 midnight to Dec 26 midnight - 24 hours)
+export const isChristmasActive = (): boolean => {
+  const now = new Date();
+  const year = now.getFullYear();
+  
+  // Christmas starts at midnight on Dec 25
+  const christmasStart = new Date(year, 11, 25, 0, 0, 0, 0); // Dec 25 00:00:00
+  // Christmas ends at midnight on Dec 26 (24 hours later)
+  const christmasEnd = new Date(year, 11, 26, 0, 0, 0, 0); // Dec 26 00:00:00
+  
+  return now >= christmasStart && now < christmasEnd;
+};
+
+// Get milliseconds until Christmas midnight (Dec 25 00:00:00)
+export const getMsUntilChristmas = (): number => {
+  const now = new Date();
+  const year = now.getFullYear();
+  
+  // If already past Christmas this year, return 0
+  const christmasStart = new Date(year, 11, 25, 0, 0, 0, 0);
+  if (now >= christmasStart) {
+    return 0;
+  }
+  
+  return christmasStart.getTime() - now.getTime();
 };
 
 export const getThemeColors = (theme: Holiday['theme']) => {
