@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { getTodayHoliday, getThemeColors, Holiday } from "@/data/holidays";
+import { useEffect, useState, useRef } from "react";
+import { getTodayHoliday, getThemeColors, Holiday, isChristmasActive, getMsUntilChristmas } from "@/data/holidays";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -65,11 +65,11 @@ const getHolidayBackground = (theme: Holiday['theme']): string => {
 // Send holiday notifications via edge function (once per day)
 const sendHolidayNotifications = async (holiday: Holiday, formattedDate: string) => {
   const today = new Date().toISOString().split('T')[0];
-  const storageKey = `holiday_notif_sent_${today}`;
+  const storageKey = `holiday_notif_sent_${today}_${holiday.name}`;
   
-  // Check if notifications already sent today
+  // Check if notifications already sent today for this holiday
   if (localStorage.getItem(storageKey)) {
-    console.log("Holiday notifications already sent today");
+    console.log(`Holiday notifications already sent for ${holiday.name} today`);
     return;
   }
 
@@ -101,6 +101,8 @@ const sendHolidayNotifications = async (holiday: Holiday, formattedDate: string)
 const HolidayBanner = () => {
   const [holiday, setHoliday] = useState<Holiday | null>(null);
   const [formattedDate, setFormattedDate] = useState<string>("");
+  const christmasTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const midnightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Check holiday status immediately
@@ -118,6 +120,17 @@ const HolidayBanner = () => {
 
     checkHoliday();
 
+    // Check for Christmas specifically - trigger at midnight Dec 25
+    const msUntilChristmas = getMsUntilChristmas();
+    if (msUntilChristmas > 0 && msUntilChristmas < 24 * 60 * 60 * 1000) {
+      // Christmas is within the next 24 hours, set timeout to trigger at midnight
+      console.log(`Christmas banner will appear in ${Math.round(msUntilChristmas / 1000 / 60)} minutes`);
+      christmasTimeoutRef.current = setTimeout(() => {
+        console.log("🎄 Christmas has arrived! Showing banner and sending notifications...");
+        checkHoliday();
+      }, msUntilChristmas);
+    }
+
     // Set up interval to check at midnight for date changes
     const now = new Date();
     const tomorrow = new Date(now);
@@ -126,14 +139,17 @@ const HolidayBanner = () => {
     const msUntilMidnight = tomorrow.getTime() - now.getTime();
 
     // Check at midnight and every hour after
-    const midnightTimeout = setTimeout(() => {
+    midnightTimeoutRef.current = setTimeout(() => {
       checkHoliday();
       // After first midnight check, set up hourly interval
       const hourlyInterval = setInterval(checkHoliday, 60 * 60 * 1000);
       return () => clearInterval(hourlyInterval);
     }, msUntilMidnight);
 
-    return () => clearTimeout(midnightTimeout);
+    return () => {
+      if (christmasTimeoutRef.current) clearTimeout(christmasTimeoutRef.current);
+      if (midnightTimeoutRef.current) clearTimeout(midnightTimeoutRef.current);
+    };
   }, []);
 
   // Only show if there's a holiday TODAY

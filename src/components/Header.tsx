@@ -13,6 +13,7 @@ import { LogoutConfirmModal } from "./LogoutConfirmModal";
 import { SessionTimeoutModal } from "./SessionTimeoutModal";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { BusinessHours } from "./BusinessHours";
+import { isChristmasActive } from "@/data/holidays";
 import {
   Drawer,
   DrawerClose,
@@ -27,6 +28,11 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 
+// Check if we're in Christmas period (Dec 25 only)
+const checkIsChristmas = (): boolean => {
+  return isChristmasActive();
+};
+
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,6 +45,7 @@ const Header = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [messageCount, setMessageCount] = useState(0);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isChristmas, setIsChristmas] = useState(checkIsChristmas());
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("darkMode");
     return saved !== null ? JSON.parse(saved) : true;
@@ -55,6 +62,16 @@ const Header = () => {
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
   }, [darkMode]);
 
+  // Check Christmas status periodically
+  useEffect(() => {
+    const checkChristmas = () => {
+      setIsChristmas(checkIsChristmas());
+    };
+    
+    // Check every minute
+    const interval = setInterval(checkChristmas, 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
   useEffect(() => {
     checkAuth();
     fetchCounts();
@@ -184,11 +201,13 @@ const Header = () => {
           <Link to="/" className="flex items-center gap-3">
             <div className="relative h-12 w-12">
               <img src={logo} alt="Justice Ultimate Automobiles" className="h-12 w-12 object-contain" />
-              <img 
-                src={christmasHat} 
-                alt="" 
-                className="absolute -top-3 -left-1 w-10 h-10 object-contain pointer-events-none z-10 animate-swing origin-bottom"
-              />
+              {isChristmas && (
+                <img 
+                  src={christmasHat} 
+                  alt="" 
+                  className="absolute -top-3 -left-1 w-10 h-10 object-contain pointer-events-none z-10 animate-swing origin-bottom"
+                />
+              )}
             </div>
             <span className="text-xl font-bold bg-gradient-accent bg-clip-text text-transparent hidden sm:block">
               JUSTICE ULTIMATE AUTOMOBILES
