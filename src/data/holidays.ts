@@ -1,3 +1,13 @@
+import { toZonedTime } from 'date-fns-tz';
+
+// Nairobi timezone (GMT+3)
+const NAIROBI_TIMEZONE = 'Africa/Nairobi';
+
+// Get current time in Nairobi
+export const getNairobiTime = (): Date => {
+  return toZonedTime(new Date(), NAIROBI_TIMEZONE);
+};
+
 export interface Holiday {
   name: string;
   message: string;
@@ -206,9 +216,9 @@ export const movableHolidays2025: Record<string, Holiday> = {
 };
 
 export const getTodayHoliday = (): Holiday | null => {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
+  const nairobiNow = getNairobiTime();
+  const month = String(nairobiNow.getMonth() + 1).padStart(2, "0");
+  const day = String(nairobiNow.getDate()).padStart(2, "0");
   const key = `${month}-${day}`;
   
   // Check fixed holidays first
@@ -224,31 +234,42 @@ export const getTodayHoliday = (): Holiday | null => {
   return null;
 };
 
-// Check if Christmas banner should show (Dec 25 midnight to Dec 26 midnight - 24 hours)
+// Check if Christmas banner should show (Dec 25 00:00 - Dec 26 00:00 Nairobi time)
 export const isChristmasActive = (): boolean => {
-  const now = new Date();
-  const year = now.getFullYear();
+  const nairobiNow = getNairobiTime();
+  const month = nairobiNow.getMonth(); // 0-indexed, so December = 11
+  const day = nairobiNow.getDate();
   
-  // Christmas starts at midnight on Dec 25
-  const christmasStart = new Date(year, 11, 25, 0, 0, 0, 0); // Dec 25 00:00:00
-  // Christmas ends at midnight on Dec 26 (24 hours later)
-  const christmasEnd = new Date(year, 11, 26, 0, 0, 0, 0); // Dec 26 00:00:00
-  
-  return now >= christmasStart && now < christmasEnd;
+  // Christmas is Dec 25 only (24 hours)
+  return month === 11 && day === 25;
 };
 
-// Get milliseconds until Christmas midnight (Dec 25 00:00:00)
+// Get milliseconds until Christmas midnight in Nairobi timezone
 export const getMsUntilChristmas = (): number => {
-  const now = new Date();
-  const year = now.getFullYear();
+  const nairobiNow = getNairobiTime();
+  const year = nairobiNow.getFullYear();
+  const month = nairobiNow.getMonth();
+  const day = nairobiNow.getDate();
   
-  // If already past Christmas this year, return 0
-  const christmasStart = new Date(year, 11, 25, 0, 0, 0, 0);
-  if (now >= christmasStart) {
+  // If it's already Christmas day or past, return 0
+  if (month === 11 && day >= 25) {
     return 0;
   }
   
-  return christmasStart.getTime() - now.getTime();
+  // Calculate time until Dec 25 00:00:00 Nairobi time
+  const christmasNairobi = new Date(year, 11, 25, 0, 0, 0, 0);
+  const msUntil = christmasNairobi.getTime() - nairobiNow.getTime();
+  
+  return msUntil > 0 ? msUntil : 0;
+};
+
+// Get milliseconds until next midnight in Nairobi timezone
+export const getMsUntilNairobiMidnight = (): number => {
+  const nairobiNow = getNairobiTime();
+  const tomorrow = new Date(nairobiNow);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  return tomorrow.getTime() - nairobiNow.getTime();
 };
 
 export const getThemeColors = (theme: Holiday['theme']) => {
