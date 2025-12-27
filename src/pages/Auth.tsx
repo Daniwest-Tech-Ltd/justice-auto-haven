@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { SuspendedUserModal } from "@/components/SuspendedUserModal";
 import { TwoFactorDialog } from "@/components/TwoFactorDialog";
+import { CompleteProfileDialog } from "@/components/CompleteProfileDialog";
 import { useSecurityLogger } from "@/hooks/useSecurityLogger";
 import { useTurnstile } from "@/hooks/useTurnstile";
 import authBg from "@/assets/auth-bg.jpg";
@@ -84,6 +85,13 @@ const Auth = () => {
   } | null>(null);
   const [maintenanceCountdown, setMaintenanceCountdown] = useState("");
 
+  // Complete Profile Dialog state (for Google OAuth users who need to set password)
+  const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
+  const [completeProfileUserId, setCompleteProfileUserId] = useState("");
+  const [completeProfileUserEmail, setCompleteProfileUserEmail] = useState("");
+  const [completeProfileUserName, setCompleteProfileUserName] = useState("");
+  const [pendingRedirectPath, setPendingRedirectPath] = useState("");
+
   useEffect(() => {
     // Check maintenance once on mount, don't check repeatedly
     checkMaintenanceMode();
@@ -94,6 +102,39 @@ const Auth = () => {
       toast({
         title: "Password Reset Successful",
         description: "Your password has been reset. Please login with your new password.",
+      });
+      // Clear the URL parameter
+      window.history.replaceState({}, document.title, "/auth");
+    }
+    
+    // Check if redirected from ProtectedRoute to complete profile
+    const needsCompleteProfile = searchParams.get("complete_profile") === "true";
+    if (needsCompleteProfile) {
+      // Get current session and show the dialog
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name, password_set, auth_provider")
+            .eq("user_id", session.user.id)
+            .maybeSingle();
+          
+          if (profile && profile.auth_provider === 'google' && !profile.password_set) {
+            const { data: roleData } = await supabase
+              .from("user_roles")
+              .select("role")
+              .eq("user_id", session.user.id)
+              .maybeSingle();
+            
+            const redirectPath = roleData?.role === "admin" ? "/admin-dashboard" : "/customer-dashboard";
+            
+            setCompleteProfileUserId(session.user.id);
+            setCompleteProfileUserEmail(session.user.email || '');
+            setCompleteProfileUserName(profile.full_name || session.user.email?.split('@')[0] || 'User');
+            setPendingRedirectPath(redirectPath);
+            setShowCompleteProfileDialog(true);
+          }
+        }
       });
       // Clear the URL parameter
       window.history.replaceState({}, document.title, "/auth");
@@ -241,7 +282,7 @@ const Auth = () => {
     'justicevincentt@gmail.com'
   ];
 
-  // Handle Google OAuth callback - redirect to dashboard immediately
+  // Handle Google OAuth callback - check password_set status before redirecting
   useEffect(() => {
     const handleGoogleCallback = async () => {
       const isGoogleCallback = searchParams.get("google_callback") === "true";
@@ -260,27 +301,24 @@ const Auth = () => {
         if (session?.user) {
           const userEmail = session.user.email?.toLowerCase() || '';
           const isAdmin = ADMIN_EMAILS.includes(userEmail);
+          const googleName = session.user.user_metadata?.full_name || 
+                            session.user.user_metadata?.name || 
+                            session.user.email?.split('@')[0] || 'User';
+          const googleAvatar = session.user.user_metadata?.avatar_url || 
+                              session.user.user_metadata?.picture;
           
-          // Play login success sound
-          const loginSound = new Audio('/sounds/notification.mp3');
-          loginSound.volume = 0.5;
-          loginSound.play().catch(() => console.log('Audio play blocked'));
+          // Determine redirect path based on role
+          const redirectPath = isAdmin ? "/admin-dashboard" : "/customer-dashboard";
           
-          // Check if user profile exists, create if new Google user
+          // Check if user profile exists
           const { data: existingProfile } = await supabase
             .from("profiles")
-            .select("id, full_name")
+            .select("id, full_name, password_set, auth_provider")
             .eq("user_id", session.user.id)
             .maybeSingle();
           
           if (!existingProfile) {
-            // New Google user - create profile
-            const googleName = session.user.user_metadata?.full_name || 
-                              session.user.user_metadata?.name || 
-                              session.user.email?.split('@')[0] || 'User';
-            const googleAvatar = session.user.user_metadata?.avatar_url || 
-                                session.user.user_metadata?.picture;
-            
+            // New Google user - create profile with password_set = false
             await supabase.from("profiles").insert({
               user_id: session.user.id,
               email: session.user.email || '',
@@ -288,7 +326,9 @@ const Auth = () => {
               phone: '',
               avatar_url: googleAvatar,
               is_online: true,
-              last_seen: new Date().toISOString()
+              last_seen: new Date().toISOString(),
+              password_set: false,
+              auth_provider: 'google'
             });
             
             // Assign role based on admin status
@@ -298,51 +338,89 @@ const Auth = () => {
               role: assignedRole
             });
             
-            sonnerToast.success(`Welcome, ${googleName}! 🎉`, {
-              description: isAdmin 
-                ? "You have been granted admin access!" 
-                : "Your account has been created successfully!",
-            });
+            // Show Complete Profile dialog for new Google users
+            setCompleteProfileUserId(session.user.id);
+            setCompleteProfileUserEmail(userEmail);
+            setCompleteProfileUserName(googleName);
+            setPendingRedirectPath(redirectPath);
+            setShowCompleteProfileDialog(true);
+            setLoading(false);
             
-            // Redirect based on role
-            if (isAdmin) {
-              navigate("/admin-dashboard", { replace: true });
-            } else {
-              navigate("/customer-dashboard", { replace: true });
-            }
           } else {
-            // Existing user - update online status
-            await supabase.from("profiles").update({
-              is_online: true,
-              last_seen: new Date().toISOString()
-            }).eq("user_id", session.user.id);
+            // Existing user - check if password is set
+            const hasPassword = existingProfile.password_set === true;
             
-            // Check current role
-            const { data: roleData } = await supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", session.user.id)
-              .maybeSingle();
-            
-            // If admin email but not admin role, upgrade to admin
-            if (isAdmin && roleData?.role !== "admin") {
-              await supabase.from("user_roles")
-                .upsert({ user_id: session.user.id, role: "admin" }, 
-                        { onConflict: 'user_id' });
-            }
-            
-            const isAdminUser = isAdmin || roleData?.role === "admin";
-            const displayName = existingProfile.full_name || session.user.email;
-            
-            sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-              description: `Logged in as ${isAdminUser ? "admin" : "customer"}`,
-            });
-            
-            // Redirect to admin-dashboard for any admin
-            if (isAdminUser) {
-              navigate("/admin-dashboard", { replace: true });
+            if (!hasPassword && existingProfile.auth_provider === 'google') {
+              // Google user without password - show Complete Profile dialog
+              await supabase.from("profiles").update({
+                is_online: true,
+                last_seen: new Date().toISOString()
+              }).eq("user_id", session.user.id);
+              
+              // Check current role
+              const { data: roleData } = await supabase
+                .from("user_roles")
+                .select("role")
+                .eq("user_id", session.user.id)
+                .maybeSingle();
+              
+              // If admin email but not admin role, upgrade to admin
+              if (isAdmin && roleData?.role !== "admin") {
+                await supabase.from("user_roles")
+                  .upsert({ user_id: session.user.id, role: "admin" }, 
+                          { onConflict: 'user_id' });
+              }
+              
+              const isAdminUser = isAdmin || roleData?.role === "admin";
+              const finalRedirectPath = isAdminUser ? "/admin-dashboard" : "/customer-dashboard";
+              
+              setCompleteProfileUserId(session.user.id);
+              setCompleteProfileUserEmail(userEmail);
+              setCompleteProfileUserName(existingProfile.full_name || googleName);
+              setPendingRedirectPath(finalRedirectPath);
+              setShowCompleteProfileDialog(true);
+              setLoading(false);
+              
             } else {
-              navigate("/customer-dashboard", { replace: true });
+              // User has password set - proceed with normal login
+              // Play login success sound
+              const loginSound = new Audio('/sounds/notification.mp3');
+              loginSound.volume = 0.5;
+              loginSound.play().catch(() => console.log('Audio play blocked'));
+              
+              await supabase.from("profiles").update({
+                is_online: true,
+                last_seen: new Date().toISOString()
+              }).eq("user_id", session.user.id);
+              
+              // Check current role
+              const { data: roleData } = await supabase
+                .from("user_roles")
+                .select("role")
+                .eq("user_id", session.user.id)
+                .maybeSingle();
+              
+              // If admin email but not admin role, upgrade to admin
+              if (isAdmin && roleData?.role !== "admin") {
+                await supabase.from("user_roles")
+                  .upsert({ user_id: session.user.id, role: "admin" }, 
+                          { onConflict: 'user_id' });
+              }
+              
+              const isAdminUser = isAdmin || roleData?.role === "admin";
+              const displayName = existingProfile.full_name || session.user.email;
+              
+              sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
+                description: `Logged in as ${isAdminUser ? "admin" : "customer"}`,
+              });
+              
+              // Redirect to appropriate dashboard
+              if (isAdminUser) {
+                navigate("/admin-dashboard", { replace: true });
+              } else {
+                navigate("/customer-dashboard", { replace: true });
+              }
+              setLoading(false);
             }
           }
         } else {
@@ -350,7 +428,6 @@ const Auth = () => {
           setLoading(false);
           return;
         }
-        setLoading(false);
       }
     };
     
@@ -1463,6 +1540,23 @@ const Auth = () => {
             setShow2FADialog(false);
             await completeLogin(pendingUserId, undefined, pendingUserEmail);
           }
+        }}
+      />
+
+      {/* Complete Profile Dialog for Google OAuth users */}
+      <CompleteProfileDialog
+        isOpen={showCompleteProfileDialog}
+        userId={completeProfileUserId}
+        userEmail={completeProfileUserEmail}
+        userName={completeProfileUserName}
+        onComplete={() => {
+          setShowCompleteProfileDialog(false);
+          // Play success sound
+          const successSound = new Audio('/sounds/notification.mp3');
+          successSound.volume = 0.5;
+          successSound.play().catch(() => {});
+          // Navigate to the pending redirect path
+          navigate(pendingRedirectPath, { replace: true });
         }}
       />
     </>

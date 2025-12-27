@@ -15,9 +15,10 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const [accountStatus, setAccountStatus] = useState<string | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [suspensionDetails, setSuspensionDetails] = useState<{ reason?: string; until?: string }>({});
+  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
 
   useEffect(() => {
-    if (user && role?.role === "customer") {
+    if (user) {
       checkAccountStatus();
     } else {
       setCheckingStatus(false);
@@ -28,13 +29,21 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("account_status, suspended_reason, suspended_at")
+        .select("account_status, suspended_reason, suspended_at, password_set, auth_provider")
         .eq("user_id", user?.id)
         .single();
 
       if (error) throw error;
 
       setAccountStatus(data?.account_status || "active");
+      
+      // Check if Google OAuth user without password set
+      if (data?.auth_provider === 'google' && data?.password_set === false) {
+        setNeedsPasswordSetup(true);
+      } else {
+        setNeedsPasswordSetup(false);
+      }
+      
       if (data?.account_status === "suspended" || data?.account_status === "blocked") {
         setSuspensionDetails({
           reason: data.suspended_reason,
@@ -54,6 +63,11 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  // Redirect to auth page if Google user needs to set password
+  if (needsPasswordSetup) {
+    return <Navigate to="/auth?complete_profile=true" replace />;
   }
 
   // Check if customer account is suspended or blocked
