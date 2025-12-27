@@ -28,6 +28,7 @@ import carLotOverlay from "@/assets/car-lot-overlay.jpg";
 import maintenanceGif from "@/assets/maintenance.gif";
 import googleIcon from "@/assets/google-icon.svg";
 import githubIcon from "@/assets/github-icon.svg";
+import facebookIcon from "@/assets/facebook-icon.svg";
 import kenyaLocations from "@/data/kenya-locations.json";
 import { Combobox } from "@/components/ui/combobox";
 import { PhoneInputWithCountryCode } from "@/components/PhoneInputWithCountryCode";
@@ -120,8 +121,8 @@ const Auth = () => {
             .eq("user_id", session.user.id)
             .maybeSingle();
           
-          // Check for Google or GitHub OAuth users without password
-          if (profile && (profile.auth_provider === 'google' || profile.auth_provider === 'github') && !profile.password_set) {
+          // Check for Google, GitHub, or Facebook OAuth users without password
+          if (profile && (profile.auth_provider === 'google' || profile.auth_provider === 'github' || profile.auth_provider === 'facebook') && !profile.password_set) {
             const { data: roleData } = await supabase
               .from("user_roles")
               .select("role")
@@ -309,6 +310,38 @@ const Auth = () => {
     }
   };
 
+  // Facebook OAuth login - redirects to dashboard after success
+  const handleFacebookLogin = async () => {
+    try {
+      setLoading(true);
+      const redirectUrl = `${window.location.origin}/auth?facebook_callback=true`;
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: redirectUrl,
+          scopes: 'email'
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Facebook Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Facebook Login Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Admin emails - these users always get admin role
   const ADMIN_EMAILS = [
     'daniwesttechnologies@gmail.com',
@@ -320,11 +353,12 @@ const Auth = () => {
     const handleOAuthCallback = async () => {
       const isGoogleCallback = searchParams.get("google_callback") === "true";
       const isGitHubCallback = searchParams.get("github_callback") === "true";
+      const isFacebookCallback = searchParams.get("facebook_callback") === "true";
       const hasAuthTokens = window.location.hash.includes("access_token") || 
                            searchParams.get("code") !== null;
       
-      if (isGoogleCallback || isGitHubCallback || hasAuthTokens) {
-        const authProvider = isGitHubCallback ? 'github' : 'google';
+      if (isGoogleCallback || isGitHubCallback || isFacebookCallback || hasAuthTokens) {
+        const authProvider = isFacebookCallback ? 'facebook' : isGitHubCallback ? 'github' : 'google';
         setLoading(true);
         
         // Small delay to ensure session is established
@@ -385,7 +419,7 @@ const Auth = () => {
             // Existing user - check if password is set
             const hasPassword = existingProfile.password_set === true;
             
-            if (!hasPassword && (existingProfile.auth_provider === 'google' || existingProfile.auth_provider === 'github')) {
+            if (!hasPassword && (existingProfile.auth_provider === 'google' || existingProfile.auth_provider === 'github' || existingProfile.auth_provider === 'facebook')) {
               // OAuth user without password - show Complete Profile dialog
               await supabase.from("profiles").update({
                 is_online: true,
@@ -1202,6 +1236,17 @@ const Auth = () => {
                 <img src={githubIcon} alt="GitHub" className="mr-2 h-5 w-5 invert" />
                 Continue with GitHub
               </Button>
+
+              <Button
+                type="button"
+                onClick={handleFacebookLogin}
+                disabled={loading}
+                variant="outline"
+                className="w-full border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
+              >
+                <img src={facebookIcon} alt="Facebook" className="mr-2 h-5 w-5" />
+                Continue with Facebook
+              </Button>
             </form>
           </div>
 
@@ -1411,6 +1456,17 @@ const Auth = () => {
               >
                 <img src={githubIcon} alt="GitHub" className="mr-2 h-5 w-5 dark:invert" />
                 Continue with GitHub
+              </Button>
+
+              <Button
+                type="button"
+                onClick={handleFacebookLogin}
+                disabled={loading}
+                variant="outline"
+                className="w-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
+              >
+                <img src={facebookIcon} alt="Facebook" className="mr-2 h-5 w-5" />
+                Continue with Facebook
               </Button>
             </form>
           </div>
