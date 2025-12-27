@@ -18,7 +18,7 @@ export interface UserProfile {
 }
 
 export interface UserRole {
-  role: "admin" | "customer" | "super_admin";
+  role: "admin" | "customer";
 }
 
 export const useAuth = () => {
@@ -36,7 +36,7 @@ export const useAuth = () => {
         setLoading(true);
         // Defer Supabase calls to avoid auth deadlocks
         setTimeout(() => {
-          fetchUserData(session.user.id, session.user.email ?? undefined);
+          fetchUserData(session.user.id);
         }, 0);
       } else {
         setProfile(null);
@@ -50,7 +50,7 @@ export const useAuth = () => {
       setUser(session?.user ?? null);
       if (session?.user) {
         setLoading(true);
-        fetchUserData(session.user.id, session.user.email ?? undefined);
+        fetchUserData(session.user.id);
       } else {
         setLoading(false);
       }
@@ -59,45 +59,24 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserData = async (userId: string, sessionEmail?: string) => {
+  const fetchUserData = async (userId: string) => {
     try {
-      // Fetch profile (may be blocked by RLS in some environments; role fallback must not depend on this)
+      // Fetch profile
       const { data: profileData } = await supabase
         .from("profiles")
         .select("*")
         .eq("user_id", userId)
         .maybeSingle();
 
-      // Determine role via SECURITY DEFINER RPC to avoid RLS blocking role checks.
-      // If RPC is unavailable, fall back to a tight superadmin email allowlist.
-      let resolvedRole: UserRole | null = null;
-
-      const SUPERADMIN_EMAILS = [
-        "daniwesttechnologies@gmail.com",
-        "justicevincentt@gmail.com",
-      ];
-
-      try {
-        const { data: isAdmin } = await supabase.rpc(
-          "has_role" as any,
-          { _user_id: userId, _role: "admin" } as any
-        );
-
-        if (isAdmin) {
-          // has_role('admin') returns true for both admin + super_admin
-          resolvedRole = { role: "admin" };
-        } else {
-          resolvedRole = { role: "customer" };
-        }
-      } catch {
-        const emailLower = (sessionEmail || (profileData as any)?.email || "").toLowerCase();
-        resolvedRole = SUPERADMIN_EMAILS.includes(emailLower)
-          ? { role: "admin" }
-          : { role: "customer" };
-      }
+      // Fetch role
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
 
       setProfile(profileData as UserProfile | null);
-      setRole(resolvedRole);
+      setRole(roleData as UserRole | null);
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {

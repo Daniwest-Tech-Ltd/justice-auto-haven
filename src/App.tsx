@@ -116,11 +116,6 @@ const AppContent = () => {
   const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
 
   useEffect(() => {
-    const SUPERADMIN_EMAILS = [
-      "daniwesttechnologies@gmail.com",
-      "justicevincentt@gmail.com",
-    ];
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         // Defer Supabase calls to avoid auth deadlocks
@@ -143,13 +138,6 @@ const AppContent = () => {
               .update({ avatar_url: googleAvatar })
               .eq("user_id", session.user.id);
           }
-
-          // Safety net: if a superadmin is on a customer route, force them to /admin-dashboard
-          const emailLower = (session.user.email || "").toLowerCase();
-          const isSuperAdminEmail = SUPERADMIN_EMAILS.includes(emailLower);
-          if (isSuperAdminEmail && location.pathname.startsWith("/customer")) {
-            navigate("/admin-dashboard", { replace: true });
-          }
         }, 0);
       } else {
         // Apply saved theme from localStorage when not logged in
@@ -161,7 +149,7 @@ const AppContent = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [location.pathname, navigate]);
+  }, []);
 
   // Scroll to top on route change
   useEffect(() => {
@@ -219,15 +207,6 @@ const AppContent = () => {
           {/* Protected Dashboard Routes */}
           <Route 
             path="/admin-dashboard" 
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          {/* Also support a trailing slash */}
-          <Route 
-            path="/admin-dashboard/" 
             element={
               <ProtectedRoute requiredRole="admin">
                 <AdminDashboard />

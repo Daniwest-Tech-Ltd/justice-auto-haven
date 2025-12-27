@@ -235,52 +235,52 @@ const Auth = () => {
     }
   };
 
-  // Superadmin emails (fallback allowlist if RBAC check fails)
+  // Superadmin emails - these users always get admin role
   const SUPERADMIN_EMAILS = [
-    "daniwesttechnologies@gmail.com",
-    "justicevincentt@gmail.com",
+    'daniwesttechnologies@gmail.com',
+    'justicevincent@gmail.com'
   ];
 
   // Handle Google OAuth callback - redirect to dashboard immediately
   useEffect(() => {
     const handleGoogleCallback = async () => {
       const isGoogleCallback = searchParams.get("google_callback") === "true";
-      const hasAuthTokens = window.location.hash.includes("access_token") ||
+      const hasAuthTokens = window.location.hash.includes("access_token") || 
                            searchParams.get("code") !== null;
-
+      
       if (isGoogleCallback || hasAuthTokens) {
         setLoading(true);
-
+        
         // Small delay to ensure session is established
         await new Promise(resolve => setTimeout(resolve, 500));
-
+        
         // Wait for session to be established
         const { data: { session } } = await supabase.auth.getSession();
-
+        
         if (session?.user) {
           const userEmail = session.user.email?.toLowerCase() || '';
-          const isSuperAdminEmail = SUPERADMIN_EMAILS.includes(userEmail);
-
+          const isSuperAdmin = SUPERADMIN_EMAILS.includes(userEmail);
+          
           // Play login success sound
           const loginSound = new Audio('/sounds/notification.mp3');
           loginSound.volume = 0.5;
           loginSound.play().catch(() => console.log('Audio play blocked'));
-
+          
           // Check if user profile exists, create if new Google user
           const { data: existingProfile } = await supabase
             .from("profiles")
             .select("id, full_name")
             .eq("user_id", session.user.id)
             .maybeSingle();
-
+          
           if (!existingProfile) {
             // New Google user - create profile
-            const googleName = session.user.user_metadata?.full_name ||
-                              session.user.user_metadata?.name ||
+            const googleName = session.user.user_metadata?.full_name || 
+                              session.user.user_metadata?.name || 
                               session.user.email?.split('@')[0] || 'User';
-            const googleAvatar = session.user.user_metadata?.avatar_url ||
+            const googleAvatar = session.user.user_metadata?.avatar_url || 
                                 session.user.user_metadata?.picture;
-
+            
             await supabase.from("profiles").insert({
               user_id: session.user.id,
               email: session.user.email || '',
@@ -290,13 +290,22 @@ const Auth = () => {
               is_online: true,
               last_seen: new Date().toISOString()
             });
-
-            sonnerToast.success(`Welcome, ${googleName}! 🎉`, {
-              description: "Your account has been created successfully!",
+            
+            // Assign role based on superadmin status
+            const assignedRole = isSuperAdmin ? "admin" : "customer";
+            await supabase.from("user_roles").insert({
+              user_id: session.user.id,
+              role: assignedRole
             });
-
-            // Redirect: allowlisted superadmins go to admin dashboard even if RBAC lookup is delayed
-            if (isSuperAdminEmail) {
+            
+            sonnerToast.success(`Welcome, ${googleName}! 🎉`, {
+              description: isSuperAdmin 
+                ? "You have been granted superadmin access!" 
+                : "Your account has been created successfully!",
+            });
+            
+            // Redirect based on role
+            if (isSuperAdmin) {
               navigate("/admin-dashboard", { replace: true });
             } else {
               navigate("/customer-dashboard", { replace: true });
@@ -307,26 +316,28 @@ const Auth = () => {
               is_online: true,
               last_seen: new Date().toISOString()
             }).eq("user_id", session.user.id);
-
-            // Determine admin access via SECURITY DEFINER function (works for both admin + super_admin)
-            // Fallback to the superadmin email allowlist if RPC is unavailable.
-            let isAdmin = false;
-            try {
-              const { data: hasAdmin } = await supabase.rpc(
-                "has_role" as any,
-                { _user_id: session.user.id, _role: "admin" } as any
-              );
-              isAdmin = Boolean(hasAdmin) || isSuperAdminEmail;
-            } catch {
-              isAdmin = isSuperAdminEmail;
+            
+            // Check current role
+            const { data: roleData } = await supabase
+              .from("user_roles")
+              .select("role")
+              .eq("user_id", session.user.id)
+              .maybeSingle();
+            
+            // If superadmin email but not admin role, upgrade to admin
+            if (isSuperAdmin && roleData?.role !== "admin") {
+              await supabase.from("user_roles")
+                .upsert({ user_id: session.user.id, role: "admin" }, 
+                        { onConflict: 'user_id' });
             }
-
+            
+            const isAdmin = isSuperAdmin || roleData?.role === "admin";
             const displayName = existingProfile.full_name || session.user.email;
-
+            
             sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
               description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
             });
-
+            
             // Redirect to admin-dashboard for any admin/superadmin
             if (isAdmin) {
               navigate("/admin-dashboard", { replace: true });
@@ -342,7 +353,7 @@ const Auth = () => {
         setLoading(false);
       }
     };
-
+    
     handleGoogleCallback();
   }, [searchParams, navigate]);
 
@@ -374,7 +385,7 @@ const Auth = () => {
       const loginSound = new Audio('/sounds/notification.mp3');
       loginSound.volume = 0.5;
       loginSound.play().catch(() => console.log('Audio play blocked'));
-
+      
       // Fetch profile first to get email
       const { data: profileData } = await supabase
         .from("profiles")
@@ -386,25 +397,27 @@ const Auth = () => {
         .eq("user_id", userId)
         .select("full_name, email")
         .single();
-
-      const emailLower = (userEmail || profileData?.email || '').toLowerCase();
-      const isSuperAdminEmail = SUPERADMIN_EMAILS.includes(emailLower);
-
-      // Determine admin access via SECURITY DEFINER function (works for both admin + super_admin)
-      // Fallback to the superadmin email allowlist if RPC is unavailable.
-      let isAdmin = false;
-      try {
-        const { data: hasAdmin } = await supabase.rpc(
-          "has_role" as any,
-          { _user_id: userId, _role: "admin" } as any
-        );
-        isAdmin = Boolean(hasAdmin) || isSuperAdminEmail;
-      } catch {
-        isAdmin = isSuperAdminEmail;
+      
+      // Check if superadmin email - use provided email or fetch from profile
+      const actualEmail = (userEmail || profileData?.email || '').toLowerCase();
+      const isSuperAdmin = SUPERADMIN_EMAILS.includes(actualEmail);
+      
+      // If superadmin, ensure admin role exists
+      if (isSuperAdmin) {
+        await supabase.from("user_roles")
+          .upsert({ user_id: userId, role: "admin" }, { onConflict: 'user_id' });
       }
-
+      
+      // Fetch the CURRENT role after any upgrade
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
+      
+      const isAdmin = isSuperAdmin || roleData?.role === "admin";
       const displayName = userName || profileData?.full_name || "User";
-
+      
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
         description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
       });
