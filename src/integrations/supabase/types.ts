@@ -2202,6 +2202,7 @@ export type Database = {
         Row: {
           account_status: string | null
           activation_code: string | null
+          auth_provider: string | null
           avatar_url: string | null
           blocked_at: string | null
           country_code: string | null
@@ -2221,6 +2222,7 @@ export type Database = {
           last_seen: string | null
           lock_until: string | null
           login_attempts: number | null
+          password_set: boolean | null
           phone: string
           preferred_2fa: string | null
           preferred_contact: string | null
@@ -2240,6 +2242,7 @@ export type Database = {
         Insert: {
           account_status?: string | null
           activation_code?: string | null
+          auth_provider?: string | null
           avatar_url?: string | null
           blocked_at?: string | null
           country_code?: string | null
@@ -2259,6 +2262,7 @@ export type Database = {
           last_seen?: string | null
           lock_until?: string | null
           login_attempts?: number | null
+          password_set?: boolean | null
           phone: string
           preferred_2fa?: string | null
           preferred_contact?: string | null
@@ -2278,6 +2282,7 @@ export type Database = {
         Update: {
           account_status?: string | null
           activation_code?: string | null
+          auth_provider?: string | null
           avatar_url?: string | null
           blocked_at?: string | null
           country_code?: string | null
@@ -2297,6 +2302,7 @@ export type Database = {
           last_seen?: string | null
           lock_until?: string | null
           login_attempts?: number | null
+          password_set?: boolean | null
           phone?: string
           preferred_2fa?: string | null
           preferred_contact?: string | null
