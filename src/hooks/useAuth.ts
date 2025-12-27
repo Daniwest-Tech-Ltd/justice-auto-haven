@@ -68,15 +68,34 @@ export const useAuth = () => {
         .eq("user_id", userId)
         .maybeSingle();
 
-      // Fetch role
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
+      // Determine role via SECURITY DEFINER RPC to avoid RLS blocking role checks
+      // (falls back to customer if role cannot be determined)
+      let resolvedRole: UserRole | null = null;
+
+      try {
+        const { data: isSuperAdmin } = await supabase.rpc(
+          "has_role" as any,
+          { _user_id: userId, _role: "super_admin" } as any
+        );
+        const { data: isAdmin } = await supabase.rpc(
+          "has_role" as any,
+          { _user_id: userId, _role: "admin" } as any
+        );
+
+        if (isSuperAdmin) {
+          resolvedRole = { role: "super_admin" };
+        } else if (isAdmin) {
+          resolvedRole = { role: "admin" };
+        } else {
+          resolvedRole = { role: "customer" };
+        }
+      } catch {
+        // If RPC is unavailable/misconfigured, we keep role null and let UI treat as non-admin.
+        resolvedRole = { role: "customer" };
+      }
 
       setProfile(profileData as UserProfile | null);
-      setRole(roleData as UserRole | null);
+      setRole(resolvedRole);
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
