@@ -331,7 +331,7 @@ const Auth = () => {
                         { onConflict: 'user_id' });
             }
             
-            const isAdmin = isSuperAdmin || roleData?.role === "admin";
+            const isAdmin = isSuperAdmin || roleData?.role === "admin" || roleData?.role === "super_admin";
             const displayName = existingProfile.full_name || session.user.email;
             
             sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
@@ -415,7 +415,7 @@ const Auth = () => {
         .eq("user_id", userId)
         .maybeSingle();
       
-      const isAdmin = isSuperAdmin || roleData?.role === "admin";
+      const isAdmin = isSuperAdmin || roleData?.role === "admin" || roleData?.role === "super_admin";
       const displayName = userName || profileData?.full_name || "User";
       
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
