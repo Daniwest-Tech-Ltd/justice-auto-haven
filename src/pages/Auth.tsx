@@ -1215,38 +1215,43 @@ const Auth = () => {
                 </div>
               </div>
 
-              <Button
-                type="button"
-                onClick={handleGoogleLogin}
-                disabled={loading}
-                variant="outline"
-                className="w-full border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
-              >
-                <img src={googleIcon} alt="Google" className="mr-2 h-5 w-5" />
-                Continue with Google
-              </Button>
+              <div className="flex justify-center gap-4">
+                <Button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
+                  variant="outline"
+                  size="icon"
+                  className="w-14 h-14 rounded-full border-2 border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
+                  title="Continue with Google"
+                >
+                  <img src={googleIcon} alt="Google" className="h-7 w-7" />
+                </Button>
 
-              <Button
-                type="button"
-                onClick={handleGitHubLogin}
-                disabled={loading}
-                variant="outline"
-                className="w-full border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
-              >
-                <img src={githubIcon} alt="GitHub" className="mr-2 h-5 w-5 invert" />
-                Continue with GitHub
-              </Button>
+                <Button
+                  type="button"
+                  onClick={handleGitHubLogin}
+                  disabled={loading}
+                  variant="outline"
+                  size="icon"
+                  className="w-14 h-14 rounded-full border-2 border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
+                  title="Continue with GitHub"
+                >
+                  <img src={githubIcon} alt="GitHub" className="h-7 w-7 invert" />
+                </Button>
 
-              <Button
-                type="button"
-                onClick={handleFacebookLogin}
-                disabled={loading}
-                variant="outline"
-                className="w-full border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
-              >
-                <img src={facebookIcon} alt="Facebook" className="mr-2 h-5 w-5" />
-                Continue with Facebook
-              </Button>
+                <Button
+                  type="button"
+                  onClick={handleFacebookLogin}
+                  disabled={loading}
+                  variant="outline"
+                  size="icon"
+                  className="w-14 h-14 rounded-full border-2 border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
+                  title="Continue with Facebook"
+                >
+                  <img src={facebookIcon} alt="Facebook" className="h-7 w-7" />
+                </Button>
+              </div>
             </form>
           </div>
 
@@ -1436,38 +1441,43 @@ const Auth = () => {
                 </div>
               </div>
 
-              <Button
-                type="button"
-                onClick={handleGoogleLogin}
-                disabled={loading}
-                variant="outline"
-                className="w-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
-              >
-                <img src={googleIcon} alt="Google" className="mr-2 h-5 w-5" />
-                Continue with Google
-              </Button>
+              <div className="flex justify-center gap-4">
+                <Button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
+                  variant="outline"
+                  size="icon"
+                  className="w-14 h-14 rounded-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
+                  title="Continue with Google"
+                >
+                  <img src={googleIcon} alt="Google" className="h-7 w-7" />
+                </Button>
 
-              <Button
-                type="button"
-                onClick={handleGitHubLogin}
-                disabled={loading}
-                variant="outline"
-                className="w-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
-              >
-                <img src={githubIcon} alt="GitHub" className="mr-2 h-5 w-5 dark:invert" />
-                Continue with GitHub
-              </Button>
+                <Button
+                  type="button"
+                  onClick={handleGitHubLogin}
+                  disabled={loading}
+                  variant="outline"
+                  size="icon"
+                  className="w-14 h-14 rounded-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
+                  title="Continue with GitHub"
+                >
+                  <img src={githubIcon} alt="GitHub" className="h-7 w-7 dark:invert" />
+                </Button>
 
-              <Button
-                type="button"
-                onClick={handleFacebookLogin}
-                disabled={loading}
-                variant="outline"
-                className="w-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
-              >
-                <img src={facebookIcon} alt="Facebook" className="mr-2 h-5 w-5" />
-                Continue with Facebook
-              </Button>
+                <Button
+                  type="button"
+                  onClick={handleFacebookLogin}
+                  disabled={loading}
+                  variant="outline"
+                  size="icon"
+                  className="w-14 h-14 rounded-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
+                  title="Continue with Facebook"
+                >
+                  <img src={facebookIcon} alt="Facebook" className="h-7 w-7" />
+                </Button>
+              </div>
             </form>
           </div>
 
