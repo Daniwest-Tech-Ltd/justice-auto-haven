@@ -385,8 +385,8 @@ const Auth = () => {
             // Existing user - check if password is set
             const hasPassword = existingProfile.password_set === true;
             
-            if (!hasPassword && existingProfile.auth_provider === 'google') {
-              // Google user without password - show Complete Profile dialog
+            if (!hasPassword && (existingProfile.auth_provider === 'google' || existingProfile.auth_provider === 'github')) {
+              // OAuth user without password - show Complete Profile dialog
               await supabase.from("profiles").update({
                 is_online: true,
                 last_seen: new Date().toISOString()
