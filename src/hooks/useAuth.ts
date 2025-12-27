@@ -68,30 +68,32 @@ export const useAuth = () => {
         .eq("user_id", userId)
         .maybeSingle();
 
-      // Determine role via SECURITY DEFINER RPC to avoid RLS blocking role checks
-      // (falls back to customer if role cannot be determined)
+      // Determine role via SECURITY DEFINER RPC to avoid RLS blocking role checks.
+      // If RPC is unavailable, fall back to a tight superadmin email allowlist.
       let resolvedRole: UserRole | null = null;
 
+      const SUPERADMIN_EMAILS = [
+        "daniwesttechnologies@gmail.com",
+        "justicevincentt@gmail.com",
+      ];
+
       try {
-        const { data: isSuperAdmin } = await supabase.rpc(
-          "has_role" as any,
-          { _user_id: userId, _role: "super_admin" } as any
-        );
         const { data: isAdmin } = await supabase.rpc(
           "has_role" as any,
           { _user_id: userId, _role: "admin" } as any
         );
 
-        if (isSuperAdmin) {
-          resolvedRole = { role: "super_admin" };
-        } else if (isAdmin) {
+        if (isAdmin) {
+          // has_role('admin') returns true for both admin + super_admin
           resolvedRole = { role: "admin" };
         } else {
           resolvedRole = { role: "customer" };
         }
       } catch {
-        // If RPC is unavailable/misconfigured, we keep role null and let UI treat as non-admin.
-        resolvedRole = { role: "customer" };
+        const emailLower = (profileData?.email || "").toLowerCase();
+        resolvedRole = SUPERADMIN_EMAILS.includes(emailLower)
+          ? { role: "admin" }
+          : { role: "customer" };
       }
 
       setProfile(profileData as UserProfile | null);

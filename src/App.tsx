@@ -213,6 +213,15 @@ const AppContent = () => {
               </ProtectedRoute>
             } 
           />
+          {/* Also support a trailing slash */}
+          <Route 
+            path="/admin-dashboard/" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
           {/* Redirect /admin to /admin-dashboard */}
           <Route 
             path="/admin" 
