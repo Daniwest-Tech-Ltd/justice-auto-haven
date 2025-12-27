@@ -27,6 +27,7 @@ import authBg from "@/assets/auth-bg.jpg";
 import carLotOverlay from "@/assets/car-lot-overlay.jpg";
 import maintenanceGif from "@/assets/maintenance.gif";
 import googleIcon from "@/assets/google-icon.svg";
+import githubIcon from "@/assets/github-icon.svg";
 import kenyaLocations from "@/data/kenya-locations.json";
 import { Combobox } from "@/components/ui/combobox";
 import { PhoneInputWithCountryCode } from "@/components/PhoneInputWithCountryCode";
@@ -119,7 +120,8 @@ const Auth = () => {
             .eq("user_id", session.user.id)
             .maybeSingle();
           
-          if (profile && profile.auth_provider === 'google' && !profile.password_set) {
+          // Check for Google or GitHub OAuth users without password
+          if (profile && (profile.auth_provider === 'google' || profile.auth_provider === 'github') && !profile.password_set) {
             const { data: roleData } = await supabase
               .from("user_roles")
               .select("role")
@@ -276,20 +278,53 @@ const Auth = () => {
     }
   };
 
+  // GitHub OAuth login - redirects to dashboard after success
+  const handleGitHubLogin = async () => {
+    try {
+      setLoading(true);
+      const redirectUrl = `${window.location.origin}/auth?github_callback=true`;
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: redirectUrl
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "GitHub Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "GitHub Login Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Admin emails - these users always get admin role
   const ADMIN_EMAILS = [
     'daniwesttechnologies@gmail.com',
     'justicevincentt@gmail.com'
   ];
 
-  // Handle Google OAuth callback - check password_set status before redirecting
+  // Handle Google/GitHub OAuth callback - check password_set status before redirecting
   useEffect(() => {
-    const handleGoogleCallback = async () => {
+    const handleOAuthCallback = async () => {
       const isGoogleCallback = searchParams.get("google_callback") === "true";
+      const isGitHubCallback = searchParams.get("github_callback") === "true";
       const hasAuthTokens = window.location.hash.includes("access_token") || 
                            searchParams.get("code") !== null;
       
-      if (isGoogleCallback || hasAuthTokens) {
+      if (isGoogleCallback || isGitHubCallback || hasAuthTokens) {
+        const authProvider = isGitHubCallback ? 'github' : 'google';
         setLoading(true);
         
         // Small delay to ensure session is established
@@ -318,7 +353,7 @@ const Auth = () => {
             .maybeSingle();
           
           if (!existingProfile) {
-            // New Google user - create profile with password_set = false
+            // New OAuth user - create profile with password_set = false
             await supabase.from("profiles").insert({
               user_id: session.user.id,
               email: session.user.email || '',
@@ -328,7 +363,7 @@ const Auth = () => {
               is_online: true,
               last_seen: new Date().toISOString(),
               password_set: false,
-              auth_provider: 'google'
+              auth_provider: authProvider
             });
             
             // Assign role based on admin status
@@ -431,7 +466,7 @@ const Auth = () => {
       }
     };
     
-    handleGoogleCallback();
+    handleOAuthCallback();
   }, [searchParams, navigate]);
 
   // Password strength checker
@@ -1156,6 +1191,17 @@ const Auth = () => {
                 <img src={googleIcon} alt="Google" className="mr-2 h-5 w-5" />
                 Continue with Google
               </Button>
+
+              <Button
+                type="button"
+                onClick={handleGitHubLogin}
+                disabled={loading}
+                variant="outline"
+                className="w-full border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
+              >
+                <img src={githubIcon} alt="GitHub" className="mr-2 h-5 w-5 invert" />
+                Continue with GitHub
+              </Button>
             </form>
           </div>
 
@@ -1354,6 +1400,17 @@ const Auth = () => {
               >
                 <img src={googleIcon} alt="Google" className="mr-2 h-5 w-5" />
                 Continue with Google
+              </Button>
+
+              <Button
+                type="button"
+                onClick={handleGitHubLogin}
+                disabled={loading}
+                variant="outline"
+                className="w-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-105 hover:-translate-y-0.5"
+              >
+                <img src={githubIcon} alt="GitHub" className="mr-2 h-5 w-5 dark:invert" />
+                Continue with GitHub
               </Button>
             </form>
           </div>
