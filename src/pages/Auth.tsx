@@ -235,10 +235,10 @@ const Auth = () => {
     }
   };
 
-  // Superadmin emails - these users always get admin role
-  const SUPERADMIN_EMAILS = [
+  // Admin emails - these users always get admin role
+  const ADMIN_EMAILS = [
     'daniwesttechnologies@gmail.com',
-    'justicevincent@gmail.com'
+    'justicevincentt@gmail.com'
   ];
 
   // Handle Google OAuth callback - redirect to dashboard immediately
@@ -259,7 +259,7 @@ const Auth = () => {
         
         if (session?.user) {
           const userEmail = session.user.email?.toLowerCase() || '';
-          const isSuperAdmin = SUPERADMIN_EMAILS.includes(userEmail);
+          const isAdmin = ADMIN_EMAILS.includes(userEmail);
           
           // Play login success sound
           const loginSound = new Audio('/sounds/notification.mp3');
@@ -291,21 +291,21 @@ const Auth = () => {
               last_seen: new Date().toISOString()
             });
             
-            // Assign role based on superadmin status
-            const assignedRole = isSuperAdmin ? "admin" : "customer";
+            // Assign role based on admin status
+            const assignedRole = isAdmin ? "admin" : "customer";
             await supabase.from("user_roles").insert({
               user_id: session.user.id,
               role: assignedRole
             });
             
             sonnerToast.success(`Welcome, ${googleName}! 🎉`, {
-              description: isSuperAdmin 
-                ? "You have been granted superadmin access!" 
+              description: isAdmin 
+                ? "You have been granted admin access!" 
                 : "Your account has been created successfully!",
             });
             
             // Redirect based on role
-            if (isSuperAdmin) {
+            if (isAdmin) {
               navigate("/admin-dashboard", { replace: true });
             } else {
               navigate("/customer-dashboard", { replace: true });
@@ -324,22 +324,22 @@ const Auth = () => {
               .eq("user_id", session.user.id)
               .maybeSingle();
             
-            // If superadmin email but not admin role, upgrade to admin
-            if (isSuperAdmin && roleData?.role !== "admin") {
+            // If admin email but not admin role, upgrade to admin
+            if (isAdmin && roleData?.role !== "admin") {
               await supabase.from("user_roles")
                 .upsert({ user_id: session.user.id, role: "admin" }, 
                         { onConflict: 'user_id' });
             }
             
-            const isAdmin = isSuperAdmin || roleData?.role === "admin";
+            const isAdminUser = isAdmin || roleData?.role === "admin";
             const displayName = existingProfile.full_name || session.user.email;
             
             sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-              description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
+              description: `Logged in as ${isAdminUser ? "admin" : "customer"}`,
             });
             
-            // Redirect to admin-dashboard for any admin/superadmin
-            if (isAdmin) {
+            // Redirect to admin-dashboard for any admin
+            if (isAdminUser) {
               navigate("/admin-dashboard", { replace: true });
             } else {
               navigate("/customer-dashboard", { replace: true });
@@ -398,12 +398,12 @@ const Auth = () => {
         .select("full_name, email")
         .single();
       
-      // Check if superadmin email - use provided email or fetch from profile
+      // Check if admin email - use provided email or fetch from profile
       const actualEmail = (userEmail || profileData?.email || '').toLowerCase();
-      const isSuperAdmin = SUPERADMIN_EMAILS.includes(actualEmail);
+      const isAdminEmail = ADMIN_EMAILS.includes(actualEmail);
       
-      // If superadmin, ensure admin role exists
-      if (isSuperAdmin) {
+      // If admin email, ensure admin role exists
+      if (isAdminEmail) {
         await supabase.from("user_roles")
           .upsert({ user_id: userId, role: "admin" }, { onConflict: 'user_id' });
       }
@@ -415,7 +415,7 @@ const Auth = () => {
         .eq("user_id", userId)
         .maybeSingle();
       
-      const isAdmin = isSuperAdmin || roleData?.role === "admin";
+      const isAdmin = isAdminEmail || roleData?.role === "admin";
       const displayName = userName || profileData?.full_name || "User";
       
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
