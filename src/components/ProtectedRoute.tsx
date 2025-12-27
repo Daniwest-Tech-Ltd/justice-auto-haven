@@ -68,8 +68,13 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     );
   }
 
-  if (requiredRole && role?.role !== requiredRole) {
-    return <Navigate to={role?.role === "admin" ? "/admin-dashboard" : "/customer-dashboard"} replace />;
+  const isAdmin = role?.role === "admin" || role?.role === "super_admin";
+
+  if (requiredRole) {
+    const hasRequiredRole = requiredRole === "admin" ? isAdmin : role?.role === requiredRole;
+    if (!hasRequiredRole) {
+      return <Navigate to={isAdmin ? "/admin-dashboard" : "/customer-dashboard"} replace />;
+    }
   }
 
   return <>{children}</>;
