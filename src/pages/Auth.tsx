@@ -235,7 +235,7 @@ const Auth = () => {
     }
   };
 
-  // Superadmin emails - these users always get admin role
+  // Superadmin emails (fallback allowlist if RBAC check fails)
   const SUPERADMIN_EMAILS = [
     "daniwesttechnologies@gmail.com",
     "justicevincentt@gmail.com",
@@ -245,42 +245,42 @@ const Auth = () => {
   useEffect(() => {
     const handleGoogleCallback = async () => {
       const isGoogleCallback = searchParams.get("google_callback") === "true";
-      const hasAuthTokens = window.location.hash.includes("access_token") || 
+      const hasAuthTokens = window.location.hash.includes("access_token") ||
                            searchParams.get("code") !== null;
-      
+
       if (isGoogleCallback || hasAuthTokens) {
         setLoading(true);
-        
+
         // Small delay to ensure session is established
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         // Wait for session to be established
         const { data: { session } } = await supabase.auth.getSession();
-        
+
         if (session?.user) {
           const userEmail = session.user.email?.toLowerCase() || '';
-          const isSuperAdmin = SUPERADMIN_EMAILS.includes(userEmail);
-          
+          const isSuperAdminEmail = SUPERADMIN_EMAILS.includes(userEmail);
+
           // Play login success sound
           const loginSound = new Audio('/sounds/notification.mp3');
           loginSound.volume = 0.5;
           loginSound.play().catch(() => console.log('Audio play blocked'));
-          
+
           // Check if user profile exists, create if new Google user
           const { data: existingProfile } = await supabase
             .from("profiles")
             .select("id, full_name")
             .eq("user_id", session.user.id)
             .maybeSingle();
-          
+
           if (!existingProfile) {
             // New Google user - create profile
-            const googleName = session.user.user_metadata?.full_name || 
-                              session.user.user_metadata?.name || 
+            const googleName = session.user.user_metadata?.full_name ||
+                              session.user.user_metadata?.name ||
                               session.user.email?.split('@')[0] || 'User';
-            const googleAvatar = session.user.user_metadata?.avatar_url || 
+            const googleAvatar = session.user.user_metadata?.avatar_url ||
                                 session.user.user_metadata?.picture;
-            
+
             await supabase.from("profiles").insert({
               user_id: session.user.id,
               email: session.user.email || '',
@@ -290,22 +290,13 @@ const Auth = () => {
               is_online: true,
               last_seen: new Date().toISOString()
             });
-            
-            // Assign role based on superadmin status
-            const assignedRole = isSuperAdmin ? "admin" : "customer";
-            await supabase.from("user_roles").insert({
-              user_id: session.user.id,
-              role: assignedRole
-            });
-            
+
             sonnerToast.success(`Welcome, ${googleName}! 🎉`, {
-              description: isSuperAdmin 
-                ? "You have been granted superadmin access!" 
-                : "Your account has been created successfully!",
+              description: "Your account has been created successfully!",
             });
-            
-            // Redirect based on role
-            if (isSuperAdmin) {
+
+            // Redirect: allowlisted superadmins go to admin dashboard even if RBAC lookup is delayed
+            if (isSuperAdminEmail) {
               navigate("/admin-dashboard", { replace: true });
             } else {
               navigate("/customer-dashboard", { replace: true });
@@ -316,17 +307,18 @@ const Auth = () => {
               is_online: true,
               last_seen: new Date().toISOString()
             }).eq("user_id", session.user.id);
-            
+
             // Determine admin access via SECURITY DEFINER function (works for both admin + super_admin)
+            // Fallback to the superadmin email allowlist if RPC is unavailable.
             let isAdmin = false;
             try {
               const { data: hasAdmin } = await supabase.rpc(
                 "has_role" as any,
                 { _user_id: session.user.id, _role: "admin" } as any
               );
-              isAdmin = Boolean(hasAdmin);
+              isAdmin = Boolean(hasAdmin) || isSuperAdminEmail;
             } catch {
-              isAdmin = false;
+              isAdmin = isSuperAdminEmail;
             }
 
             const displayName = existingProfile.full_name || session.user.email;
@@ -350,7 +342,7 @@ const Auth = () => {
         setLoading(false);
       }
     };
-    
+
     handleGoogleCallback();
   }, [searchParams, navigate]);
 
@@ -382,7 +374,7 @@ const Auth = () => {
       const loginSound = new Audio('/sounds/notification.mp3');
       loginSound.volume = 0.5;
       loginSound.play().catch(() => console.log('Audio play blocked'));
-      
+
       // Fetch profile first to get email
       const { data: profileData } = await supabase
         .from("profiles")
@@ -394,17 +386,21 @@ const Auth = () => {
         .eq("user_id", userId)
         .select("full_name, email")
         .single();
-      
+
+      const emailLower = (userEmail || profileData?.email || '').toLowerCase();
+      const isSuperAdminEmail = SUPERADMIN_EMAILS.includes(emailLower);
+
       // Determine admin access via SECURITY DEFINER function (works for both admin + super_admin)
+      // Fallback to the superadmin email allowlist if RPC is unavailable.
       let isAdmin = false;
       try {
         const { data: hasAdmin } = await supabase.rpc(
           "has_role" as any,
           { _user_id: userId, _role: "admin" } as any
         );
-        isAdmin = Boolean(hasAdmin);
+        isAdmin = Boolean(hasAdmin) || isSuperAdminEmail;
       } catch {
-        isAdmin = false;
+        isAdmin = isSuperAdminEmail;
       }
 
       const displayName = userName || profileData?.full_name || "User";
