@@ -37,8 +37,8 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
 
       setAccountStatus(data?.account_status || "active");
       
-      // Check if Google OAuth user without password set
-      if (data?.auth_provider === 'google' && data?.password_set === false) {
+      // Check if Google/GitHub OAuth user without password set
+      if ((data?.auth_provider === 'google' || data?.auth_provider === 'github') && data?.password_set === false) {
         setNeedsPasswordSetup(true);
       } else {
         setNeedsPasswordSetup(false);
@@ -65,7 +65,7 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect to auth page if Google user needs to set password
+  // Redirect to auth page if OAuth user needs to set password
   if (needsPasswordSetup) {
     return <Navigate to="/auth?complete_profile=true" replace />;
   }

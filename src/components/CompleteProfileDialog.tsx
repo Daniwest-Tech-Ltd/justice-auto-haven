@@ -102,7 +102,7 @@ export const CompleteProfileDialog = ({
       successSound.play().catch(() => {});
 
       sonnerToast.success("Profile Complete! 🎉", {
-        description: "Your password has been set. You can now login with email or Google.",
+        description: "Your password has been set. You can now login with email or OAuth.",
       });
 
       onComplete();
@@ -222,7 +222,7 @@ export const CompleteProfileDialog = ({
           <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
             <p className="font-medium text-foreground mb-1">🔐 Why set a password?</p>
             <ul className="list-disc list-inside space-y-1 text-xs">
-              <li>Login with email when Google is unavailable</li>
+              <li>Login with email when OAuth is unavailable</li>
               <li>Enhanced account security</li>
               <li>Enables password reset options</li>
             </ul>
