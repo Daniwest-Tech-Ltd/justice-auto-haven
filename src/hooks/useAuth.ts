@@ -36,7 +36,7 @@ export const useAuth = () => {
         setLoading(true);
         // Defer Supabase calls to avoid auth deadlocks
         setTimeout(() => {
-          fetchUserData(session.user.id);
+          fetchUserData(session.user.id, session.user.email ?? undefined);
         }, 0);
       } else {
         setProfile(null);
@@ -50,7 +50,7 @@ export const useAuth = () => {
       setUser(session?.user ?? null);
       if (session?.user) {
         setLoading(true);
-        fetchUserData(session.user.id);
+        fetchUserData(session.user.id, session.user.email ?? undefined);
       } else {
         setLoading(false);
       }
@@ -59,9 +59,9 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserData = async (userId: string) => {
+  const fetchUserData = async (userId: string, sessionEmail?: string) => {
     try {
-      // Fetch profile
+      // Fetch profile (may be blocked by RLS in some environments; role fallback must not depend on this)
       const { data: profileData } = await supabase
         .from("profiles")
         .select("*")
@@ -90,7 +90,7 @@ export const useAuth = () => {
           resolvedRole = { role: "customer" };
         }
       } catch {
-        const emailLower = (profileData?.email || "").toLowerCase();
+        const emailLower = (sessionEmail || (profileData as any)?.email || "").toLowerCase();
         resolvedRole = SUPERADMIN_EMAILS.includes(emailLower)
           ? { role: "admin" }
           : { role: "customer" };
