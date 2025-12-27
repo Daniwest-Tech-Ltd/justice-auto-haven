@@ -317,27 +317,28 @@ const Auth = () => {
               last_seen: new Date().toISOString()
             }).eq("user_id", session.user.id);
             
-            // Check current role
-            const { data: roleData } = await supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", session.user.id)
-              .maybeSingle();
-            
-            // If superadmin email but not admin role, upgrade to admin
-            if (isSuperAdmin && roleData?.role !== "admin") {
-              await supabase.from("user_roles")
-                .upsert({ user_id: session.user.id, role: "admin" }, 
-                        { onConflict: 'user_id' });
+            // Determine role via RPC (avoids RLS blocking reads from user_roles)
+            let isAdmin = false;
+            try {
+              const { data: isSuperAdminRole } = await supabase.rpc(
+                "has_role" as any,
+                { _user_id: session.user.id, _role: "super_admin" } as any
+              );
+              const { data: isAdminRole } = await supabase.rpc(
+                "has_role" as any,
+                { _user_id: session.user.id, _role: "admin" } as any
+              );
+              isAdmin = Boolean(isSuperAdmin || isSuperAdminRole || isAdminRole);
+            } catch {
+              isAdmin = Boolean(isSuperAdmin);
             }
-            
-            const isAdmin = isSuperAdmin || roleData?.role === "admin" || roleData?.role === "super_admin";
+
             const displayName = existingProfile.full_name || session.user.email;
-            
+
             sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
               description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
             });
-            
+
             // Redirect to admin-dashboard for any admin/superadmin
             if (isAdmin) {
               navigate("/admin-dashboard", { replace: true });
@@ -398,26 +399,25 @@ const Auth = () => {
         .select("full_name, email")
         .single();
       
-      // Check if superadmin email - use provided email or fetch from profile
-      const actualEmail = (userEmail || profileData?.email || '').toLowerCase();
-      const isSuperAdmin = SUPERADMIN_EMAILS.includes(actualEmail);
-      
-      // If superadmin, ensure admin role exists
-      if (isSuperAdmin) {
-        await supabase.from("user_roles")
-          .upsert({ user_id: userId, role: "admin" }, { onConflict: 'user_id' });
+      // Determine role via RPC (avoids RLS blocking reads from user_roles)
+      let isAdmin = false;
+      try {
+        const { data: isSuperAdminRole } = await supabase.rpc(
+          "has_role" as any,
+          { _user_id: userId, _role: "super_admin" } as any
+        );
+        const { data: isAdminRole } = await supabase.rpc(
+          "has_role" as any,
+          { _user_id: userId, _role: "admin" } as any
+        );
+        isAdmin = Boolean(isSuperAdminRole || isAdminRole);
+      } catch {
+        // fallback: if RPC fails, keep existing behavior (treat as customer)
+        isAdmin = false;
       }
-      
-      // Fetch the CURRENT role after any upgrade
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
-      
-      const isAdmin = isSuperAdmin || roleData?.role === "admin" || roleData?.role === "super_admin";
+
       const displayName = userName || profileData?.full_name || "User";
-      
+
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
         description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
       });
