@@ -237,8 +237,8 @@ const Auth = () => {
 
   // Superadmin emails - these users always get admin role
   const SUPERADMIN_EMAILS = [
-    'daniwesttechnologies@gmail.com',
-    'justicevincent@gmail.com'
+    "daniwesttechnologies@gmail.com",
+    "justicevincentt@gmail.com",
   ];
 
   // Handle Google OAuth callback - redirect to dashboard immediately
@@ -317,20 +317,16 @@ const Auth = () => {
               last_seen: new Date().toISOString()
             }).eq("user_id", session.user.id);
             
-            // Determine role via RPC (avoids RLS blocking reads from user_roles)
+            // Determine admin access via SECURITY DEFINER function (works for both admin + super_admin)
             let isAdmin = false;
             try {
-              const { data: isSuperAdminRole } = await supabase.rpc(
-                "has_role" as any,
-                { _user_id: session.user.id, _role: "super_admin" } as any
-              );
-              const { data: isAdminRole } = await supabase.rpc(
+              const { data: hasAdmin } = await supabase.rpc(
                 "has_role" as any,
                 { _user_id: session.user.id, _role: "admin" } as any
               );
-              isAdmin = Boolean(isSuperAdmin || isSuperAdminRole || isAdminRole);
+              isAdmin = Boolean(hasAdmin);
             } catch {
-              isAdmin = Boolean(isSuperAdmin);
+              isAdmin = false;
             }
 
             const displayName = existingProfile.full_name || session.user.email;
@@ -399,20 +395,15 @@ const Auth = () => {
         .select("full_name, email")
         .single();
       
-      // Determine role via RPC (avoids RLS blocking reads from user_roles)
+      // Determine admin access via SECURITY DEFINER function (works for both admin + super_admin)
       let isAdmin = false;
       try {
-        const { data: isSuperAdminRole } = await supabase.rpc(
-          "has_role" as any,
-          { _user_id: userId, _role: "super_admin" } as any
-        );
-        const { data: isAdminRole } = await supabase.rpc(
+        const { data: hasAdmin } = await supabase.rpc(
           "has_role" as any,
           { _user_id: userId, _role: "admin" } as any
         );
-        isAdmin = Boolean(isSuperAdminRole || isAdminRole);
+        isAdmin = Boolean(hasAdmin);
       } catch {
-        // fallback: if RPC fails, keep existing behavior (treat as customer)
         isAdmin = false;
       }
 
