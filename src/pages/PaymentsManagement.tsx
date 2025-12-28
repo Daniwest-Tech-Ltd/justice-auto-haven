@@ -33,7 +33,8 @@ import {
   Send,
   Receipt,
   Mail,
-  MessageSquare
+  MessageSquare,
+  Printer
 } from "lucide-react";
 
 // Helper function to auto-download PDF from HTML
@@ -78,6 +79,83 @@ const downloadPdfFromHtml = async (html: string, filename: string) => {
   } finally {
     document.body.removeChild(container);
   }
+};
+
+// Generate IPN logs PDF
+const generateIPNLogsPdf = (logs: IPNLog[]) => {
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  // Header
+  pdf.setFillColor(30, 64, 175);
+  pdf.rect(0, 0, 210, 35, 'F');
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFontSize(20);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Justice Ultimate Automobiles', 105, 15, { align: 'center' });
+  pdf.setFontSize(12);
+  pdf.setFont('helvetica', 'normal');
+  pdf.text('IPN Notification Logs Report', 105, 25, { align: 'center' });
+
+  // Date
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFontSize(10);
+  pdf.text(`Generated: ${format(new Date(), 'MMM dd, yyyy HH:mm')}`, 15, 45);
+  pdf.text(`Total Logs: ${logs.length}`, 15, 52);
+
+  // Table headers
+  let y = 65;
+  pdf.setFillColor(240, 244, 255);
+  pdf.rect(10, y - 5, 190, 10, 'F');
+  pdf.setFontSize(9);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Tracking ID', 15, y);
+  pdf.text('Type', 60, y);
+  pdf.text('Status', 95, y);
+  pdf.text('IP Address', 125, y);
+  pdf.text('Received', 170, y);
+  y += 8;
+
+  // Table rows
+  pdf.setFont('helvetica', 'normal');
+  logs.forEach((log, index) => {
+    if (y > 270) {
+      pdf.addPage();
+      y = 20;
+    }
+    if (index % 2 === 0) {
+      pdf.setFillColor(248, 250, 252);
+      pdf.rect(10, y - 4, 190, 8, 'F');
+    }
+    pdf.text(log.pesapal_tracking_id?.substring(0, 15) || 'N/A', 15, y);
+    pdf.text(log.pesapal_notification_type || 'N/A', 60, y);
+    pdf.text(log.status, 95, y);
+    pdf.text(log.ip_address?.substring(0, 20) || 'N/A', 125, y);
+    pdf.text(format(new Date(log.created_at), 'MMM dd, HH:mm'), 170, y);
+    y += 8;
+  });
+
+  // Footer
+  const pageCount = pdf.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    pdf.setPage(i);
+    pdf.setFontSize(9);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(
+      'Justice Ultimate Automobiles | Premier Car Dealership in Kenya',
+      105, 285, { align: 'center' }
+    );
+    pdf.text(
+      'Phone: 0722 827 458 | 0751555544 | Email: info@justiceultimateautomobiles.com',
+      105, 290, { align: 'center' }
+    );
+    pdf.text(`Page ${i} of ${pageCount}`, 195, 290, { align: 'right' });
+  }
+
+  pdf.save(`IPN-Logs-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 };
 
 interface Payment {
@@ -941,6 +1019,7 @@ const PaymentsManagement = () => {
                       <TableHead>Method</TableHead>
                       <TableHead>Reference</TableHead>
                       <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -952,11 +1031,27 @@ const PaymentsManagement = () => {
                         <TableCell><Badge variant="outline">{receipt.payment_method}</Badge></TableCell>
                         <TableCell className="font-mono text-sm">{receipt.payment_reference || "N/A"}</TableCell>
                         <TableCell>{format(new Date(receipt.created_at), "MMM dd, yyyy HH:mm")}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm" onClick={async () => {
+                            const { data } = await supabase.functions.invoke("generate-receipt-pdf", {
+                              body: {
+                                customer_id: receipt.customer_id,
+                                customer_name: receipt.customer_name,
+                                amount_paid: receipt.amount_paid,
+                                payment_method: receipt.payment_method,
+                                payment_reference: receipt.payment_reference
+                              }
+                            });
+                            if (data?.html) await downloadPdfFromHtml(data.html, `Receipt-${receipt.receipt_no}.pdf`);
+                          }}>
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                     {filteredReceipts.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No receipts found</TableCell>
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No receipts found</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -1005,9 +1100,14 @@ const PaymentsManagement = () => {
           {/* IPN Logs Tab */}
           <TabsContent value="ipn-logs" className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle>IPN Notification Logs</CardTitle>
-                <CardDescription>Pesapal instant payment notifications</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>IPN Notification Logs</CardTitle>
+                  <CardDescription>Pesapal instant payment notifications</CardDescription>
+                </div>
+                <Button variant="outline" onClick={() => generateIPNLogsPdf(ipnLogs)} disabled={ipnLogs.length === 0}>
+                  <Download className="w-4 h-4 mr-2" /> Export PDF
+                </Button>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
