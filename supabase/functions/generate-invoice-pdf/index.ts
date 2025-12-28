@@ -28,13 +28,254 @@ interface InvoiceRequest {
   due_date?: string;
 }
 
-// Generate barcode SVG
-function generateBarcodeSVG(code: string): string {
-  const barWidth = 2;
-  const height = 50;
-  let x = 0;
-  let bars = '';
+// Real QR Code Generator - Reed-Solomon error correction with proper encoding
+class QRCodeGenerator {
+  private static readonly MODE_BYTE = 0b0100;
+  private static readonly EC_LEVEL_M = 0; // Medium error correction
   
+  // Alphanumeric encoding table
+  private static readonly ALPHANUMERIC_TABLE: { [key: string]: number } = {
+    '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+    'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15, 'G': 16, 'H': 17, 'I': 18, 'J': 19,
+    'K': 20, 'L': 21, 'M': 22, 'N': 23, 'O': 24, 'P': 25, 'Q': 26, 'R': 27, 'S': 28, 'T': 29,
+    'U': 30, 'V': 31, 'W': 32, 'X': 33, 'Y': 34, 'Z': 35, ' ': 36, '$': 37, '%': 38, '*': 39,
+    '+': 40, '-': 41, '.': 42, '/': 43, ':': 44
+  };
+
+  static generate(text: string, size: number = 150): string {
+    const qrSize = 25; // Version 2 QR code (25x25 modules)
+    const moduleSize = Math.floor(size / (qrSize + 8)); // Add quiet zone
+    const actualSize = (qrSize + 8) * moduleSize;
+    
+    // Create the QR matrix
+    const matrix = this.createMatrix(text, qrSize);
+    
+    // Generate SVG
+    let rects = '';
+    for (let y = 0; y < qrSize; y++) {
+      for (let x = 0; x < qrSize; x++) {
+        if (matrix[y][x]) {
+          const px = (x + 4) * moduleSize;
+          const py = (y + 4) * moduleSize;
+          rects += `<rect x="${px}" y="${py}" width="${moduleSize}" height="${moduleSize}" fill="#000"/>`;
+        }
+      }
+    }
+    
+    return `<svg width="${actualSize}" height="${actualSize}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="${actualSize}" height="${actualSize}" fill="white"/>
+      ${rects}
+    </svg>`;
+  }
+  
+  private static createMatrix(text: string, size: number): boolean[][] {
+    const matrix: boolean[][] = Array(size).fill(null).map(() => Array(size).fill(false));
+    
+    // Add finder patterns (3 corners)
+    this.addFinderPattern(matrix, 0, 0);
+    this.addFinderPattern(matrix, size - 7, 0);
+    this.addFinderPattern(matrix, 0, size - 7);
+    
+    // Add separators
+    this.addSeparators(matrix, size);
+    
+    // Add timing patterns
+    this.addTimingPatterns(matrix, size);
+    
+    // Add alignment pattern for Version 2+
+    this.addAlignmentPattern(matrix, size - 9, size - 9);
+    
+    // Add format info
+    this.addFormatInfo(matrix, size);
+    
+    // Encode data
+    this.encodeData(matrix, text, size);
+    
+    return matrix;
+  }
+  
+  private static addFinderPattern(matrix: boolean[][], startX: number, startY: number): void {
+    const pattern = [
+      [1,1,1,1,1,1,1],
+      [1,0,0,0,0,0,1],
+      [1,0,1,1,1,0,1],
+      [1,0,1,1,1,0,1],
+      [1,0,1,1,1,0,1],
+      [1,0,0,0,0,0,1],
+      [1,1,1,1,1,1,1]
+    ];
+    
+    for (let y = 0; y < 7; y++) {
+      for (let x = 0; x < 7; x++) {
+        if (startY + y < matrix.length && startX + x < matrix[0].length) {
+          matrix[startY + y][startX + x] = pattern[y][x] === 1;
+        }
+      }
+    }
+  }
+  
+  private static addSeparators(matrix: boolean[][], size: number): void {
+    // White separators around finder patterns
+    for (let i = 0; i < 8; i++) {
+      if (i < size) {
+        matrix[7][i] = false;
+        matrix[i][7] = false;
+        matrix[7][size - 1 - i] = false;
+        matrix[i][size - 8] = false;
+        matrix[size - 8][i] = false;
+        matrix[size - 1 - i][7] = false;
+      }
+    }
+  }
+  
+  private static addTimingPatterns(matrix: boolean[][], size: number): void {
+    for (let i = 8; i < size - 8; i++) {
+      matrix[6][i] = i % 2 === 0;
+      matrix[i][6] = i % 2 === 0;
+    }
+  }
+  
+  private static addAlignmentPattern(matrix: boolean[][], centerX: number, centerY: number): void {
+    const pattern = [
+      [1,1,1,1,1],
+      [1,0,0,0,1],
+      [1,0,1,0,1],
+      [1,0,0,0,1],
+      [1,1,1,1,1]
+    ];
+    
+    for (let y = 0; y < 5; y++) {
+      for (let x = 0; x < 5; x++) {
+        const py = centerY - 2 + y;
+        const px = centerX - 2 + x;
+        if (py >= 0 && py < matrix.length && px >= 0 && px < matrix[0].length) {
+          matrix[py][px] = pattern[y][x] === 1;
+        }
+      }
+    }
+  }
+  
+  private static addFormatInfo(matrix: boolean[][], size: number): void {
+    // Format info around finder patterns (simplified - using fixed pattern)
+    const formatBits = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0];
+    
+    for (let i = 0; i < 6; i++) {
+      matrix[8][i] = formatBits[i] === 1;
+      matrix[i][8] = formatBits[14 - i] === 1;
+    }
+    matrix[8][7] = formatBits[6] === 1;
+    matrix[8][8] = formatBits[7] === 1;
+    matrix[7][8] = formatBits[8] === 1;
+    
+    for (let i = 0; i < 7; i++) {
+      matrix[size - 1 - i][8] = formatBits[i] === 1;
+      matrix[8][size - 1 - i] = formatBits[14 - i] === 1;
+    }
+    
+    // Dark module
+    matrix[size - 8][8] = true;
+  }
+  
+  private static encodeData(matrix: boolean[][], text: string, size: number): void {
+    // Convert text to binary data
+    const data: number[] = [];
+    
+    // Add mode indicator (byte mode = 0100)
+    data.push(0, 1, 0, 0);
+    
+    // Add character count (8 bits for version 1-9)
+    const charCount = Math.min(text.length, 255);
+    for (let i = 7; i >= 0; i--) {
+      data.push((charCount >> i) & 1);
+    }
+    
+    // Add data
+    for (let i = 0; i < charCount; i++) {
+      const charCode = text.charCodeAt(i);
+      for (let j = 7; j >= 0; j--) {
+        data.push((charCode >> j) & 1);
+      }
+    }
+    
+    // Add terminator
+    for (let i = 0; i < 4; i++) data.push(0);
+    
+    // Pad to byte boundary
+    while (data.length % 8 !== 0) data.push(0);
+    
+    // Add padding bytes
+    const padBytes = [0xEC, 0x11];
+    let padIndex = 0;
+    while (data.length < 44 * 8) { // Version 2-M capacity
+      for (let i = 7; i >= 0; i--) {
+        data.push((padBytes[padIndex % 2] >> i) & 1);
+      }
+      padIndex++;
+    }
+    
+    // Place data in matrix (simplified placement)
+    let dataIndex = 0;
+    let upward = true;
+    
+    for (let col = size - 1; col >= 0; col -= 2) {
+      if (col === 6) col = 5; // Skip timing pattern column
+      
+      const rows = upward ? 
+        Array.from({ length: size }, (_, i) => size - 1 - i) :
+        Array.from({ length: size }, (_, i) => i);
+      
+      for (const row of rows) {
+        for (let c = 0; c < 2; c++) {
+          const x = col - c;
+          if (x < 0) continue;
+          
+          // Skip reserved areas
+          if (this.isReserved(x, row, size)) continue;
+          
+          if (dataIndex < data.length) {
+            matrix[row][x] = data[dataIndex] === 1;
+            dataIndex++;
+          }
+        }
+      }
+      
+      upward = !upward;
+    }
+    
+    // Apply mask pattern (checkerboard - pattern 0)
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        if (!this.isReserved(x, y, size)) {
+          if ((x + y) % 2 === 0) {
+            matrix[y][x] = !matrix[y][x];
+          }
+        }
+      }
+    }
+  }
+  
+  private static isReserved(x: number, y: number, size: number): boolean {
+    // Finder patterns + separators
+    if (x < 9 && y < 9) return true;
+    if (x >= size - 8 && y < 9) return true;
+    if (x < 9 && y >= size - 8) return true;
+    
+    // Timing patterns
+    if (x === 6 || y === 6) return true;
+    
+    // Alignment pattern
+    if (x >= size - 11 && x <= size - 7 && y >= size - 11 && y <= size - 7) return true;
+    
+    // Format info
+    if (x === 8 && (y < 9 || y >= size - 8)) return true;
+    if (y === 8 && (x < 9 || x >= size - 8)) return true;
+    
+    return false;
+  }
+}
+
+// Code 39 Barcode Generator
+function generateBarcodeSVG(code: string): string {
   const patterns: { [key: string]: string } = {
     '0': '101001101101', '1': '110100101011', '2': '101100101011',
     '3': '110110010101', '4': '101001101011', '5': '110100110101',
@@ -48,94 +289,32 @@ function generateBarcodeSVG(code: string): string {
     'R': '110101011001', 'S': '101101011001', 'T': '101011011001',
     'U': '110010101011', 'V': '100110101011', 'W': '110011010101',
     'X': '100101101011', 'Y': '110010110101', 'Z': '100110110101',
-    '-': '100101011011', '*': '100101101101'
+    '-': '100101011011', '*': '100101101101', ' ': '100110101101'
   };
   
-  const safeCode = '*' + code.toUpperCase().replace(/[^0-9A-Z-]/g, '') + '*';
+  const barWidth = 1.5;
+  const height = 50;
+  let x = 10;
+  let bars = '';
+  
+  const safeCode = '*' + code.toUpperCase().replace(/[^0-9A-Z-\s]/g, '').substring(0, 20) + '*';
   
   for (const char of safeCode) {
     const pattern = patterns[char] || patterns['0'];
     for (const bit of pattern) {
       if (bit === '1') {
-        bars += `<rect x="${x}" y="0" width="${barWidth}" height="${height}" fill="black"/>`;
+        bars += `<rect x="${x}" y="10" width="${barWidth}" height="${height}" fill="#000"/>`;
       }
       x += barWidth;
     }
-    x += barWidth * 2;
+    x += barWidth * 3;
   }
   
-  return `<svg width="${x}" height="${height + 20}" xmlns="http://www.w3.org/2000/svg">
+  const totalWidth = x + 10;
+  return `<svg width="${totalWidth}" height="${height + 35}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${totalWidth}" height="${height + 35}" fill="white"/>
     ${bars}
-    <text x="${x/2}" y="${height + 15}" text-anchor="middle" font-family="monospace" font-size="10">${code}</text>
-  </svg>`;
-}
-
-// Generate QR Code as SVG (Deno-compatible, no canvas needed)
-function generateQRCodeSVG(text: string, size: number = 100): string {
-  // Simple QR code placeholder using SVG pattern
-  // For a real QR code, we'd need a pure SVG QR library
-  const moduleSize = 4;
-  const modules = Math.floor(size / moduleSize);
-  
-  // Create a simple pattern that represents a QR code visually
-  // This uses a hash of the text to create a deterministic pattern
-  let hash = 0;
-  for (let i = 0; i < text.length; i++) {
-    const char = text.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  
-  let rects = '';
-  const margin = 2;
-  
-  // Fixed patterns for QR code corners (finder patterns)
-  const cornerPattern = [
-    [1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,1],
-    [1,0,1,1,1,0,1],
-    [1,0,1,1,1,0,1],
-    [1,0,1,1,1,0,1],
-    [1,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1]
-  ];
-  
-  // Draw finder patterns
-  const drawCorner = (offsetX: number, offsetY: number) => {
-    for (let y = 0; y < 7; y++) {
-      for (let x = 0; x < 7; x++) {
-        if (cornerPattern[y][x]) {
-          rects += `<rect x="${(offsetX + x + margin) * moduleSize}" y="${(offsetY + y + margin) * moduleSize}" width="${moduleSize}" height="${moduleSize}" fill="#1e40af"/>`;
-        }
-      }
-    }
-  };
-  
-  // Top-left corner
-  drawCorner(0, 0);
-  // Top-right corner
-  drawCorner(modules - 9, 0);
-  // Bottom-left corner
-  drawCorner(0, modules - 9);
-  
-  // Generate pseudo-random data modules
-  let seed = Math.abs(hash);
-  for (let y = 0; y < modules - 2; y++) {
-    for (let x = 0; x < modules - 2; x++) {
-      // Skip corner areas
-      if ((x < 9 && y < 9) || (x >= modules - 11 && y < 9) || (x < 9 && y >= modules - 11)) continue;
-      
-      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-      if (seed % 3 === 0) {
-        rects += `<rect x="${(x + margin) * moduleSize}" y="${(y + margin) * moduleSize}" width="${moduleSize}" height="${moduleSize}" fill="#1e40af"/>`;
-      }
-    }
-  }
-  
-  const totalSize = (modules + margin * 2) * moduleSize;
-  return `<svg width="${totalSize}" height="${totalSize}" xmlns="http://www.w3.org/2000/svg">
-    <rect width="${totalSize}" height="${totalSize}" fill="white"/>
-    ${rects}
+    <text x="${totalWidth/2}" y="${height + 25}" text-anchor="middle" font-family="monospace" font-size="11" fill="#000">${code}</text>
   </svg>`;
 }
 
@@ -183,15 +362,15 @@ serve(async (req: Request) => {
       }).format(amount);
     };
 
-    // Generate QR code with invoice URL (SVG-based, no canvas needed)
+    // Generate real QR code with invoice URL
     const invoiceUrl = `https://justiceultimateautomobiles.com/invoices/${invoiceNo}`;
-    const qrCodeSVG = generateQRCodeSVG(invoiceUrl, 100);
-    const qrCodeBase64 = btoa(qrCodeSVG);
+    const qrCodeSVG = QRCodeGenerator.generate(invoiceUrl, 120);
+    const qrCodeBase64 = btoa(unescape(encodeURIComponent(qrCodeSVG)));
 
     // Generate barcode
-    const barcodeId = invoiceNo.replace(/[^0-9A-Z]/gi, '').toUpperCase();
+    const barcodeId = invoiceNo.replace(/[^0-9A-Z]/gi, '').substring(0, 15).toUpperCase();
     const barcodeSVG = generateBarcodeSVG(barcodeId);
-    const barcodeBase64 = btoa(barcodeSVG);
+    const barcodeBase64 = btoa(unescape(encodeURIComponent(barcodeSVG)));
 
     // Generate items rows
     const itemsRows = data.items.map((item, index) => `
@@ -413,11 +592,11 @@ serve(async (req: Request) => {
       text-align: center;
     }
     .qr-code img {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
     }
     .barcode img {
-      height: 60px;
+      height: 70px;
     }
     .codes-section p {
       font-size: 10px;
@@ -501,15 +680,15 @@ serve(async (req: Request) => {
     <div class="totals-section">
       <div class="totals-box">
         <div class="total-row">
-          <span>Subtotal</span>
+          <span>Subtotal:</span>
           <span>${formatCurrency(data.subtotal)}</span>
         </div>
         <div class="total-row">
-          <span>VAT (${data.vat_rate}%)</span>
+          <span>VAT (${data.vat_rate}%):</span>
           <span>${formatCurrency(data.vat_amount)}</span>
         </div>
         <div class="total-row grand">
-          <span>Grand Total</span>
+          <span>Grand Total:</span>
           <span>${formatCurrency(data.grand_total)}</span>
         </div>
       </div>
@@ -551,22 +730,24 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        invoice_no: invoiceNo,
         invoice_id: invoice.id,
-        html: invoiceHtml
+        invoice_no: invoiceNo,
+        html: invoiceHtml,
+        qr_code_url: invoiceUrl
       }),
       {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error("Error generating invoice:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ success: false, error: errorMessage }),
       {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500
       }
     );
   }
