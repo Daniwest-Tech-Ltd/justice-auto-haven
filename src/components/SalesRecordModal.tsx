@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { DollarSign } from "lucide-react";
+import { DollarSign, CreditCard } from "lucide-react";
+import { PesapalPaymentModal } from "./PesapalPaymentModal";
 
 interface SalesRecordModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ interface SalesRecordModalProps {
 
 export const SalesRecordModal = ({ isOpen, onClose, carId, carInfo, onSuccess }: SalesRecordModalProps) => {
   const [loading, setLoading] = useState(false);
+  const [showPesapal, setShowPesapal] = useState(false);
   const [formData, setFormData] = useState({
     salePrice: carInfo.price.toString(),
     paymentType: "",
@@ -36,6 +38,17 @@ export const SalesRecordModal = ({ isOpen, onClose, carId, carInfo, onSuccess }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // If Pesapal payment, show modal first
+    if (formData.paymentType === "pesapal") {
+      setShowPesapal(true);
+      return;
+    }
+    
+    await recordSale();
+  };
+
+  const recordSale = async () => {
     setLoading(true);
 
     try {
@@ -100,6 +113,25 @@ export const SalesRecordModal = ({ isOpen, onClose, carId, carInfo, onSuccess }:
     }
   };
 
+  // Handle Pesapal modal close
+  const handlePesapalClose = (open: boolean) => {
+    if (!open) {
+      setShowPesapal(false);
+    }
+  };
+
+  // Show Pesapal modal if payment type is pesapal
+  if (showPesapal) {
+    return (
+      <PesapalPaymentModal
+        open={showPesapal}
+        onOpenChange={handlePesapalClose}
+        amount={parseFloat(formData.salePrice)}
+        description={`${carInfo.make} ${carInfo.model} ${carInfo.year} - Sale Payment`}
+      />
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
@@ -139,6 +171,7 @@ export const SalesRecordModal = ({ isOpen, onClose, carId, carInfo, onSuccess }:
                 <SelectItem value="cash">Cash</SelectItem>
                 <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                 <SelectItem value="card">Card Payment</SelectItem>
+                <SelectItem value="pesapal">Pesapal (M-Pesa/Card)</SelectItem>
                 <SelectItem value="financing">Financing</SelectItem>
                 <SelectItem value="check">Check</SelectItem>
               </SelectContent>

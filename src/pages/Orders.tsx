@@ -23,6 +23,7 @@ import { OrderAnalytics } from "@/components/OrderAnalytics";
 import { AutomatedFollowUp } from "@/components/AutomatedFollowUp";
 import * as XLSX from "xlsx";
 import { PesapalPaymentModal } from "@/components/PesapalPaymentModal";
+import { OrderPaymentsTab } from "@/components/OrderPaymentsTab";
 
 interface Order {
   id: string;
@@ -621,7 +622,10 @@ const Orders = () => {
                 
                 <div className="mt-4 p-3 bg-muted/50 rounded-lg">
                   <p className="text-xs text-muted-foreground">
-                    <strong>IPN ID:</strong> d6b89291-8549-42fd-9974-daf5e5535ef6
+                    <strong>IPN ID:</strong> 7dda9c82-21ba-4ded-984c-daeb20fa7259
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    <strong>IPN URL:</strong> https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/pesapal-ipn
                   </p>
                 </div>
               </div>
