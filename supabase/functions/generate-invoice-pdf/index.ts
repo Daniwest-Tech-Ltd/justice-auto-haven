@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import QRCode from "https://esm.sh/qrcode@1.5.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,11 +29,47 @@ interface InvoiceRequest {
   due_date?: string;
 }
 
-// Justice Ultimate Automobiles Logo as base64 SVG
-const juaLogoSvg = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTIiIGZpbGw9IiMxZTQwYWYiLz4KPHRleHQgeD0iNTAlIiB5PSI1NSUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSJib2xkIj5KVUE8L3RleHQ+Cjwvc3ZnPg==`;
-
-// Kenya Coat of Arms - using a placeholder since we can't embed the actual image
-const kenyaCoatOfArmsUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Coat_of_arms_of_Kenya_%28Official%29.svg/200px-Coat_of_arms_of_Kenya_%28Official%29.svg.png";
+// Generate barcode SVG
+function generateBarcodeSVG(code: string): string {
+  const barWidth = 2;
+  const height = 50;
+  let x = 0;
+  let bars = '';
+  
+  const patterns: { [key: string]: string } = {
+    '0': '101001101101', '1': '110100101011', '2': '101100101011',
+    '3': '110110010101', '4': '101001101011', '5': '110100110101',
+    '6': '101100110101', '7': '101001011011', '8': '110100101101',
+    '9': '101100101101', 'A': '110101001011', 'B': '101101001011',
+    'C': '110110100101', 'D': '101011001011', 'E': '110101100101',
+    'F': '101101100101', 'G': '101010011011', 'H': '110101001101',
+    'I': '101101001101', 'J': '101011001101', 'K': '110101010011',
+    'L': '101101010011', 'M': '110110101001', 'N': '101011010011',
+    'O': '110101101001', 'P': '101101101001', 'Q': '101010110011',
+    'R': '110101011001', 'S': '101101011001', 'T': '101011011001',
+    'U': '110010101011', 'V': '100110101011', 'W': '110011010101',
+    'X': '100101101011', 'Y': '110010110101', 'Z': '100110110101',
+    '-': '100101011011', '*': '100101101101'
+  };
+  
+  const safeCode = '*' + code.toUpperCase().replace(/[^0-9A-Z-]/g, '') + '*';
+  
+  for (const char of safeCode) {
+    const pattern = patterns[char] || patterns['0'];
+    for (const bit of pattern) {
+      if (bit === '1') {
+        bars += `<rect x="${x}" y="0" width="${barWidth}" height="${height}" fill="black"/>`;
+      }
+      x += barWidth;
+    }
+    x += barWidth * 2;
+  }
+  
+  return `<svg width="${x}" height="${height + 20}" xmlns="http://www.w3.org/2000/svg">
+    ${bars}
+    <text x="${x/2}" y="${height + 15}" text-anchor="middle" font-family="monospace" font-size="10">${code}</text>
+  </svg>`;
+}
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -59,351 +96,48 @@ serve(async (req: Request) => {
     const today = new Date();
     const formattedDate = today.toLocaleDateString('en-GB', {
       day: '2-digit',
-      month: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+
+    // Due date - 14 days from now
+    const dueDate = data.due_date || new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'long',
       year: 'numeric'
     });
 
     // Format currency
     const formatCurrency = (amount: number) => {
-      return new Intl.NumberFormat('en-KE', {
-        style: 'currency',
-        currency: 'KES',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(amount).replace('KES', 'Ksh ');
+      return 'KES ' + new Intl.NumberFormat('en-KE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(amount);
     };
+
+    // Generate QR code with invoice URL
+    const invoiceUrl = `https://justiceultimateautomobiles.com/invoices/${invoiceNo}`;
+    const qrCodeDataUrl = await QRCode.toDataURL(invoiceUrl, {
+      width: 100,
+      margin: 1,
+      color: { dark: '#1e40af', light: '#ffffff' }
+    });
+
+    // Generate barcode
+    const barcodeId = invoiceNo.replace(/[^0-9A-Z]/gi, '').toUpperCase();
+    const barcodeSVG = generateBarcodeSVG(barcodeId);
+    const barcodeBase64 = btoa(barcodeSVG);
 
     // Generate items rows
     const itemsRows = data.items.map((item, index) => `
       <tr>
-        <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px;">${index + 1}</td>
-        <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-size: 14px; font-weight: 500;">${item.description}</td>
-        <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #1f2937; font-size: 14px;">${item.quantity}</td>
-        <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #1f2937; font-size: 14px;">${formatCurrency(item.unit_price)}</td>
-        <td style="padding: 15px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #1f2937; font-size: 14px; font-weight: 600;">${formatCurrency(item.amount)}</td>
+        <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #333; font-size: 13px;">${index + 1}</td>
+        <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #333; font-size: 13px; font-weight: 500;">${item.description}</td>
+        <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #333; font-size: 13px;">${item.quantity}</td>
+        <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #333; font-size: 13px;">${formatCurrency(item.unit_price)}</td>
+        <td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #333; font-size: 13px; font-weight: 600;">${formatCurrency(item.amount)}</td>
       </tr>
     `).join('');
-
-    // Generate HTML invoice with blue theme
-    const invoiceHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Invoice ${invoiceNo}</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 30px;
-      background: #ffffff;
-      color: #1f2937;
-      position: relative;
-      min-height: 100vh;
-    }
-    .watermark {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-30deg);
-      font-size: 60px;
-      font-weight: 700;
-      color: rgba(30, 64, 175, 0.06);
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 0;
-      text-align: center;
-      line-height: 1.2;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-      background: white;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 4px solid #1e40af;
-    }
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo {
-      width: 70px;
-      height: 70px;
-      background: linear-gradient(135deg, #1e40af, #1e3a8a);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 700;
-      font-size: 22px;
-    }
-    .company-info {
-      display: flex;
-      flex-direction: column;
-    }
-    .company-name {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1e40af;
-      margin-bottom: 2px;
-    }
-    .company-tagline {
-      font-size: 11px;
-      color: #6b7280;
-    }
-    .header-right {
-      display: flex;
-      align-items: flex-start;
-      gap: 20px;
-    }
-    .invoice-title {
-      text-align: right;
-    }
-    .invoice-title h1 {
-      font-size: 32px;
-      font-weight: 700;
-      color: #1e40af;
-      margin: 0;
-      letter-spacing: 2px;
-    }
-    .invoice-title .invoice-number {
-      color: #4b5563;
-      font-size: 13px;
-      margin-top: 5px;
-      font-weight: 500;
-    }
-    .kenya-logo {
-      width: 65px;
-      height: auto;
-    }
-    .invoice-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      margin-bottom: 25px;
-    }
-    .meta-box {
-      background: #f0f4ff;
-      padding: 18px;
-      border-radius: 8px;
-      border-left: 4px solid #1e40af;
-    }
-    .meta-box h3 {
-      font-size: 11px;
-      font-weight: 700;
-      color: #1e40af;
-      text-transform: uppercase;
-      margin: 0 0 12px 0;
-      letter-spacing: 1px;
-    }
-    .meta-box p {
-      margin: 6px 0;
-      font-size: 13px;
-      color: #374151;
-    }
-    .meta-box strong {
-      color: #111827;
-      font-weight: 600;
-    }
-    .items-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 25px;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .items-table th {
-      background: #1e40af;
-      color: white;
-      padding: 14px 15px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .items-table th:last-child {
-      text-align: right;
-    }
-    .items-table th:nth-child(3),
-    .items-table th:nth-child(4) {
-      text-align: center;
-    }
-    .items-table tbody tr:nth-child(even) {
-      background: #f8fafc;
-    }
-    .totals {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 30px;
-    }
-    .totals-box {
-      width: 280px;
-      background: #f0f4ff;
-      padding: 18px;
-      border-radius: 8px;
-      border: 2px solid #1e40af;
-    }
-    .total-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      font-size: 14px;
-      color: #374151;
-    }
-    .total-row.grand {
-      border-top: 2px solid #1e40af;
-      margin-top: 10px;
-      padding-top: 12px;
-      font-size: 18px;
-      font-weight: 700;
-      color: #1e40af;
-    }
-    .footer {
-      text-align: center;
-      padding-top: 25px;
-      border-top: 2px solid #e5e7eb;
-      color: #6b7280;
-      font-size: 12px;
-    }
-    .footer-title {
-      color: #1e40af;
-      font-weight: 700;
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-    .footer-contacts {
-      display: flex;
-      justify-content: center;
-      gap: 25px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    .footer-contacts span {
-      color: #4b5563;
-    }
-    .notes {
-      background: #fef3c7;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 25px;
-      font-size: 13px;
-      border-left: 4px solid #f59e0b;
-    }
-    .notes strong {
-      color: #92400e;
-    }
-    .dev-credit {
-      margin-top: 15px;
-      font-size: 10px;
-      color: #9ca3af;
-    }
-  </style>
-</head>
-<body>
-  <div class="watermark">JUSTICE ULTIMATE<br/>AUTOMOBILES</div>
-  
-  <div class="container">
-    <div class="header">
-      <div class="logo-section">
-        <div class="logo">JUA</div>
-        <div class="company-info">
-          <div class="company-name">Justice Ultimate Automobiles</div>
-          <div class="company-tagline">Trusted. Reliable. With you every step of the way.</div>
-        </div>
-      </div>
-      <div class="header-right">
-        <div class="invoice-title">
-          <h1>INVOICE</h1>
-          <p class="invoice-number">${invoiceNo}</p>
-        </div>
-        <img src="${kenyaCoatOfArmsUrl}" alt="Kenya Coat of Arms" class="kenya-logo" />
-      </div>
-    </div>
-
-    <div class="invoice-meta">
-      <div class="meta-box">
-        <h3>Bill To</h3>
-        <p><strong>${data.customer_name}</strong></p>
-        ${data.customer_email ? `<p>${data.customer_email}</p>` : ''}
-        ${data.customer_phone ? `<p>${data.customer_phone}</p>` : ''}
-        ${data.customer_address ? `<p>${data.customer_address}</p>` : ''}
-      </div>
-      <div class="meta-box">
-        <h3>Invoice Details</h3>
-        <p><strong>Invoice No:</strong> ${invoiceNo}</p>
-        <p><strong>Date:</strong> ${formattedDate}</p>
-        ${data.order_id ? `<p><strong>Order Ref:</strong> ${data.order_id.substring(0, 8).toUpperCase()}</p>` : ''}
-        ${data.due_date ? `<p><strong>Due Date:</strong> ${data.due_date}</p>` : ''}
-      </div>
-    </div>
-
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th style="width: 50px;">#</th>
-          <th>Description</th>
-          <th style="width: 80px; text-align: center;">Qty</th>
-          <th style="width: 130px; text-align: right;">Unit Price</th>
-          <th style="width: 130px; text-align: right;">Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${itemsRows}
-      </tbody>
-    </table>
-
-    <div class="totals">
-      <div class="totals-box">
-        <div class="total-row">
-          <span>Subtotal</span>
-          <span>${formatCurrency(data.subtotal)}</span>
-        </div>
-        <div class="total-row">
-          <span>VAT (${data.vat_rate}%)</span>
-          <span>${formatCurrency(data.vat_amount)}</span>
-        </div>
-        <div class="total-row grand">
-          <span>Grand Total</span>
-          <span>${formatCurrency(data.grand_total)}</span>
-        </div>
-      </div>
-    </div>
-
-    ${data.notes ? `
-    <div class="notes">
-      <strong>Notes:</strong> ${data.notes}
-    </div>
-    ` : ''}
-
-    <div class="footer">
-      <p class="footer-title">Thank you for your business!</p>
-      <p>This is a computer-generated invoice. Payment is due upon receipt unless otherwise stated.</p>
-      <div class="footer-contacts">
-        <span>📞 0722 827 458</span>
-        <span>📧 info@justiceultimateautomobiles.com</span>
-        <span>🌐 www.justiceultimateautomobiles.com</span>
-      </div>
-      <p class="dev-credit">Developed by Daniwest Tech Sol</p>
-    </div>
-  </div>
-</body>
-</html>
-    `;
 
     // Store invoice in database
     const { data: invoice, error: insertError } = await supabase
@@ -432,6 +166,320 @@ serve(async (req: Request) => {
       console.error("Error storing invoice:", insertError);
       throw new Error("Failed to store invoice");
     }
+
+    // Generate HTML invoice
+    const invoiceHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice ${invoiceNo}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    @page { size: A4; margin: 15mm; }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #ffffff;
+      color: #333;
+      padding: 30px;
+      min-height: 100vh;
+      position: relative;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #1e40af;
+    }
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .logo-placeholder {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 22px;
+    }
+    .company-info h2 {
+      color: #1e40af;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .company-info p {
+      color: #666;
+      font-size: 11px;
+    }
+    .invoice-title {
+      text-align: right;
+    }
+    .invoice-title h1 {
+      color: #1e40af;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .invoice-title .invoice-no {
+      color: #666;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    
+    .meta-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    .meta-box {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #1e40af;
+    }
+    .meta-box h3 {
+      color: #1e40af;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .meta-box p {
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .meta-box strong {
+      color: #1e40af;
+    }
+    
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+    }
+    .items-table th {
+      background: #1e40af;
+      color: white;
+      padding: 12px 15px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .items-table th:last-child {
+      text-align: right;
+    }
+    .items-table th:nth-child(3),
+    .items-table th:nth-child(4) {
+      text-align: center;
+    }
+    .items-table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    
+    .totals-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 30px;
+    }
+    .totals-box {
+      width: 300px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid #1e40af;
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+      color: #333;
+    }
+    .total-row.grand {
+      border-top: 2px solid #1e40af;
+      margin-top: 10px;
+      padding-top: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e40af;
+    }
+    
+    .notes-section {
+      background: #fef3c7;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      border-left: 4px solid #f59e0b;
+      font-size: 13px;
+    }
+    .notes-section strong {
+      color: #92400e;
+    }
+    
+    .codes-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 50px;
+      margin: 30px 0;
+      padding: 25px;
+      border-top: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .qr-code, .barcode {
+      text-align: center;
+    }
+    .qr-code img {
+      width: 100px;
+      height: 100px;
+    }
+    .barcode img {
+      height: 60px;
+    }
+    .codes-section p {
+      font-size: 10px;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    .footer {
+      text-align: center;
+      padding-top: 25px;
+      border-top: 2px solid #1e40af;
+    }
+    .footer-company {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 8px;
+    }
+    .footer-contacts {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .page-number {
+      position: fixed;
+      bottom: 15px;
+      right: 30px;
+      font-size: 11px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-section">
+        <div class="logo-placeholder">JUA</div>
+        <div class="company-info">
+          <h2>Justice Ultimate Automobiles</h2>
+          <p>Premier Car Dealership in Kenya</p>
+        </div>
+      </div>
+      <div class="invoice-title">
+        <h1>INVOICE</h1>
+        <p class="invoice-no">${invoiceNo}</p>
+      </div>
+    </div>
+
+    <div class="meta-section">
+      <div class="meta-box">
+        <h3>Bill To</h3>
+        <p><strong>${data.customer_name}</strong></p>
+        ${data.customer_email ? `<p>${data.customer_email}</p>` : ''}
+        ${data.customer_phone ? `<p>${data.customer_phone}</p>` : ''}
+        ${data.customer_address ? `<p>${data.customer_address}</p>` : ''}
+      </div>
+      <div class="meta-box">
+        <h3>Invoice Details</h3>
+        <p><strong>Invoice No:</strong> ${invoiceNo}</p>
+        <p><strong>Date:</strong> ${formattedDate}</p>
+        <p><strong>Due Date:</strong> ${dueDate}</p>
+        ${data.order_id ? `<p><strong>Order Ref:</strong> ${data.order_id.substring(0, 8).toUpperCase()}</p>` : ''}
+      </div>
+    </div>
+
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th style="width: 50px;">#</th>
+          <th>Description</th>
+          <th style="width: 80px; text-align: center;">Qty</th>
+          <th style="width: 120px; text-align: right;">Unit Price</th>
+          <th style="width: 120px; text-align: right;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsRows}
+      </tbody>
+    </table>
+
+    <div class="totals-section">
+      <div class="totals-box">
+        <div class="total-row">
+          <span>Subtotal</span>
+          <span>${formatCurrency(data.subtotal)}</span>
+        </div>
+        <div class="total-row">
+          <span>VAT (${data.vat_rate}%)</span>
+          <span>${formatCurrency(data.vat_amount)}</span>
+        </div>
+        <div class="total-row grand">
+          <span>Grand Total</span>
+          <span>${formatCurrency(data.grand_total)}</span>
+        </div>
+      </div>
+    </div>
+
+    ${data.notes ? `
+    <div class="notes-section">
+      <strong>Notes:</strong> ${data.notes}
+    </div>
+    ` : ''}
+
+    <div class="codes-section">
+      <div class="qr-code">
+        <img src="${qrCodeDataUrl}" alt="QR Code" />
+        <p>Scan for invoice details</p>
+      </div>
+      <div class="barcode">
+        <img src="data:image/svg+xml;base64,${barcodeBase64}" alt="Barcode" />
+        <p>${invoiceNo}</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p class="footer-company">Justice Ultimate Automobiles | Premier Car Dealership in Kenya</p>
+      <p class="footer-contacts">
+        Phone: 0722 827 458 | 0751555544<br>
+        Email: info@justiceultimateautomobiles.com | Web: www.justiceultimateautomobiles.com
+      </p>
+    </div>
+  </div>
+  
+  <div class="page-number">Page 1 of 1</div>
+</body>
+</html>
+    `;
 
     console.log("Invoice generated successfully:", invoiceNo);
 
