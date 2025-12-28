@@ -279,7 +279,7 @@ const SalesAnalytics = () => {
                   <h3 className="text-lg font-semibold">Accept Payments</h3>
                   <p className="text-sm text-muted-foreground">Process sales payments via Pesapal</p>
                 </div>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">IPN Active</Badge>
               </div>
               
               <div className="aspect-video max-w-xl mx-auto bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border/50">
@@ -290,7 +290,17 @@ const SalesAnalytics = () => {
                   frameBorder="0" 
                   allowFullScreen
                   className="rounded-lg"
+                  title="Pesapal Payment Gateway"
                 />
+              </div>
+              
+              <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">
+                  <strong>IPN ID:</strong> 7dda9c82-21ba-4ded-984c-daeb20fa7259
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <strong>IPN URL:</strong> https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/pesapal-ipn
+                </p>
               </div>
             </div>
           </CardContent>
