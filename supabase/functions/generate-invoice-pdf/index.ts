@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import QRCode from "https://esm.sh/qrcode@1.5.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,253 +29,7 @@ interface InvoiceRequest {
   due_date?: string;
 }
 
-// Real QR Code Generator - Reed-Solomon error correction with proper encoding
-class QRCodeGenerator {
-  private static readonly MODE_BYTE = 0b0100;
-  private static readonly EC_LEVEL_M = 0; // Medium error correction
-  
-  // Alphanumeric encoding table
-  private static readonly ALPHANUMERIC_TABLE: { [key: string]: number } = {
-    '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
-    'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15, 'G': 16, 'H': 17, 'I': 18, 'J': 19,
-    'K': 20, 'L': 21, 'M': 22, 'N': 23, 'O': 24, 'P': 25, 'Q': 26, 'R': 27, 'S': 28, 'T': 29,
-    'U': 30, 'V': 31, 'W': 32, 'X': 33, 'Y': 34, 'Z': 35, ' ': 36, '$': 37, '%': 38, '*': 39,
-    '+': 40, '-': 41, '.': 42, '/': 43, ':': 44
-  };
-
-  static generate(text: string, size: number = 150): string {
-    const qrSize = 25; // Version 2 QR code (25x25 modules)
-    const moduleSize = Math.floor(size / (qrSize + 8)); // Add quiet zone
-    const actualSize = (qrSize + 8) * moduleSize;
-    
-    // Create the QR matrix
-    const matrix = this.createMatrix(text, qrSize);
-    
-    // Generate SVG
-    let rects = '';
-    for (let y = 0; y < qrSize; y++) {
-      for (let x = 0; x < qrSize; x++) {
-        if (matrix[y][x]) {
-          const px = (x + 4) * moduleSize;
-          const py = (y + 4) * moduleSize;
-          rects += `<rect x="${px}" y="${py}" width="${moduleSize}" height="${moduleSize}" fill="#000"/>`;
-        }
-      }
-    }
-    
-    return `<svg width="${actualSize}" height="${actualSize}" xmlns="http://www.w3.org/2000/svg">
-      <rect width="${actualSize}" height="${actualSize}" fill="white"/>
-      ${rects}
-    </svg>`;
-  }
-  
-  private static createMatrix(text: string, size: number): boolean[][] {
-    const matrix: boolean[][] = Array(size).fill(null).map(() => Array(size).fill(false));
-    
-    // Add finder patterns (3 corners)
-    this.addFinderPattern(matrix, 0, 0);
-    this.addFinderPattern(matrix, size - 7, 0);
-    this.addFinderPattern(matrix, 0, size - 7);
-    
-    // Add separators
-    this.addSeparators(matrix, size);
-    
-    // Add timing patterns
-    this.addTimingPatterns(matrix, size);
-    
-    // Add alignment pattern for Version 2+
-    this.addAlignmentPattern(matrix, size - 9, size - 9);
-    
-    // Add format info
-    this.addFormatInfo(matrix, size);
-    
-    // Encode data
-    this.encodeData(matrix, text, size);
-    
-    return matrix;
-  }
-  
-  private static addFinderPattern(matrix: boolean[][], startX: number, startY: number): void {
-    const pattern = [
-      [1,1,1,1,1,1,1],
-      [1,0,0,0,0,0,1],
-      [1,0,1,1,1,0,1],
-      [1,0,1,1,1,0,1],
-      [1,0,1,1,1,0,1],
-      [1,0,0,0,0,0,1],
-      [1,1,1,1,1,1,1]
-    ];
-    
-    for (let y = 0; y < 7; y++) {
-      for (let x = 0; x < 7; x++) {
-        if (startY + y < matrix.length && startX + x < matrix[0].length) {
-          matrix[startY + y][startX + x] = pattern[y][x] === 1;
-        }
-      }
-    }
-  }
-  
-  private static addSeparators(matrix: boolean[][], size: number): void {
-    // White separators around finder patterns
-    for (let i = 0; i < 8; i++) {
-      if (i < size) {
-        matrix[7][i] = false;
-        matrix[i][7] = false;
-        matrix[7][size - 1 - i] = false;
-        matrix[i][size - 8] = false;
-        matrix[size - 8][i] = false;
-        matrix[size - 1 - i][7] = false;
-      }
-    }
-  }
-  
-  private static addTimingPatterns(matrix: boolean[][], size: number): void {
-    for (let i = 8; i < size - 8; i++) {
-      matrix[6][i] = i % 2 === 0;
-      matrix[i][6] = i % 2 === 0;
-    }
-  }
-  
-  private static addAlignmentPattern(matrix: boolean[][], centerX: number, centerY: number): void {
-    const pattern = [
-      [1,1,1,1,1],
-      [1,0,0,0,1],
-      [1,0,1,0,1],
-      [1,0,0,0,1],
-      [1,1,1,1,1]
-    ];
-    
-    for (let y = 0; y < 5; y++) {
-      for (let x = 0; x < 5; x++) {
-        const py = centerY - 2 + y;
-        const px = centerX - 2 + x;
-        if (py >= 0 && py < matrix.length && px >= 0 && px < matrix[0].length) {
-          matrix[py][px] = pattern[y][x] === 1;
-        }
-      }
-    }
-  }
-  
-  private static addFormatInfo(matrix: boolean[][], size: number): void {
-    // Format info around finder patterns (simplified - using fixed pattern)
-    const formatBits = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0];
-    
-    for (let i = 0; i < 6; i++) {
-      matrix[8][i] = formatBits[i] === 1;
-      matrix[i][8] = formatBits[14 - i] === 1;
-    }
-    matrix[8][7] = formatBits[6] === 1;
-    matrix[8][8] = formatBits[7] === 1;
-    matrix[7][8] = formatBits[8] === 1;
-    
-    for (let i = 0; i < 7; i++) {
-      matrix[size - 1 - i][8] = formatBits[i] === 1;
-      matrix[8][size - 1 - i] = formatBits[14 - i] === 1;
-    }
-    
-    // Dark module
-    matrix[size - 8][8] = true;
-  }
-  
-  private static encodeData(matrix: boolean[][], text: string, size: number): void {
-    // Convert text to binary data
-    const data: number[] = [];
-    
-    // Add mode indicator (byte mode = 0100)
-    data.push(0, 1, 0, 0);
-    
-    // Add character count (8 bits for version 1-9)
-    const charCount = Math.min(text.length, 255);
-    for (let i = 7; i >= 0; i--) {
-      data.push((charCount >> i) & 1);
-    }
-    
-    // Add data
-    for (let i = 0; i < charCount; i++) {
-      const charCode = text.charCodeAt(i);
-      for (let j = 7; j >= 0; j--) {
-        data.push((charCode >> j) & 1);
-      }
-    }
-    
-    // Add terminator
-    for (let i = 0; i < 4; i++) data.push(0);
-    
-    // Pad to byte boundary
-    while (data.length % 8 !== 0) data.push(0);
-    
-    // Add padding bytes
-    const padBytes = [0xEC, 0x11];
-    let padIndex = 0;
-    while (data.length < 44 * 8) { // Version 2-M capacity
-      for (let i = 7; i >= 0; i--) {
-        data.push((padBytes[padIndex % 2] >> i) & 1);
-      }
-      padIndex++;
-    }
-    
-    // Place data in matrix (simplified placement)
-    let dataIndex = 0;
-    let upward = true;
-    
-    for (let col = size - 1; col >= 0; col -= 2) {
-      if (col === 6) col = 5; // Skip timing pattern column
-      
-      const rows = upward ? 
-        Array.from({ length: size }, (_, i) => size - 1 - i) :
-        Array.from({ length: size }, (_, i) => i);
-      
-      for (const row of rows) {
-        for (let c = 0; c < 2; c++) {
-          const x = col - c;
-          if (x < 0) continue;
-          
-          // Skip reserved areas
-          if (this.isReserved(x, row, size)) continue;
-          
-          if (dataIndex < data.length) {
-            matrix[row][x] = data[dataIndex] === 1;
-            dataIndex++;
-          }
-        }
-      }
-      
-      upward = !upward;
-    }
-    
-    // Apply mask pattern (checkerboard - pattern 0)
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
-        if (!this.isReserved(x, y, size)) {
-          if ((x + y) % 2 === 0) {
-            matrix[y][x] = !matrix[y][x];
-          }
-        }
-      }
-    }
-  }
-  
-  private static isReserved(x: number, y: number, size: number): boolean {
-    // Finder patterns + separators
-    if (x < 9 && y < 9) return true;
-    if (x >= size - 8 && y < 9) return true;
-    if (x < 9 && y >= size - 8) return true;
-    
-    // Timing patterns
-    if (x === 6 || y === 6) return true;
-    
-    // Alignment pattern
-    if (x >= size - 11 && x <= size - 7 && y >= size - 11 && y <= size - 7) return true;
-    
-    // Format info
-    if (x === 8 && (y < 9 || y >= size - 8)) return true;
-    if (y === 8 && (x < 9 || x >= size - 8)) return true;
-    
-    return false;
-  }
-}
-
-// Code 39 Barcode Generator
+// Code 39 Barcode Generator - Proper implementation
 function generateBarcodeSVG(code: string): string {
   const patterns: { [key: string]: string } = {
     '0': '101001101101', '1': '110100101011', '2': '101100101011',
@@ -362,15 +117,31 @@ serve(async (req: Request) => {
       }).format(amount);
     };
 
-    // Generate real QR code with invoice URL
+    // Generate REAL QR code with invoice URL using qrcode library
     const invoiceUrl = `https://justiceultimateautomobiles.com/invoices/${invoiceNo}`;
-    const qrCodeSVG = QRCodeGenerator.generate(invoiceUrl, 120);
+    console.log("Generating QR code for URL:", invoiceUrl);
+    
+    // Generate QR code as SVG string
+    const qrCodeSVG = await QRCode.toString(invoiceUrl, {
+      type: 'svg',
+      width: 150,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      },
+      errorCorrectionLevel: 'M'
+    });
     const qrCodeBase64 = btoa(unescape(encodeURIComponent(qrCodeSVG)));
+    console.log("QR code generated successfully");
 
     // Generate barcode
     const barcodeId = invoiceNo.replace(/[^0-9A-Z]/gi, '').substring(0, 15).toUpperCase();
     const barcodeSVG = generateBarcodeSVG(barcodeId);
     const barcodeBase64 = btoa(unescape(encodeURIComponent(barcodeSVG)));
+
+    // Company logo URL
+    const logoUrl = "https://preview--jua-auto-dealership.lovable.app/images/company-logo.png";
 
     // Generate items rows
     const itemsRows = data.items.map((item, index) => `
@@ -448,17 +219,12 @@ serve(async (req: Request) => {
       align-items: center;
       gap: 15px;
     }
-    .logo-placeholder {
-      width: 70px;
-      height: 70px;
+    .company-logo {
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #1e40af, #3b82f6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 700;
-      font-size: 22px;
+      object-fit: contain;
+      background: white;
     }
     .company-info h2 {
       color: #1e40af;
@@ -585,47 +351,61 @@ serve(async (req: Request) => {
       gap: 50px;
       margin: 30px 0;
       padding: 25px;
-      border-top: 1px solid #e5e7eb;
-      border-bottom: 1px solid #e5e7eb;
+      background: #f8fafc;
+      border-radius: 8px;
     }
     .qr-code, .barcode {
       text-align: center;
     }
     .qr-code img {
-      width: 120px;
-      height: 120px;
+      width: 130px;
+      height: 130px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 5px;
+      background: white;
     }
     .barcode img {
       height: 70px;
     }
     .codes-section p {
-      font-size: 10px;
-      color: #666;
-      margin-top: 5px;
+      font-size: 11px;
+      color: #333;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+    .codes-section .scan-text {
+      color: #1e40af;
+      font-weight: 600;
     }
     
     .footer {
       text-align: center;
-      padding-top: 25px;
-      border-top: 2px solid #1e40af;
+      padding: 25px;
+      background: #1e40af;
+      border-radius: 8px;
+      margin-top: 30px;
     }
     .footer-company {
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 700;
-      color: #1e40af;
-      margin-bottom: 8px;
+      color: white;
+      margin-bottom: 10px;
     }
     .footer-contacts {
-      font-size: 12px;
-      color: #666;
-      line-height: 1.6;
+      font-size: 13px;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.8;
+    }
+    .footer-contacts a {
+      color: white;
+      text-decoration: none;
     }
     .page-number {
-      position: fixed;
-      bottom: 15px;
-      right: 30px;
+      text-align: center;
+      margin-top: 20px;
       font-size: 11px;
-      color: #999;
+      color: #666;
     }
   </style>
 </head>
@@ -633,7 +413,7 @@ serve(async (req: Request) => {
   <div class="container">
     <div class="header">
       <div class="logo-section">
-        <div class="logo-placeholder">JUA</div>
+        <img src="${logoUrl}" alt="JUA Logo" class="company-logo" onerror="this.style.display='none'" />
         <div class="company-info">
           <h2>Justice Ultimate Automobiles</h2>
           <p>Premier Car Dealership in Kenya</p>
@@ -702,25 +482,27 @@ serve(async (req: Request) => {
 
     <div class="codes-section">
       <div class="qr-code">
-        <img src="data:image/svg+xml;base64,${qrCodeBase64}" alt="QR Code" />
-        <p>Scan for invoice details</p>
+        <img src="data:image/svg+xml;base64,${qrCodeBase64}" alt="QR Code - Scan to view invoice" />
+        <p class="scan-text">📱 Scan to view invoice online</p>
+        <p>${invoiceUrl}</p>
       </div>
       <div class="barcode">
         <img src="data:image/svg+xml;base64,${barcodeBase64}" alt="Barcode" />
-        <p>${invoiceNo}</p>
+        <p><strong>${invoiceNo}</strong></p>
       </div>
     </div>
 
     <div class="footer">
       <p class="footer-company">Justice Ultimate Automobiles | Premier Car Dealership in Kenya</p>
       <p class="footer-contacts">
-        Phone: 0722 827 458 | 0751555544<br>
-        Email: info@justiceultimateautomobiles.com | Web: www.justiceultimateautomobiles.com
+        📞 Phone: 0722 827 458 | 0751555544<br>
+        ✉️ Email: info@justiceultimateautomobiles.com<br>
+        🌐 Web: www.justiceultimateautomobiles.com
       </p>
     </div>
+
+    <p class="page-number">Page 1 of 1 | Generated on ${formattedDate}</p>
   </div>
-  
-  <div class="page-number">Page 1 of 1</div>
 </body>
 </html>
     `;
