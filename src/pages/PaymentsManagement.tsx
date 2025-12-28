@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import LoadingScreen from "@/components/LoadingScreen";
+import { BulkPDFDownloader } from "@/components/BulkPDFDownloader";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -588,6 +589,8 @@ const PaymentsManagement = () => {
             <Button variant="outline" onClick={fetchAllData}>
               <RefreshCw className="w-4 h-4 mr-2" /> Refresh
             </Button>
+            <BulkPDFDownloader type="invoices" />
+            <BulkPDFDownloader type="receipts" />
             <Dialog open={showInvoiceDialog} onOpenChange={setShowInvoiceDialog}>
               <DialogTrigger asChild>
                 <Button variant="outline">
