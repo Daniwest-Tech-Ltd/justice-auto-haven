@@ -15,6 +15,9 @@ serve(async (req) => {
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+  // Your registered IPN ID from Pesapal Dashboard
+  const PESAPAL_IPN_ID = '7dda9c82-21ba-4ded-984c-daeb20fa7259';
+
   try {
     const { 
       order_id,
@@ -41,11 +44,9 @@ serve(async (req) => {
       });
     }
 
-    // Register IPN URL (idempotent operation)
-    const ipnId = await registerIPN(token);
-    if (!ipnId) {
-      console.warn('Could not register IPN, continuing without IPN');
-    }
+    // Use pre-registered IPN ID
+    const ipnId = PESAPAL_IPN_ID;
+    console.log('Using registered IPN ID:', ipnId);
 
     // Generate unique merchant reference
     const merchantReference = `JUA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -174,52 +175,6 @@ async function getAccessToken(): Promise<string | null> {
     return data.token || null;
   } catch (error) {
     console.error('Error getting access token:', error);
-    return null;
-  }
-}
-
-async function registerIPN(token: string): Promise<string | null> {
-  try {
-    // First check for existing IPN registrations
-    const listResponse = await fetch('https://pay.pesapal.com/v3/api/URLSetup/GetIpnList', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    const ipnList = await listResponse.json();
-    const ipnUrl = 'https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/pesapal-ipn';
-    
-    // Check if our IPN is already registered
-    if (Array.isArray(ipnList)) {
-      const existing = ipnList.find((ipn: any) => ipn.url === ipnUrl);
-      if (existing) {
-        console.log('Using existing IPN registration:', existing.ipn_id);
-        return existing.ipn_id;
-      }
-    }
-
-    // Register new IPN
-    const registerResponse = await fetch('https://pay.pesapal.com/v3/api/URLSetup/RegisterIPN', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        url: ipnUrl,
-        ipn_notification_type: 'POST'
-      })
-    });
-
-    const registerData = await registerResponse.json();
-    console.log('IPN registration response:', registerData);
-    
-    return registerData.ipn_id || null;
-  } catch (error) {
-    console.error('Error registering IPN:', error);
     return null;
   }
 }
