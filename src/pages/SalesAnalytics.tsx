@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PaymentReceiptsTab } from "@/components/PaymentReceiptsTab";
+import { BulkPDFDownloader } from "@/components/BulkPDFDownloader";
 const SalesAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -145,6 +146,8 @@ const SalesAnalytics = () => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Dashboard
         </Button>
+        
+        <BulkPDFDownloader type="sales" />
         
         <Button
           onClick={downloadPDF}

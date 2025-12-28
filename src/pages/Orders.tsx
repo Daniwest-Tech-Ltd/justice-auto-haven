@@ -25,6 +25,7 @@ import * as XLSX from "xlsx";
 import { PesapalPaymentModal } from "@/components/PesapalPaymentModal";
 import { OrderPaymentsTab } from "@/components/OrderPaymentsTab";
 import { PaymentReceiptsTab } from "@/components/PaymentReceiptsTab";
+import { BulkPDFDownloader } from "@/components/BulkPDFDownloader";
 
 interface Order {
   id: string;
@@ -541,6 +542,7 @@ const Orders = () => {
               <FileDown className="w-4 h-4" />
               Export Excel
             </Button>
+            <BulkPDFDownloader type="orders" />
             <Button onClick={exportToPDF} className="gap-2">
               <Download className="w-4 h-4" />
               Export PDF
