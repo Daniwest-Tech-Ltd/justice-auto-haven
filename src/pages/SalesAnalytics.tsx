@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, TrendingUp, DollarSign, Car, Users, Download, CreditCard } from "lucide-react";
+import { ArrowLeft, TrendingUp, DollarSign, Car, Users, Download, CreditCard, Receipt } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PaymentReceiptsTab } from "@/components/PaymentReceiptsTab";
 const SalesAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -154,158 +155,178 @@ const SalesAnalytics = () => {
         </Button>
       </div>
 
-      <h1 className="text-4xl font-bold mb-8">Sales Analytics</h1>
+      <Tabs defaultValue="analytics" className="space-y-6">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="analytics" className="gap-2">
+            <TrendingUp className="w-4 h-4" />
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="receipts" className="gap-2">
+            <Receipt className="w-4 h-4" />
+            Receipts
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="glass-strong">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Sales</p>
-                <h3 className="text-3xl font-bold">{stats.totalSales}</h3>
-              </div>
-              <TrendingUp className="h-10 w-10 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
+        <TabsContent value="analytics" className="space-y-8">
+          <h1 className="text-4xl font-bold">Sales Analytics</h1>
 
-        <Card className="glass-strong">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <h3 className="text-2xl font-bold">
-                  KSh {stats.totalRevenue.toLocaleString()}
-                </h3>
-              </div>
-              <DollarSign className="h-10 w-10 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-strong">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Cars Sold</p>
-                <h3 className="text-3xl font-bold">{stats.soldCars}</h3>
-              </div>
-              <Car className="h-10 w-10 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-strong">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Inventory</p>
-                <h3 className="text-3xl font-bold">{stats.totalCars}</h3>
-              </div>
-              <Users className="h-10 w-10 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="glass-strong">
-          <CardHeader>
-            <CardTitle>Monthly Sales Trend</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={salesByMonth}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
-                <YAxis stroke="hsl(var(--foreground))" />
-                <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }} />
-                <Legend />
-                <Line type="monotone" dataKey="sales" stroke="hsl(var(--primary))" name="Sales" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-strong">
-          <CardHeader>
-            <CardTitle>Sales by Brand</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={salesByBrand} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" stroke="hsl(var(--foreground))" />
-                <YAxis type="category" dataKey="brand" stroke="hsl(var(--foreground))" />
-                <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }} />
-                <Bar dataKey="count" fill="hsl(var(--primary))" name="Cars Sold" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-strong lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Revenue by Month</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={salesByMonth}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
-                <YAxis stroke="hsl(var(--foreground))" />
-                <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }} />
-                <Legend />
-                <Bar dataKey="revenue" fill="hsl(var(--primary))" name="Revenue (KSh)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Payment Gateway Section */}
-        <Card className="glass-strong lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5" />
-              Pesapal Payment Gateway
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-gradient-to-br from-primary/10 via-background to-primary/5 rounded-xl p-6 border border-primary/20">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold">Accept Payments</h3>
-                  <p className="text-sm text-muted-foreground">Process sales payments via Pesapal</p>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="glass-strong">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Sales</p>
+                    <h3 className="text-3xl font-bold">{stats.totalSales}</h3>
+                  </div>
+                  <TrendingUp className="h-10 w-10 text-primary" />
                 </div>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">IPN Active</Badge>
-              </div>
-              
-              <div className="aspect-video max-w-xl mx-auto bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border/50">
-                <iframe 
-                  width="100%" 
-                  height="100%" 
-                  src="https://store.pesapal.com/embed-code?pageUrl=https://store.pesapal.com/justiceultimateautomobile" 
-                  frameBorder="0" 
-                  allowFullScreen
-                  className="rounded-lg"
-                  title="Pesapal Payment Gateway"
-                />
-              </div>
-              
-              <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                <p className="text-xs text-muted-foreground">
-                  <strong>IPN ID:</strong> 7dda9c82-21ba-4ded-984c-daeb20fa7259
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  <strong>IPN URL:</strong> https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/pesapal-ipn
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-strong">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Revenue</p>
+                    <h3 className="text-2xl font-bold">
+                      KSh {stats.totalRevenue.toLocaleString()}
+                    </h3>
+                  </div>
+                  <DollarSign className="h-10 w-10 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-strong">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Cars Sold</p>
+                    <h3 className="text-3xl font-bold">{stats.soldCars}</h3>
+                  </div>
+                  <Car className="h-10 w-10 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-strong">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Inventory</p>
+                    <h3 className="text-3xl font-bold">{stats.totalCars}</h3>
+                  </div>
+                  <Users className="h-10 w-10 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="glass-strong">
+              <CardHeader>
+                <CardTitle>Monthly Sales Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={salesByMonth}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
+                    <YAxis stroke="hsl(var(--foreground))" />
+                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }} />
+                    <Legend />
+                    <Line type="monotone" dataKey="sales" stroke="hsl(var(--primary))" name="Sales" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-strong">
+              <CardHeader>
+                <CardTitle>Sales by Brand</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={salesByBrand} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis type="number" stroke="hsl(var(--foreground))" />
+                    <YAxis type="category" dataKey="brand" stroke="hsl(var(--foreground))" />
+                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }} />
+                    <Bar dataKey="count" fill="hsl(var(--primary))" name="Cars Sold" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-strong lg:col-span-2">
+              <CardHeader>
+                <CardTitle>Revenue by Month</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={salesByMonth}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
+                    <YAxis stroke="hsl(var(--foreground))" />
+                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }} />
+                    <Legend />
+                    <Bar dataKey="revenue" fill="hsl(var(--primary))" name="Revenue (KSh)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Payment Gateway Section */}
+            <Card className="glass-strong lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" />
+                  Pesapal Payment Gateway
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-br from-primary/10 via-background to-primary/5 rounded-xl p-6 border border-primary/20">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">Accept Payments</h3>
+                      <p className="text-sm text-muted-foreground">Process sales payments via Pesapal</p>
+                    </div>
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">IPN Active</Badge>
+                  </div>
+                  
+                  <div className="aspect-video max-w-xl mx-auto bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border/50">
+                    <iframe 
+                      width="100%" 
+                      height="100%" 
+                      src="https://store.pesapal.com/embed-code?pageUrl=https://store.pesapal.com/justiceultimateautomobile" 
+                      frameBorder="0" 
+                      allowFullScreen
+                      className="rounded-lg"
+                      title="Pesapal Payment Gateway"
+                    />
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>IPN ID:</strong> 7dda9c82-21ba-4ded-984c-daeb20fa7259
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <strong>IPN URL:</strong> https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/pesapal-ipn
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="receipts">
+          <h1 className="text-4xl font-bold mb-8">Payment Receipts</h1>
+          <PaymentReceiptsTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

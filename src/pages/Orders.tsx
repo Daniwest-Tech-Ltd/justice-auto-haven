@@ -24,6 +24,7 @@ import { AutomatedFollowUp } from "@/components/AutomatedFollowUp";
 import * as XLSX from "xlsx";
 import { PesapalPaymentModal } from "@/components/PesapalPaymentModal";
 import { OrderPaymentsTab } from "@/components/OrderPaymentsTab";
+import { PaymentReceiptsTab } from "@/components/PaymentReceiptsTab";
 
 interface Order {
   id: string;
@@ -57,7 +58,7 @@ const Orders = () => {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"orders" | "analytics" | "templates" | "followup" | "payments">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "analytics" | "templates" | "followup" | "payments" | "receipts">("orders");
   const [showPesapalModal, setShowPesapalModal] = useState(false);
   const [selectedOrderForPayment, setSelectedOrderForPayment] = useState<Order | null>(null);
 
@@ -585,6 +586,14 @@ const Orders = () => {
             <CreditCard className="w-4 h-4" />
             Payments
           </Button>
+          <Button
+            variant={activeTab === "receipts" ? "default" : "ghost"}
+            onClick={() => setActiveTab("receipts")}
+            className="gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Receipts
+          </Button>
         </div>
 
         {activeTab === "analytics" && <OrderAnalytics />}
@@ -647,6 +656,8 @@ const Orders = () => {
             </CardContent>
           </Card>
         )}
+
+        {activeTab === "receipts" && <PaymentReceiptsTab />}
 
         {activeTab === "orders" && (
           <>
