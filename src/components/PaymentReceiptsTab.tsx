@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Receipt, Download, Search, Eye, Loader2, RefreshCw, FileText, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Receipt, Download, Search, Eye, Loader2, RefreshCw, FileText, CheckCircle, XCircle, Clock, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
@@ -81,175 +81,216 @@ export const PaymentReceiptsTab = () => {
     }
   };
 
+  const generateReceiptPdfBase64 = async (payment: Payment): Promise<string> => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+    // Brand colors
+    const brandRed: [number, number, number] = [220, 38, 38];
+    const darkGray: [number, number, number] = [51, 51, 51];
+    
+    // Load and add logo
+    try {
+      const logoImg = new Image();
+      logoImg.src = logo;
+      logoImg.crossOrigin = 'anonymous';
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = reject;
+        setTimeout(reject, 3000);
+      });
+      doc.addImage(logoImg, 'PNG', 14, 10, 40, 20);
+    } catch {
+      // Logo failed to load, continue without it
+    }
+    
+    // Company header
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...brandRed);
+    doc.text("JUSTICE ULTIMATE AUTOMOBILES", 60, 18);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "normal");
+    doc.text("Premier Car Dealership in Kenya", 60, 25);
+    doc.text("Phone: 0722 827 458 | Email: info@justiceultimateautomobiles.com", 60, 30);
+    
+    // Separator line
+    doc.setDrawColor(...brandRed);
+    doc.setLineWidth(1);
+    doc.line(14, 38, pageWidth - 14, 38);
+    
+    // Receipt title
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...darkGray);
+    doc.text("PAYMENT RECEIPT", pageWidth / 2, 52, { align: "center" });
+    
+    // Receipt number box
+    doc.setFillColor(245, 245, 245);
+    doc.roundedRect(14, 60, pageWidth - 28, 25, 3, 3, 'F');
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Receipt Number:", 20, 70);
+    doc.text("Date:", 20, 78);
+    
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...darkGray);
+    doc.text(payment.pesapal_merchant_reference || `RCP-${payment.id.slice(0, 8).toUpperCase()}`, 70, 70);
+    doc.text(format(new Date(payment.completed_at || payment.created_at), "dd MMMM yyyy, HH:mm"), 70, 78);
+    
+    // Customer details section
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...brandRed);
+    doc.text("CUSTOMER DETAILS", 14, 100);
+    
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.line(14, 103, pageWidth - 14, 103);
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(...darkGray);
+    
+    const customerDetails = [
+      ["Name:", payment.customer_name || "N/A"],
+      ["Email:", payment.customer_email || "N/A"],
+      ["Phone:", payment.customer_phone || "N/A"],
+    ];
+    
+    let yPos = 112;
+    customerDetails.forEach(([label, value]) => {
+      doc.setTextColor(100, 100, 100);
+      doc.text(label, 14, yPos);
+      doc.setTextColor(...darkGray);
+      doc.text(value, 50, yPos);
+      yPos += 8;
+    });
+    
+    // Payment details section
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...brandRed);
+    doc.text("PAYMENT DETAILS", 14, yPos + 10);
+    
+    doc.setLineWidth(0.5);
+    doc.line(14, yPos + 13, pageWidth - 14, yPos + 13);
+    
+    // Payment table
+    const paymentTableData = [
+      ["Description", payment.description || "Vehicle Payment"],
+      ["Payment Method", payment.payment_method?.toUpperCase() || "PESAPAL"],
+      ["Transaction ID", payment.pesapal_order_tracking_id || "N/A"],
+      ["Confirmation Code", (payment.metadata?.confirmation_code as string) || payment.pesapal_merchant_reference || "N/A"],
+      ["Status", payment.status.toUpperCase()],
+    ];
+    
+    autoTable(doc, {
+      startY: yPos + 18,
+      head: [],
+      body: paymentTableData,
+      theme: 'plain',
+      styles: { fontSize: 10, cellPadding: 4 },
+      columnStyles: {
+        0: { fontStyle: 'bold', textColor: [100, 100, 100], cellWidth: 60 },
+        1: { textColor: darkGray },
+      },
+    });
+    
+    // Amount box
+    const amountY = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY || yPos + 60;
+    
+    doc.setFillColor(220, 38, 38);
+    doc.roundedRect(14, amountY + 10, pageWidth - 28, 30, 3, 3, 'F');
+    
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "normal");
+    doc.text("AMOUNT PAID", 20, amountY + 22);
+    
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text(`${payment.currency} ${payment.amount.toLocaleString()}`, pageWidth - 20, amountY + 28, { align: "right" });
+    
+    // Paid via Pesapal badge
+    doc.setFillColor(34, 197, 94);
+    doc.roundedRect(pageWidth / 2 - 35, amountY + 50, 70, 12, 2, 2, 'F');
+    doc.setFontSize(9);
+    doc.setTextColor(255, 255, 255);
+    doc.text("✓ PAID VIA PESAPAL", pageWidth / 2, amountY + 58, { align: "center" });
+    
+    // Footer separator
+    doc.setDrawColor(...brandRed);
+    doc.setLineWidth(0.5);
+    doc.line(14, pageHeight - 35, pageWidth - 14, pageHeight - 35);
+    
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "normal");
+    doc.text("Thank you for your business!", pageWidth / 2, pageHeight - 28, { align: "center" });
+    doc.text("Justice Ultimate Automobiles | www.justiceultimateautomobiles.com", pageWidth / 2, pageHeight - 22, { align: "center" });
+    doc.text("This is a computer-generated receipt and does not require a signature.", pageWidth / 2, pageHeight - 16, { align: "center" });
+    
+    // Watermark
+    doc.setFontSize(50);
+    doc.setTextColor(245, 245, 245);
+    doc.setFont("helvetica", "bold");
+    doc.text("PAID", pageWidth / 2, pageHeight / 2, { align: "center", angle: 45 });
+    
+    // Return base64
+    return doc.output('datauristring').split(',')[1];
+  };
+
   const generateReceipt = async (payment: Payment) => {
     setGeneratingReceipt(payment.id);
     
     try {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
+      // Generate PDF
+      const pdfBase64 = await generateReceiptPdfBase64(payment);
       
-      // Brand colors
-      const brandRed: [number, number, number] = [220, 38, 38];
-      const darkGray: [number, number, number] = [51, 51, 51];
-      
-      // Load and add logo
-      try {
-        const logoImg = new Image();
-        logoImg.src = logo;
-        logoImg.crossOrigin = 'anonymous';
-        await new Promise((resolve, reject) => {
-          logoImg.onload = resolve;
-          logoImg.onerror = reject;
-          setTimeout(reject, 3000);
-        });
-        doc.addImage(logoImg, 'PNG', 14, 10, 40, 20);
-      } catch {
-        // Logo failed to load, continue without it
-      }
-      
-      // Company header
-      doc.setFontSize(18);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(...brandRed);
-      doc.text("JUSTICE ULTIMATE AUTOMOBILES", 60, 18);
-      
-      doc.setFontSize(10);
-      doc.setTextColor(100, 100, 100);
-      doc.setFont("helvetica", "normal");
-      doc.text("Premier Car Dealership in Kenya", 60, 25);
-      doc.text("Phone: 0722 827 458 | Email: info@justiceultimateautomobiles.com", 60, 30);
-      
-      // Separator line
-      doc.setDrawColor(...brandRed);
-      doc.setLineWidth(1);
-      doc.line(14, 38, pageWidth - 14, 38);
-      
-      // Receipt title
-      doc.setFontSize(22);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(...darkGray);
-      doc.text("PAYMENT RECEIPT", pageWidth / 2, 52, { align: "center" });
-      
-      // Receipt number box
-      doc.setFillColor(245, 245, 245);
-      doc.roundedRect(14, 60, pageWidth - 28, 25, 3, 3, 'F');
-      
-      doc.setFontSize(10);
-      doc.setTextColor(100, 100, 100);
-      doc.text("Receipt Number:", 20, 70);
-      doc.text("Date:", 20, 78);
-      
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(...darkGray);
-      doc.text(payment.pesapal_merchant_reference || `RCP-${payment.id.slice(0, 8).toUpperCase()}`, 70, 70);
-      doc.text(format(new Date(payment.completed_at || payment.created_at), "dd MMMM yyyy, HH:mm"), 70, 78);
-      
-      // Customer details section
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(...brandRed);
-      doc.text("CUSTOMER DETAILS", 14, 100);
-      
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.5);
-      doc.line(14, 103, pageWidth - 14, 103);
-      
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(...darkGray);
-      
-      const customerDetails = [
-        ["Name:", payment.customer_name || "N/A"],
-        ["Email:", payment.customer_email || "N/A"],
-        ["Phone:", payment.customer_phone || "N/A"],
-      ];
-      
-      let yPos = 112;
-      customerDetails.forEach(([label, value]) => {
-        doc.setTextColor(100, 100, 100);
-        doc.text(label, 14, yPos);
-        doc.setTextColor(...darkGray);
-        doc.text(value, 50, yPos);
-        yPos += 8;
-      });
-      
-      // Payment details section
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(...brandRed);
-      doc.text("PAYMENT DETAILS", 14, yPos + 10);
-      
-      doc.setLineWidth(0.5);
-      doc.line(14, yPos + 13, pageWidth - 14, yPos + 13);
-      
-      // Payment table
-      const paymentTableData = [
-        ["Description", payment.description || "Vehicle Payment"],
-        ["Payment Method", payment.payment_method?.toUpperCase() || "PESAPAL"],
-        ["Transaction ID", payment.pesapal_order_tracking_id || "N/A"],
-        ["Confirmation Code", (payment.metadata?.confirmation_code as string) || payment.pesapal_merchant_reference || "N/A"],
-        ["Status", payment.status.toUpperCase()],
-      ];
-      
-      autoTable(doc, {
-        startY: yPos + 18,
-        head: [],
-        body: paymentTableData,
-        theme: 'plain',
-        styles: { fontSize: 10, cellPadding: 4 },
-        columnStyles: {
-          0: { fontStyle: 'bold', textColor: [100, 100, 100], cellWidth: 60 },
-          1: { textColor: darkGray },
-        },
-      });
-      
-      // Amount box
-      const amountY = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY || yPos + 60;
-      
-      doc.setFillColor(220, 38, 38);
-      doc.roundedRect(14, amountY + 10, pageWidth - 28, 30, 3, 3, 'F');
-      
-      doc.setFontSize(12);
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "normal");
-      doc.text("AMOUNT PAID", 20, amountY + 22);
-      
-      doc.setFontSize(20);
-      doc.setFont("helvetica", "bold");
-      doc.text(`${payment.currency} ${payment.amount.toLocaleString()}`, pageWidth - 20, amountY + 28, { align: "right" });
-      
-      // Paid via Pesapal badge
-      doc.setFillColor(34, 197, 94);
-      doc.roundedRect(pageWidth / 2 - 35, amountY + 50, 70, 12, 2, 2, 'F');
-      doc.setFontSize(9);
-      doc.setTextColor(255, 255, 255);
-      doc.text("✓ PAID VIA PESAPAL", pageWidth / 2, amountY + 58, { align: "center" });
-      
-      // Footer separator
-      doc.setDrawColor(...brandRed);
-      doc.setLineWidth(0.5);
-      doc.line(14, pageHeight - 35, pageWidth - 14, pageHeight - 35);
-      
-      // Footer
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.setFont("helvetica", "normal");
-      doc.text("Thank you for your business!", pageWidth / 2, pageHeight - 28, { align: "center" });
-      doc.text("Justice Ultimate Automobiles | www.justiceultimateautomobiles.com", pageWidth / 2, pageHeight - 22, { align: "center" });
-      doc.text("This is a computer-generated receipt and does not require a signature.", pageWidth / 2, pageHeight - 16, { align: "center" });
-      
-      // Watermark
-      doc.setFontSize(50);
-      doc.setTextColor(245, 245, 245);
-      doc.setFont("helvetica", "bold");
-      doc.text("PAID", pageWidth / 2, pageHeight / 2, { align: "center", angle: 45 });
-      
-      // Save the PDF
-      const fileName = `JUA-Receipt-${payment.pesapal_merchant_reference || payment.id.slice(0, 8)}.pdf`;
-      doc.save(fileName);
+      // Create blob and download
+      const pdfBlob = new Blob([Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0))], { type: 'application/pdf' });
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `JUA-Receipt-${payment.pesapal_merchant_reference || payment.id.slice(0, 8)}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
       
       toast.success("Receipt downloaded successfully!");
+      
+      // Send email to customer if they have an email
+      if (payment.customer_email) {
+        toast.loading("Sending receipt to customer...", { id: "email-receipt" });
+        
+        try {
+          const { error } = await supabase.functions.invoke('send-receipt-email', {
+            body: {
+              customer_email: payment.customer_email,
+              customer_name: payment.customer_name || "Valued Customer",
+              receipt_number: payment.pesapal_merchant_reference || `RCP-${payment.id.slice(0, 8).toUpperCase()}`,
+              amount: payment.amount,
+              currency: payment.currency,
+              payment_method: payment.payment_method || "Pesapal",
+              transaction_date: format(new Date(payment.completed_at || payment.created_at), "dd MMMM yyyy, HH:mm"),
+              description: payment.description || "Vehicle Payment",
+              pdf_base64: pdfBase64
+            }
+          });
+          
+          if (error) throw error;
+          
+          toast.success("Receipt sent to customer email!", { id: "email-receipt" });
+        } catch (emailError) {
+          console.error("Error sending email:", emailError);
+          toast.error("Receipt downloaded but email failed to send", { id: "email-receipt" });
+        }
+      }
     } catch (error) {
       console.error("Error generating receipt:", error);
       toast.error("Failed to generate receipt");
@@ -390,12 +431,14 @@ export const PaymentReceiptsTab = () => {
                             size="sm"
                             onClick={() => generateReceipt(payment)}
                             disabled={generatingReceipt === payment.id || payment.status !== "completed"}
+                            title={payment.customer_email ? "Downloads & emails receipt" : "Downloads receipt"}
                           >
                             {generatingReceipt === payment.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
                               <>
                                 <Download className="w-4 h-4 mr-1" />
+                                {payment.customer_email && <Mail className="w-3 h-3 mr-1" />}
                                 Receipt
                               </>
                             )}

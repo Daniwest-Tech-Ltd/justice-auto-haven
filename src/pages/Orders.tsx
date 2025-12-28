@@ -628,15 +628,6 @@ const Orders = () => {
                     className="rounded-lg"
                   />
                 </div>
-                
-                <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                  <p className="text-xs text-muted-foreground">
-                    <strong>IPN ID:</strong> 7dda9c82-21ba-4ded-984c-daeb20fa7259
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    <strong>IPN URL:</strong> https://ccsfhblxkmyqdqqcgitt.supabase.co/functions/v1/pesapal-ipn
-                  </p>
-                </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
