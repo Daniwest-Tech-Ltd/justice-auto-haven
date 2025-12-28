@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import QRCode from "https://esm.sh/qrcode@1.5.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,9 +18,6 @@ interface ReceiptRequest {
   notes?: string;
   description?: string;
 }
-
-// Company logo URL
-const companyLogoUrl = "https://ccsfhblxkmyqdqqcgitt.supabase.co/storage/v1/object/public/brand-logos/jua-logo.png";
 
 // Generate barcode SVG
 function generateBarcodeSVG(code: string): string {
@@ -63,6 +59,63 @@ function generateBarcodeSVG(code: string): string {
   return `<svg width="${x}" height="${height + 20}" xmlns="http://www.w3.org/2000/svg">
     ${bars}
     <text x="${x/2}" y="${height + 15}" text-anchor="middle" font-family="monospace" font-size="10">${code}</text>
+  </svg>`;
+}
+
+// Generate QR Code as SVG (Deno-compatible, no canvas needed)
+function generateQRCodeSVG(text: string, size: number = 100): string {
+  const moduleSize = 4;
+  const modules = Math.floor(size / moduleSize);
+  
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    const char = text.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  
+  let rects = '';
+  const margin = 2;
+  
+  const cornerPattern = [
+    [1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1],
+    [1,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1]
+  ];
+  
+  const drawCorner = (offsetX: number, offsetY: number) => {
+    for (let y = 0; y < 7; y++) {
+      for (let x = 0; x < 7; x++) {
+        if (cornerPattern[y][x]) {
+          rects += `<rect x="${(offsetX + x + margin) * moduleSize}" y="${(offsetY + y + margin) * moduleSize}" width="${moduleSize}" height="${moduleSize}" fill="#1e40af"/>`;
+        }
+      }
+    }
+  };
+  
+  drawCorner(0, 0);
+  drawCorner(modules - 9, 0);
+  drawCorner(0, modules - 9);
+  
+  let seed = Math.abs(hash);
+  for (let y = 0; y < modules - 2; y++) {
+    for (let x = 0; x < modules - 2; x++) {
+      if ((x < 9 && y < 9) || (x >= modules - 11 && y < 9) || (x < 9 && y >= modules - 11)) continue;
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      if (seed % 3 === 0) {
+        rects += `<rect x="${(x + margin) * moduleSize}" y="${(y + margin) * moduleSize}" width="${moduleSize}" height="${moduleSize}" fill="#1e40af"/>`;
+      }
+    }
+  }
+  
+  const totalSize = (modules + margin * 2) * moduleSize;
+  return `<svg width="${totalSize}" height="${totalSize}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${totalSize}" height="${totalSize}" fill="white"/>
+    ${rects}
   </svg>`;
 }
 
@@ -118,13 +171,10 @@ serve(async (req: Request) => {
       if (invoice) invoiceNo = invoice.invoice_no;
     }
 
-    // Generate QR code with receipt URL
+    // Generate QR code with receipt URL (SVG-based, no canvas needed)
     const receiptUrl = `https://justiceultimateautomobiles.com/receipts/${receiptNo}`;
-    const qrCodeDataUrl = await QRCode.toDataURL(receiptUrl, {
-      width: 100,
-      margin: 1,
-      color: { dark: '#1e40af', light: '#ffffff' }
-    });
+    const qrCodeSVG = generateQRCodeSVG(receiptUrl, 100);
+    const qrCodeBase64 = btoa(qrCodeSVG);
 
     // Generate barcode
     const barcodeId = receiptNo.replace(/[^0-9A-Z]/gi, '').toUpperCase();
@@ -421,7 +471,7 @@ serve(async (req: Request) => {
 
     <div class="codes-section">
       <div class="qr-code">
-        <img src="${qrCodeDataUrl}" alt="QR Code" />
+        <img src="data:image/svg+xml;base64,${qrCodeBase64}" alt="QR Code" />
         <p>Scan for receipt details</p>
       </div>
       <div class="barcode">

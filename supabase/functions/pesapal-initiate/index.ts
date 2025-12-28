@@ -116,8 +116,17 @@ serve(async (req) => {
         metadata: { error: orderData.error }
       }).eq('id', payment.id);
 
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to create Pesapal order';
+      if (orderData.error.code === 'amount_exceeds_default_limit') {
+        errorMessage = 'Transaction amount exceeds the payment limit. Please contact support or try a smaller amount.';
+      } else if (orderData.error.message) {
+        errorMessage = orderData.error.message;
+      }
+
       return new Response(JSON.stringify({ 
-        error: orderData.error.message || 'Failed to create Pesapal order' 
+        error: errorMessage,
+        error_code: orderData.error.code
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
