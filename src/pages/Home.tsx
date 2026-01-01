@@ -162,19 +162,25 @@ const Home = () => {
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-start pt-6">
           <div className="max-w-2xl space-y-4">
+            <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-4 py-2 mb-4 animate-pulse">
+              🎉 NEW YEAR MEGA SALE 2026
+            </Badge>
             <h1 className="text-3xl md:text-5xl font-bold leading-tight">
-              Buy, Rent, or Trade-In Cars in Kenya – <span className="text-transparent bg-clip-text bg-gradient-gold">Justice Ultimate Automobiles</span>
+              New Year Mega Sale 2026 – <span className="text-transparent bg-clip-text bg-gradient-gold">Drive Your Dream Car Today!</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground">
-              Your Trusted Car Masters... with you every step of the way
+              Up to 90% Asset Financing • Fast 3-Day Approval • Trusted Dealer in Nairobi
             </p>
             <p className="text-lg">
-              Drive your dream today with Kenya's most trusted source for premium cars, 
-              imports, and future-ready automotive technology.
+              Justice Ultimate Automobiles is a trusted car dealership in Nairobi offering quality vehicles, 
+              flexible asset financing, and fast approvals. Start 2026 with your dream car!
             </p>
             <div className="flex flex-wrap gap-4">
+              <Button size="lg" className="text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600" onClick={() => navigate("/services")}>
+                Apply for Asset Finance
+              </Button>
               <Button size="lg" className="text-lg" onClick={() => navigate("/catalogue")}>
-                Find Your Car
+                View Available Cars
               </Button>
               <Button size="lg" variant="outline" className="text-lg" onClick={() => navigate("/trade-in-submission")}>
                  Trade In Your Car
@@ -189,9 +195,9 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="text-4xl font-bold">Find Your Dream Car in Kenya Today</h2>
+              <h2 className="text-4xl font-bold">🎉 New Year Mega Sale 2026 – Find Your Dream Car!</h2>
               <p className="text-muted-foreground">
-                Try "Toyota Harrier Hybrid under 100k km" or use filters below
+                Up to 90% Asset Financing • Fast Approval • Try "Toyota Harrier Hybrid" or use filters below
               </p>
             </div>
             <div className="grid md:grid-cols-6 gap-4">
@@ -243,14 +249,12 @@ const Home = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <div className="flex items-center justify-center gap-4 mb-2">
-                <img 
-                  src={specialOffer} 
-                  alt="Christmas Special Offer" 
-                  className="w-20 h-auto offer-badge"
-                />
+                <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xl px-6 py-3 animate-pulse">
+                  🎉 2026 MEGA SALE
+                </Badge>
                 <h2 className="text-4xl font-bold glitter-text">Featured Cars for Sale in Kenya</h2>
               </div>
-              <p className="text-muted-foreground">Premium quality vehicles - Toyota, Mazda, Nissan, Subaru & more</p>
+              <p className="text-muted-foreground">New Year Special - Premium quality vehicles with up to 90% Asset Financing!</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredCars.map((car) => {
@@ -319,11 +323,9 @@ const Home = () => {
       <section className="py-16" aria-label="Available Cars">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-start gap-4 mb-12">
-            <img 
-              src={specialOffer} 
-              alt="Christmas Offer" 
-              className="w-28 h-auto offer-badge"
-            />
+            <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-lg px-6 py-3 animate-pulse">
+              🚗 NEW YEAR 2026 DEALS
+            </Badge>
             <h2 className="text-4xl font-bold glitter-text">Quality Used Cars for Sale in Nairobi, Kenya</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -385,18 +387,63 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Trade-In Section */}
+      {/* Asset Finance & Trade-In Section */}
       <section className="py-16 bg-gradient-to-r from-primary/20 to-accent/20">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <h2 className="text-4xl font-bold">Want to Upgrade?</h2>
-            <p className="text-lg text-muted-foreground">
-              Trade in your current car for a newer model with ease. We evaluate fairly 
-              and offer same-day exchange options.
-            </p>
-            <Button size="lg" onClick={() => navigate("/trade-in-submission")} className="text-lg">
-              Trade In Now <ArrowRight className="ml-2" />
-            </Button>
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center space-y-6 mb-12">
+              <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-3">
+                🎉 NEW YEAR 2026 SPECIAL
+              </Badge>
+              <h2 className="text-4xl font-bold">Up to 90% Asset Financing Available!</h2>
+              <p className="text-lg text-muted-foreground">
+                Fast approvals, transparent process, and reliable financing partners.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              {/* Salaried Individuals */}
+              <div className="glass-strong rounded-2xl p-6 border-2 border-primary/50">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Users className="h-6 w-6 text-primary" />
+                  Salaried Individuals (Up to 90% Financing)
+                </h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>✔ 6 months bank statements</li>
+                  <li>✔ 3 current payslips</li>
+                  <li>✔ KRA PIN copy</li>
+                  <li>✔ National ID copy</li>
+                </ul>
+              </div>
+
+              {/* Business Owners */}
+              <div className="glass-strong rounded-2xl p-6 border-2 border-accent/50">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Award className="h-6 w-6 text-accent" />
+                  Business Owners (Up to 80% Financing)
+                </h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>✔ 1 year bank statements</li>
+                  <li>✔ 1 year M-Pesa statements</li>
+                  <li>✔ KRA PIN copy</li>
+                  <li>✔ National ID copy</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="text-center space-y-4">
+              <div className="inline-block glass-strong rounded-xl px-8 py-4 border-2 border-green-500/50">
+                <p className="text-lg font-bold text-green-600">⏱ Processing Time: Maximum 3 Days</p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button size="lg" className="text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600" onClick={() => navigate("/services")}>
+                  Apply for Asset Finance
+                </Button>
+                <Button size="lg" variant="outline" className="text-lg" onClick={() => navigate("/trade-in-submission")}>
+                  Trade In Your Car <ArrowRight className="ml-2" />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -404,7 +451,7 @@ const Home = () => {
       {/* Upcoming Cars Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Upcoming Cars</h2>
+          <h2 className="text-4xl font-bold text-center mb-12">🚗 Upcoming Cars 2026</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {upcomingCars.map((car) => (
               <div key={car.id} className="flip-card h-80">
@@ -742,8 +789,8 @@ const Home = () => {
                 Justice Ultimate Automobiles is officially recognized and certified by Kenya's regulatory authorities.
               </p>
               <div className="text-xs text-muted-foreground space-y-1 mb-3">
-                <p>📜 Certificate No: ULT-KE-2025-2581</p>
-                <p>📅 Issued: 2025-11-21</p>
+                <p>📜 Certificate No: ULT-KE-2026-3001</p>
+                <p>📅 Issued: 2026-01-01</p>
                 <p>🏛 Authority: HARAMBEE - Republic of Kenya</p>
               </div>
               <div className="text-xs text-muted-foreground space-y-1 mb-4 border-t border-border/50 pt-2">

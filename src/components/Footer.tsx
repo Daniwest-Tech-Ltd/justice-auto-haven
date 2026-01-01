@@ -329,8 +329,8 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p className="text-center md:text-left">
-              © 2025 Justice Ultimate Automobiles | Driving Excellence Across Africa & Beyond{" "}
-              <span className="text-xs italic opacity-70">V. 2.0.0.1</span>
+              © 2026 Justice Ultimate Automobiles | Driving Excellence Across Africa & Beyond{" "}
+              <span className="text-xs italic opacity-70">V. 2.1.0.0</span>
             </p>
             <p className="text-center md:text-right">
               Developed by{" "}

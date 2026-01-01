@@ -76,19 +76,77 @@ const Services = () => {
     <div className="container mx-auto px-4 py-12 space-y-12">
       {/* Hero */}
       <section className="text-center glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
+        <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-2 rounded-full mb-4 animate-pulse">
+          🎉 NEW YEAR MEGA SALE 2026
+        </div>
         <h1 className="text-5xl font-bold mb-4">
-          <span className="bg-gradient-accent bg-clip-text text-transparent">Car Services Kenya | Justice Ultimate Automobiles</span>
+          <span className="bg-gradient-accent bg-clip-text text-transparent">Car Services & Asset Finance Kenya | Justice Ultimate Automobiles</span>
         </h1>
         <p className="text-xl text-muted-foreground mb-8">
-          🚘 From Nairobi to Japan — Justice Ultimate Automobiles delivers world-class car services, international sourcing, export, import, and global logistics.
+          🚘 Up to 90% Asset Financing with Fast 3-Day Approval! From Nairobi to Japan — Justice Ultimate Automobiles 
+          delivers world-class car services, asset financing, international sourcing, export, import, and global logistics.
         </p>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link to="/catalogue">
-            <Button size="lg">Get Started</Button>
+            <Button size="lg" className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600">View Available Cars</Button>
           </Link>
           <Link to="/contact">
-            <Button size="lg" variant="outline">Visit Showroom</Button>
+            <Button size="lg" variant="outline">Apply for Asset Finance</Button>
           </Link>
+        </div>
+      </section>
+
+      {/* Asset Finance Requirements Section */}
+      <section className="glass-strong rounded-3xl p-12">
+        <h2 className="text-4xl font-bold text-center mb-4">💰 Asset Finance Requirements – 2026</h2>
+        <p className="text-lg text-muted-foreground text-center mb-8">
+          Fast approvals, transparent process, and reliable financing partners.
+        </p>
+        
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-8">
+          {/* Salaried Individuals */}
+          <div className="glass rounded-2xl p-6 border-2 border-primary/50">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              👔 Salaried Individuals (Up to 90% Financing)
+            </h3>
+            <ul className="space-y-3 text-muted-foreground">
+              <li className="flex items-center gap-2">✔ 6 months bank statements</li>
+              <li className="flex items-center gap-2">✔ 3 current payslips</li>
+              <li className="flex items-center gap-2">✔ KRA PIN copy</li>
+              <li className="flex items-center gap-2">✔ National ID copy</li>
+            </ul>
+          </div>
+
+          {/* Business Owners */}
+          <div className="glass rounded-2xl p-6 border-2 border-accent/50">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              🏢 Business Owners (Up to 80% Financing)
+            </h3>
+            <ul className="space-y-3 text-muted-foreground">
+              <li className="flex items-center gap-2">✔ 1 year bank statements</li>
+              <li className="flex items-center gap-2">✔ 1 year M-Pesa statements</li>
+              <li className="flex items-center gap-2">✔ KRA PIN copy</li>
+              <li className="flex items-center gap-2">✔ National ID copy</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="inline-block glass rounded-xl px-8 py-4 border-2 border-green-500/50 mb-6">
+            <p className="text-xl font-bold text-green-600">⏱ Processing Time: Maximum 3 Days</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/contact">
+              <Button size="lg" className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600">
+                Apply for Asset Finance
+              </Button>
+            </Link>
+            <a href="tel:+254751555544">
+              <Button size="lg" variant="outline">
+                📞 Call: 0751 555 544
+              </Button>
+            </a>
+          </div>
         </div>
       </section>
 
