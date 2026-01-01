@@ -105,6 +105,8 @@ const SMSManagement = lazyWithRetry(() => import("./pages/SMSManagement"));
 const AdminNotes = lazyWithRetry(() => import("./pages/AdminNotes"));
 const BackupRecovery = lazyWithRetry(() => import("./pages/BackupRecovery"));
 const PaymentsManagement = lazyWithRetry(() => import("./pages/PaymentsManagement"));
+const AssetFinanceApplication = lazyWithRetry(() => import("./pages/AssetFinanceApplication"));
+const AssetFinanceManagement = lazyWithRetry(() => import("./pages/AssetFinanceManagement"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
@@ -196,6 +198,8 @@ const AppContent = () => {
           <Route path="/trade-in" element={<Layout><TradeInSubmission /></Layout>} />
           <Route path="/trade-in-submission" element={<Layout><TradeInSubmission /></Layout>} />
           <Route path="/track-order" element={<Layout><TrackOrder /></Layout>} />
+          <Route path="/asset-finance" element={<Layout><AssetFinanceApplication /></Layout>} />
+          <Route path="/apply-finance" element={<Layout><AssetFinanceApplication /></Layout>} />
           
           {/* Car Details Route */}
           <Route path="/car/:id" element={<Layout><CarDetails /></Layout>} />
@@ -476,6 +480,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <PaymentsManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/asset-finance" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AssetFinanceManagement />
               </ProtectedRoute>
             } 
           />
