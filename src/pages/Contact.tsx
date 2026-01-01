@@ -78,17 +78,29 @@ const Contact = () => {
     <div className="container mx-auto px-4 py-12 space-y-12">
       {/* Header */}
       <div className="text-center glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
+        <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-2 rounded-full mb-4 animate-pulse">
+          🎉 NEW YEAR MEGA SALE 2026
+        </div>
         <h1 className="text-5xl font-bold mb-4">Contact Justice Ultimate Automobiles | Nairobi Car Dealership</h1>
         <p className="text-lg text-muted-foreground">
-          Get in touch with Kenya's most trusted car dealership. Contact us for car sales, rentals, trade-ins, and inquiries. Available in Nairobi, Nyeri, Kisii & nationwide.
+          Get in touch with Kenya's most trusted car dealership. We offer flexible asset financing with fast approvals. 
+          Contact us for car sales, rentals, trade-ins, and inquiries. Located in Nairobi, Westlands – Muthithi Road.
+        </p>
+        <p className="text-md text-muted-foreground mt-4 italic">
+          "Hello, Thanks for your message! We offer up to 90% asset financing with fast 3-day approvals. 
+          Contact us today for vehicle features, pricing, or finance options."
         </p>
         <div className="mt-6 flex flex-wrap gap-4 justify-center">
           <div className="glass rounded-lg p-4">
-            <p className="text-sm font-semibold mb-1">Justice Vincent - General Manager</p>
+            <p className="text-sm font-semibold mb-1">Main Sales Line</p>
+            <a href="tel:+254751555544" className="text-accent hover:underline font-bold text-lg">0751 555 544</a>
+          </div>
+          <div className="glass rounded-lg p-4">
+            <p className="text-sm font-semibold mb-1">Justice Vincent - CEO</p>
             <a href="tel:+254722827458" className="text-accent hover:underline font-bold text-lg">0722 827 458</a>
           </div>
           <div className="glass rounded-lg p-4">
-            <p className="text-sm font-semibold mb-1">Daniel Maina - Sales Manager</p>
+            <p className="text-sm font-semibold mb-1">Daniel Maina - System Admin</p>
             <a href="tel:+254701460110" className="text-accent hover:underline font-bold text-lg">0701 460 110</a>
           </div>
         </div>
@@ -161,7 +173,7 @@ const Contact = () => {
               <div>
                 <h3 className="text-lg font-semibold mb-2">📍 Headquarters</h3>
                 <p className="text-muted-foreground">
-                  Mpesi Lane 11, Westlands<br />
+                  Muthithi Road, Westlands<br />
                   Nairobi, Kenya
                 </p>
                 <p className="text-primary text-sm mt-2">Click to view on map →</p>

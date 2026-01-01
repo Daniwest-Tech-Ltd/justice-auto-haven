@@ -16,16 +16,23 @@ const About = () => {
       {/* Hero */}
       <section className="text-center space-y-6">
         <div className="glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
+          <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-2 rounded-full mb-4 animate-pulse">
+            🎉 NEW YEAR MEGA SALE 2026
+          </div>
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
             About Justice Ultimate Automobiles | <span className="bg-gradient-accent bg-clip-text text-transparent">Trusted Car Dealers in Kenya</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            At Justice Ultimate Automobiles, we connect Kenya to the world—one vehicle at a time. 
-            From Nairobi to Tokyo, Dubai to New York, we deliver unmatched value in vehicle sourcing, exports, imports, and global automotive logistics.
+            Justice Ultimate Automobiles is a trusted car dealership in Nairobi offering quality vehicles, 
+            flexible asset financing (up to 90%), and fast 3-day approvals. We serve salaried individuals 
+            and business owners with transparent processes and excellent customer support.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link to="/services">
-              <Button size="lg">Explore Our Global Services</Button>
+              <Button size="lg" className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600">Apply for Asset Finance</Button>
+            </Link>
+            <Link to="/catalogue">
+              <Button size="lg">View Available Cars</Button>
             </Link>
             <Link to="/contact">
               <Button size="lg" variant="outline">Visit Our Showroom</Button>
@@ -88,8 +95,8 @@ const About = () => {
             { year: "2015", event: "Founded in Nairobi – Karen" },
             { year: "2021", event: "First cross-border sale to Westlands International Client" },
             { year: "2022", event: "Expanded sourcing and exports to Japan" },
-            { year: "2023", event: "Surpassed 10,000 vehicles sold globally" },
-            { year: "2025", event: "Opened Global Logistics Hub in Mombasa Port" },
+            { year: "2024", event: "Surpassed 10,000 vehicles sold globally" },
+            { year: "2026", event: "🎉 New Year Mega Sale - Up to 90% Asset Financing!" },
           ].map((milestone) => (
             <div key={milestone.year} className="glass rounded-xl p-6 text-center">
               <div className="text-3xl font-bold text-primary mb-2">{milestone.year}</div>
