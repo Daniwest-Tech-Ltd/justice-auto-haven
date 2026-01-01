@@ -239,6 +239,7 @@ const AdminDashboard = () => {
       items: [
         { title: "Reports", icon: BarChart3, path: "/admin/reports" },
         { title: "Daily Reports", icon: FileText, path: "/admin/daily-reports" },
+        { title: "Asset Finance", icon: DollarSign, path: "/admin/asset-finance" },
         { title: "Payments", icon: CreditCard, path: "/admin/payments" },
         { title: "AI Security", icon: Shield, path: "/admin/security" },
       ]

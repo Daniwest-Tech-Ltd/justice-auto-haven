@@ -921,11 +921,22 @@ const AssetFinanceApplication = () => {
                     <Phone className="h-4 w-4 text-primary" />
                     <a href="tel:0751555544" className="hover:underline">0751 555 544</a>
                   </p>
-                  <p className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-primary" />
-                    <a href="mailto:info@justiceauto.com" className="hover:underline">info@justiceauto.com</a>
-                  </p>
-                  <p className="flex items-center gap-2">
+                  <div className="space-y-1.5 mt-3">
+                    <p className="text-xs font-medium text-muted-foreground">Departments:</p>
+                    <p className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-primary" />
+                      <a href="mailto:info@justiceultimateautomobiles.com" className="hover:underline text-xs">info@justiceultimateautomobiles.com</a>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-blue-500" />
+                      <a href="mailto:support@justiceultimateautomobiles.com" className="hover:underline text-xs">support@justiceultimateautomobiles.com</a>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-green-500" />
+                      <a href="mailto:sales@justiceultimateautomobiles.com" className="hover:underline text-xs">sales@justiceultimateautomobiles.com</a>
+                    </p>
+                  </div>
+                  <p className="flex items-center gap-2 mt-3">
                     <MapPin className="h-4 w-4 text-primary" />
                     Westlands, Muthithi Road, Nairobi
                   </p>
