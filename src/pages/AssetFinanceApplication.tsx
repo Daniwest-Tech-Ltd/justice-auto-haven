@@ -123,27 +123,62 @@ const AssetFinanceApplication = () => {
     }
   };
 
+  const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+  const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "application/pdf"] as const;
+
   const handleFileChange = (docType: string, file: File | null) => {
-    setDocuments(prev => ({ ...prev, [docType]: file }));
+    if (!file) {
+      setDocuments((prev) => ({ ...prev, [docType]: null }));
+      return;
+    }
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type as any)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF, JPEG, or PNG file.",
+        variant: "destructive",
+      });
+      setDocuments((prev) => ({ ...prev, [docType]: null }));
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast({
+        title: "File too large",
+        description: "Maximum file size is 5MB.",
+        variant: "destructive",
+      });
+      setDocuments((prev) => ({ ...prev, [docType]: null }));
+      return;
+    }
+
+    setDocuments((prev) => ({ ...prev, [docType]: file }));
   };
 
-  const uploadDocument = async (applicationId: string, docType: string, file: File) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${applicationId}/${docType}_${Date.now()}.${fileExt}`;
-    
+  const uploadDocument = async (
+    userId: string,
+    applicationId: string,
+    docType: string,
+    file: File
+  ) => {
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${userId}/${applicationId}/${docType}_${Date.now()}.${fileExt}`;
+
     const { error: uploadError } = await supabase.storage
       .from("finance-documents")
-      .upload(fileName, file);
-    
+      .upload(fileName, file, { upsert: true });
+
     if (uploadError) throw uploadError;
-    
-    await supabase.from("application_documents").insert({
+
+    const { error: docError } = await supabase.from("application_documents").insert({
       application_id: applicationId,
       document_type: docType,
       file_path: fileName,
       file_name: file.name,
       file_size: file.size,
     });
+
+    if (docError) throw docError;
   };
 
   const onSubmit = async (values: FormValues) => {
@@ -167,12 +202,22 @@ const AssetFinanceApplication = () => {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
+      if (!user) {
+        toast({
+          title: "Sign in required",
+          description: "Please sign in to submit your asset finance application.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
       // Create application
       const { data: application, error: appError } = await supabase
         .from("asset_finance_applications")
         .insert({
-          user_id: user?.id || null,
+          user_id: user.id,
           full_name: values.full_name,
           phone: values.phone,
           email: values.email,
@@ -203,9 +248,9 @@ const AssetFinanceApplication = () => {
       // Upload all documents
       for (const [docType, file] of Object.entries(documents)) {
         if (file) {
-          setUploadProgress(prev => ({ ...prev, [docType]: true }));
-          await uploadDocument(application.id, docType, file);
-          setUploadProgress(prev => ({ ...prev, [docType]: false }));
+          setUploadProgress((prev) => ({ ...prev, [docType]: true }));
+          await uploadDocument(user.id, application.id, docType, file);
+          setUploadProgress((prev) => ({ ...prev, [docType]: false }));
         }
       }
 
@@ -687,7 +732,7 @@ const AssetFinanceApplication = () => {
                       Document Upload
                     </CardTitle>
                     <CardDescription>
-                      Upload clear copies of the required documents (PDF, JPG, PNG)
+                      Upload clear copies of the required documents (PDF, JPEG, PNG) — max 5MB each.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -701,7 +746,7 @@ const AssetFinanceApplication = () => {
                         <div className="relative">
                           <Input
                             type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
+                            accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
                             onChange={(e) => handleFileChange("national_id", e.target.files?.[0] || null)}
                             className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                           />
@@ -719,7 +764,7 @@ const AssetFinanceApplication = () => {
                         </label>
                         <Input
                           type="file"
-                          accept=".pdf,.jpg,.jpeg,.png"
+                          accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
                           onChange={(e) => handleFileChange("kra_pin", e.target.files?.[0] || null)}
                           className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                         />
@@ -736,7 +781,7 @@ const AssetFinanceApplication = () => {
                         </label>
                         <Input
                           type="file"
-                          accept=".pdf,.jpg,.jpeg,.png"
+                          accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
                           onChange={(e) => handleFileChange("bank_statements", e.target.files?.[0] || null)}
                           className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                         />
@@ -753,7 +798,7 @@ const AssetFinanceApplication = () => {
                         </label>
                         <Input
                           type="file"
-                          accept=".pdf,.jpg,.jpeg,.png"
+                          accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
                           onChange={(e) => handleFileChange("payslips", e.target.files?.[0] || null)}
                           className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                         />
