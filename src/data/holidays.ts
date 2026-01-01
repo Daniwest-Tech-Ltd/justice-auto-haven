@@ -9,7 +9,7 @@ export interface Holiday {
 export const fixedHolidays: Record<string, Holiday> = {
   "01-01": {
     name: "New Year's Day",
-    message: "Happy New Year from Justice Ultimate Automobiles! Wishing you a prosperous 2025 filled with new beginnings and great journeys.",
+    message: "🎉 Happy New Year 2026 from Justice Ultimate Automobiles! Wishing you a prosperous year filled with new beginnings, great journeys, and amazing car deals! Mega New Year Sale — Up to 90% Asset Financing!",
     theme: "newyear",
     emoji: "🎉"
   },
@@ -159,8 +159,8 @@ export const fixedHolidays: Record<string, Holiday> = {
   }
 };
 
-// Movable holidays for 2025 (these change yearly)
-export const movableHolidays2025: Record<string, Holiday> = {
+// Movable holidays for 2026 (these change yearly)
+export const movableHolidays2026: Record<string, Holiday> = {
   "02-28": {
     name: "Eid al-Fitr",
     message: "Eid Mubarak! Justice Ultimate Automobiles wishes you blessings, joy, and peace. Celebrate with our special Eid offers.",
@@ -216,9 +216,9 @@ export const getTodayHoliday = (): Holiday | null => {
     return fixedHolidays[key];
   }
   
-  // Check movable holidays for 2025
-  if (movableHolidays2025[key]) {
-    return movableHolidays2025[key];
+  // Check movable holidays for 2026
+  if (movableHolidays2026[key]) {
+    return movableHolidays2026[key];
   }
   
   return null;
