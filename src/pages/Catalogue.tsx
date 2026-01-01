@@ -293,19 +293,31 @@ const Catalogue = () => {
 
   return (
     <div className="min-h-screen">
+      {/* SEO Meta Section - Hidden but crawlable */}
+      <div className="sr-only" aria-hidden="true">
+        <h2>Popular Cars in Kenya 2026</h2>
+        <p>Toyota Land Cruiser Prado, Toyota Land Cruiser V8, Toyota Harrier, Toyota RAV4, Toyota Vanguard, Toyota Hilux, Toyota Fortuner, Toyota Premio, Toyota Allion, Toyota Axio, Mazda CX-5, Mazda CX-8, Nissan X-Trail, Nissan Note, Nissan Juke, Subaru Forester, Subaru Outback, Subaru XV, Mercedes-Benz C-Class, Mercedes-Benz E-Class, BMW X3, BMW X5, Lexus RX 350, Lexus NX, Honda CR-V, Mitsubishi Outlander</p>
+        <p>Car dealers in Nairobi, best car dealership in Kenya, asset financing Kenya, buy car on loan Kenya, car financing Nairobi, Westlands car yard, used cars for sale Kenya, import cars Kenya, Toyota cars for sale Nairobi, Mazda CX-5 Kenya, Nissan X-Trail Kenya, Subaru Forester Kenya, Lexus RX 350 Kenya, BMW X5 Kenya, Mercedes Benz cars Kenya, buy SUV in Kenya, affordable cars Kenya, Japanese cars Kenya, bank car financing Kenya, hire purchase cars Kenya, car loan Kenya 2026, Nairobi motor dealers, top car dealers Westlands, Justice Ultimate Automobiles, used SUVs Nairobi, family cars Kenya, luxury cars Kenya, car yard Westlands Nairobi, fast car financing Kenya, trusted car dealers Kenya</p>
+      </div>
+
       {/* Hero Banner Section */}
       <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-3 mb-4">
-        {/* Christmas Offer - Top Center of Catalogue */}
+        {/* New Year 2026 Mega Sale Badge - Top Center */}
         <div className="flex justify-center mb-2 pt-1">
-          <img 
-            src={specialOffer} 
-            alt="Christmas Special Offer" 
-            className="w-32 h-auto offer-badge z-20"
-          />
+          <div className="bg-gradient-to-r from-primary via-yellow-500 to-primary px-6 py-2 rounded-full shadow-lg animate-pulse">
+            <span className="text-white font-bold text-lg">🎉 New Year Mega Sale 2026 - Up to 90% Asset Financing</span>
+          </div>
         </div>
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex justify-end gap-3 mb-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/asset-finance')}
+              className="font-semibold bg-primary/10 border-primary"
+            >
+              Apply for Asset Finance
+            </Button>
             <Button
               variant="outline"
               onClick={() => navigate('/trade-in-submission')}
@@ -323,13 +335,13 @@ const Catalogue = () => {
           </div>
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-3xl md:text-5xl font-bold mb-2 bg-gradient-accent bg-clip-text text-transparent">
-              Cars for Sale in Kenya | Affordable & Verified Vehicles
+              New Year Mega Sale 2026 – Kenya's Trusted Car Dealership
             </h1>
             <p className="text-base md:text-lg text-muted-foreground mb-2">
-              Best Car Dealership in Nairobi, Kenya - Toyota, Mazda, Nissan, Subaru & More
+              Buy Quality Vehicles with Up to 90% Asset Financing • Fast 3-Day Approval • Nairobi Westlands
             </p>
             <p className="text-sm text-muted-foreground mb-4">
-              Quality, Verified, and Ready for Delivery • Lipa Mdogo Mdogo Available
+              Toyota • Mazda • Nissan • Subaru • BMW • Mercedes • Lexus • Honda & More
             </p>
             
             {/* Contact Buttons */}
@@ -686,13 +698,85 @@ const Catalogue = () => {
           </>
         )}
 
+        {/* Popular Car Categories SEO Section */}
+        <div className="glass-strong rounded-xl p-8 mt-12 border border-primary/20">
+          <h2 className="text-2xl font-bold mb-6 text-center">Popular Cars in Kenya 2026</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {[
+              "Toyota Land Cruiser Prado", "Toyota Land Cruiser V8", "Toyota Harrier", 
+              "Toyota RAV4", "Toyota Hilux", "Toyota Fortuner",
+              "Toyota Premio", "Toyota Allion", "Toyota Axio",
+              "Mazda CX-5", "Mazda CX-8", "Nissan X-Trail",
+              "Nissan Note", "Nissan Juke", "Subaru Forester",
+              "Subaru Outback", "Subaru XV", "BMW X3",
+              "BMW X5", "Mercedes C-Class", "Mercedes E-Class",
+              "Lexus RX 350", "Lexus NX", "Honda CR-V"
+            ].map((car) => (
+              <Button
+                key={car}
+                variant="outline"
+                size="sm"
+                className="text-xs h-auto py-2 px-3 whitespace-normal text-center"
+                onClick={() => setSearchQuery(car.split(" ").slice(0, 2).join(" "))}
+              >
+                {car}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Asset Finance CTA Section */}
+        <div className="glass-strong rounded-xl p-8 mt-8 border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5">
+          <div className="max-w-3xl mx-auto text-center">
+            <CreditCard className="h-12 w-12 mx-auto mb-4 text-primary" />
+            <h2 className="text-3xl font-bold mb-3">Car Asset Financing in Kenya – 2026</h2>
+            <p className="text-muted-foreground mb-6 text-lg">
+              Up to 90% financing for salaried individuals • Up to 80% for business owners
+            </p>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-8 text-left">
+              <div className="bg-background/50 rounded-lg p-4">
+                <h3 className="font-semibold mb-3 text-primary">Salaried Individuals</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>✓ 6 months bank statements</li>
+                  <li>✓ 3 recent payslips</li>
+                  <li>✓ National ID copy</li>
+                  <li>✓ KRA PIN certificate</li>
+                </ul>
+              </div>
+              <div className="bg-background/50 rounded-lg p-4">
+                <h3 className="font-semibold mb-3 text-primary">Business Owners</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>✓ 1 year bank statements</li>
+                  <li>✓ 1 year M-Pesa statements</li>
+                  <li>✓ National ID copy</li>
+                  <li>✓ KRA PIN certificate</li>
+                </ul>
+              </div>
+            </div>
+            
+            <p className="text-sm text-green-600 font-semibold mb-6">
+              ⏱️ Processing Time: Maximum 3 Working Days
+            </p>
+            
+            <Button 
+              size="lg" 
+              className="gap-2"
+              onClick={() => navigate('/asset-finance')}
+            >
+              <CreditCard className="h-5 w-5" />
+              Apply for Asset Finance Now
+            </Button>
+          </div>
+        </div>
+
         {/* Contact CTA */}
-        <div className="glass-strong rounded-xl p-10 mt-12 border-2 border-primary/30">
+        <div className="glass-strong rounded-xl p-10 mt-8 border-2 border-primary/30">
           <div className="max-w-2xl mx-auto text-center">
             <Shield className="h-12 w-12 mx-auto mb-4 text-primary" />
             <h2 className="text-3xl font-bold mb-3">Can't Find What You're Looking For?</h2>
             <p className="text-muted-foreground mb-2 text-lg">
-              Contact us and we'll help you source your perfect vehicle
+              Visit our showroom or call us today for professional car buying and financing assistance
             </p>
             <p className="text-sm text-muted-foreground mb-8">
               ⚠️ <strong>IMPORTANT:</strong> We DO NOT accept online payments. All customers MUST visit our yard physically at <strong>Mpesi Lane 11, Westlands, Nairobi</strong>
@@ -705,23 +789,42 @@ const Catalogue = () => {
                   WhatsApp: 0722 827 458
                 </Button>
               </a>
-              <a href="tel:+254722827458">
+              <a href="tel:+254751555544">
                 <Button size="lg" variant="outline" className="gap-2">
                   <Phone className="h-5 w-5" />
-                  Call: 0722 827 458
+                  Call: 0751 555 544
                 </Button>
               </a>
-              <a href="mailto:justicevincentt@gmail.com">
+              <a href="mailto:sales@justiceultimateautomobiles.com">
                 <Button size="lg" variant="outline" className="gap-2">
                   <Mail className="h-5 w-5" />
-                  Email Us
+                  sales@justiceultimateautomobiles.com
                 </Button>
+              </a>
+            </div>
+
+            {/* Department Emails */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm">
+              <a href="mailto:info@justiceultimateautomobiles.com" className="flex items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <Mail className="h-4 w-4" />
+                info@justiceultimateautomobiles.com
+              </a>
+              <a href="mailto:support@justiceultimateautomobiles.com" className="flex items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <Mail className="h-4 w-4" />
+                support@justiceultimateautomobiles.com
+              </a>
+              <a href="mailto:sales@justiceultimateautomobiles.com" className="flex items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <Mail className="h-4 w-4" />
+                sales@justiceultimateautomobiles.com
               </a>
             </div>
 
             <div className="pt-6 border-t border-primary/20">
               <p className="text-xs text-muted-foreground">
-                📍 Mpesi Lane 11, Westlands, Nairobi • 🗺️ <a href="https://maps.app.goo.gl/92DgyWn62UNSR26p8" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on Map</a>
+                📍 Muthithi Road, Westlands, Nairobi • 🗺️ <a href="https://maps.app.goo.gl/92DgyWn62UNSR26p8" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on Map</a>
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                © 2026 Justice Ultimate Automobiles. All Rights Reserved. • <a href="https://www.justiceultimateautomobiles.com" className="text-primary hover:underline">www.justiceultimateautomobiles.com</a>
               </p>
             </div>
           </div>
