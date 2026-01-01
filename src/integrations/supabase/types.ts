@@ -230,6 +230,145 @@ export type Database = {
         }
         Relationships: []
       }
+      application_documents: {
+        Row: {
+          application_id: string
+          document_type: string
+          file_name: string | null
+          file_path: string
+          file_size: number | null
+          id: string
+          uploaded_at: string
+        }
+        Insert: {
+          application_id: string
+          document_type: string
+          file_name?: string | null
+          file_path: string
+          file_size?: number | null
+          id?: string
+          uploaded_at?: string
+        }
+        Update: {
+          application_id?: string
+          document_type?: string
+          file_name?: string | null
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "asset_finance_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asset_finance_applications: {
+        Row: {
+          admin_notes: string | null
+          business_type: string | null
+          county_town: string | null
+          created_at: string
+          date_of_birth: string | null
+          deposit_amount: number | null
+          email: string
+          employer_or_business: string | null
+          employment_duration: string | null
+          employment_type: string
+          finance_amount: number | null
+          full_name: string
+          id: string
+          id_number: string
+          job_title: string | null
+          kra_pin: string
+          monthly_income: number | null
+          phone: string
+          repayment_period: number | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+          vehicle_id: string | null
+          vehicle_name: string | null
+          vehicle_price: number | null
+          years_in_operation: number | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          business_type?: string | null
+          county_town?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          deposit_amount?: number | null
+          email: string
+          employer_or_business?: string | null
+          employment_duration?: string | null
+          employment_type: string
+          finance_amount?: number | null
+          full_name: string
+          id?: string
+          id_number: string
+          job_title?: string | null
+          kra_pin: string
+          monthly_income?: number | null
+          phone: string
+          repayment_period?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          vehicle_id?: string | null
+          vehicle_name?: string | null
+          vehicle_price?: number | null
+          years_in_operation?: number | null
+        }
+        Update: {
+          admin_notes?: string | null
+          business_type?: string | null
+          county_town?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          deposit_amount?: number | null
+          email?: string
+          employer_or_business?: string | null
+          employment_duration?: string | null
+          employment_type?: string
+          finance_amount?: number | null
+          full_name?: string
+          id?: string
+          id_number?: string
+          job_title?: string | null
+          kra_pin?: string
+          monthly_income?: number | null
+          phone?: string
+          repayment_period?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          vehicle_id?: string | null
+          vehicle_name?: string | null
+          vehicle_price?: number | null
+          years_in_operation?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_finance_applications_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance: {
         Row: {
           clock_in: string | null
