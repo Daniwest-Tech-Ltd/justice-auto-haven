@@ -176,7 +176,7 @@ const Home = () => {
               flexible asset financing, and fast approvals. Start 2026 with your dream car!
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600" onClick={() => navigate("/services")}>
+              <Button size="lg" className="text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600" onClick={() => navigate("/asset-finance")}>
                 Apply for Asset Finance
               </Button>
               <Button size="lg" className="text-lg" onClick={() => navigate("/catalogue")}>

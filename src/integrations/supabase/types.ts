@@ -1208,6 +1208,50 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          application_id: string | null
+          body: string | null
+          created_at: string | null
+          email_type: string
+          id: string
+          recipient: string
+          sent_at: string | null
+          status: string | null
+          subject: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          body?: string | null
+          created_at?: string | null
+          email_type: string
+          id?: string
+          recipient: string
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          body?: string | null
+          created_at?: string | null
+          email_type?: string
+          id?: string
+          recipient?: string
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "asset_finance_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_templates: {
         Row: {
           body: string

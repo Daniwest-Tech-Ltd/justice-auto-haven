@@ -59,6 +59,9 @@ const AssetFinanceManagement = () => {
   const updateStatus = async (appId: string, newStatus: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     
+    // Get application details for email
+    const app = applications.find(a => a.id === appId);
+    
     const { error } = await supabase
       .from("asset_finance_applications")
       .update({ 
@@ -70,7 +73,23 @@ const AssetFinanceManagement = () => {
       .eq("id", appId);
 
     if (!error) {
-      toast({ title: `Application ${newStatus}`, description: "Status updated successfully" });
+      // Send email notification
+      try {
+        await supabase.functions.invoke("send-finance-email", {
+          body: {
+            applicationId: appId,
+            status: newStatus,
+            recipientEmail: app?.email,
+            recipientName: app?.full_name,
+            vehicleName: app?.vehicle_name,
+            financeAmount: app?.finance_amount,
+          },
+        });
+        toast({ title: `Application ${newStatus}`, description: "Status updated and email sent to customer" });
+      } catch (emailError) {
+        console.error("Email failed:", emailError);
+        toast({ title: `Application ${newStatus}`, description: "Status updated (email notification failed)" });
+      }
       fetchApplications();
       setSelectedApp(null);
     }

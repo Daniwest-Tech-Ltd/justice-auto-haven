@@ -209,9 +209,25 @@ const AssetFinanceApplication = () => {
         }
       }
 
+      // Send confirmation email
+      try {
+        await supabase.functions.invoke("send-finance-email", {
+          body: {
+            applicationId: application.id,
+            status: "pending",
+            recipientEmail: values.email,
+            recipientName: values.full_name,
+            vehicleName: values.vehicle_name,
+            financeAmount: values.finance_amount ? parseFloat(values.finance_amount) : null,
+          },
+        });
+      } catch (emailError) {
+        console.error("Email notification failed:", emailError);
+      }
+
       toast({
         title: "Application Submitted Successfully! 🎉",
-        description: "We will review your application and respond within 3 business days.",
+        description: "We will review your application and respond within 3 business days. Check your email for confirmation.",
       });
 
       navigate("/order-status");
