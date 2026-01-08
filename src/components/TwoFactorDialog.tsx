@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Smartphone, Mail, Fingerprint, Clock, MessageCircle } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Smartphone, Mail, Fingerprint, Clock, MessageCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { startAuthentication } from '@simplewebauthn/browser';
@@ -35,12 +35,36 @@ export const TwoFactorDialog = ({
 }: TwoFactorDialogProps) => {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState(preferredMethod);
   const [otpSent, setOtpSent] = useState(false);
   const [whatsappOtpSent, setWhatsappOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(600); // 10 minutes in seconds
   const [whatsappCountdown, setWhatsappCountdown] = useState(300); // 5 minutes for WhatsApp
   const { toast } = useToast();
+  const verifyingRef = useRef(false);
+
+  // Auto-verify when 6 digits are entered
+  useEffect(() => {
+    if (code.length === 6 && !verifyingRef.current && !loading) {
+      verifyingRef.current = true;
+      setVerifying(true);
+      
+      const verify = async () => {
+        if (selectedMethod === 'email_otp' && countdown > 0) {
+          await verifyEmailOTP();
+        } else if (selectedMethod === 'whatsapp_otp' && whatsappCountdown > 0) {
+          await verifyWhatsAppOTP();
+        } else if (selectedMethod === 'totp') {
+          await verifyTOTP();
+        }
+        verifyingRef.current = false;
+        setVerifying(false);
+      };
+      
+      verify();
+    }
+  }, [code, selectedMethod]);
 
   // ALWAYS auto-send BOTH email OTP AND WhatsApp OTP when dialog opens - this is mandatory for all users
   useEffect(() => {
@@ -360,35 +384,45 @@ export const TwoFactorDialog = ({
               </div>
 
               <div className="space-y-2">
-                <Label>Enter 6-digit code</Label>
-                <Input
-                  type="text"
-                  maxLength={6}
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="000000"
-                  className="text-center text-2xl font-mono tracking-widest"
-                  disabled={countdown === 0}
-                />
+                <Label className="text-center block">Enter 6-digit code</Label>
+                <div className="flex justify-center">
+                  <InputOTP
+                    maxLength={6}
+                    value={code}
+                    onChange={(value) => setCode(value)}
+                    disabled={countdown === 0 || verifying}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button 
-                  onClick={verifyEmailOTP} 
-                  disabled={loading || code.length !== 6 || countdown === 0}
-                  className="flex-1"
-                >
-                  {loading ? "Verifying..." : "Verify"}
-                </Button>
+              {verifying && (
+                <div className="flex items-center justify-center gap-2 text-primary">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm font-medium">Verifying...</span>
+                </div>
+              )}
+
+              <div className="flex justify-center">
                 <Button 
                   onClick={() => {
+                    setCode("");
                     setOtpSent(false);
                     handleEmailOTP();
                   }} 
-                  disabled={loading || countdown > 540}
+                  disabled={loading || countdown > 540 || verifying}
                   variant="outline"
+                  size="sm"
                 >
-                  Resend
+                  Resend Code
                 </Button>
               </div>
             </TabsContent>
@@ -413,35 +447,45 @@ export const TwoFactorDialog = ({
               </div>
 
               <div className="space-y-2">
-                <Label>Enter 6-digit code from WhatsApp</Label>
-                <Input
-                  type="text"
-                  maxLength={6}
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="000000"
-                  className="text-center text-2xl font-mono tracking-widest"
-                  disabled={whatsappCountdown === 0}
-                />
+                <Label className="text-center block">Enter 6-digit code from WhatsApp</Label>
+                <div className="flex justify-center">
+                  <InputOTP
+                    maxLength={6}
+                    value={code}
+                    onChange={(value) => setCode(value)}
+                    disabled={whatsappCountdown === 0 || verifying}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button 
-                  onClick={verifyWhatsAppOTP} 
-                  disabled={loading || code.length !== 6 || whatsappCountdown === 0}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
-                >
-                  {loading ? "Verifying..." : "Verify"}
-                </Button>
+              {verifying && (
+                <div className="flex items-center justify-center gap-2 text-green-600">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm font-medium">Verifying...</span>
+                </div>
+              )}
+
+              <div className="flex justify-center">
                 <Button 
                   onClick={() => {
+                    setCode("");
                     setWhatsappOtpSent(false);
                     handleWhatsAppOTP();
                   }} 
-                  disabled={loading || whatsappCountdown > 240}
+                  disabled={loading || whatsappCountdown > 240 || verifying}
                   variant="outline"
+                  size="sm"
                 >
-                  Resend
+                  Resend Code
                 </Button>
               </div>
             </TabsContent>
@@ -454,24 +498,32 @@ export const TwoFactorDialog = ({
               </div>
 
               <div className="space-y-2">
-                <Label>Authenticator Code</Label>
-                <Input
-                  type="text"
-                  maxLength={6}
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="000000"
-                  className="text-center text-2xl font-mono tracking-widest"
-                />
+                <Label className="text-center block">Authenticator Code</Label>
+                <div className="flex justify-center">
+                  <InputOTP
+                    maxLength={6}
+                    value={code}
+                    onChange={(value) => setCode(value)}
+                    disabled={verifying}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
               </div>
 
-              <Button 
-                onClick={verifyTOTP} 
-                disabled={loading || code.length !== 6}
-                className="w-full"
-              >
-                {loading ? "Verifying..." : "Verify"}
-              </Button>
+              {verifying && (
+                <div className="flex items-center justify-center gap-2 text-primary">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm font-medium">Verifying...</span>
+                </div>
+              )}
 
               <div className="text-xs text-center text-muted-foreground">
                 Lost your device? Use a backup code instead
