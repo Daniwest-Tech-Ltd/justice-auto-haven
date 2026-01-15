@@ -11,7 +11,7 @@ import { LogoutConfirmModal } from "./LogoutConfirmModal";
 import { SessionTimeoutModal } from "./SessionTimeoutModal";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { BusinessHours } from "./BusinessHours";
-import { ChristmasHat, SunEffect } from "./SeasonalEffects";
+import { ChristmasHat } from "./SeasonalEffects";
 import {
   Drawer,
   DrawerClose,
@@ -189,9 +189,6 @@ const Header = () => {
               JUSTICE ULTIMATE AUTOMOBILES
             </span>
           </Link>
-          
-          {/* Sun Effect - shows after Christmas season */}
-          <SunEffect />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
