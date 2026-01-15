@@ -11,6 +11,7 @@ import { downloadImageWithWatermark } from "@/lib/watermark";
 import { VehicleAnalyticsChart } from "@/components/VehicleAnalyticsChart";
 import { trackVehicleView } from "@/hooks/useVehicleAnalytics";
 import { useAuth } from "@/hooks/useAuth";
+import { ColorDisplay } from "@/components/ColorSelector";
 
 interface Car {
   id: string;
@@ -28,6 +29,7 @@ interface Car {
   description: string | null;
   status: string | null;
   images: any;
+  available_colors?: string[] | null;
 }
 
 const CarDetails = () => {
@@ -403,6 +405,19 @@ const CarDetails = () => {
             )}
           </div>
         </div>
+
+        {/* Available Colors Section */}
+        {car.available_colors && car.available_colors.length > 0 && (
+          <div className="mt-8">
+            <div className="rounded-lg bg-muted/50 p-6 border border-border">
+              <h3 className="text-xl font-bold mb-4 text-primary">Also Available In</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                This same car model is also available in the following colors:
+              </p>
+              <ColorDisplay colors={car.available_colors} />
+            </div>
+          </div>
+        )}
 
         {/* Customer Reviews */}
         <ReviewsSection carId={car.id} carName={`${car.make} ${car.model}`} />

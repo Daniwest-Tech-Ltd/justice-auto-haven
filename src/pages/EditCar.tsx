@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Upload, X } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
+import { ColorSelector } from "@/components/ColorSelector";
 
 const EditCar = () => {
   const { id } = useParams();
@@ -41,6 +42,7 @@ const EditCar = () => {
   const [existingAdditionalImages, setExistingAdditionalImages] = useState<string[]>([]);
   const [newMainImages, setNewMainImages] = useState<File[]>([]);
   const [newAdditionalImages, setNewAdditionalImages] = useState<File[]>([]);
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
 
   const fuelTypes = ["Petrol", "Diesel", "Hybrid", "Electric", "LPG", "CNG", "Flex Fuel"];
   const transmissions = ["Manual", "Automatic", "Semi-Automatic", "CVT", "Dual-Clutch"];
@@ -92,6 +94,10 @@ const EditCar = () => {
         
         setExistingMainImages(Array.isArray(mainImgs) && mainImgs.length > 0 ? mainImgs : (Array.isArray(oldImgs) ? oldImgs : []));
         setExistingAdditionalImages(Array.isArray(additionalImgs) ? additionalImgs : []);
+        
+        // Load available colors
+        const colors = (data as any).available_colors as string[] | null;
+        setAvailableColors(Array.isArray(colors) ? colors : []);
       }
     } catch (error: any) {
       toast({
@@ -208,6 +214,7 @@ const EditCar = () => {
           main_images: allMainImageUrls,
           additional_images: allAdditionalImageUrls,
           images: [...allMainImageUrls, ...allAdditionalImageUrls],
+          available_colors: availableColors.length > 0 ? availableColors : null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
@@ -410,6 +417,14 @@ const EditCar = () => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Available Colors Multi-Select */}
+            <div className="mt-6 p-4 border border-border rounded-lg bg-muted/30">
+              <ColorSelector
+                selectedColors={availableColors}
+                onColorsChange={setAvailableColors}
+              />
             </div>
 
             <div>

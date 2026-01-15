@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel } from "lucide-react";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -611,13 +611,13 @@ const Catalogue = () => {
                           <SettingsIcon className="h-4 w-4 text-primary" />
                           <span>{car.transmission || "N/A"}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
-                          <span className="text-primary">⛽</span>
-                          <span className="uppercase">{car.fuel_type || "N/A"}</span>
-                          <span>•</span>
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <Fuel className="h-4 w-4 text-primary" />
+                          <span className="uppercase font-medium">{car.fuel_type || "N/A"}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <span className="text-primary">🎨</span>
                           <span>{car.color || "N/A"}</span>
-                          <span>•</span>
-                          <span className="text-xs">{car.engine || "N/A"}</span>
                         </div>
                       </div>
                       
