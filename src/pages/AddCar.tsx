@@ -10,7 +10,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X } from "lucide-react";
-import { ColorSelector } from "@/components/ColorSelector";
+import { AvailableColorsMultiSelect } from "@/components/AvailableColorsMultiSelect";
 
 const AddCar = () => {
   const navigate = useNavigate();
@@ -144,44 +144,59 @@ const AddCar = () => {
         return;
       }
 
-      // Generate stock ID automatically
-      const { data: stockIdData, error: stockError } = await supabase
-        .rpc("generate_stock_id");
+      // Insert car (handle extremely rare stock_id collisions safely)
+      let autoStockId = "";
+      let carData: { id: string } | null = null;
 
-      if (stockError) throw stockError;
-      const autoStockId = stockIdData as string;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const { data: stockIdData, error: stockError } = await supabase.rpc("generate_stock_id");
+        if (stockError) throw stockError;
 
-      // Insert car data first
-      const { data: carData, error: insertError } = await supabase
-        .from("cars")
-        .insert([
-          {
-            make: formData.make,
-            model: formData.model,
-            year: formData.year,
-            month: formData.month,
-            price: parseFloat(formData.price),
-            mileage: formData.mileage,
-            engine: formData.engine,
-            fuel_type: formData.fuel_type,
-            transmission: formData.transmission,
-            drive_type: formData.drive_type,
-            color: formData.color,
-            stock_id: autoStockId,
-            description: formData.description,
-            status: "available",
-            main_images: [],
-            additional_images: [],
-            images: [],
-            vin: formData.vin || null,
-            vin_history: formData.vin_history || null,
-            available_colors: availableColors.length > 0 ? availableColors : null,
-          },
-        ])
-        .select()
-        .single();
+        autoStockId = stockIdData as string;
 
-      if (insertError) throw insertError;
+        const { data, error: insertError } = await supabase
+          .from("cars")
+          .insert([
+            {
+              make: formData.make,
+              model: formData.model,
+              year: formData.year,
+              month: formData.month,
+              price: parseFloat(formData.price),
+              mileage: formData.mileage,
+              engine: formData.engine,
+              fuel_type: formData.fuel_type,
+              transmission: formData.transmission,
+              drive_type: formData.drive_type,
+              color: formData.color,
+              stock_id: autoStockId,
+              description: formData.description,
+              status: "available",
+              main_images: [],
+              additional_images: [],
+              images: [],
+              vin: formData.vin || null,
+              vin_history: formData.vin_history || null,
+              available_colors: availableColors.length > 0 ? availableColors : null,
+            },
+          ])
+          .select("id")
+          .single();
+
+        if (!insertError) {
+          carData = data;
+          break;
+        }
+
+        // 23505 = unique_violation (here it's almost always stock_id)
+        if ((insertError as any)?.code === "23505") continue;
+
+        throw insertError;
+      }
+
+      if (!carData) {
+        throw new Error("Could not create car listing (stock ID conflict). Please try again.");
+      }
 
       // Upload main and additional images
       const mainImageUrls = await uploadImages(carData.id, mainImages, "main");
@@ -498,11 +513,12 @@ const AddCar = () => {
               </div>
             </div>
 
-            {/* Available Colors Multi-Select */}
+            {/* Other available colors (multi-select dropdown, optional) */}
             <div className="mt-6 p-4 border border-border rounded-lg bg-muted/30">
-              <ColorSelector
-                selectedColors={availableColors}
-                onColorsChange={setAvailableColors}
+              <AvailableColorsMultiSelect
+                options={colors}
+                selected={availableColors}
+                onChange={setAvailableColors}
               />
             </div>
 
