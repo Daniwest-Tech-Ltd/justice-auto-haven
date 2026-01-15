@@ -12,6 +12,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { ColorBall } from "@/components/ColorSelector";
 import christmasGarland from "@/assets/christmas-garland.png";
 import specialOffer from "@/assets/special-offer.png";
 
@@ -615,9 +616,8 @@ const Catalogue = () => {
                           <Fuel className="h-4 w-4 text-primary" />
                           <span className="uppercase font-medium">{car.fuel_type || "N/A"}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <span className="text-primary">🎨</span>
-                          <span>{car.color || "N/A"}</span>
+                        <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+                          <ColorBall colorName={car.color} size="md" />
                         </div>
                       </div>
                       

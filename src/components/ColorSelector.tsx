@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -65,7 +64,6 @@ export const ColorSelector = ({
               className={cn(
                 "relative flex items-center gap-3 px-4 py-2.5 rounded-full transition-all duration-300",
                 "border-2 shadow-lg hover:shadow-xl hover:scale-[1.02]",
-                // Glassmorphism effect
                 "backdrop-blur-md",
                 isSelected 
                   ? "border-primary ring-2 ring-primary/30" 
@@ -116,7 +114,56 @@ export const ColorSelector = ({
   );
 };
 
-// Display component for showing available colors (used in CarDetails and Catalogue)
+// Color ball component - a 3D glassmorphism sphere showing car color
+interface ColorBallProps {
+  colorName: string | null;
+  size?: "sm" | "md" | "lg";
+}
+
+export const ColorBall = ({ colorName, size = "md" }: ColorBallProps) => {
+  if (!colorName) return null;
+
+  const getColorHex = (name: string) => {
+    return COLOR_OPTIONS.find(c => c.name.toLowerCase() === name.toLowerCase())?.hex || "#808080";
+  };
+
+  const hex = getColorHex(colorName);
+  const isLight = ["White", "Yellow", "Beige", "Silver"].includes(colorName);
+  
+  const sizeClasses = {
+    sm: "w-4 h-4",
+    md: "w-6 h-6",
+    lg: "w-8 h-8"
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <div 
+        className={`${sizeClasses[size]} rounded-full relative flex-shrink-0`}
+        style={{
+          background: `radial-gradient(circle at 30% 30%, ${hex}ff, ${hex}cc 50%, ${hex}88 100%)`,
+          boxShadow: `
+            0 2px 8px ${hex}60,
+            inset 0 -2px 4px rgba(0,0,0,0.2),
+            inset 0 2px 4px rgba(255,255,255,0.5)
+          `,
+          border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.2)",
+        }}
+      >
+        {/* Glass highlight */}
+        <div 
+          className="absolute top-[15%] left-[20%] w-[35%] h-[35%] rounded-full"
+          style={{
+            background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)",
+          }}
+        />
+      </div>
+      <span className="text-sm">{colorName}</span>
+    </div>
+  );
+};
+
+// Display component for showing available colors (used in CarDetails)
 interface ColorDisplayProps {
   colors: string[];
   size?: "sm" | "md";
@@ -130,7 +177,7 @@ export const ColorDisplay = ({ colors, size = "md" }: ColorDisplayProps) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-3">
       {colors.map((colorName) => {
         const hex = getColorHex(colorName);
         const isLight = ["White", "Yellow", "Beige", "Silver"].includes(colorName);
@@ -139,8 +186,8 @@ export const ColorDisplay = ({ colors, size = "md" }: ColorDisplayProps) => {
           <div
             key={colorName}
             className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all",
-              "border-2 border-white/30 shadow-lg backdrop-blur-md",
+              "flex items-center gap-2 px-3 py-2 rounded-full transition-all",
+              "border border-white/30 shadow-lg backdrop-blur-md",
               size === "sm" ? "text-xs" : "text-sm"
             )}
             style={{
@@ -148,13 +195,26 @@ export const ColorDisplay = ({ colors, size = "md" }: ColorDisplayProps) => {
               boxShadow: `0 4px 20px ${hex}30, inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.1)`,
             }}
           >
-            {/* Glass shine overlay */}
+            {/* 3D ball indicator */}
             <div 
-              className="absolute inset-0 rounded-full overflow-hidden pointer-events-none"
+              className="w-5 h-5 rounded-full relative flex-shrink-0"
               style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 60%)",
+                background: `radial-gradient(circle at 30% 30%, ${hex}ff, ${hex}cc 50%, ${hex}88 100%)`,
+                boxShadow: `
+                  0 2px 6px ${hex}60,
+                  inset 0 -1px 3px rgba(0,0,0,0.2),
+                  inset 0 1px 3px rgba(255,255,255,0.5)
+                `,
+                border: isLight ? "1px solid rgba(0,0,0,0.15)" : "1px solid rgba(255,255,255,0.2)",
               }}
-            />
+            >
+              <div 
+                className="absolute top-[15%] left-[20%] w-[35%] h-[35%] rounded-full"
+                style={{
+                  background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)",
+                }}
+              />
+            </div>
             <span 
               className={cn(
                 "font-medium relative z-10 drop-shadow-sm",
@@ -170,28 +230,5 @@ export const ColorDisplay = ({ colors, size = "md" }: ColorDisplayProps) => {
   );
 };
 
-// Fuel type icon component for catalogue
-interface FuelTypeIconProps {
-  fuelType: string | null;
-}
-
-export const FuelTypeIcon = ({ fuelType }: FuelTypeIconProps) => {
-  if (!fuelType) return null;
-  
-  const getFuelIcon = (type: string) => {
-    const normalized = type.toLowerCase();
-    if (normalized.includes("diesel")) return "⛽";
-    if (normalized.includes("petrol") || normalized.includes("gasoline")) return "⛽";
-    if (normalized.includes("electric")) return "⚡";
-    if (normalized.includes("hybrid")) return "🔋";
-    if (normalized.includes("lpg") || normalized.includes("cng")) return "🔥";
-    return "⛽";
-  };
-
-  return (
-    <div className="flex items-center gap-1.5 text-xs font-medium px-2 py-1 bg-primary/10 rounded-md border border-primary/20">
-      <span>{getFuelIcon(fuelType)}</span>
-      <span className="uppercase">{fuelType}</span>
-    </div>
-  );
-};
+// Export COLOR_OPTIONS for use in other components
+export { COLOR_OPTIONS };
