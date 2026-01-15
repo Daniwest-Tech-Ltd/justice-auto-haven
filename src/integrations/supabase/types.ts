@@ -861,6 +861,7 @@ export type Database = {
       cars: {
         Row: {
           additional_images: Json | null
+          available_colors: string[] | null
           color: string | null
           created_at: string | null
           description: string | null
@@ -887,6 +888,7 @@ export type Database = {
         }
         Insert: {
           additional_images?: Json | null
+          available_colors?: string[] | null
           color?: string | null
           created_at?: string | null
           description?: string | null
@@ -913,6 +915,7 @@ export type Database = {
         }
         Update: {
           additional_images?: Json | null
+          available_colors?: string[] | null
           color?: string | null
           created_at?: string | null
           description?: string | null

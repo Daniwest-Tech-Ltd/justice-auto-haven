@@ -10,6 +10,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X } from "lucide-react";
+import { ColorSelector } from "@/components/ColorSelector";
 
 const AddCar = () => {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const AddCar = () => {
     vin: "",
     vin_history: "",
   });
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
 
   const carBrands = [
     "Toyota", "BMW", "Mercedes-Benz", "Mazda", "Honda", "Nissan", "Subaru",
@@ -173,6 +175,7 @@ const AddCar = () => {
             images: [],
             vin: formData.vin || null,
             vin_history: formData.vin_history || null,
+            available_colors: availableColors.length > 0 ? availableColors : null,
           },
         ])
         .select()
@@ -495,7 +498,15 @@ const AddCar = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
+            {/* Available Colors Multi-Select */}
+            <div className="mt-6 p-4 border border-border rounded-lg bg-muted/30">
+              <ColorSelector
+                selectedColors={availableColors}
+                onColorsChange={setAvailableColors}
+              />
+            </div>
+
+            <div className="space-y-2 mt-6">
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
