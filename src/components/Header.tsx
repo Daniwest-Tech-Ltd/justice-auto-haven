@@ -4,8 +4,6 @@ import { Menu, X, Moon, Sun, User, LogOut, Home as HomeIcon, LayoutDashboard, He
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import logo from "@/assets/logo.png";
-import christmasBells from "@/assets/christmas-bells.png";
-import christmasCorner from "@/assets/christmas-corner.png";
 import christmasHat from "@/assets/christmas-hat.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +11,7 @@ import { LogoutConfirmModal } from "./LogoutConfirmModal";
 import { SessionTimeoutModal } from "./SessionTimeoutModal";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { BusinessHours } from "./BusinessHours";
+import { ChristmasHat, SunEffect } from "./SeasonalEffects";
 import {
   Drawer,
   DrawerClose,
@@ -184,16 +183,15 @@ const Header = () => {
           <Link to="/" className="flex items-center gap-3">
             <div className="relative h-12 w-12">
               <img src={logo} alt="Justice Ultimate Automobiles" className="h-12 w-12 object-contain" />
-              <img 
-                src={christmasHat} 
-                alt="" 
-                className="absolute -top-3 -left-1 w-10 h-10 object-contain pointer-events-none z-10 animate-swing origin-bottom"
-              />
+              <ChristmasHat hatImage={christmasHat} />
             </div>
             <span className="text-xl font-bold bg-gradient-accent bg-clip-text text-transparent hidden sm:block">
               JUSTICE ULTIMATE AUTOMOBILES
             </span>
           </Link>
+          
+          {/* Sun Effect - shows after Christmas season */}
+          <SunEffect />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">

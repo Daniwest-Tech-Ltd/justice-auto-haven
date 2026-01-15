@@ -39,6 +39,7 @@ import kenyaLocations from "@/data/kenya-locations.json";
 import { Combobox } from "@/components/ui/combobox";
 import { PhoneInputWithCountryCode } from "@/components/PhoneInputWithCountryCode";
 import HolidayBanner from "@/components/HolidayBanner";
+import { Snowfall } from "@/components/SeasonalEffects";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
 
@@ -1072,30 +1073,7 @@ const Auth = () => {
     }
   };
 
-  // Add snowfall effect - moved before conditional returns to follow Rules of Hooks
-  useEffect(() => {
-    // Only add snowflakes if not in maintenance mode
-    if (maintenanceMode?.is_active) return;
-    
-    const snowflakes = 50;
-    const container = document.body;
-    
-    for (let i = 0; i < snowflakes; i++) {
-      const flake = document.createElement("div");
-      flake.className = "snowflake";
-      flake.style.left = Math.random() * 100 + "vw";
-      flake.style.animationDuration = 2 + Math.random() * 3 + "s";
-      flake.style.animationDelay = Math.random() * 3 + "s";
-      flake.style.opacity = (Math.random() * 0.6 + 0.3).toString();
-      container.appendChild(flake);
-    }
-
-    return () => {
-      // Cleanup snowflakes on unmount
-      const flakes = document.querySelectorAll(".snowflake");
-      flakes.forEach(flake => flake.remove());
-    };
-  }, [maintenanceMode?.is_active]);
+  // Snowfall is now handled by the SeasonalEffects component
 
   if (maintenanceMode?.is_active) {
     return (
@@ -1146,6 +1124,7 @@ const Auth = () => {
 
   return (
     <>
+      <Snowfall />
       <HolidayBanner />
       <div 
         className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center relative"
