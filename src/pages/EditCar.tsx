@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Upload, X } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
-import { ColorSelector } from "@/components/ColorSelector";
+import { AvailableColorsMultiSelect } from "@/components/AvailableColorsMultiSelect";
 
 const EditCar = () => {
   const { id } = useParams();
@@ -419,11 +419,12 @@ const EditCar = () => {
               </div>
             </div>
 
-            {/* Available Colors Multi-Select */}
+            {/* Other available colors (multi-select dropdown, optional) */}
             <div className="mt-6 p-4 border border-border rounded-lg bg-muted/30">
-              <ColorSelector
-                selectedColors={availableColors}
-                onColorsChange={setAvailableColors}
+              <AvailableColorsMultiSelect
+                options={colors}
+                selected={availableColors}
+                onChange={setAvailableColors}
               />
             </div>
 
