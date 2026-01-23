@@ -162,9 +162,9 @@ const Home = () => {
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-start pt-6">
           <div className="max-w-2xl space-y-4">
-            <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-4 py-2 mb-4 animate-pulse">
+            <div className="inline-block bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white text-base sm:text-lg md:text-xl px-6 py-3 rounded-md shadow-lg mb-4 animate-pulse font-bold">
               🎉 NEW YEAR MEGA SALE 2026
-            </Badge>
+            </div>
             <h1 className="text-3xl md:text-5xl font-bold leading-tight">
               New Year Mega Sale 2026 – <span className="text-transparent bg-clip-text bg-gradient-gold">Drive Your Dream Car Today!</span>
             </h1>
@@ -248,10 +248,10 @@ const Home = () => {
         <section className="py-16 bg-accent/5" aria-label="Featured Cars">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <div className="flex items-center justify-center gap-4 mb-2">
-                <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xl px-6 py-3 animate-pulse">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-2">
+                <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white text-lg sm:text-xl px-6 py-3 rounded-md shadow-lg animate-pulse font-bold w-full sm:w-auto text-center">
                   🎉 2026 MEGA SALE
-                </Badge>
+                </div>
                 <h2 className="text-4xl font-bold glitter-text">Featured Cars for Sale in Kenya</h2>
               </div>
               <p className="text-muted-foreground">New Year Special - Premium quality vehicles with up to 90% Asset Financing!</p>
@@ -322,11 +322,11 @@ const Home = () => {
       {/* Available Cars Section */}
       <section className="py-16" aria-label="Available Cars">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-start gap-4 mb-12">
-            <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-lg px-6 py-3 animate-pulse">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-12">
+            <div className="bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-white text-base sm:text-lg px-6 py-3 rounded-md shadow-lg animate-pulse font-bold w-full sm:w-auto text-center sm:text-left">
               🚗 NEW YEAR 2026 DEALS
-            </Badge>
-            <h2 className="text-4xl font-bold glitter-text">Quality Used Cars for Sale in Nairobi, Kenya</h2>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold glitter-text">Quality Used Cars for Sale in Nairobi, Kenya</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {availableCars.map((car) => (
@@ -392,9 +392,9 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center space-y-6 mb-12">
-              <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-3">
+              <div className="inline-block bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white text-base sm:text-lg px-6 py-3 rounded-md shadow-lg font-bold">
                 🎉 NEW YEAR 2026 SPECIAL
-              </Badge>
+              </div>
               <h2 className="text-4xl font-bold">Up to 90% Asset Financing Available!</h2>
               <p className="text-lg text-muted-foreground">
                 Fast approvals, transparent process, and reliable financing partners.

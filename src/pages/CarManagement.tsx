@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Pencil, Trash2, Plus, ArrowLeft, Star } from "lucide-react";
+import { Pencil, Trash2, Plus, ArrowLeft, Star, Search, RefreshCw, SortAsc, SortDesc, Calendar } from "lucide-react";
 import { SalesRecordModal } from "@/components/SalesRecordModal";
 
 interface Car {
@@ -23,6 +25,7 @@ interface Car {
   mileage: string | null;
   color: string | null;
   is_featured: boolean | null;
+  created_at: string | null;
 }
 
 const CarManagement = () => {
@@ -30,6 +33,9 @@ const CarManagement = () => {
   const [loading, setLoading] = useState(true);
   const [salesModalOpen, setSalesModalOpen] = useState(false);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const { user, role } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -45,7 +51,7 @@ const CarManagement = () => {
     const { data, error } = await supabase
       .from("cars")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: sortOrder === "asc" });
 
     if (error) {
       toast({
@@ -58,6 +64,40 @@ const CarManagement = () => {
     }
     setLoading(false);
   };
+
+  // Filter and search cars
+  const filteredCars = useMemo(() => {
+    let result = [...cars];
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (car) =>
+          car.make?.toLowerCase().includes(query) ||
+          car.model?.toLowerCase().includes(query) ||
+          car.stock_id?.toLowerCase().includes(query) ||
+          car.transmission?.toLowerCase().includes(query) ||
+          car.fuel_type?.toLowerCase().includes(query) ||
+          car.color?.toLowerCase().includes(query) ||
+          car.year?.toString().includes(query)
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== "all") {
+      result = result.filter((car) => car.status === statusFilter);
+    }
+
+    // Apply sort
+    result.sort((a, b) => {
+      const dateA = new Date(a.created_at || 0).getTime();
+      const dateB = new Date(b.created_at || 0).getTime();
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+    });
+
+    return result;
+  }, [cars, searchQuery, statusFilter, sortOrder]);
 
   const toggleStatus = async (carId: string, currentStatus: string | null) => {
     const newStatus = currentStatus === "available" ? "sold" : "available";
@@ -145,6 +185,10 @@ const CarManagement = () => {
     return imageArray[0] || null;
   };
 
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === "desc" ? "asc" : "desc");
+  };
+
   if (loading) {
     return <div className="p-8">Loading...</div>;
   }
@@ -170,119 +214,199 @@ const CarManagement = () => {
       )}
       
       <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col gap-4 mb-8">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate("/admin-dashboard")}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Dashboard
-            </Button>
-            <h1 className="text-3xl font-bold">Car Management</h1>
-          </div>
-          <Button onClick={() => navigate("/admin/cars/add")} className="gap-2">
-            <Plus className="h-5 w-5" />
-            Add New Car
-          </Button>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigate("/admin/rentals")}>
-            Manage Rentals
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate("/admin/trade-ins")}>
-            Manage Trade-Ins
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {cars.map((car) => (
-          <Card key={car.id} className="glass-strong overflow-hidden">
-            <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 relative">
-              {getImageUrl(car.images) && (
-                <img
-                  src={getImageUrl(car.images)}
-                  alt={`${car.make} ${car.model}`}
-                  className="w-full h-full object-cover"
-                />
-              )}
-              <Badge
-                className={`absolute top-4 right-4 ${
-                  car.status === "available"
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-red-600 hover:bg-red-700"
-                }`}
-              >
-                {car.status === "available" ? "In Stock" : "Sold Out"}
-              </Badge>
+        <div className="flex flex-col gap-4 mb-8">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => navigate("/admin-dashboard")}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Dashboard
+              </Button>
+              <h1 className="text-3xl font-bold">Car Management</h1>
             </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={fetchCars}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+              <Button onClick={() => navigate("/admin/cars/add")} className="gap-2">
+                <Plus className="h-5 w-5" />
+                Add New Car
+              </Button>
+            </div>
+          </div>
+          
+          {/* Search and Filter Bar */}
+          <div className="flex flex-col md:flex-row gap-4 p-4 bg-secondary/30 rounded-lg">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by make, model, stock ID, transmission, color..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="available">Available</SelectItem>
+                <SelectItem value="sold">Sold</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Button variant="outline" onClick={toggleSortOrder} className="gap-2">
+              <Calendar className="h-4 w-4" />
+              {sortOrder === "desc" ? (
+                <>
+                  <SortDesc className="h-4 w-4" />
+                  Newest First
+                </>
+              ) : (
+                <>
+                  <SortAsc className="h-4 w-4" />
+                  Oldest First
+                </>
+              )}
+            </Button>
+          </div>
+          
+          {/* Results Summary */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredCars.length} of {cars.length} cars
+              {searchQuery && ` matching "${searchQuery}"`}
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate("/admin/rentals")}>
+                Manage Rentals
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => navigate("/admin/trade-ins")}>
+                Manage Trade-Ins
+              </Button>
+            </div>
+          </div>
+        </div>
 
-            <CardHeader>
-              <CardTitle className="text-xl">
-                {car.make} {car.model}
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Stock ID: {car.stock_id || "N/A"}
-              </p>
-            </CardHeader>
-
-            <CardContent>
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Year:</span>
-                  <span className="font-medium">{car.year}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Price:</span>
-                  <span className="font-medium">KSh {car.price?.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Mileage:</span>
-                  <span className="font-medium">{car.mileage || "N/A"}</span>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredCars.map((car) => (
+            <Card key={car.id} className="glass-strong overflow-hidden">
+              <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 relative">
+                {getImageUrl(car.images) && (
+                  <img
+                    src={getImageUrl(car.images)}
+                    alt={`${car.make} ${car.model}`}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                <Badge
+                  className={`absolute top-4 right-4 ${
+                    car.status === "available"
+                      ? "bg-green-600 hover:bg-green-700"
+                      : "bg-red-600 hover:bg-red-700"
+                  }`}
+                >
+                  {car.status === "available" ? "In Stock" : "Sold Out"}
+                </Badge>
+                {car.is_featured && (
+                  <Badge className="absolute top-4 left-4 bg-amber-500">
+                    <Star className="h-3 w-3 mr-1" />
+                    Featured
+                  </Badge>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => toggleStatus(car.id, car.status)}
-                  >
-                    Toggle Status
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={car.is_featured ? "default" : "outline"}
-                    onClick={() => toggleFeatured(car.id, car.is_featured)}
-                    title="Mark as Featured"
-                  >
-                    <Star className="h-4 w-4" />
-                  </Button>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl">
+                  {car.make} {car.model}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Stock ID: {car.stock_id || "N/A"}
+                </p>
+              </CardHeader>
+
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Year:</span>
+                    <span className="font-medium">{car.year}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Price:</span>
+                    <span className="font-medium">KSh {car.price?.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Mileage:</span>
+                    <span className="font-medium">{car.mileage || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Transmission:</span>
+                    <span className="font-medium">{car.transmission || "N/A"}</span>
+                  </div>
+                  {car.created_at && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Added:</span>
+                      <span className="font-medium">
+                        {new Date(car.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => navigate(`/admin/cars/edit/${car.id}`)}
-                  >
-                    <Pencil className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => deleteCar(car.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => toggleStatus(car.id, car.status)}
+                    >
+                      Toggle Status
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={car.is_featured ? "default" : "outline"}
+                      onClick={() => toggleFeatured(car.id, car.is_featured)}
+                      title="Mark as Featured"
+                    >
+                      <Star className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => navigate(`/admin/cars/edit/${car.id}`)}
+                    >
+                      <Pencil className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteCar(car.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        {filteredCars.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">No cars found matching your search criteria.</p>
+            <Button variant="outline" onClick={() => { setSearchQuery(""); setStatusFilter("all"); }} className="mt-4">
+              Clear Filters
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );
