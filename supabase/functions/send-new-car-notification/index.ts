@@ -41,22 +41,67 @@ serve(async (req: Request) => {
     const carTitle = `${carData.year} ${carData.make} ${carData.model}`;
     const carLink = `https://www.justiceultimateautomobiles.com/cars/${carData.carId}`;
 
-    // Get all customer profiles with emails (active accounts)
-    const { data: customers, error: customersError } = await supabase
+    // Admin emails that must always receive notifications
+    const ADMIN_EMAILS = [
+      'daniwesttechnologies@gmail.com',
+      'justicevincentt@gmail.com'
+    ];
+
+    // Get all customer profiles with emails
+    const { data: allProfiles, error: profilesError } = await supabase
       .from("profiles")
-      .select("email, full_name, user_id, phone, country_code")
-      .eq("account_status", "active")
+      .select("email, full_name, user_id, phone, country_code, is_suspended")
       .not("email", "is", null);
 
-    if (customersError) {
-      console.error("Error fetching customers:", customersError);
+    if (profilesError) {
+      console.error("Error fetching profiles:", profilesError);
       return new Response(
-        JSON.stringify({ error: "Failed to fetch customers" }),
+        JSON.stringify({ error: "Failed to fetch profiles" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    console.log(`Found ${customers?.length || 0} customers to notify`);
+    // Get all users with customer role
+    const { data: customerRoles } = await supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "customer");
+
+    const customerUserIds = new Set(customerRoles?.map(r => r.user_id) || []);
+
+    // Filter to active customers
+    const customers = (allProfiles || []).filter(p => 
+      customerUserIds.has(p.user_id) && !p.is_suspended
+    );
+
+    // Add admin emails to recipient list (ensure admins always get notified)
+    const adminProfiles = (allProfiles || []).filter(p => 
+      ADMIN_EMAILS.includes(p.email?.toLowerCase())
+    );
+    
+    // Combine customers and admin profiles, removing duplicates
+    const allRecipients = [...customers];
+    for (const admin of adminProfiles) {
+      if (!allRecipients.find(c => c.email?.toLowerCase() === admin.email?.toLowerCase())) {
+        allRecipients.push(admin);
+      }
+    }
+    
+    // Also ensure admin emails are in the list even if they don't have profiles
+    for (const adminEmail of ADMIN_EMAILS) {
+      if (!allRecipients.find(c => c.email?.toLowerCase() === adminEmail.toLowerCase())) {
+        allRecipients.push({ 
+          email: adminEmail, 
+          full_name: 'Admin', 
+          user_id: null, 
+          phone: null, 
+          country_code: null,
+          is_suspended: false 
+        });
+      }
+    }
+
+    console.log(`Found ${allRecipients.length} recipients to notify (${customers.length} customers + admins)`);
 
     let emailSuccessCount = 0;
     let emailFailCount = 0;
@@ -69,8 +114,8 @@ serve(async (req: Request) => {
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
 
-      for (const customer of customers || []) {
-        if (!customer.email) continue;
+      for (const recipient of allRecipients) {
+        if (!recipient.email) continue;
 
         try {
           // Professional HTML email template
@@ -241,24 +286,24 @@ serve(async (req: Request) => {
 
           const { error: emailError } = await resend.emails.send({
             from: "Justice Ultimate Automobiles <onboarding@resend.dev>",
-            to: [customer.email],
+            to: [recipient.email],
             subject: `🚗 ${actionText}: ${carTitle} - KSh ${formattedPrice}`,
             html: emailHtml,
           });
 
           if (emailError) {
-            console.error(`Email failed for ${customer.email}:`, emailError);
+            console.error(`Email failed for ${recipient.email}:`, emailError);
             emailFailCount++;
           } else {
             emailSuccessCount++;
-            console.log(`Email sent to ${customer.email}`);
+            console.log(`Email sent to ${recipient.email}`);
           }
 
           // Respect Resend rate limit: max 2 requests per second = 500ms delay minimum
           await new Promise(resolve => setTimeout(resolve, 550));
         } catch (err) {
           emailFailCount++;
-          console.error(`Error sending email to ${customer.email}:`, err);
+          console.error(`Error sending email to ${recipient.email}:`, err);
         }
       }
     } else {
@@ -266,10 +311,10 @@ serve(async (req: Request) => {
     }
 
     // ============ CREATE IN-APP NOTIFICATIONS ============
-    const notificationsToInsert = (customers || [])
+    const notificationsToInsert = allRecipients
       .filter(c => c.user_id)
-      .map(customer => ({
-        user_id: customer.user_id,
+      .map(recipient => ({
+        user_id: recipient.user_id,
         title: `${carData.isUpdate ? '🔄 Car Updated' : '🚗 New Arrival'}`,
         message: `${carTitle} - KSh ${formattedPrice}. ${carData.isUpdate ? 'Check out the updated details!' : 'Now available in our showroom!'}`,
         type: 'car_notification',
@@ -340,11 +385,11 @@ Daniel Maina: 0701460110
         return cleaned.length >= 7 && cleaned.length <= 12;
       };
 
-      for (const customer of customers || []) {
-        if (!customer.phone || !validatePhone(customer.phone)) continue;
+      for (const recipient of allRecipients) {
+        if (!recipient.phone || !validatePhone(recipient.phone)) continue;
 
-        const customerCountryCode = customer.country_code || '+254';
-        const formattedPhone = formatPhoneNumber(customer.phone, customerCountryCode);
+        const recipientCountryCode = recipient.country_code || '+254';
+        const formattedPhone = formatPhoneNumber(recipient.phone, recipientCountryCode);
 
         try {
           const response = await fetch("https://api.apiwap.com/api/v1/whatsapp/send-message", {
