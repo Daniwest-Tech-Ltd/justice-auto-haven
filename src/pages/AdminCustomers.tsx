@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Ban, Trash2, Edit, CheckCircle, Copy, Shield, User } from "lucide-react";
+import { ArrowLeft, Ban, Trash2, Edit, CheckCircle, Copy, Shield, User, Search, RefreshCw } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { 
   AlertDialog, 
@@ -52,6 +52,7 @@ const AdminCustomers = () => {
   const [currentAdminId, setCurrentAdminId] = useState<string>("");
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [editForm, setEditForm] = useState({ full_name: "", email: "", phone: "" });
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -362,8 +363,19 @@ const AdminCustomers = () => {
     }
   };
 
-  const activeCustomers = customers.filter(c => c.is_online).length;
-  const inactiveCustomers = customers.length - activeCustomers;
+  // Filter customers based on search
+  const filteredCustomers = customers.filter(c => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      c.full_name?.toLowerCase().includes(query) ||
+      c.email?.toLowerCase().includes(query) ||
+      c.phone?.toLowerCase().includes(query)
+    );
+  });
+
+  const activeCustomers = filteredCustomers.filter(c => c.is_online).length;
+  const inactiveCustomers = filteredCustomers.length - activeCustomers;
 
   if (loading) return <LoadingScreen />;
 
@@ -380,23 +392,46 @@ const AdminCustomers = () => {
 
       <Card className="glass-strong mb-6">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Customer Management</CardTitle>
-            <div className="flex gap-6 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                <span className="font-semibold">{activeCustomers}</span> Active
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
-                <span className="font-semibold">{inactiveCustomers}</span> Inactive
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <CardTitle>Customer Management</CardTitle>
+              <div className="flex gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                  </span>
+                  <span className="font-semibold">{activeCustomers}</span> Active
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                  </span>
+                  <span className="font-semibold">{inactiveCustomers}</span> Inactive
+                </div>
               </div>
             </div>
+            
+            {/* Search Bar */}
+            <div className="flex gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name, email, or phone..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button variant="outline" onClick={fetchCustomers}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
+            
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredCustomers.length} of {customers.length} customers
+            </p>
           </div>
         </CardHeader>
         <CardContent>
@@ -417,7 +452,7 @@ const AdminCustomers = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {customers.map((customer) => {
+                {filteredCustomers.map((customer) => {
                   const isAdmin = customer.role === "admin";
                   const isCurrentUser = customer.user_id === currentAdminId;
 

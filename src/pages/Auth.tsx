@@ -414,6 +414,15 @@ const Auth = () => {
               role: assignedRole
             });
             
+            // Send welcome email to new OAuth user
+            await supabase.functions.invoke('send-welcome-email', {
+              body: {
+                email: session.user.email,
+                name: googleName,
+                authProvider: authProvider
+              }
+            });
+            
             // Show Complete Profile dialog for new Google users
             setCompleteProfileUserId(session.user.id);
             setCompleteProfileUserEmail(userEmail);
