@@ -279,6 +279,34 @@ const CarManagement = () => {
     }
   };
 
+  const bulkToggleFeatured = async (isFeatured: boolean) => {
+    if (selectedCars.size === 0) return;
+    
+    // When marking as featured, also set promotion_tag to new_arrival and update listed_at
+    const updateData: any = { is_featured: isFeatured };
+    if (isFeatured) {
+      updateData.promotion_tag = 'new_arrival';
+      updateData.listed_at = new Date().toISOString();
+    }
+    
+    const { error } = await supabase
+      .from("cars")
+      .update(updateData)
+      .in("id", Array.from(selectedCars));
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to update featured status", variant: "destructive" });
+    } else {
+      toast({ 
+        title: "Success", 
+        description: `${selectedCars.size} cars ${isFeatured ? 'marked as featured & new arrival' : 'removed from featured'}` 
+      });
+      setSelectedCars(new Set());
+      setShowBulkActions(false);
+      fetchCars();
+    }
+  };
+
   const bulkDeleteCars = async () => {
     if (selectedCars.size === 0) return;
     if (!confirm(`Are you sure you want to delete ${selectedCars.size} cars?`)) return;
@@ -367,15 +395,29 @@ const CarManagement = () => {
   };
 
   const toggleFeatured = async (carId: string, currentStatus: boolean | null) => {
+    const newFeatured = !currentStatus;
+    
+    // When marking as featured, also set as new_arrival and reset listed_at
+    const updateData: any = { is_featured: newFeatured };
+    if (newFeatured) {
+      updateData.promotion_tag = 'new_arrival';
+      updateData.listed_at = new Date().toISOString();
+    }
+    
     const { error } = await supabase
       .from("cars")
-      .update({ is_featured: !currentStatus })
+      .update(updateData)
       .eq("id", carId);
 
     if (error) {
       toast({ title: "Error", description: "Failed to update featured status", variant: "destructive" });
     } else {
-      toast({ title: "Success", description: `Car ${!currentStatus ? "marked as" : "removed from"} featured` });
+      toast({ 
+        title: "Success", 
+        description: newFeatured 
+          ? "Car marked as featured & new arrival" 
+          : "Car removed from featured"
+      });
       fetchCars();
     }
   };
@@ -657,6 +699,25 @@ const CarManagement = () => {
                           {tag.label}
                         </DropdownMenuItem>
                       ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-1">
+                        <Star className="h-4 w-4" />
+                        Bulk Featured
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => bulkToggleFeatured(true)}>
+                        <Star className="h-4 w-4 mr-2 fill-amber-500 text-amber-500" />
+                        Mark as Featured & New
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => bulkToggleFeatured(false)}>
+                        <Star className="h-4 w-4 mr-2" />
+                        Remove Featured
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
 
