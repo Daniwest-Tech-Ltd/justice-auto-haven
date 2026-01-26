@@ -36,6 +36,7 @@ const CarManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [featuredFilter, setFeaturedFilter] = useState<string>("all");
   const { user, role } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -89,6 +90,12 @@ const CarManagement = () => {
       result = result.filter((car) => car.status === statusFilter);
     }
 
+    // Apply featured filter
+    if (featuredFilter !== "all") {
+      const isFeatured = featuredFilter === "featured";
+      result = result.filter((car) => car.is_featured === isFeatured);
+    }
+
     // Apply sort
     result.sort((a, b) => {
       const dateA = new Date(a.created_at || 0).getTime();
@@ -97,7 +104,7 @@ const CarManagement = () => {
     });
 
     return result;
-  }, [cars, searchQuery, statusFilter, sortOrder]);
+  }, [cars, searchQuery, statusFilter, featuredFilter, sortOrder]);
 
   const toggleStatus = async (carId: string, currentStatus: string | null) => {
     const newStatus = currentStatus === "available" ? "sold" : "available";
@@ -248,13 +255,24 @@ const CarManagement = () => {
             </div>
             
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
+              <SelectTrigger className="w-full md:w-[150px]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="available">Available</SelectItem>
                 <SelectItem value="sold">Sold</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={featuredFilter} onValueChange={setFeaturedFilter}>
+              <SelectTrigger className="w-full md:w-[150px]">
+                <SelectValue placeholder="Featured" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cars</SelectItem>
+                <SelectItem value="featured">Featured Only</SelectItem>
+                <SelectItem value="not-featured">Not Featured</SelectItem>
               </SelectContent>
             </Select>
             
@@ -402,7 +420,7 @@ const CarManagement = () => {
         {filteredCars.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">No cars found matching your search criteria.</p>
-            <Button variant="outline" onClick={() => { setSearchQuery(""); setStatusFilter("all"); }} className="mt-4">
+            <Button variant="outline" onClick={() => { setSearchQuery(""); setStatusFilter("all"); setFeaturedFilter("all"); }} className="mt-4">
               Clear Filters
             </Button>
           </div>
