@@ -834,6 +834,50 @@ export type Database = {
         }
         Relationships: []
       }
+      car_activity_logs: {
+        Row: {
+          action: string
+          car_id: string | null
+          created_at: string | null
+          details: Json | null
+          field_changed: string | null
+          id: string
+          new_value: string | null
+          old_value: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          car_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          field_changed?: string | null
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          car_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          field_changed?: string | null
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_activity_logs_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       car_comparisons: {
         Row: {
           car_ids: Json
@@ -858,6 +902,103 @@ export type Database = {
         }
         Relationships: []
       }
+      car_expenses: {
+        Row: {
+          amount: number
+          car_id: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          expense_type: string
+          id: string
+          paid_at: string | null
+          receipt_url: string | null
+        }
+        Insert: {
+          amount: number
+          car_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          expense_type: string
+          id?: string
+          paid_at?: string | null
+          receipt_url?: string | null
+        }
+        Update: {
+          amount?: number
+          car_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          expense_type?: string
+          id?: string
+          paid_at?: string | null
+          receipt_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_expenses_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      car_inquiries: {
+        Row: {
+          assigned_to: string | null
+          car_id: string | null
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          follow_up_date: string | null
+          id: string
+          message: string | null
+          notes: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          car_id?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          follow_up_date?: string | null
+          id?: string
+          message?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          car_id?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          follow_up_date?: string | null
+          id?: string
+          message?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_inquiries_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cars: {
         Row: {
           additional_images: Json | null
@@ -870,18 +1011,42 @@ export type Database = {
           fuel_type: string | null
           id: string
           images: Json | null
+          import_type: string | null
+          inquiries_count: number | null
+          inspection_date: string | null
+          inspection_status: string | null
+          insurance_expiry: string | null
+          insurance_status: string | null
           is_featured: boolean | null
+          is_published: boolean | null
           is_rental: boolean | null
+          last_price_change: string | null
+          listed_at: string | null
+          logbook_status: string | null
           main_images: Json | null
           make: string
+          meta_description: string | null
+          meta_title: string | null
           mileage: string | null
           model: string
           month: string | null
+          notes: string | null
+          ntsa_status: string | null
+          previous_price: number | null
           price: number
+          promotion_tag: string | null
+          publish_scheduled_at: string | null
+          purchase_price: number | null
+          reserved_at: string | null
+          reserved_by: string | null
+          sold_at: string | null
           status: string | null
           stock_id: string | null
+          supplier: string | null
+          test_drives_count: number | null
           transmission: string | null
           updated_at: string | null
+          views_count: number | null
           vin: string | null
           vin_history: string | null
           year: number
@@ -897,18 +1062,42 @@ export type Database = {
           fuel_type?: string | null
           id?: string
           images?: Json | null
+          import_type?: string | null
+          inquiries_count?: number | null
+          inspection_date?: string | null
+          inspection_status?: string | null
+          insurance_expiry?: string | null
+          insurance_status?: string | null
           is_featured?: boolean | null
+          is_published?: boolean | null
           is_rental?: boolean | null
+          last_price_change?: string | null
+          listed_at?: string | null
+          logbook_status?: string | null
           main_images?: Json | null
           make: string
+          meta_description?: string | null
+          meta_title?: string | null
           mileage?: string | null
           model: string
           month?: string | null
+          notes?: string | null
+          ntsa_status?: string | null
+          previous_price?: number | null
           price: number
+          promotion_tag?: string | null
+          publish_scheduled_at?: string | null
+          purchase_price?: number | null
+          reserved_at?: string | null
+          reserved_by?: string | null
+          sold_at?: string | null
           status?: string | null
           stock_id?: string | null
+          supplier?: string | null
+          test_drives_count?: number | null
           transmission?: string | null
           updated_at?: string | null
+          views_count?: number | null
           vin?: string | null
           vin_history?: string | null
           year: number
@@ -924,18 +1113,42 @@ export type Database = {
           fuel_type?: string | null
           id?: string
           images?: Json | null
+          import_type?: string | null
+          inquiries_count?: number | null
+          inspection_date?: string | null
+          inspection_status?: string | null
+          insurance_expiry?: string | null
+          insurance_status?: string | null
           is_featured?: boolean | null
+          is_published?: boolean | null
           is_rental?: boolean | null
+          last_price_change?: string | null
+          listed_at?: string | null
+          logbook_status?: string | null
           main_images?: Json | null
           make?: string
+          meta_description?: string | null
+          meta_title?: string | null
           mileage?: string | null
           model?: string
           month?: string | null
+          notes?: string | null
+          ntsa_status?: string | null
+          previous_price?: number | null
           price?: number
+          promotion_tag?: string | null
+          publish_scheduled_at?: string | null
+          purchase_price?: number | null
+          reserved_at?: string | null
+          reserved_by?: string | null
+          sold_at?: string | null
           status?: string | null
           stock_id?: string | null
+          supplier?: string | null
+          test_drives_count?: number | null
           transmission?: string | null
           updated_at?: string | null
+          views_count?: number | null
           vin?: string | null
           vin_history?: string | null
           year?: number
@@ -3593,6 +3806,65 @@ export type Database = {
         }
         Relationships: []
       }
+      test_drive_bookings: {
+        Row: {
+          car_id: string | null
+          created_at: string | null
+          customer_email: string | null
+          customer_id: string | null
+          customer_name: string
+          customer_phone: string
+          feedback: string | null
+          id: string
+          notes: string | null
+          salesperson_id: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          car_id?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name: string
+          customer_phone: string
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          salesperson_id?: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          car_id?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name?: string
+          customer_phone?: string
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          salesperson_id?: string | null
+          scheduled_date?: string
+          scheduled_time?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_drive_bookings_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       threat_intelligence: {
         Row: {
           active: boolean | null
@@ -4433,6 +4705,11 @@ export type Database = {
       }
       generate_receipt_number: { Args: never; Returns: string }
       generate_stock_id: { Args: never; Returns: string }
+      get_days_in_stock: { Args: { car_listed_at: string }; Returns: number }
+      get_profit_margin: {
+        Args: { purchase_price: number; selling_price: number }
+        Returns: number
+      }
       get_user_permissions: {
         Args: { _user_id: string }
         Returns: {
