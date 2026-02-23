@@ -67,7 +67,8 @@ const CarDetails = () => {
         query = query.eq("stock_id", id);
       }
       
-      const { data, error } = await query.maybeSingle();
+      const { data: rows, error } = await query.limit(1);
+      const data = rows && rows.length > 0 ? rows[0] : null;
 
       if (error) throw error;
 
