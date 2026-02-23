@@ -1075,16 +1075,16 @@ export type Database = {
           listed_at?: string | null
           logbook_status?: string | null
           main_images?: Json | null
-          make: string
+          make?: string
           meta_description?: string | null
           meta_title?: string | null
           mileage?: string | null
-          model: string
+          model?: string
           month?: string | null
           notes?: string | null
           ntsa_status?: string | null
           previous_price?: number | null
-          price: number
+          price?: number
           promotion_tag?: string | null
           publish_scheduled_at?: string | null
           purchase_price?: number | null
@@ -1100,7 +1100,7 @@ export type Database = {
           views_count?: number | null
           vin?: string | null
           vin_history?: string | null
-          year: number
+          year?: number
         }
         Update: {
           additional_images?: Json | null
