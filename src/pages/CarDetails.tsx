@@ -60,8 +60,9 @@ const CarDetails = () => {
       // Try to fetch by stock_id first, then by UUID
       let query = supabase.from("cars").select("*");
       
-      // Check if id looks like a UUID or stock_id
-      if (id?.includes("-") && id.length > 20) {
+      // Always try UUID first, fallback to stock_id
+      const isUUID = id && id.length >= 32 && id.includes("-");
+      if (isUUID) {
         query = query.eq("id", id);
       } else {
         query = query.eq("stock_id", id);
@@ -444,7 +445,7 @@ const CarDetails = () => {
               {similarCars.map((similarCar) => (
                 <Link
                   key={similarCar.id}
-                  to={`/car/${similarCar.stock_id || similarCar.id}`}
+                  to={`/car/${similarCar.id}`}
                   className="group overflow-hidden rounded-lg bg-primary/10 transition-transform hover:scale-105"
                 >
                   <div className="aspect-[4/3] overflow-hidden">

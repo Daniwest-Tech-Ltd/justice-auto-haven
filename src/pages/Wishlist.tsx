@@ -229,7 +229,7 @@ const Wishlist = () => {
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       Place Order
                     </Button>
-                    <Link to={`/car/${car.stock_id || car.id}`} className="flex-1">
+                    <Link to={`/car/${car.id}`} className="flex-1">
                       <Button size="sm" variant="outline" className="w-full">
                         View Details
                       </Button>

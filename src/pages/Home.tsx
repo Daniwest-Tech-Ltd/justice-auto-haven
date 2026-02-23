@@ -262,7 +262,7 @@ const Home = () => {
                 return (
                   <Link 
                     key={car.id} 
-                    to={`/car/${car.stock_id || car.id}`}
+                    to={`/car/${car.id}`}
                     className="flip-card h-96 cursor-pointer"
                   >
                     <div className="flip-card-inner">
@@ -332,7 +332,7 @@ const Home = () => {
             {availableCars.map((car) => (
               <Link 
                 key={car.id} 
-                to={`/car/${car.stock_id || car.id}`}
+                to={`/car/${car.id}`}
                 className="flip-card h-96"
               >
                 <div className="flip-card-inner">
