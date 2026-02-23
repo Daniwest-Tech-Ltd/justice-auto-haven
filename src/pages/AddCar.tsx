@@ -12,11 +12,13 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X } from "lucide-react";
 import { AvailableColorsMultiSelect } from "@/components/AvailableColorsMultiSelect";
+import StockUploadAnimation from "@/components/StockUploadAnimation";
 
 const AddCar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [uploadComplete, setUploadComplete] = useState(false);
   const [mainImages, setMainImages] = useState<(File | null)[]>(Array(8).fill(null));
   const [additionalImages, setAdditionalImages] = useState<(File | null)[]>(Array(4).fill(null));
   const [mainImagePreviews, setMainImagePreviews] = useState<(string | null)[]>(Array(8).fill(null));
@@ -230,12 +232,13 @@ const AddCar = () => {
         // Silent fail - don't affect user experience
       });
 
+      setUploadComplete(true);
       toast({
         title: "Success",
         description: `Car added successfully with Stock ID: ${autoStockId}`,
       });
 
-      navigate("/admin/cars");
+      setTimeout(() => navigate("/admin/cars"), 1500);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -243,7 +246,7 @@ const AddCar = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      if (!uploadComplete) setLoading(false);
     }
   };
 
@@ -536,14 +539,31 @@ const AddCar = () => {
           </CardContent>
         </Card>
 
+        <StockUploadAnimation isUploading={loading} isComplete={uploadComplete} />
+
         <div className="flex gap-4">
-          <Button type="submit" disabled={loading} className="flex-1">
-            {loading ? "Adding Car..." : "Add Car"}
+          <Button
+            type="submit"
+            disabled={loading || uploadComplete}
+            className="flex-1 transition-all duration-700"
+            style={{
+              backgroundColor: uploadComplete
+                ? "hsl(142, 71%, 45%)"
+                : loading
+                  ? "hsl(200, 75%, 50%)"
+                  : undefined,
+              animation: loading ? "heartbeat 1s ease-in-out infinite" : undefined,
+            }}
+          >
+            {uploadComplete ? "✓ Car Added!" : loading ? "Adding Car..." : "Add Car"}
           </Button>
-          <Button type="button" variant="outline" onClick={() => navigate("/admin/cars")}>
+          <Button type="button" variant="outline" onClick={() => navigate("/admin/cars")} disabled={loading}>
             Cancel
           </Button>
         </div>
+        {(loading || uploadComplete) && (
+          <style>{`@keyframes heartbeat { 0%,100%{transform:scale(1)} 25%{transform:scale(1.04)} 50%{transform:scale(1)} 75%{transform:scale(1.02)} }`}</style>
+        )}
       </form>
     </div>
   );
