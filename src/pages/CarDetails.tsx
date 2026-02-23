@@ -234,16 +234,23 @@ const CarDetails = () => {
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="absolute bottom-4 right-4"
-                    onClick={handleDownloadImage}
-                    title="Download image with watermark"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
                 </>
+              )}
+              {images.length > 0 && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute bottom-4 right-4"
+                  onClick={handleDownloadImage}
+                  title="Download image with watermark"
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              )}
+              {images.length > 1 && (
+                <div className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs text-white">
+                  {currentImageIndex + 1} / {images.length}
+                </div>
               )}
             </div>
 
