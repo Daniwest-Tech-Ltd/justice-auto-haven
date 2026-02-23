@@ -542,7 +542,7 @@ const Catalogue = () => {
                     key={car.id}
                     className="glass-strong rounded-xl overflow-hidden flex flex-col border border-primary/20 hover:border-primary/40 transition-all hover:shadow-xl hover:shadow-primary/10 christmas-card"
                   >
-                    <Link to={`/car/${car.stock_id || car.id}`} className="block">
+                    <Link to={`/car/${car.id}`} className="block">
                       <div className="relative aspect-[4/3] overflow-hidden">
                         {/* Christmas Offer Badge - Top Left */}
                         <div className="absolute top-3 left-3 z-20 flex items-center">
@@ -594,7 +594,7 @@ const Catalogue = () => {
                     </Link>
                     
                     <div className="p-5 flex-1 flex flex-col">
-                      <Link to={`/car/${car.stock_id || car.id}`}>
+                      <Link to={`/car/${car.id}`}>
                         <h3 className="font-bold text-xl mb-2 line-clamp-1 hover:text-primary transition-colors">
                           {car.make} {car.model}
                         </h3>
@@ -630,7 +630,7 @@ const Catalogue = () => {
                       </div>
                       
                       <div className="grid grid-cols-2 gap-2 mt-auto">
-                        <Link to={`/car/${car.stock_id || car.id}`} className="block">
+                        <Link to={`/car/${car.id}`} className="block">
                           <Button variant="outline" className="w-full text-xs h-9">
                             View Details
                           </Button>

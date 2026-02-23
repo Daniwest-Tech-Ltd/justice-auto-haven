@@ -372,7 +372,7 @@ const CustomerDashboard = () => {
                         <h3 className="font-bold">{item.cars?.make} {item.cars?.model}</h3>
                         <p className="text-sm text-muted-foreground">{item.cars?.year}</p>
                         <p className="text-lg font-semibold text-primary mt-2">KSH {item.cars?.price?.toLocaleString()}</p>
-                        <Link to={`/car/${item.cars?.stock_id || item.cars?.id}`}>
+                        <Link to={`/car/${item.cars?.id}`}>
                           <Button className="w-full mt-3" size="sm">View Details</Button>
                         </Link>
                       </CardContent>
