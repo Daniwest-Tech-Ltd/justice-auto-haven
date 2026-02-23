@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// Note: Select is still used for month field
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Combobox } from "@/components/ui/combobox";
 import { useToast } from "@/hooks/use-toast";
@@ -149,11 +150,11 @@ const AddCar = () => {
         .from("cars")
         .insert([
           {
-            make: formData.make,
-            model: formData.model,
-            year: formData.year,
-            month: formData.month,
-            price: parseFloat(formData.price),
+            make: formData.make || '',
+            model: formData.model || '',
+            year: formData.year || new Date().getFullYear(),
+            month: formData.month || null,
+            price: formData.price ? parseFloat(formData.price) : 0,
             mileage: formData.mileage,
             engine: formData.engine,
             fuel_type: formData.fuel_type,
@@ -349,39 +350,33 @@ const AddCar = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="make">Make *</Label>
-                <Select value={formData.make} onValueChange={(value) => setFormData({ ...formData, make: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select brand" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {carBrands.map((brand) => (
-                      <SelectItem key={brand} value={brand}>
-                        {brand}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="model">Model *</Label>
-                <Input
-                  id="model"
-                  value={formData.model}
-                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  required
+                <Label htmlFor="make">Make</Label>
+                <Combobox
+                  options={carBrands}
+                  value={formData.make}
+                  onValueChange={(value) => setFormData({ ...formData, make: value })}
+                  placeholder="Select or type car brand"
+                  searchPlaceholder="Search brand..."
+                  emptyMessage="No brand found."
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="year">Year *</Label>
+                <Label htmlFor="model">Model</Label>
+                <Input
+                  id="model"
+                  value={formData.model}
+                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="year">Year</Label>
                 <Input
                   id="year"
                   type="number"
                   value={formData.year}
-                  onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-                  required
+                  onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) || new Date().getFullYear() })}
                 />
               </div>
 
@@ -402,13 +397,12 @@ const AddCar = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="price">Price (KSh) *</Label>
+                <Label htmlFor="price">Price (KSh)</Label>
                 <Input
                   id="price"
                   type="number"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  required
                 />
               </div>
 
