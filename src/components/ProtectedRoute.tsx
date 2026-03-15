@@ -37,12 +37,6 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
 
       setAccountStatus(data?.account_status || "active");
       
-      // Check if Google/GitHub/Facebook OAuth user without password set
-      if ((data?.auth_provider === 'google' || data?.auth_provider === 'github' || data?.auth_provider === 'facebook') && data?.password_set === false) {
-        setNeedsPasswordSetup(true);
-      } else {
-        setNeedsPasswordSetup(false);
-      }
       
       if (data?.account_status === "suspended" || data?.account_status === "blocked") {
         setSuspensionDetails({
