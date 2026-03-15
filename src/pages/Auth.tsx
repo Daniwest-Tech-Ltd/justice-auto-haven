@@ -649,14 +649,15 @@ const Auth = () => {
           .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
       }
       
-      // Fetch the CURRENT role after any upgrade
-      const { data: roleData } = await supabase
+      // Fetch current roles after any upgrade
+      const { data: roleRows } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
-      
-      const isAdmin = isAdminEmail || roleData?.role === "admin";
+        .eq("user_id", userId);
+
+      const isAdmin =
+        isAdminEmail ||
+        Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
       const displayName = userName || profileData?.full_name || "User";
       
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
