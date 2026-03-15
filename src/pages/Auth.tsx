@@ -355,7 +355,7 @@ const Auth = () => {
     'justicevincentt@gmail.com'
   ];
 
-  // Handle Google/GitHub OAuth callback - use onAuthStateChange to avoid stale token issues
+  // Handle Google/GitHub/Facebook OAuth callback - use onAuthStateChange to avoid stale token issues
   useEffect(() => {
     const isGoogleCallback = searchParams.get("google_callback") === "true";
     const isGitHubCallback = searchParams.get("github_callback") === "true";
@@ -370,14 +370,29 @@ const Auth = () => {
     const authProvider = isFacebookCallback ? 'facebook' : isGitHubCallback ? 'github' : 'google';
     setLoading(true);
 
-    // Clean URL immediately to prevent re-processing
-    window.history.replaceState({}, document.title, "/auth");
-
-    // Listen for the SIGNED_IN event instead of polling getSession
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session?.user) {
-        // Unsubscribe immediately to prevent duplicate processing
-        subscription.unsubscribe();
+    // Let Supabase process the URL tokens first, then handle the session
+    // Use a small delay to allow Supabase's internal _getSessionFromURL to complete
+    const handleOAuthSession = async () => {
+      try {
+        // Wait briefly for Supabase to process URL tokens
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Clean URL to prevent re-processing
+        window.history.replaceState({}, document.title, "/auth");
+        
+        // Now get the established session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session?.user) {
+          console.error("OAuth session error:", error);
+          setLoading(false);
+          toast({
+            title: "Login Failed",
+            description: "Could not establish session. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
 
         const userEmail = session.user.email?.toLowerCase() || '';
         const isAdmin = ADMIN_EMAILS.includes(userEmail);
@@ -389,121 +404,110 @@ const Auth = () => {
         
         const redirectPath = isAdmin ? "/admin-dashboard" : "/customer-dashboard";
         
-        try {
-          // Check if user profile exists
-          const { data: existingProfile } = await supabase
-            .from("profiles")
-            .select("id, full_name, password_set, auth_provider")
-            .eq("user_id", session.user.id)
-            .maybeSingle();
+        // Check if user profile exists
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("id, full_name, password_set, auth_provider")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        
+        if (!existingProfile) {
+          // New OAuth user - create profile
+          await supabase.from("profiles").insert({
+            user_id: session.user.id,
+            email: session.user.email || '',
+            full_name: googleName,
+            phone: '',
+            avatar_url: googleAvatar,
+            is_online: true,
+            last_seen: new Date().toISOString(),
+            password_set: false,
+            auth_provider: authProvider
+          });
           
-          if (!existingProfile) {
-            // New OAuth user - create profile
-            await supabase.from("profiles").insert({
-              user_id: session.user.id,
-              email: session.user.email || '',
-              full_name: googleName,
-              phone: '',
-              avatar_url: googleAvatar,
-              is_online: true,
-              last_seen: new Date().toISOString(),
-              password_set: false,
-              auth_provider: authProvider
-            });
+          const assignedRole = isAdmin ? "admin" : "customer";
+          await supabase.from("user_roles").insert({
+            user_id: session.user.id,
+            role: assignedRole
+          });
+          
+          // Send welcome email (fire-and-forget)
+          supabase.functions.invoke('send-welcome-email', {
+            body: { email: session.user.email, name: googleName, authProvider }
+          }).catch(() => {});
+          
+          setCompleteProfileUserId(session.user.id);
+          setCompleteProfileUserEmail(userEmail);
+          setCompleteProfileUserName(googleName);
+          setPendingRedirectPath(redirectPath);
+          setShowCompleteProfileDialog(true);
+          setLoading(false);
+          
+        } else {
+          const hasPassword = existingProfile.password_set === true;
+          
+          if (!hasPassword && (existingProfile.auth_provider === 'google' || existingProfile.auth_provider === 'github' || existingProfile.auth_provider === 'facebook')) {
+            // OAuth user without password - show Complete Profile dialog
+            supabase.from("profiles").update({
+              is_online: true, last_seen: new Date().toISOString()
+            }).eq("user_id", session.user.id).then(() => {});
             
-            const assignedRole = isAdmin ? "admin" : "customer";
-            await supabase.from("user_roles").insert({
-              user_id: session.user.id,
-              role: assignedRole
-            });
+            const { data: roleData } = await supabase
+              .from("user_roles").select("role")
+              .eq("user_id", session.user.id).maybeSingle();
             
-            // Send welcome email (fire-and-forget)
-            supabase.functions.invoke('send-welcome-email', {
-              body: { email: session.user.email, name: googleName, authProvider }
-            }).catch(() => {});
+            if (isAdmin && roleData?.role !== "admin") {
+              await supabase.from("user_roles")
+                .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: 'user_id' });
+            }
+            
+            const isAdminUser = isAdmin || roleData?.role === "admin";
+            const finalRedirectPath = isAdminUser ? "/admin-dashboard" : "/customer-dashboard";
             
             setCompleteProfileUserId(session.user.id);
             setCompleteProfileUserEmail(userEmail);
-            setCompleteProfileUserName(googleName);
-            setPendingRedirectPath(redirectPath);
+            setCompleteProfileUserName(existingProfile.full_name || googleName);
+            setPendingRedirectPath(finalRedirectPath);
             setShowCompleteProfileDialog(true);
             setLoading(false);
             
           } else {
-            const hasPassword = existingProfile.password_set === true;
+            // User has password set - proceed with normal login
+            const loginSound = new Audio('/sounds/notification.mp3');
+            loginSound.volume = 0.5;
+            loginSound.play().catch(() => {});
             
-            if (!hasPassword && (existingProfile.auth_provider === 'google' || existingProfile.auth_provider === 'github' || existingProfile.auth_provider === 'facebook')) {
-              // OAuth user without password - show Complete Profile dialog
-              supabase.from("profiles").update({
-                is_online: true, last_seen: new Date().toISOString()
-              }).eq("user_id", session.user.id).then(() => {});
-              
-              const { data: roleData } = await supabase
-                .from("user_roles").select("role")
-                .eq("user_id", session.user.id).maybeSingle();
-              
-              if (isAdmin && roleData?.role !== "admin") {
-                await supabase.from("user_roles")
-                  .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: 'user_id' });
-              }
-              
-              const isAdminUser = isAdmin || roleData?.role === "admin";
-              const finalRedirectPath = isAdminUser ? "/admin-dashboard" : "/customer-dashboard";
-              
-              setCompleteProfileUserId(session.user.id);
-              setCompleteProfileUserEmail(userEmail);
-              setCompleteProfileUserName(existingProfile.full_name || googleName);
-              setPendingRedirectPath(finalRedirectPath);
-              setShowCompleteProfileDialog(true);
-              setLoading(false);
-              
-            } else {
-              // User has password set - proceed with normal login
-              const loginSound = new Audio('/sounds/notification.mp3');
-              loginSound.volume = 0.5;
-              loginSound.play().catch(() => {});
-              
-              supabase.from("profiles").update({
-                is_online: true, last_seen: new Date().toISOString()
-              }).eq("user_id", session.user.id).then(() => {});
-              
-              const { data: roleData } = await supabase
-                .from("user_roles").select("role")
-                .eq("user_id", session.user.id).maybeSingle();
-              
-              if (isAdmin && roleData?.role !== "admin") {
-                await supabase.from("user_roles")
-                  .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: 'user_id' });
-              }
-              
-              const isAdminUser = isAdmin || roleData?.role === "admin";
-              const displayName = existingProfile.full_name || session.user.email;
-              
-              sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-                description: `Logged in as ${isAdminUser ? "admin" : "customer"}`,
-              });
-              
-              navigate(isAdminUser ? "/admin-dashboard" : "/customer-dashboard", { replace: true });
-              setLoading(false);
+            supabase.from("profiles").update({
+              is_online: true, last_seen: new Date().toISOString()
+            }).eq("user_id", session.user.id).then(() => {});
+            
+            const { data: roleData } = await supabase
+              .from("user_roles").select("role")
+              .eq("user_id", session.user.id).maybeSingle();
+            
+            if (isAdmin && roleData?.role !== "admin") {
+              await supabase.from("user_roles")
+                .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: 'user_id' });
             }
+            
+            const isAdminUser = isAdmin || roleData?.role === "admin";
+            const displayName = existingProfile.full_name || session.user.email;
+            
+            sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
+              description: `Logged in as ${isAdminUser ? "admin" : "customer"}`,
+            });
+            
+            navigate(isAdminUser ? "/admin-dashboard" : "/customer-dashboard", { replace: true });
+            setLoading(false);
           }
-        } catch (error) {
-          console.error("OAuth callback error:", error);
-          setLoading(false);
         }
+      } catch (error) {
+        console.error("OAuth callback error:", error);
+        setLoading(false);
       }
-    });
-
-    // Timeout: if no auth event within 10s, stop loading
-    const timeout = setTimeout(() => {
-      subscription.unsubscribe();
-      setLoading(false);
-    }, 10000);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timeout);
     };
+
+    handleOAuthSession();
   }, []);
 
   // Password strength checker
