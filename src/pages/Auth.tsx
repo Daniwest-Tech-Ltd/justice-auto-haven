@@ -356,193 +356,244 @@ const Auth = () => {
     'justicevincentt@gmail.com'
   ];
 
-  // Handle Google/GitHub/Facebook OAuth callback with explicit code exchange (PKCE)
+  // Handle OAuth callback (PKCE + legacy implicit) without duplicate code exchange
   useEffect(() => {
     const isGoogleCallback = searchParams.get("google_callback") === "true";
     const isGitHubCallback = searchParams.get("github_callback") === "true";
     const isFacebookCallback = searchParams.get("facebook_callback") === "true";
-    const oauthCode = searchParams.get("code");
+    const hasOAuthCode = Boolean(searchParams.get("code"));
+    const hasOAuthError = Boolean(searchParams.get("error") || searchParams.get("error_description"));
     const hasLegacyHashToken = window.location.hash.includes("access_token");
 
-    if (!(isGoogleCallback || isGitHubCallback || isFacebookCallback || oauthCode || hasLegacyHashToken)) {
+    const isOAuthCallback =
+      isGoogleCallback ||
+      isGitHubCallback ||
+      isFacebookCallback ||
+      hasOAuthCode ||
+      hasLegacyHashToken ||
+      hasOAuthError;
+
+    if (!isOAuthCallback) {
       return;
     }
 
-    const authProvider = isFacebookCallback ? "facebook" : isGitHubCallback ? "github" : "google";
+    const callbackProvider = isFacebookCallback
+      ? "facebook"
+      : isGitHubCallback
+      ? "github"
+      : isGoogleCallback
+      ? "google"
+      : null;
+
     let isActive = true;
+    let handled = false;
 
-    const handleOAuthSession = async () => {
-      setLoading(true);
+    const cleanupCallbackUrl = () => {
+      if (window.location.pathname === "/auth") {
+        window.history.replaceState({}, document.title, "/auth");
+      }
+    };
 
-      try {
-        // PKCE callback path (preferred)
-        if (oauthCode) {
-          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(oauthCode);
-          if (exchangeError) throw exchangeError;
-        } else if (hasLegacyHashToken) {
-          // Backward compatibility for older implicit-flow callback URLs
-          await new Promise((resolve) => setTimeout(resolve, 300));
-        }
+    const processOAuthSession = async (session: Session) => {
+      const userEmail = session.user.email?.toLowerCase() || "";
+      const isAdmin = ADMIN_EMAILS.includes(userEmail);
+      const sessionProvider = session.user.app_metadata?.provider as string | undefined;
+      const authProvider = callbackProvider || sessionProvider || "google";
+      const oauthName =
+        session.user.user_metadata?.full_name ||
+        session.user.user_metadata?.name ||
+        session.user.email?.split("@")[0] ||
+        "User";
+      const oauthAvatar =
+        session.user.user_metadata?.avatar_url ||
+        session.user.user_metadata?.picture;
 
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const redirectPath = isAdmin ? "/admin-dashboard" : "/customer-dashboard";
 
-        if (sessionError) throw sessionError;
-        if (!session?.user) throw new Error("Auth session missing");
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id, full_name, password_set, auth_provider")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
 
-        const userEmail = session.user.email?.toLowerCase() || "";
-        const isAdmin = ADMIN_EMAILS.includes(userEmail);
-        const oauthName =
-          session.user.user_metadata?.full_name ||
-          session.user.user_metadata?.name ||
-          session.user.email?.split("@")[0] ||
-          "User";
-        const oauthAvatar =
-          session.user.user_metadata?.avatar_url ||
-          session.user.user_metadata?.picture;
+      if (!existingProfile) {
+        await supabase.from("profiles").insert({
+          user_id: session.user.id,
+          email: session.user.email || "",
+          full_name: oauthName,
+          phone: "",
+          avatar_url: oauthAvatar,
+          is_online: true,
+          last_seen: new Date().toISOString(),
+          password_set: false,
+          auth_provider: authProvider,
+        });
 
-        const redirectPath = isAdmin ? "/admin-dashboard" : "/customer-dashboard";
-
-        // Check if user profile exists
-        const { data: existingProfile } = await supabase
-          .from("profiles")
-          .select("id, full_name, password_set, auth_provider")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-
-        if (!existingProfile) {
-          // New OAuth user - create profile
-          await supabase.from("profiles").insert({
-            user_id: session.user.id,
-            email: session.user.email || "",
-            full_name: oauthName,
-            phone: "",
-            avatar_url: oauthAvatar,
-            is_online: true,
-            last_seen: new Date().toISOString(),
-            password_set: false,
-            auth_provider: authProvider,
-          });
-
-          const assignedRole = isAdmin ? "admin" : "customer";
-          await supabase.from("user_roles").insert({
+        const assignedRole = isAdmin ? "admin" : "customer";
+        await supabase.from("user_roles").upsert(
+          {
             user_id: session.user.id,
             role: assignedRole,
-          });
+          },
+          { onConflict: "user_id,role", ignoreDuplicates: true }
+        );
 
-          // Send welcome email (fire-and-forget)
-          supabase.functions
-            .invoke("send-welcome-email", {
-              body: { email: session.user.email, name: oauthName, authProvider },
-            })
-            .catch(() => {});
+        supabase.functions
+          .invoke("send-welcome-email", {
+            body: { email: session.user.email, name: oauthName, authProvider },
+          })
+          .catch(() => {});
 
-          if (!isActive) return;
-          setCompleteProfileUserId(session.user.id);
-          setCompleteProfileUserEmail(userEmail);
-          setCompleteProfileUserName(oauthName);
-          setPendingRedirectPath(redirectPath);
-          setShowCompleteProfileDialog(true);
-          return;
-        }
+        if (!isActive) return;
+        setCompleteProfileUserId(session.user.id);
+        setCompleteProfileUserEmail(userEmail);
+        setCompleteProfileUserName(oauthName);
+        setPendingRedirectPath(redirectPath);
+        setShowCompleteProfileDialog(true);
+        return;
+      }
 
-        const hasPassword = existingProfile.password_set === true;
+      const hasPassword = existingProfile.password_set === true;
 
-        if (
-          !hasPassword &&
-          (existingProfile.auth_provider === "google" ||
-            existingProfile.auth_provider === "github" ||
-            existingProfile.auth_provider === "facebook")
-        ) {
-          // OAuth user without password - show Complete Profile dialog
-          supabase
-            .from("profiles")
-            .update({ is_online: true, last_seen: new Date().toISOString() })
-            .eq("user_id", session.user.id)
-            .then(() => {});
-
-          const { data: roleData } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", session.user.id)
-            .maybeSingle();
-
-          if (isAdmin && roleData?.role !== "admin") {
-            await supabase
-              .from("user_roles")
-              .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: "user_id" });
-          }
-
-          const isAdminUser = isAdmin || roleData?.role === "admin";
-          const finalRedirectPath = isAdminUser ? "/admin-dashboard" : "/customer-dashboard";
-
-          if (!isActive) return;
-          setCompleteProfileUserId(session.user.id);
-          setCompleteProfileUserEmail(userEmail);
-          setCompleteProfileUserName(existingProfile.full_name || oauthName);
-          setPendingRedirectPath(finalRedirectPath);
-          setShowCompleteProfileDialog(true);
-          return;
-        }
-
-        // User has password set - proceed with normal login
-        const loginSound = new Audio("/sounds/notification.mp3");
-        loginSound.volume = 0.5;
-        loginSound.play().catch(() => {});
-
+      if (
+        !hasPassword &&
+        (existingProfile.auth_provider === "google" ||
+          existingProfile.auth_provider === "github" ||
+          existingProfile.auth_provider === "facebook")
+      ) {
         supabase
           .from("profiles")
           .update({ is_online: true, last_seen: new Date().toISOString() })
           .eq("user_id", session.user.id)
           .then(() => {});
 
-        const { data: roleData } = await supabase
+        const { data: roleRows } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
+          .eq("user_id", session.user.id);
 
-        if (isAdmin && roleData?.role !== "admin") {
+        if (isAdmin) {
           await supabase
             .from("user_roles")
-            .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: "user_id" });
+            .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
         }
 
-        const isAdminUser = isAdmin || roleData?.role === "admin";
-        const displayName = existingProfile.full_name || session.user.email;
+        const isAdminUser =
+          isAdmin ||
+          Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
+        const finalRedirectPath = isAdminUser ? "/admin-dashboard" : "/customer-dashboard";
 
-        sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-          description: `Logged in as ${isAdminUser ? "admin" : "customer"}`,
+        if (!isActive) return;
+        setCompleteProfileUserId(session.user.id);
+        setCompleteProfileUserEmail(userEmail);
+        setCompleteProfileUserName(existingProfile.full_name || oauthName);
+        setPendingRedirectPath(finalRedirectPath);
+        setShowCompleteProfileDialog(true);
+        return;
+      }
+
+      const loginSound = new Audio("/sounds/notification.mp3");
+      loginSound.volume = 0.5;
+      loginSound.play().catch(() => {});
+
+      supabase
+        .from("profiles")
+        .update({ is_online: true, last_seen: new Date().toISOString() })
+        .eq("user_id", session.user.id)
+        .then(() => {});
+
+      const { data: roleRows } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id);
+
+      if (isAdmin) {
+        await supabase
+          .from("user_roles")
+          .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
+      }
+
+      const isAdminUser =
+        isAdmin ||
+        Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
+      const displayName = existingProfile.full_name || session.user.email;
+
+      sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
+        description: `Logged in as ${isAdminUser ? "admin" : "customer"}`,
+      });
+
+      if (isActive) {
+        navigate(isAdminUser ? "/admin-dashboard" : "/customer-dashboard", { replace: true });
+      }
+    };
+
+    const handleAuthFailure = async (message: string) => {
+      await supabase.auth.signOut({ scope: "local" });
+      cleanupCallbackUrl();
+
+      if (isActive) {
+        setLoading(false);
+        toast({
+          title: "Login Failed",
+          description: message,
+          variant: "destructive",
         });
+      }
+    };
 
-        if (isActive) {
-          navigate(isAdminUser ? "/admin-dashboard" : "/customer-dashboard", { replace: true });
-        }
+    const tryHandleSession = async (session: Session | null) => {
+      if (!isActive || handled || !session?.user) return;
+
+      handled = true;
+
+      try {
+        await processOAuthSession(session);
       } catch (error: any) {
         console.error("OAuth callback error:", error);
-
-        if (isActive) {
-          toast({
-            title: "Login Failed",
-            description: error?.message || "Could not establish session. Please try again.",
-            variant: "destructive",
-          });
-        }
+        await handleAuthFailure(error?.message || "Could not establish session. Please try again.");
       } finally {
-        // Always clean callback params/hash to prevent stale re-processing
-        if (window.location.pathname === "/auth") {
-          window.history.replaceState({}, document.title, "/auth");
-        }
-
+        cleanupCallbackUrl();
         if (isActive) {
           setLoading(false);
         }
       }
     };
 
-    handleOAuthSession();
+    setLoading(true);
+
+    if (hasOAuthError) {
+      const oauthError = searchParams.get("error_description") || searchParams.get("error") || "OAuth provider rejected the login request.";
+      void handleAuthFailure(oauthError);
+      return () => {
+        isActive = false;
+      };
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isActive || handled) return;
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+        void tryHandleSession(session);
+      }
+    });
+
+    const bootstrapTimer = window.setTimeout(async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      await tryHandleSession(session);
+
+      if (!handled && isActive) {
+        await handleAuthFailure("Could not establish OAuth session. Please try again.");
+      }
+    }, 300);
 
     return () => {
       isActive = false;
+      window.clearTimeout(bootstrapTimer);
+      subscription.unsubscribe();
     };
   }, [navigate, searchParams, toast]);
 
