@@ -962,7 +962,7 @@ const Auth = () => {
             .from("profiles")
             .select("two_fa_enabled, preferred_2fa, totp_enabled, fingerprint_enabled, full_name")
             .eq("user_id", currentUserId)
-            .single();
+            .maybeSingle();
           return profData;
         })();
 
