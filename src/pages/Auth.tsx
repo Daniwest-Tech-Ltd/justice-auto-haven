@@ -111,39 +111,6 @@ const Auth = () => {
       window.history.replaceState({}, document.title, "/auth");
     }
     
-    // Check if redirected from ProtectedRoute to complete profile
-    const needsCompleteProfile = searchParams.get("complete_profile") === "true";
-    if (needsCompleteProfile) {
-      // Get current session and show the dialog
-      supabase.auth.getSession().then(async ({ data: { session } }) => {
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name, password_set, auth_provider")
-            .eq("user_id", session.user.id)
-            .maybeSingle();
-          
-          // Check for Google, GitHub, or Facebook OAuth users without password
-          if (profile && (profile.auth_provider === 'google' || profile.auth_provider === 'github' || profile.auth_provider === 'facebook') && !profile.password_set) {
-            const { data: roleData } = await supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", session.user.id)
-              .maybeSingle();
-            
-            const redirectPath = roleData?.role === "admin" ? "/admin-dashboard" : "/customer-dashboard";
-            
-            setCompleteProfileUserId(session.user.id);
-            setCompleteProfileUserEmail(session.user.email || '');
-            setCompleteProfileUserName(profile.full_name || session.user.email?.split('@')[0] || 'User');
-            setPendingRedirectPath(redirectPath);
-            setShowCompleteProfileDialog(true);
-          }
-        }
-      });
-      // Clear the URL parameter
-      window.history.replaceState({}, document.title, "/auth");
-    }
   }, []);
 
   useEffect(() => {
