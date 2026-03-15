@@ -171,12 +171,14 @@ const AppContent = () => {
 
   return (
     <Suspense fallback={<LoadingScreen />}>
-      <SessionTimeoutModal
-        isOpen={showWarning}
-        timeLeft={timeLeft}
-        onExtend={extendSession}
-        onLogout={handleLogout}
-      />
+      {!isAuthPage && (
+        <SessionTimeoutModal
+          isOpen={showWarning}
+          timeLeft={timeLeft}
+          onExtend={extendSession}
+          onLogout={handleLogout}
+        />
+      )}
       <Routes>
           {/* Public Routes with Layout */}
           <Route path="/" element={<Layout><Home /></Layout>} />
