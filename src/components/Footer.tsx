@@ -287,17 +287,17 @@ const Footer = () => {
                   >
                     <Phone className="h-4 w-4 mr-2" />
                     <div className="text-left text-xs">
-                      <div className="font-semibold">Justice Vincent - GM</div>
+                      <div className="font-semibold">Justice Vincent - CEO</div>
                       <div>0722 827 458</div>
                     </div>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>General Manager - Car Sales Kenya</p>
+                  <p>CEO - Luxury Car Imports Kenya</p>
                 </TooltipContent>
               </Tooltip>
 
-              {/* Personal Brand SEO - Daniel Maina */}
+              {/* Personal Brand SEO - Daniel Maina W. */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -308,13 +308,13 @@ const Footer = () => {
                   >
                     <Phone className="h-4 w-4 mr-2" />
                     <div className="text-left text-xs">
-                      <div className="font-semibold">Daniel Maina - Sales</div>
+                      <div className="font-semibold">Daniel Maina W. - DevOps</div>
                       <div>0701 460 110</div>
                     </div>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Sales Manager - Trusted Car Expert Kenya</p>
+                  <p>DevOps Engineer - Systems & Infrastructure</p>
                 </TooltipContent>
               </Tooltip>
               
