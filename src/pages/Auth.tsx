@@ -291,7 +291,7 @@ const Auth = () => {
   const handleGitHubLogin = async () => {
     try {
       setLoading(true);
-      const redirectUrl = `${window.location.origin}/auth?github_callback=true`;
+      const redirectUrl = `${window.location.origin}/auth`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
