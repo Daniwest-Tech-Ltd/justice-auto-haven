@@ -858,9 +858,7 @@ const Auth = () => {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          captchaToken,
-        },
+        options: captchaToken ? { captchaToken } : undefined,
       });
 
       if (error) {
