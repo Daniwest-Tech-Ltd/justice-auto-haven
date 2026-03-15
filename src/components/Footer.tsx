@@ -287,7 +287,7 @@ const Footer = () => {
                   >
                     <Phone className="h-4 w-4 mr-2" />
                     <div className="text-left text-xs">
-                      <div className="font-semibold">Justice Vincent - GM</div>
+                      <div className="font-semibold">Justice Vincent - CEO</div>
                       <div>0722 827 458</div>
                     </div>
                   </Button>
