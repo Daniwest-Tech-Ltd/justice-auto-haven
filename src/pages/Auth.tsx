@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/tooltip";
 import { SuspendedUserModal } from "@/components/SuspendedUserModal";
 import { TwoFactorDialog } from "@/components/TwoFactorDialog";
-import { CompleteProfileDialog } from "@/components/CompleteProfileDialog";
+
 import { useSecurityLogger } from "@/hooks/useSecurityLogger";
 import { useTurnstile } from "@/hooks/useTurnstile";
 import authBg from "@/assets/auth-bg.jpg";
@@ -95,12 +95,6 @@ const Auth = () => {
   } | null>(null);
   const [maintenanceCountdown, setMaintenanceCountdown] = useState("");
 
-  // Complete Profile Dialog state (for Google OAuth users who need to set password)
-  const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
-  const [completeProfileUserId, setCompleteProfileUserId] = useState("");
-  const [completeProfileUserEmail, setCompleteProfileUserEmail] = useState("");
-  const [completeProfileUserName, setCompleteProfileUserName] = useState("");
-  const [pendingRedirectPath, setPendingRedirectPath] = useState("");
 
   useEffect(() => {
     // Check maintenance once on mount, don't check repeatedly
@@ -117,39 +111,6 @@ const Auth = () => {
       window.history.replaceState({}, document.title, "/auth");
     }
     
-    // Check if redirected from ProtectedRoute to complete profile
-    const needsCompleteProfile = searchParams.get("complete_profile") === "true";
-    if (needsCompleteProfile) {
-      // Get current session and show the dialog
-      supabase.auth.getSession().then(async ({ data: { session } }) => {
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name, password_set, auth_provider")
-            .eq("user_id", session.user.id)
-            .maybeSingle();
-          
-          // Check for Google, GitHub, or Facebook OAuth users without password
-          if (profile && (profile.auth_provider === 'google' || profile.auth_provider === 'github' || profile.auth_provider === 'facebook') && !profile.password_set) {
-            const { data: roleData } = await supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", session.user.id)
-              .maybeSingle();
-            
-            const redirectPath = roleData?.role === "admin" ? "/admin-dashboard" : "/customer-dashboard";
-            
-            setCompleteProfileUserId(session.user.id);
-            setCompleteProfileUserEmail(session.user.email || '');
-            setCompleteProfileUserName(profile.full_name || session.user.email?.split('@')[0] || 'User');
-            setPendingRedirectPath(redirectPath);
-            setShowCompleteProfileDialog(true);
-          }
-        }
-      });
-      // Clear the URL parameter
-      window.history.replaceState({}, document.title, "/auth");
-    }
   }, []);
 
   useEffect(() => {
@@ -443,53 +404,12 @@ const Auth = () => {
             body: { email: session.user.email, name: oauthName, authProvider },
           })
           .catch(() => {});
-
-        if (!isActive) return;
-        setCompleteProfileUserId(session.user.id);
-        setCompleteProfileUserEmail(userEmail);
-        setCompleteProfileUserName(oauthName);
-        setPendingRedirectPath(redirectPath);
-        setShowCompleteProfileDialog(true);
-        return;
-      }
-
-      const hasPassword = existingProfile.password_set === true;
-
-      if (
-        !hasPassword &&
-        (existingProfile.auth_provider === "google" ||
-          existingProfile.auth_provider === "github" ||
-          existingProfile.auth_provider === "facebook")
-      ) {
+      } else {
         supabase
           .from("profiles")
           .update({ is_online: true, last_seen: new Date().toISOString() })
           .eq("user_id", session.user.id)
           .then(() => {});
-
-        const { data: roleRows } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id);
-
-        if (isAdmin) {
-          await supabase
-            .from("user_roles")
-            .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
-        }
-
-        const isAdminUser =
-          isAdmin ||
-          Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
-        const finalRedirectPath = isAdminUser ? "/admin-dashboard" : "/customer-dashboard";
-
-        if (!isActive) return;
-        setCompleteProfileUserId(session.user.id);
-        setCompleteProfileUserEmail(userEmail);
-        setCompleteProfileUserName(existingProfile.full_name || oauthName);
-        setPendingRedirectPath(finalRedirectPath);
-        setShowCompleteProfileDialog(true);
-        return;
       }
 
       const loginSound = new Audio("/sounds/notification.mp3");
@@ -1795,22 +1715,6 @@ const Auth = () => {
         }}
       />
 
-      {/* Complete Profile Dialog for Google OAuth users */}
-      <CompleteProfileDialog
-        isOpen={showCompleteProfileDialog}
-        userId={completeProfileUserId}
-        userEmail={completeProfileUserEmail}
-        userName={completeProfileUserName}
-        onComplete={() => {
-          setShowCompleteProfileDialog(false);
-          // Play success sound
-          const successSound = new Audio('/sounds/notification.mp3');
-          successSound.volume = 0.5;
-          successSound.play().catch(() => {});
-          // Navigate to the pending redirect path
-          navigate(pendingRedirectPath, { replace: true });
-        }}
-      />
     </>
   );
 };

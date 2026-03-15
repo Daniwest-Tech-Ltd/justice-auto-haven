@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const [accountStatus, setAccountStatus] = useState<string | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [suspensionDetails, setSuspensionDetails] = useState<{ reason?: string; until?: string }>({});
-  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
+  
 
   useEffect(() => {
     if (user) {
@@ -37,12 +37,6 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
 
       setAccountStatus(data?.account_status || "active");
       
-      // Check if Google/GitHub/Facebook OAuth user without password set
-      if ((data?.auth_provider === 'google' || data?.auth_provider === 'github' || data?.auth_provider === 'facebook') && data?.password_set === false) {
-        setNeedsPasswordSetup(true);
-      } else {
-        setNeedsPasswordSetup(false);
-      }
       
       if (data?.account_status === "suspended" || data?.account_status === "blocked") {
         setSuspensionDetails({
@@ -65,10 +59,6 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect to auth page if OAuth user needs to set password
-  if (needsPasswordSetup) {
-    return <Navigate to="/auth?complete_profile=true" replace />;
-  }
 
   // Check if customer account is suspended or blocked
   if (role?.role === "customer" && (accountStatus === "suspended" || accountStatus === "blocked")) {
