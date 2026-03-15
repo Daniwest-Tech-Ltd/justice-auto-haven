@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -60,6 +60,8 @@ const Auth = () => {
   const [otpTimeLeft, setOtpTimeLeft] = useState(600); // 10 minutes in seconds
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const oauthSearch = searchParams.toString();
+  const oauthCallbackHandledRef = useRef<string | null>(null);
   const { toast } = useToast();
   const { logLoginAttempt, logSuspiciousActivity } = useSecurityLogger();
   
@@ -317,13 +319,14 @@ const Auth = () => {
     'justicevincentt@gmail.com'
   ];
 
-  // Handle OAuth callback (PKCE + legacy implicit) without duplicate code exchange
+  // Handle OAuth callback (PKCE + legacy implicit) once per callback URL
   useEffect(() => {
-    const isGoogleCallback = searchParams.get("google_callback") === "true";
-    const isGitHubCallback = searchParams.get("github_callback") === "true";
-    const isFacebookCallback = searchParams.get("facebook_callback") === "true";
-    const hasOAuthCode = Boolean(searchParams.get("code"));
-    const hasOAuthError = Boolean(searchParams.get("error") || searchParams.get("error_description"));
+    const currentSearchParams = new URLSearchParams(oauthSearch);
+    const isGoogleCallback = currentSearchParams.get("google_callback") === "true";
+    const isGitHubCallback = currentSearchParams.get("github_callback") === "true";
+    const isFacebookCallback = currentSearchParams.get("facebook_callback") === "true";
+    const hasOAuthCode = Boolean(currentSearchParams.get("code"));
+    const hasOAuthError = Boolean(currentSearchParams.get("error") || currentSearchParams.get("error_description"));
     const hasLegacyHashToken = window.location.hash.includes("access_token");
 
     const isOAuthCallback =
@@ -337,6 +340,12 @@ const Auth = () => {
     if (!isOAuthCallback) {
       return;
     }
+
+    const callbackKey = `${window.location.pathname}?${oauthSearch}#${window.location.hash}`;
+    if (oauthCallbackHandledRef.current === callbackKey) {
+      return;
+    }
+    oauthCallbackHandledRef.current = callbackKey;
 
     const callbackProvider = isFacebookCallback
       ? "facebook"
@@ -368,8 +377,6 @@ const Auth = () => {
       const oauthAvatar =
         session.user.user_metadata?.avatar_url ||
         session.user.user_metadata?.picture;
-
-      const redirectPath = isAdmin ? "/admin-dashboard" : "/customer-dashboard";
 
       const { data: existingProfile } = await supabase
         .from("profiles")
@@ -415,12 +422,6 @@ const Auth = () => {
       const loginSound = new Audio("/sounds/notification.mp3");
       loginSound.volume = 0.5;
       loginSound.play().catch(() => {});
-
-      supabase
-        .from("profiles")
-        .update({ is_online: true, last_seen: new Date().toISOString() })
-        .eq("user_id", session.user.id)
-        .then(() => {});
 
       const { data: roleRows } = await supabase
         .from("user_roles")
@@ -482,7 +483,10 @@ const Auth = () => {
     setLoading(true);
 
     if (hasOAuthError) {
-      const oauthError = searchParams.get("error_description") || searchParams.get("error") || "OAuth provider rejected the login request.";
+      const oauthError =
+        currentSearchParams.get("error_description") ||
+        currentSearchParams.get("error") ||
+        "OAuth provider rejected the login request.";
       void handleAuthFailure(oauthError);
       return () => {
         isActive = false;
@@ -493,7 +497,7 @@ const Auth = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isActive || handled) return;
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
         void tryHandleSession(session);
       }
     });
@@ -515,7 +519,7 @@ const Auth = () => {
       window.clearTimeout(bootstrapTimer);
       subscription.unsubscribe();
     };
-  }, [navigate, searchParams, toast]);
+  }, [navigate, oauthSearch, toast]);
 
   // Password strength checker
   const checkPasswordStrength = (pwd: string) => {
@@ -958,7 +962,7 @@ const Auth = () => {
             .from("profiles")
             .select("two_fa_enabled, preferred_2fa, totp_enabled, fingerprint_enabled, full_name")
             .eq("user_id", currentUserId)
-            .single();
+            .maybeSingle();
           return profData;
         })();
 
