@@ -18,25 +18,31 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [suspensionDetails, setSuspensionDetails] = useState<{ reason?: string; until?: string }>({});
 
-  useEffect(() => {
-    if (user) {
-      checkAccountStatus();
-    } else {
-      setCheckingStatus(false);
-    }
-  }, [user, role]);
+  const lastCheckedUserIdRef = useRef<string | null>(null);
 
-  const checkAccountStatus = async () => {
+  useEffect(() => {
     if (!user?.id) {
+      lastCheckedUserIdRef.current = null;
       setCheckingStatus(false);
       return;
     }
 
+    if (lastCheckedUserIdRef.current === user.id) {
+      setCheckingStatus(false);
+      return;
+    }
+
+    lastCheckedUserIdRef.current = user.id;
+    setCheckingStatus(true);
+    checkAccountStatus(user.id);
+  }, [user?.id]);
+
+  const checkAccountStatus = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("account_status, suspended_reason, suspended_at")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (error && error.code !== "PGRST116") {
@@ -56,8 +62,10 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
           until: data.suspended_at,
         });
       }
-    } catch (error) {
-      console.error("Error checking account status:", error);
+    } catch (error: any) {
+      if (error?.code !== "PGRST116") {
+        console.error("Error checking account status:", error);
+      }
       setAccountStatus("active");
     } finally {
       setCheckingStatus(false);
