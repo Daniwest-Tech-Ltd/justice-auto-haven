@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
@@ -28,9 +28,17 @@ export const useAuth = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
+  const fetchingForUserRef = useRef<string | null>(null);
+  const isReadyRef = useRef(false);
 
   useEffect(() => {
-    const fetchUserData = async (userId: string, sessionUser?: User) => {
+    let isMounted = true;
+
+    const fetchUserData = async (userId: string, sessionUser: User) => {
+      // Prevent duplicate fetches for the same user
+      if (fetchingForUserRef.current === userId) return;
+      fetchingForUserRef.current = userId;
+
       try {
         const [{ data: profileData, error: profileError }, { data: roleRows, error: rolesError }] =
           await Promise.all([
@@ -38,36 +46,40 @@ export const useAuth = () => {
             supabase.from("user_roles").select("role").eq("user_id", userId),
           ]);
 
+        if (!isMounted) return;
+
         if (profileError && profileError.code !== "PGRST116") {
-          throw profileError;
+          console.error("Profile fetch error:", profileError);
         }
-
         if (rolesError) {
-          throw rolesError;
+          console.error("Roles fetch error:", rolesError);
         }
 
-        const userEmail = (sessionUser?.email || "").toLowerCase();
+        const userEmail = (sessionUser.email || "").toLowerCase();
         const roleList = (roleRows || []).map((row) => String(row.role));
         const hasAdminRole =
           ADMIN_EMAILS.includes(userEmail) || roleList.includes("admin") || roleList.includes("staff");
 
-        let resolvedRole: UserRole = { role: hasAdminRole ? "admin" : "customer" };
+        const resolvedRole: UserRole = { role: hasAdminRole ? "admin" : "customer" };
 
+        // Auto-provision role if missing
         if (!roleRows || roleRows.length === 0) {
-          await supabase
+          supabase
             .from("user_roles")
-            .upsert({ user_id: userId, role: resolvedRole.role }, { onConflict: "user_id,role", ignoreDuplicates: true });
+            .upsert({ user_id: userId, role: resolvedRole.role }, { onConflict: "user_id,role", ignoreDuplicates: true })
+            .then(() => {});
         }
 
         let resolvedProfile = profileData as UserProfile | null;
 
+        // Auto-provision profile if missing
         if (!resolvedProfile) {
           const fallbackName =
-            sessionUser?.user_metadata?.full_name ||
-            sessionUser?.user_metadata?.name ||
-            sessionUser?.email?.split("@")[0] ||
+            sessionUser.user_metadata?.full_name ||
+            sessionUser.user_metadata?.name ||
+            sessionUser.email?.split("@")[0] ||
             "User";
-          const fallbackEmail = sessionUser?.email || "";
+          const fallbackEmail = sessionUser.email || "";
 
           const { data: insertedProfile } = await supabase
             .from("profiles")
@@ -80,6 +92,8 @@ export const useAuth = () => {
             .select("*")
             .maybeSingle();
 
+          if (!isMounted) return;
+
           resolvedProfile =
             (insertedProfile as UserProfile | null) ||
             ({
@@ -91,55 +105,79 @@ export const useAuth = () => {
             } as UserProfile);
         }
 
-        setProfile(resolvedProfile);
-        setRole(resolvedRole);
+        if (isMounted) {
+          setProfile(resolvedProfile);
+          setRole(resolvedRole);
+          setLoading(false);
+        }
       } catch (error) {
         console.error("Error fetching user data:", error);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          // Still set a default role so redirect works
+          const userEmail = (sessionUser.email || "").toLowerCase();
+          const isAdmin = ADMIN_EMAILS.includes(userEmail);
+          setRole({ role: isAdmin ? "admin" : "customer" });
+          setLoading(false);
+        }
       }
     };
 
-    // Listen for auth changes first to avoid missing events
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    // Step 1: Restore session from storage FIRST
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
       const sessionUser = session?.user ?? null;
       setUser(sessionUser);
 
       if (sessionUser) {
-        if (event === "TOKEN_REFRESHED") {
-          return;
-        }
-
-        setLoading(true);
-        // Defer Supabase calls to avoid auth deadlocks
-        setTimeout(() => {
-          fetchUserData(sessionUser.id, sessionUser);
-        }, 0);
+        fetchUserData(sessionUser.id, sessionUser);
       } else {
+        setLoading(false);
+      }
+      isReadyRef.current = true;
+    });
+
+    // Step 2: Listen for SUBSEQUENT auth changes (sign-in, sign-out, token refresh)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+
+      // Skip TOKEN_REFRESHED - no need to re-fetch
+      if (event === "TOKEN_REFRESHED") return;
+
+      // Skip INITIAL_SESSION since getSession handles it
+      if (event === "INITIAL_SESSION") return;
+
+      const sessionUser = session?.user ?? null;
+      setUser(sessionUser);
+
+      if (sessionUser) {
+        // Reset fetch ref so we re-fetch on new sign-in
+        if (event === "SIGNED_IN") {
+          fetchingForUserRef.current = null;
+          setLoading(true);
+          // Defer to avoid auth deadlocks
+          setTimeout(() => {
+            if (isMounted) fetchUserData(sessionUser.id, sessionUser);
+          }, 0);
+        }
+      } else {
+        // Signed out
+        fetchingForUserRef.current = null;
         setProfile(null);
         setRole(null);
         setLoading(false);
       }
     });
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const sessionUser = session?.user ?? null;
-      setUser(sessionUser);
-      if (sessionUser) {
-        setLoading(true);
-        fetchUserData(sessionUser.id, sessionUser);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
+    fetchingForUserRef.current = null;
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
