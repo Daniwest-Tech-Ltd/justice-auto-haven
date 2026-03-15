@@ -112,9 +112,12 @@ import CookieConsentBanner from "./components/CookieConsentBanner";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { logActivity } = useActivityTracker();
   const location = useLocation();
   const navigate = useNavigate();
+  const isAuthPage = location.pathname === '/auth' || location.pathname === '/reset-password';
+  
+  // Only run activity tracker and session timeout on non-auth pages to prevent token refresh storms
+  const { logActivity } = useActivityTracker();
   const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
 
   useEffect(() => {
@@ -168,12 +171,14 @@ const AppContent = () => {
 
   return (
     <Suspense fallback={<LoadingScreen />}>
-      <SessionTimeoutModal
-        isOpen={showWarning}
-        timeLeft={timeLeft}
-        onExtend={extendSession}
-        onLogout={handleLogout}
-      />
+      {!isAuthPage && (
+        <SessionTimeoutModal
+          isOpen={showWarning}
+          timeLeft={timeLeft}
+          onExtend={extendSession}
+          onLogout={handleLogout}
+        />
+      )}
       <Routes>
           {/* Public Routes with Layout */}
           <Route path="/" element={<Layout><Home /></Layout>} />
