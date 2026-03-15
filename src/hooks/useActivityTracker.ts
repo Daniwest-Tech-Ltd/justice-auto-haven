@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocation } from "react-router-dom";
 
-export const useActivityTracker = () => {
+export const useActivityTracker = (enabled = true) => {
   const location = useLocation();
   const sessionIdRef = useRef<string | null>(null);
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -14,6 +14,8 @@ export const useActivityTracker = () => {
     targetId?: string,
     details?: any
   ) => {
+    if (!enabled) return;
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -32,6 +34,8 @@ export const useActivityTracker = () => {
 
   // Start session on login
   const startSession = async () => {
+    if (!enabled) return;
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -80,6 +84,8 @@ export const useActivityTracker = () => {
 
   // Update last activity (heartbeat)
   const updateActivity = async () => {
+    if (!enabled) return;
+
     try {
       if (!sessionIdRef.current) return;
 
@@ -113,14 +119,21 @@ export const useActivityTracker = () => {
 
   // Log page views
   useEffect(() => {
+    if (!enabled) return;
+
     logActivity("page_view", undefined, undefined, {
       path: location.pathname,
       timestamp: new Date().toISOString(),
     });
-  }, [location.pathname]);
+  }, [enabled, location.pathname]);
 
   // Initialize session tracking
   useEffect(() => {
+    if (!enabled) {
+      stopHeartbeat();
+      return;
+    }
+
     const initSession = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user && !sessionIdRef.current) {
@@ -141,7 +154,7 @@ export const useActivityTracker = () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       stopHeartbeat();
     };
-  }, []);
+  }, [enabled]);
 
   return {
     logActivity,

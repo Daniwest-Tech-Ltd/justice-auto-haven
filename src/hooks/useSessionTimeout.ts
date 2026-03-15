@@ -6,7 +6,7 @@ const SESSION_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 const WARNING_TIME = 9 * 60 * 1000; // Show warning after 9 minutes (1 min before timeout)
 const COUNTDOWN_DURATION = 60; // 60 seconds countdown
 
-export const useSessionTimeout = () => {
+export const useSessionTimeout = (enabled = true) => {
   const [showWarning, setShowWarning] = useState(false);
   const [countdown, setCountdown] = useState(COUNTDOWN_DURATION);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -23,10 +23,12 @@ export const useSessionTimeout = () => {
   }, []);
 
   const extendSession = useCallback(async () => {
+    if (!enabled) return;
+
     try {
       const { error } = await supabase.auth.refreshSession();
       if (error) throw error;
-      
+
       // Update session activity
       if (sessionId) {
         await supabase
@@ -34,29 +36,31 @@ export const useSessionTimeout = () => {
           .update({ last_activity_at: new Date().toISOString() })
           .eq("id", sessionId);
       }
-      
+
       setShowWarning(false);
       setCountdown(COUNTDOWN_DURATION);
       resetTimers();
       lastActivityRef.current = Date.now();
-      
+
       // Restart session timer
       startSessionTimer();
-      
+
       toast.success("Session extended successfully");
     } catch (error) {
       console.error("Failed to extend session:", error);
       toast.error("Failed to extend session");
     }
-  }, [resetTimers, sessionId]);
+  }, [enabled, resetTimers, sessionId]);
 
   const handleLogout = useCallback(async () => {
+    if (!enabled) return;
+
     resetTimers();
     setShowWarning(false);
-    
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       // Mark user as offline
       if (user) {
         await supabase
@@ -64,7 +68,7 @@ export const useSessionTimeout = () => {
           .update({ is_online: false })
           .eq("user_id", user.id);
       }
-      
+
       // Mark session as logged out
       if (sessionId) {
         await supabase
@@ -72,7 +76,7 @@ export const useSessionTimeout = () => {
           .update({ logout_at: new Date().toISOString() })
           .eq("id", sessionId);
       }
-      
+
       await supabase.auth.signOut();
       toast.error("Session expired. Please login again.");
       window.location.href = "/auth";
@@ -80,9 +84,11 @@ export const useSessionTimeout = () => {
       console.error("Logout error:", error);
       window.location.href = "/auth";
     }
-  }, [sessionId, resetTimers]);
+  }, [enabled, sessionId, resetTimers]);
 
   const startCountdown = useCallback(() => {
+    if (!enabled) return;
+
     setCountdown(COUNTDOWN_DURATION);
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
@@ -94,11 +100,13 @@ export const useSessionTimeout = () => {
         return prev - 1;
       });
     }, 1000);
-  }, [handleLogout]);
+  }, [enabled, handleLogout]);
 
   const startSessionTimer = useCallback(() => {
+    if (!enabled) return;
+
     resetTimers();
-    
+
     // Show warning after 9 minutes
     warningTimerRef.current = setTimeout(() => {
       // Only show warning if user hasn't been active recently
@@ -111,17 +119,19 @@ export const useSessionTimeout = () => {
         startSessionTimer();
       }
     }, WARNING_TIME);
-  }, [resetTimers, startCountdown]);
+  }, [enabled, resetTimers, startCountdown]);
 
   const handleUserActivity = useCallback(() => {
+    if (!enabled) return;
+
     const now = Date.now();
     lastActivityRef.current = now;
-    
+
     // If warning is showing and user becomes active, auto-extend
     if (showWarning) {
       extendSession();
     }
-    
+
     // Throttle database updates to every 30 seconds
     if (!activityThrottleRef.current) {
       activityThrottleRef.current = setTimeout(async () => {
@@ -134,10 +144,20 @@ export const useSessionTimeout = () => {
         activityThrottleRef.current = null;
       }, 30000);
     }
-  }, [showWarning, extendSession, sessionId]);
+  }, [enabled, showWarning, extendSession, sessionId]);
 
   // Initialize session tracking
   useEffect(() => {
+    if (!enabled) {
+      resetTimers();
+      setShowWarning(false);
+      if (activityThrottleRef.current) {
+        clearTimeout(activityThrottleRef.current);
+        activityThrottleRef.current = null;
+      }
+      return;
+    }
+
     const initSession = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -151,7 +171,7 @@ export const useSessionTimeout = () => {
 
         if (existingSessions && existingSessions.length > 0) {
           // Log out all other sessions (single session enforcement)
-          const otherSessionIds = existingSessions.slice(1).map(s => s.id);
+          const otherSessionIds = existingSessions.slice(1).map((s) => s.id);
           if (otherSessionIds.length > 0) {
             await supabase
               .from("sessions")
@@ -170,7 +190,7 @@ export const useSessionTimeout = () => {
             })
             .select()
             .single();
-          
+
           if (newSession) {
             setSessionId(newSession.id);
           }
@@ -179,20 +199,22 @@ export const useSessionTimeout = () => {
     };
 
     initSession();
-  }, []);
+  }, [enabled, resetTimers]);
 
   // Start session timer once session is initialized
   useEffect(() => {
-    if (sessionId) {
+    if (enabled && sessionId) {
       startSessionTimer();
     }
-  }, [sessionId, startSessionTimer]);
+  }, [enabled, sessionId, startSessionTimer]);
 
   // Activity detection
   useEffect(() => {
-    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-    
-    events.forEach(event => {
+    if (!enabled) return;
+
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+
+    events.forEach((event) => {
       window.addEventListener(event, handleUserActivity);
     });
 
@@ -201,11 +223,11 @@ export const useSessionTimeout = () => {
       if (activityThrottleRef.current) {
         clearTimeout(activityThrottleRef.current);
       }
-      events.forEach(event => {
+      events.forEach((event) => {
         window.removeEventListener(event, handleUserActivity);
       });
     };
-  }, [handleUserActivity, resetTimers]);
+  }, [enabled, handleUserActivity, resetTimers]);
 
   return {
     showWarning,

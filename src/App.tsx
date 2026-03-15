@@ -116,16 +116,9 @@ const AppContent = () => {
   const navigate = useNavigate();
   const isAuthPage = location.pathname === '/auth' || location.pathname === '/reset-password';
   
-  // Only run activity tracker and session timeout on non-auth pages to prevent token refresh storms
-  const activityTracker = useActivityTracker();
-  const sessionTimeout = useSessionTimeout();
-  
-  // Suppress hooks on auth pages
-  const logActivity = isAuthPage ? (() => {}) : activityTracker.logActivity;
-  const showWarning = isAuthPage ? false : sessionTimeout.showWarning;
-  const timeLeft = isAuthPage ? 60 : sessionTimeout.timeLeft;
-  const extendSession = sessionTimeout.extendSession;
-  const handleLogout = sessionTimeout.handleLogout;
+  // Disable auth-dependent side effects on auth pages to prevent refresh-token storms
+  const { logActivity } = useActivityTracker(!isAuthPage);
+  const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout(!isAuthPage);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
