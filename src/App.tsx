@@ -121,40 +121,52 @@ const AppContent = () => {
   const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout(!isAuthPage);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        // Defer Supabase calls to avoid auth deadlocks
-        setTimeout(async () => {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("theme, avatar_url")
-            .eq("user_id", session.user.id)
-            .maybeSingle();
+    if (isAuthPage) {
+      const savedTheme = localStorage.getItem("theme") as Theme | null;
+      if (savedTheme) {
+        applyTheme(savedTheme);
+      }
+      return;
+    }
 
-          if (profile?.theme) {
-            applyTheme(profile.theme as Theme);
-          }
-
-          // Sync Google avatar to profile if user signed in with Google
-          const googleAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture;
-          if (googleAvatar && (!profile?.avatar_url || profile.avatar_url !== googleAvatar)) {
-            await supabase
-              .from("profiles")
-              .update({ avatar_url: googleAvatar })
-              .eq("user_id", session.user.id);
-          }
-        }, 0);
-      } else {
-        // Apply saved theme from localStorage when not logged in
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session?.user) {
         const savedTheme = localStorage.getItem("theme") as Theme | null;
         if (savedTheme) {
           applyTheme(savedTheme);
         }
+        return;
       }
+
+      if (event !== "SIGNED_IN" && event !== "INITIAL_SESSION") {
+        return;
+      }
+
+      // Defer Supabase calls to avoid auth deadlocks
+      setTimeout(async () => {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("theme, avatar_url")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+
+        if (profile?.theme) {
+          applyTheme(profile.theme as Theme);
+        }
+
+        // Sync Google avatar to profile if user signed in with Google
+        const googleAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture;
+        if (googleAvatar && (!profile?.avatar_url || profile.avatar_url !== googleAvatar)) {
+          await supabase
+            .from("profiles")
+            .update({ avatar_url: googleAvatar })
+            .eq("user_id", session.user.id);
+        }
+      }, 0);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isAuthPage]);
 
   // Scroll to top on route change
   useEffect(() => {
