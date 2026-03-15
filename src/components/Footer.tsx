@@ -308,7 +308,7 @@ const Footer = () => {
                   >
                     <Phone className="h-4 w-4 mr-2" />
                     <div className="text-left text-xs">
-                      <div className="font-semibold">Daniel Maina - Sales</div>
+                      <div className="font-semibold">Daniel Maina W. - DevOps</div>
                       <div>0701 460 110</div>
                     </div>
                   </Button>
