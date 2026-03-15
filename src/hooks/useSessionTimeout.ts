@@ -10,11 +10,11 @@ export const useSessionTimeout = () => {
   const [showWarning, setShowWarning] = useState(false);
   const [countdown, setCountdown] = useState(COUNTDOWN_DURATION);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
-  const activityThrottleRef = useRef<NodeJS.Timeout | null>(null);
+  const activityThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const resetTimers = useCallback(() => {
     if (warningTimerRef.current) clearTimeout(warningTimerRef.current);

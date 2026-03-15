@@ -6,7 +6,7 @@ const MouseTracker = () => {
   const [trail, setTrail] = useState<{ x: number; y: number; id: number }[]>([]);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
     let trailId = 0;
 
     const handleMouseMove = (e: MouseEvent) => {

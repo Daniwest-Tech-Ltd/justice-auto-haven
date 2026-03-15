@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 export const useActivityTracker = () => {
   const location = useLocation();
   const sessionIdRef = useRef<string | null>(null);
-  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Log activity
   const logActivity = async (
