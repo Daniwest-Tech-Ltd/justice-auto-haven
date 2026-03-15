@@ -322,7 +322,7 @@ const Auth = () => {
   const handleFacebookLogin = async () => {
     try {
       setLoading(true);
-      const redirectUrl = `${window.location.origin}/auth?facebook_callback=true`;
+      const redirectUrl = `${window.location.origin}/auth`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
