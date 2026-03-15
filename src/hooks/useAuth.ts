@@ -21,6 +21,8 @@ export interface UserRole {
   role: "admin" | "customer";
 }
 
+const ADMIN_EMAILS = ["daniwesttechnologies@gmail.com", "justicevincentt@gmail.com"];
+
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -28,15 +30,92 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Listen for auth changes first to avoid missing events
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    const fetchUserData = async (userId: string, sessionUser?: User) => {
+      try {
+        const [{ data: profileData, error: profileError }, { data: roleRows, error: rolesError }] =
+          await Promise.all([
+            supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
+            supabase.from("user_roles").select("role").eq("user_id", userId),
+          ]);
 
-      if (session?.user) {
+        if (profileError && profileError.code !== "PGRST116") {
+          throw profileError;
+        }
+
+        if (rolesError) {
+          throw rolesError;
+        }
+
+        const userEmail = (sessionUser?.email || "").toLowerCase();
+        const roleList = (roleRows || []).map((row) => String(row.role));
+        const hasAdminRole =
+          ADMIN_EMAILS.includes(userEmail) || roleList.includes("admin") || roleList.includes("staff");
+
+        let resolvedRole: UserRole = { role: hasAdminRole ? "admin" : "customer" };
+
+        if (!roleRows || roleRows.length === 0) {
+          await supabase
+            .from("user_roles")
+            .upsert({ user_id: userId, role: resolvedRole.role }, { onConflict: "user_id,role", ignoreDuplicates: true });
+        }
+
+        let resolvedProfile = profileData as UserProfile | null;
+
+        if (!resolvedProfile) {
+          const fallbackName =
+            sessionUser?.user_metadata?.full_name ||
+            sessionUser?.user_metadata?.name ||
+            sessionUser?.email?.split("@")[0] ||
+            "User";
+          const fallbackEmail = sessionUser?.email || "";
+
+          const { data: insertedProfile } = await supabase
+            .from("profiles")
+            .insert({
+              user_id: userId,
+              full_name: fallbackName,
+              email: fallbackEmail,
+              phone: "",
+            })
+            .select("*")
+            .maybeSingle();
+
+          resolvedProfile =
+            (insertedProfile as UserProfile | null) ||
+            ({
+              id: userId,
+              user_id: userId,
+              full_name: fallbackName,
+              email: fallbackEmail,
+              phone: "",
+            } as UserProfile);
+        }
+
+        setProfile(resolvedProfile);
+        setRole(resolvedRole);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Listen for auth changes first to avoid missing events
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      const sessionUser = session?.user ?? null;
+      setUser(sessionUser);
+
+      if (sessionUser) {
+        if (event === "TOKEN_REFRESHED") {
+          return;
+        }
+
         setLoading(true);
         // Defer Supabase calls to avoid auth deadlocks
         setTimeout(() => {
-          fetchUserData(session.user.id);
+          fetchUserData(sessionUser.id, sessionUser);
         }, 0);
       } else {
         setProfile(null);
@@ -47,10 +126,11 @@ export const useAuth = () => {
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
+      const sessionUser = session?.user ?? null;
+      setUser(sessionUser);
+      if (sessionUser) {
         setLoading(true);
-        fetchUserData(session.user.id);
+        fetchUserData(sessionUser.id, sessionUser);
       } else {
         setLoading(false);
       }
@@ -58,31 +138,6 @@ export const useAuth = () => {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const fetchUserData = async (userId: string) => {
-    try {
-      // Fetch profile
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      // Fetch role
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      setProfile(profileData as UserProfile | null);
-      setRole(roleData as UserRole | null);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -97,7 +152,7 @@ export const useAuth = () => {
 export const getGreeting = (name: string) => {
   const hour = new Date().getHours();
   let timeGreeting = "Good evening";
-  
+
   if (hour < 12) {
     timeGreeting = "Good morning";
   } else if (hour < 17) {
@@ -107,6 +162,6 @@ export const getGreeting = (name: string) => {
   } else {
     timeGreeting = "Good night";
   }
-  
+
   return `${timeGreeting}, ${name}`;
 };

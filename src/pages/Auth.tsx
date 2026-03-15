@@ -436,7 +436,7 @@ const Auth = () => {
       const isAdminUser =
         isAdmin ||
         Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
-      const displayName = existingProfile.full_name || session.user.email;
+      const displayName = existingProfile?.full_name || oauthName || session.user.email;
 
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
         description: `Logged in as ${isAdminUser ? "admin" : "customer"}`,
