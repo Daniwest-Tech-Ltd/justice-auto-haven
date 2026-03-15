@@ -314,7 +314,7 @@ const Footer = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Sales Manager - Trusted Car Expert Kenya</p>
+                  <p>DevOps Engineer - Systems & Infrastructure</p>
                 </TooltipContent>
               </Tooltip>
               
