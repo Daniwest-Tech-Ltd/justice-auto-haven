@@ -624,10 +624,10 @@ const Auth = () => {
       // Play login success sound
       const loginSound = new Audio('/sounds/notification.mp3');
       loginSound.volume = 0.5;
-      loginSound.play().catch(() => console.log('Audio play blocked'));
-      
-      // Fetch profile first to get email
-      const { data: profileData } = await supabase
+      loginSound.play().catch(() => {});
+
+      // Update profile (fire-and-forget, don't block login)
+      supabase
         .from("profiles")
         .update({
           is_online: true,
@@ -635,11 +635,25 @@ const Auth = () => {
           login_attempts: 0
         })
         .eq("user_id", userId)
-        .select("full_name, email")
-        .single();
-      
-      // Check if admin email - use provided email or fetch from profile
-      const actualEmail = (userEmail || profileData?.email || '').toLowerCase();
+        .then(() => {});
+
+      // Get display name from profile if not provided
+      let displayName = userName || "User";
+      let actualEmail = (userEmail || '').toLowerCase();
+
+      if (!userName || !userEmail) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("full_name, email")
+          .eq("user_id", userId)
+          .maybeSingle();
+        
+        if (profileData) {
+          displayName = userName || profileData.full_name || "User";
+          actualEmail = (userEmail || profileData.email || '').toLowerCase();
+        }
+      }
+
       const isAdminEmail = ADMIN_EMAILS.includes(actualEmail);
       
       // If admin email, ensure admin role exists
@@ -649,7 +663,7 @@ const Auth = () => {
           .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
       }
       
-      // Fetch current roles after any upgrade
+      // Fetch current roles
       const { data: roleRows } = await supabase
         .from("user_roles")
         .select("role")
@@ -658,24 +672,27 @@ const Auth = () => {
       const isAdmin =
         isAdminEmail ||
         Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
-      const displayName = userName || profileData?.full_name || "User";
       
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
         description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
       });
 
-      // Redirect based on role - admins/superadmins go to admin-dashboard
-      if (isAdmin) {
-        navigate("/admin-dashboard", { replace: true });
-      } else {
+      // ALWAYS navigate - this is the critical part
+      navigate(isAdmin ? "/admin-dashboard" : "/customer-dashboard", { replace: true });
+    } catch (error: any) {
+      console.error("completeLogin error:", error);
+      // Even if something fails, still try to navigate
+      try {
+        const { data: roleRows } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId);
+        const isAdmin = Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
+        navigate(isAdmin ? "/admin-dashboard" : "/customer-dashboard", { replace: true });
+      } catch {
+        // Last resort: just go to customer dashboard
         navigate("/customer-dashboard", { replace: true });
       }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
     }
   };
 
