@@ -7,7 +7,7 @@ export const useActivityTracker = (enabled = true) => {
   const sessionIdRef = useRef<string | null>(null);
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Log activity
+  // Log activity - uses getSession (cache) instead of getUser (network)
   const logActivity = async (
     actionType: string,
     targetTable?: string,
@@ -17,11 +17,11 @@ export const useActivityTracker = (enabled = true) => {
     if (!enabled) return;
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
 
       await supabase.from("activity_logs").insert({
-        user_id: user.id,
+        user_id: session.user.id,
         action_type: actionType,
         target_table: targetTable,
         target_id: targetId,
@@ -37,13 +37,13 @@ export const useActivityTracker = (enabled = true) => {
     if (!enabled) return;
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
 
       const { data, error } = await supabase
         .from("sessions")
         .insert({
-          user_id: user.id,
+          user_id: session.user.id,
           client_info: {
             userAgent: navigator.userAgent,
             platform: navigator.platform,
@@ -135,9 +135,13 @@ export const useActivityTracker = (enabled = true) => {
     }
 
     const initSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && !sessionIdRef.current) {
-        await startSession();
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user && !sessionIdRef.current) {
+          await startSession();
+        }
+      } catch (error) {
+        console.error("Error initializing session:", error);
       }
     };
 

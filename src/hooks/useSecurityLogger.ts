@@ -10,7 +10,8 @@ export const useSecurityLogger = () => {
     metadata?: any
   ) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user ?? null;
       
       // Log to security_events
       const { error } = await supabase.from("security_events").insert({
