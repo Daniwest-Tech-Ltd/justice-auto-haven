@@ -65,7 +65,7 @@ const TrackingDemoSimulator = ({ mapboxToken, onTokenChange }: TrackingDemoSimul
   const [simulationSpeed, setSimulationSpeed] = useState(1);
   const [route, setRoute] = useState<"nairobi" | "highway">("nairobi");
   const [alerts, setAlerts] = useState<string[]>([]);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stepRef = useRef(0);
 
   // Nairobi city route (around CBD)

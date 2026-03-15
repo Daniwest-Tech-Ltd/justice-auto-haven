@@ -47,7 +47,7 @@ export const PesapalPaymentModal = ({
   const [error, setError] = useState<string | null>(null);
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const paymentWindowRef = useRef<Window | null>(null);
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Reset state when modal opens
   useEffect(() => {
