@@ -1117,7 +1117,7 @@ const Auth = () => {
         password: regPassword,
         options: {
           emailRedirectTo: redirectUrl,
-          captchaToken,
+          ...(captchaToken ? { captchaToken } : {}),
           data: {
             full_name: regFullName,
             phone: fullPhone,
