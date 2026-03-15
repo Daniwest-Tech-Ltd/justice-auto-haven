@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const [accountStatus, setAccountStatus] = useState<string | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [suspensionDetails, setSuspensionDetails] = useState<{ reason?: string; until?: string }>({});
-  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
+  
 
   useEffect(() => {
     if (user) {
