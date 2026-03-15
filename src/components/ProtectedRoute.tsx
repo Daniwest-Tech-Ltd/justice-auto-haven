@@ -34,7 +34,7 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
 
     lastCheckedUserIdRef.current = user.id;
     setCheckingStatus(true);
-    checkAccountStatus(user.id);
+    void checkAccountStatus(user.id);
   }, [user?.id]);
 
   const checkAccountStatus = async (userId: string) => {
