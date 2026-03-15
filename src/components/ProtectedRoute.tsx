@@ -90,7 +90,11 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
         isOpen={true}
         reason={suspensionDetails.reason}
         suspendedUntil={suspensionDetails.until}
-        onSuccess={checkAccountStatus}
+        onSuccess={() => {
+          if (user?.id) {
+            void checkAccountStatus(user.id);
+          }
+        }}
       />
     );
   }
