@@ -47,7 +47,7 @@ export const useAuth = () => {
         }
 
         const userEmail = (sessionUser?.email || "").toLowerCase();
-        const roleList = (roleRows || []).map((row) => row.role);
+        const roleList = (roleRows || []).map((row) => String(row.role));
         const hasAdminRole =
           ADMIN_EMAILS.includes(userEmail) || roleList.includes("admin") || roleList.includes("staff");
 
