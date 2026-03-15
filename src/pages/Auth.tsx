@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/tooltip";
 import { SuspendedUserModal } from "@/components/SuspendedUserModal";
 import { TwoFactorDialog } from "@/components/TwoFactorDialog";
-import { CompleteProfileDialog } from "@/components/CompleteProfileDialog";
+
 import { useSecurityLogger } from "@/hooks/useSecurityLogger";
 import { useTurnstile } from "@/hooks/useTurnstile";
 import authBg from "@/assets/auth-bg.jpg";
