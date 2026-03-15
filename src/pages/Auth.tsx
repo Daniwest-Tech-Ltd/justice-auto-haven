@@ -60,6 +60,8 @@ const Auth = () => {
   const [otpTimeLeft, setOtpTimeLeft] = useState(600); // 10 minutes in seconds
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const oauthSearch = searchParams.toString();
+  const oauthCallbackHandledRef = useRef<string | null>(null);
   const { toast } = useToast();
   const { logLoginAttempt, logSuspiciousActivity } = useSecurityLogger();
   
