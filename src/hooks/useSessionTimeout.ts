@@ -159,8 +159,13 @@ export const useSessionTimeout = (enabled = true) => {
     }
 
     const initSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      try {
+        // Use getSession (reads from cache) instead of getUser (triggers network request)
+        // to avoid token refresh storms on page reload
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
+        if (!user) return;
+
         // Check for existing active sessions
         const { data: existingSessions } = await supabase
           .from("sessions")
@@ -195,6 +200,9 @@ export const useSessionTimeout = (enabled = true) => {
             setSessionId(newSession.id);
           }
         }
+      } catch (error) {
+        console.error("Error starting session:", error);
+        // Don't let session tracking errors break the app
       }
     };
 
