@@ -112,9 +112,12 @@ import CookieConsentBanner from "./components/CookieConsentBanner";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { logActivity } = useActivityTracker();
   const location = useLocation();
   const navigate = useNavigate();
+  const isAuthPage = location.pathname === '/auth' || location.pathname === '/reset-password';
+  
+  // Only run activity tracker and session timeout on non-auth pages to prevent token refresh storms
+  const { logActivity } = useActivityTracker();
   const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
 
   useEffect(() => {
