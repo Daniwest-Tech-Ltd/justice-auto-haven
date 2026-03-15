@@ -786,10 +786,10 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Get Turnstile CAPTCHA token
+    // Get Turnstile CAPTCHA token (only enforce when widget is healthy)
     const captchaToken = loginTurnstile.getToken();
-    
-    if (!captchaToken) {
+
+    if (loginTurnstile.isReady && !captchaToken) {
       toast({
         title: "CAPTCHA Required",
         description: "Please complete the CAPTCHA verification",
