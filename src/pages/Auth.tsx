@@ -644,8 +644,9 @@ const Auth = () => {
       
       // If admin email, ensure admin role exists
       if (isAdminEmail) {
-        await supabase.from("user_roles")
-          .upsert({ user_id: userId, role: "admin" }, { onConflict: 'user_id' });
+        await supabase
+          .from("user_roles")
+          .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
       }
       
       // Fetch the CURRENT role after any upgrade
