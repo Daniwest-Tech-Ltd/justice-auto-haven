@@ -293,7 +293,7 @@ const Footer = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>General Manager - Car Sales Kenya</p>
+                  <p>CEO - Luxury Car Imports Kenya</p>
                 </TooltipContent>
               </Tooltip>
 
