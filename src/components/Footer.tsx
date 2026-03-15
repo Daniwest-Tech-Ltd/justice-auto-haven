@@ -297,7 +297,7 @@ const Footer = () => {
                 </TooltipContent>
               </Tooltip>
 
-              {/* Personal Brand SEO - Daniel Maina */}
+              {/* Personal Brand SEO - Daniel Maina W. */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
