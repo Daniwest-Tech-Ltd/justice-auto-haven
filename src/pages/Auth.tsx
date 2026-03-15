@@ -95,12 +95,6 @@ const Auth = () => {
   } | null>(null);
   const [maintenanceCountdown, setMaintenanceCountdown] = useState("");
 
-  // Complete Profile Dialog state (for Google OAuth users who need to set password)
-  const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
-  const [completeProfileUserId, setCompleteProfileUserId] = useState("");
-  const [completeProfileUserEmail, setCompleteProfileUserEmail] = useState("");
-  const [completeProfileUserName, setCompleteProfileUserName] = useState("");
-  const [pendingRedirectPath, setPendingRedirectPath] = useState("");
 
   useEffect(() => {
     // Check maintenance once on mount, don't check repeatedly
