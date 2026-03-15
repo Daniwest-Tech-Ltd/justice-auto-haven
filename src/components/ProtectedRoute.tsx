@@ -59,10 +59,6 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect to auth page if OAuth user needs to set password
-  if (needsPasswordSetup) {
-    return <Navigate to="/auth?complete_profile=true" replace />;
-  }
 
   // Check if customer account is suspended or blocked
   if (role?.role === "customer" && (accountStatus === "suspended" || accountStatus === "blocked")) {

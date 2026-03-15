@@ -1715,22 +1715,6 @@ const Auth = () => {
         }}
       />
 
-      {/* Complete Profile Dialog for Google OAuth users */}
-      <CompleteProfileDialog
-        isOpen={showCompleteProfileDialog}
-        userId={completeProfileUserId}
-        userEmail={completeProfileUserEmail}
-        userName={completeProfileUserName}
-        onComplete={() => {
-          setShowCompleteProfileDialog(false);
-          // Play success sound
-          const successSound = new Audio('/sounds/notification.mp3');
-          successSound.volume = 0.5;
-          successSound.play().catch(() => {});
-          // Navigate to the pending redirect path
-          navigate(pendingRedirectPath, { replace: true });
-        }}
-      />
     </>
   );
 };
