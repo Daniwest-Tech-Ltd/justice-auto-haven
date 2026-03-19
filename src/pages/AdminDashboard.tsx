@@ -25,8 +25,6 @@ import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationsPanel from "@/components/NotificationsPanel";
-import { SessionTimeoutModal } from "@/components/SessionTimeoutModal";
-import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";

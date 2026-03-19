@@ -8,8 +8,6 @@ import christmasHat from "@/assets/christmas-hat.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LogoutConfirmModal } from "./LogoutConfirmModal";
-import { SessionTimeoutModal } from "./SessionTimeoutModal";
-import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { BusinessHours } from "./BusinessHours";
 import { ChristmasHat } from "./SeasonalEffects";
 import {

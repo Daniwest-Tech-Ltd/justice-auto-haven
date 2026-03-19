@@ -20,8 +20,6 @@ import {
 import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingCart, MessageSquare, Sun, Moon, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import SessionTimeoutModal from "@/components/SessionTimeoutModal";
-import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
