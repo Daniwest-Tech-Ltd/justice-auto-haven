@@ -429,9 +429,9 @@ const AdminSettings = () => {
     sonnerToast.info('Starting backup... This may take a few minutes.');
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
       const { data, error } = await supabase.functions.invoke('run-backup', {
-        body: { backup_type: 'manual', triggered_by: user?.id }
+        body: { backup_type: 'manual', triggered_by: session?.user?.id }
       });
 
       if (error) throw error;
