@@ -243,7 +243,7 @@ const AdminSettings = () => {
         .from("profiles")
         .select("*")
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       if (data) {
