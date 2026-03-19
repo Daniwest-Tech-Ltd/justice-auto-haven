@@ -2,9 +2,9 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const SESSION_TIMEOUT = 10 * 60 * 1000; // 10 minutes
-const WARNING_TIME = 9 * 60 * 1000; // Show warning after 9 minutes (1 min before timeout)
-const COUNTDOWN_DURATION = 60; // 60 seconds countdown
+const SESSION_TIMEOUT = 10 * 60 * 1000;
+const WARNING_TIME = 9 * 60 * 1000;
+const COUNTDOWN_DURATION = 60;
 
 export const useSessionTimeout = (enabled = true) => {
   const [showWarning, setShowWarning] = useState(false);
@@ -22,35 +22,75 @@ export const useSessionTimeout = (enabled = true) => {
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
   }, []);
 
+  const updateTrackedSession = useCallback(async (payload: Record<string, string>) => {
+    if (!sessionId) return;
+
+    const { error } = await supabase
+      .from("sessions")
+      .update(payload)
+      .eq("id", sessionId);
+
+    if (error) {
+      console.error("Session tracking update failed:", error);
+    }
+  }, [sessionId]);
+
+  const startSessionTimer = useCallback(() => {
+    if (!enabled) return;
+
+    resetTimers();
+
+    warningTimerRef.current = setTimeout(() => {
+      const timeSinceLastActivity = Date.now() - lastActivityRef.current;
+
+      if (timeSinceLastActivity >= WARNING_TIME) {
+        setShowWarning(true);
+        setCountdown(COUNTDOWN_DURATION);
+
+        countdownIntervalRef.current = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+              return 0;
+            }
+
+            return prev - 1;
+          });
+        }, 1000);
+
+        logoutTimerRef.current = setTimeout(() => {
+          void handleLogout();
+        }, COUNTDOWN_DURATION * 1000);
+      } else {
+        startSessionTimer();
+      }
+    }, WARNING_TIME);
+  }, [enabled, resetTimers]);
+
   const extendSession = useCallback(async () => {
     if (!enabled) return;
 
     try {
-      const { error } = await supabase.auth.refreshSession();
-      if (error) throw error;
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      // Update session activity
-      if (sessionId) {
-        await supabase
-          .from("sessions")
-          .update({ last_activity_at: new Date().toISOString() })
-          .eq("id", sessionId);
+      if (!session?.user) {
+        await handleLogout();
+        return;
       }
 
+      await updateTrackedSession({ last_activity_at: new Date().toISOString() });
       setShowWarning(false);
       setCountdown(COUNTDOWN_DURATION);
-      resetTimers();
       lastActivityRef.current = Date.now();
-
-      // Restart session timer
       startSessionTimer();
-
       toast.success("Session extended successfully");
     } catch (error) {
       console.error("Failed to extend session:", error);
       toast.error("Failed to extend session");
     }
-  }, [enabled, resetTimers, sessionId]);
+  }, [enabled, startSessionTimer, updateTrackedSession]);
 
   const handleLogout = useCallback(async () => {
     if (!enabled) return;
@@ -59,165 +99,125 @@ export const useSessionTimeout = (enabled = true) => {
     setShowWarning(false);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       const user = session?.user ?? null;
 
-      // Mark user as offline
       if (user) {
-        await supabase
+        const { error: profileError } = await supabase
           .from("profiles")
           .update({ is_online: false })
           .eq("user_id", user.id);
+
+        if (profileError) {
+          console.error("Failed to mark user offline:", profileError);
+        }
       }
 
-      // Mark session as logged out
-      if (sessionId) {
-        await supabase
-          .from("sessions")
-          .update({ logout_at: new Date().toISOString() })
-          .eq("id", sessionId);
-      }
-
+      await updateTrackedSession({
+        logout_at: new Date().toISOString(),
+        last_activity_at: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
       await supabase.auth.signOut();
       toast.error("Session expired. Please login again.");
       window.location.href = "/auth";
-    } catch (error) {
-      console.error("Logout error:", error);
-      window.location.href = "/auth";
     }
-  }, [enabled, sessionId, resetTimers]);
-
-  const startCountdown = useCallback(() => {
-    if (!enabled) return;
-
-    setCountdown(COUNTDOWN_DURATION);
-    countdownIntervalRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-          handleLogout();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }, [enabled, handleLogout]);
-
-  const startSessionTimer = useCallback(() => {
-    if (!enabled) return;
-
-    resetTimers();
-
-    // Show warning after 9 minutes
-    warningTimerRef.current = setTimeout(() => {
-      // Only show warning if user hasn't been active recently
-      const timeSinceLastActivity = Date.now() - lastActivityRef.current;
-      if (timeSinceLastActivity >= WARNING_TIME) {
-        setShowWarning(true);
-        startCountdown();
-      } else {
-        // User was active, restart timer
-        startSessionTimer();
-      }
-    }, WARNING_TIME);
-  }, [enabled, resetTimers, startCountdown]);
+  }, [enabled, resetTimers, updateTrackedSession]);
 
   const handleUserActivity = useCallback(() => {
     if (!enabled) return;
 
-    const now = Date.now();
-    lastActivityRef.current = now;
+    lastActivityRef.current = Date.now();
 
-    // If warning is showing and user becomes active, auto-extend
     if (showWarning) {
-      extendSession();
+      void extendSession();
+      return;
     }
 
-    // Throttle database updates to every 30 seconds
     if (!activityThrottleRef.current) {
       activityThrottleRef.current = setTimeout(async () => {
-        if (sessionId) {
-          await supabase
-            .from("sessions")
-            .update({ last_activity_at: new Date().toISOString() })
-            .eq("id", sessionId);
-        }
+        await updateTrackedSession({ last_activity_at: new Date().toISOString() });
         activityThrottleRef.current = null;
       }, 30000);
     }
-  }, [enabled, showWarning, extendSession, sessionId]);
+  }, [enabled, showWarning, extendSession, updateTrackedSession]);
 
-  // Initialize session tracking
   useEffect(() => {
     if (!enabled) {
       resetTimers();
       setShowWarning(false);
+      setSessionId(null);
+
       if (activityThrottleRef.current) {
         clearTimeout(activityThrottleRef.current);
         activityThrottleRef.current = null;
       }
+
       return;
     }
 
     const initSession = async () => {
       try {
-        // Use getSession (reads from cache) instead of getUser (triggers network request)
-        // to avoid token refresh storms on page reload
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         const user = session?.user;
+
         if (!user) return;
 
-        // Check for existing active sessions
-        const { data: existingSessions } = await supabase
+        lastActivityRef.current = Date.now();
+
+        const { data: existingSessions, error: selectError } = await supabase
           .from("sessions")
           .select("id")
           .eq("user_id", user.id)
           .is("logout_at", null)
           .order("login_at", { ascending: false });
 
-        if (existingSessions && existingSessions.length > 0) {
-          // Log out all other sessions (single session enforcement)
-          const otherSessionIds = existingSessions.slice(1).map((s) => s.id);
-          if (otherSessionIds.length > 0) {
-            await supabase
-              .from("sessions")
-              .update({ logout_at: new Date().toISOString() })
-              .in("id", otherSessionIds);
-          }
-          setSessionId(existingSessions[0].id);
-        } else {
-          // Create new session
-          const { data: newSession } = await supabase
-            .from("sessions")
-            .insert({
-              user_id: user.id,
-              login_at: new Date().toISOString(),
-              last_activity_at: new Date().toISOString(),
-            })
-            .select()
-            .single();
+        if (selectError) {
+          throw selectError;
+        }
 
-          if (newSession) {
-            setSessionId(newSession.id);
-          }
+        if (existingSessions && existingSessions.length > 0) {
+          setSessionId(existingSessions[0].id);
+          return;
+        }
+
+        const { data: newSession, error: insertError } = await supabase
+          .from("sessions")
+          .insert({
+            user_id: user.id,
+            login_at: new Date().toISOString(),
+            last_activity_at: new Date().toISOString(),
+          })
+          .select("id")
+          .maybeSingle();
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        if (newSession?.id) {
+          setSessionId(newSession.id);
         }
       } catch (error) {
         console.error("Error starting session:", error);
-        // Don't let session tracking errors break the app
       }
     };
 
-    initSession();
+    void initSession();
   }, [enabled, resetTimers]);
 
-  // Start session timer once session is initialized
   useEffect(() => {
     if (enabled && sessionId) {
       startSessionTimer();
     }
   }, [enabled, sessionId, startSessionTimer]);
 
-  // Activity detection
   useEffect(() => {
     if (!enabled) return;
 
@@ -229,9 +229,12 @@ export const useSessionTimeout = (enabled = true) => {
 
     return () => {
       resetTimers();
+
       if (activityThrottleRef.current) {
         clearTimeout(activityThrottleRef.current);
+        activityThrottleRef.current = null;
       }
+
       events.forEach((event) => {
         window.removeEventListener(event, handleUserActivity);
       });
@@ -241,7 +244,7 @@ export const useSessionTimeout = (enabled = true) => {
   return {
     showWarning,
     countdown,
-    timeLeft: countdown, // For backwards compatibility
+    timeLeft: countdown,
     extendSession,
     handleLogout,
   };

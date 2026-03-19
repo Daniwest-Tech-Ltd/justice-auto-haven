@@ -25,8 +25,6 @@ import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationsPanel from "@/components/NotificationsPanel";
-import { SessionTimeoutModal } from "@/components/SessionTimeoutModal";
-import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";
@@ -47,7 +45,7 @@ const AdminDashboard = () => {
   const { user, profile, role, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
+  
   const [isGeneratingReports, setIsGeneratingReports] = useState(false);
   const [showAccountDetails, setShowAccountDetails] = useState(false);
 
@@ -270,12 +268,6 @@ const AdminDashboard = () => {
     <SidebarProvider>
       <DashboardSnowfall />
       <div className="min-h-screen flex w-full">
-        <SessionTimeoutModal
-          isOpen={showWarning}
-          timeLeft={timeLeft}
-          onExtend={extendSession}
-          onLogout={handleLogout}
-        />
         
         <Sidebar collapsible="icon">
           <SidebarContent>

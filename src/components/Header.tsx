@@ -8,8 +8,6 @@ import christmasHat from "@/assets/christmas-hat.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LogoutConfirmModal } from "./LogoutConfirmModal";
-import { SessionTimeoutModal } from "./SessionTimeoutModal";
-import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { BusinessHours } from "./BusinessHours";
 import { ChristmasHat } from "./SeasonalEffects";
 import {
@@ -43,7 +41,7 @@ const Header = () => {
     return saved !== null ? JSON.parse(saved) : true;
   });
 
-  const { showWarning, timeLeft, extendSession, handleLogout: sessionLogout } = useSessionTimeout();
+  
 
   useEffect(() => {
     if (darkMode) {
@@ -464,15 +462,6 @@ const Header = () => {
       </Drawer>
     </header>
 
-    {/* Session Timeout Modal */}
-    {isAuthenticated && (
-      <SessionTimeoutModal
-        isOpen={showWarning}
-        timeLeft={timeLeft}
-        onExtend={extendSession}
-        onLogout={sessionLogout}
-      />
-    )}
 
     {/* Logout Confirmation Modal */}
     <LogoutConfirmModal

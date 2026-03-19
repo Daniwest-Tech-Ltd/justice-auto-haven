@@ -20,8 +20,6 @@ import {
 import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingCart, MessageSquare, Sun, Moon, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import SessionTimeoutModal from "@/components/SessionTimeoutModal";
-import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -37,7 +35,7 @@ const CustomerDashboard = () => {
   const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
+  
   const [wishlistCount, setWishlistCount] = useState(0);
   const [rentalsCount, setRentalsCount] = useState(0);
   const [purchasesCount, setPurchasesCount] = useState(0);
@@ -128,12 +126,6 @@ const CustomerDashboard = () => {
     <SidebarProvider>
       <DashboardSnowfall />
       <div className="min-h-screen flex w-full">
-        <SessionTimeoutModal
-          isOpen={showWarning}
-          timeLeft={timeLeft}
-          onExtend={extendSession}
-          onLogout={handleLogout}
-        />
         
         <Sidebar collapsible="icon">
           <SidebarContent>

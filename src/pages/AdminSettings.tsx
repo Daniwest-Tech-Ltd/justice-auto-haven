@@ -160,7 +160,8 @@ const AdminSettings = () => {
 
   const toggleMaintenance = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) return;
 
       if (maintenanceMode.is_active) {
@@ -191,11 +192,13 @@ const AdminSettings = () => {
             created_by: user.id
           })
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         
-        setMaintenanceId(data.id);
+        if (data?.id) {
+          setMaintenanceId(data.id);
+        }
         setMaintenanceMode({ ...maintenanceMode, is_active: true });
         toast({
           title: "Success",
@@ -240,7 +243,7 @@ const AdminSettings = () => {
         .from("profiles")
         .select("*")
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       if (data) {
@@ -270,7 +273,7 @@ const AdminSettings = () => {
       const { data, error } = await supabase
         .from("company_settings")
         .select("*")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       if (data) {
@@ -376,21 +379,25 @@ const AdminSettings = () => {
   // Backup functions
   const fetchBackupData = async () => {
     try {
-      const { data: settingsData } = await supabase
-        .from('backup_settings')
-        .select('*')
-        .single();
+      const [{ data: settingsData, error: settingsError }, { data: statsData, error: statsError }, { data: historyData, error: historyError }] = await Promise.all([
+        supabase
+          .from('backup_settings')
+          .select('*')
+          .maybeSingle(),
+        supabase
+          .from('backup_stats')
+          .select('*')
+          .maybeSingle(),
+        supabase
+          .from('backup_history')
+          .select('*')
+          .order('started_at', { ascending: false })
+          .limit(10),
+      ]);
 
-      const { data: statsData } = await supabase
-        .from('backup_stats')
-        .select('*')
-        .single();
-
-      const { data: historyData } = await supabase
-        .from('backup_history')
-        .select('*')
-        .order('started_at', { ascending: false })
-        .limit(10);
+      if (settingsError) throw settingsError;
+      if (statsError) throw statsError;
+      if (historyError) throw historyError;
 
       if (settingsData) setBackupSettings(settingsData);
       if (statsData) setBackupStats(statsData);
@@ -422,9 +429,9 @@ const AdminSettings = () => {
     sonnerToast.info('Starting backup... This may take a few minutes.');
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
       const { data, error } = await supabase.functions.invoke('run-backup', {
-        body: { backup_type: 'manual', triggered_by: user?.id }
+        body: { backup_type: 'manual', triggered_by: session?.user?.id }
       });
 
       if (error) throw error;
