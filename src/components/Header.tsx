@@ -41,7 +41,7 @@ const Header = () => {
     return saved !== null ? JSON.parse(saved) : true;
   });
 
-  const { showWarning, timeLeft, extendSession, handleLogout: sessionLogout } = useSessionTimeout();
+  
 
   useEffect(() => {
     if (darkMode) {
