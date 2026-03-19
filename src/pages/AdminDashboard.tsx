@@ -45,7 +45,7 @@ const AdminDashboard = () => {
   const { user, profile, role, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
+  
   const [isGeneratingReports, setIsGeneratingReports] = useState(false);
   const [showAccountDetails, setShowAccountDetails] = useState(false);
 
