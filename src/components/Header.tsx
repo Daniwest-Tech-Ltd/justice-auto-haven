@@ -462,15 +462,6 @@ const Header = () => {
       </Drawer>
     </header>
 
-    {/* Session Timeout Modal */}
-    {isAuthenticated && (
-      <SessionTimeoutModal
-        isOpen={showWarning}
-        timeLeft={timeLeft}
-        onExtend={extendSession}
-        onLogout={sessionLogout}
-      />
-    )}
 
     {/* Logout Confirmation Modal */}
     <LogoutConfirmModal

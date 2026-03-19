@@ -126,12 +126,6 @@ const CustomerDashboard = () => {
     <SidebarProvider>
       <DashboardSnowfall />
       <div className="min-h-screen flex w-full">
-        <SessionTimeoutModal
-          isOpen={showWarning}
-          timeLeft={timeLeft}
-          onExtend={extendSession}
-          onLogout={handleLogout}
-        />
         
         <Sidebar collapsible="icon">
           <SidebarContent>
