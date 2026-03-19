@@ -273,7 +273,7 @@ const AdminSettings = () => {
       const { data, error } = await supabase
         .from("company_settings")
         .select("*")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       if (data) {
