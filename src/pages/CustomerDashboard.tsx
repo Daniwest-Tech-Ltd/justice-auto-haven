@@ -35,7 +35,7 @@ const CustomerDashboard = () => {
   const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout();
+  
   const [wishlistCount, setWishlistCount] = useState(0);
   const [rentalsCount, setRentalsCount] = useState(0);
   const [purchasesCount, setPurchasesCount] = useState(0);
