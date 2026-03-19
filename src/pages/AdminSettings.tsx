@@ -379,21 +379,25 @@ const AdminSettings = () => {
   // Backup functions
   const fetchBackupData = async () => {
     try {
-      const { data: settingsData } = await supabase
-        .from('backup_settings')
-        .select('*')
-        .single();
+      const [{ data: settingsData, error: settingsError }, { data: statsData, error: statsError }, { data: historyData, error: historyError }] = await Promise.all([
+        supabase
+          .from('backup_settings')
+          .select('*')
+          .maybeSingle(),
+        supabase
+          .from('backup_stats')
+          .select('*')
+          .maybeSingle(),
+        supabase
+          .from('backup_history')
+          .select('*')
+          .order('started_at', { ascending: false })
+          .limit(10),
+      ]);
 
-      const { data: statsData } = await supabase
-        .from('backup_stats')
-        .select('*')
-        .single();
-
-      const { data: historyData } = await supabase
-        .from('backup_history')
-        .select('*')
-        .order('started_at', { ascending: false })
-        .limit(10);
+      if (settingsError) throw settingsError;
+      if (statsError) throw statsError;
+      if (historyError) throw historyError;
 
       if (settingsData) setBackupSettings(settingsData);
       if (statsData) setBackupStats(statsData);
