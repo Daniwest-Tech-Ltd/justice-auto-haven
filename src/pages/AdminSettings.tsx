@@ -160,7 +160,8 @@ const AdminSettings = () => {
 
   const toggleMaintenance = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) return;
 
       if (maintenanceMode.is_active) {
@@ -191,11 +192,13 @@ const AdminSettings = () => {
             created_by: user.id
           })
           .select()
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         
-        setMaintenanceId(data.id);
+        if (data?.id) {
+          setMaintenanceId(data.id);
+        }
         setMaintenanceMode({ ...maintenanceMode, is_active: true });
         toast({
           title: "Success",
