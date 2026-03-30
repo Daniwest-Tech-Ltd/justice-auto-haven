@@ -79,6 +79,7 @@ const AISecurityDashboard = () => {
   const [cryptoAssets, setCryptoAssets] = useState<any[]>([]);
   const [failedLogins, setFailedLogins] = useState<any[]>([]);
   const [twoFactorAttempts, setTwoFactorAttempts] = useState<any[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
@@ -88,6 +89,7 @@ const AISecurityDashboard = () => {
   const [aiAnomalies, setAiAnomalies] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -95,19 +97,23 @@ const AISecurityDashboard = () => {
     loadAllData();
     subscribeToRealtime();
     runAIAnalysis();
+    // Real-time clock
+    const clockInterval = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(clockInterval);
   }, []);
 
   const loadAllData = async () => {
     setLoading(true);
     try {
-      const [alertsData, incidentsData, threatData, playbooksData, cryptoData, loginsData, twoFAData] = await Promise.all([
+      const [alertsData, incidentsData, threatData, playbooksData, cryptoData, loginsData, twoFAData, auditData] = await Promise.all([
         supabase.from("security_events").select("*").order("created_at", { ascending: false }).limit(100),
         supabase.from("security_incidents").select("*").order("created_at", { ascending: false }),
         supabase.from("threat_intelligence").select("*").eq("active", true).order("last_seen", { ascending: false }).limit(50),
         supabase.from("security_playbooks").select("*").order("name"),
         supabase.from("crypto_inventory").select("*").order("expiry_date", { ascending: true }),
         supabase.from("failed_logins").select("*").order("created_at", { ascending: false }).limit(50),
-        supabase.from("two_factor_auth").select("*").order("created_at", { ascending: false }).limit(50)
+        supabase.from("two_factor_auth").select("*").order("created_at", { ascending: false }).limit(50),
+        supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(100)
       ]);
       
       if (alertsData.data) setAlerts(alertsData.data);
@@ -117,6 +123,7 @@ const AISecurityDashboard = () => {
       if (cryptoData.data) setCryptoAssets(cryptoData.data);
       if (loginsData.data) setFailedLogins(loginsData.data);
       if (twoFAData.data) setTwoFactorAttempts(twoFAData.data);
+      if (auditData.data) setAuditLogs(auditData.data);
     } catch (error) {
       console.error("Error loading data:", error);
       toast({ title: "Error", description: "Failed to load security data", variant: "destructive" });
@@ -454,6 +461,10 @@ const AISecurityDashboard = () => {
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">AI Security Guardian</h1>
               <p className="text-muted-foreground text-sm">Enterprise-Grade Zero Trust Security • Justice Ultimate Automobiles</p>
+              <p className="text-xs text-muted-foreground font-mono mt-1">
+                <Clock className="h-3 w-3 inline mr-1" />
+                {currentTime.toLocaleString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' })}
+              </p>
             </div>
           </div>
         </div>
@@ -662,6 +673,7 @@ const AISecurityDashboard = () => {
               {activeTab === "overview" && "Security Overview"}
               {activeTab === "modules" && "Security Modules"}
               {activeTab === "alerts" && "Alerts"}
+              {activeTab === "audit" && "Audit Logs"}
               {activeTab === "incidents" && "Incidents"}
               {activeTab === "realtime" && "Real-time Monitoring"}
               {activeTab === "workflows" && "Auto-Response"}
@@ -674,7 +686,7 @@ const AISecurityDashboard = () => {
               <SheetTitle>Security Menu</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-2 mt-6">
-              {["overview", "modules", "alerts", "incidents", "realtime", "workflows", "playbooks", "pqc"].map((tab) => (
+              {["overview", "modules", "alerts", "audit", "incidents", "realtime", "workflows", "playbooks", "pqc"].map((tab) => (
                 <Button
                   key={tab}
                   variant={activeTab === tab ? "default" : "ghost"}
@@ -687,6 +699,7 @@ const AISecurityDashboard = () => {
                   {tab === "overview" && "Security Overview"}
                   {tab === "modules" && "Security Modules"}
                   {tab === "alerts" && "Alerts"}
+                  {tab === "audit" && "Audit Logs"}
                   {tab === "incidents" && "Incidents"}
                   {tab === "realtime" && "Real-time"}
                   {tab === "workflows" && "Auto-Response"}
@@ -701,10 +714,11 @@ const AISecurityDashboard = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="hidden md:grid w-full grid-cols-8 mb-4">
+        <TabsList className="hidden md:grid w-full grid-cols-9 mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="modules">Modules</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
+          <TabsTrigger value="audit">Audit Logs</TabsTrigger>
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
           <TabsTrigger value="realtime">Real-time</TabsTrigger>
           <TabsTrigger value="workflows">Auto-Response</TabsTrigger>
@@ -942,6 +956,68 @@ const AISecurityDashboard = () => {
               ))}
             </div>
           </ScrollArea>
+        </TabsContent>
+
+        {/* Audit Logs Tab */}
+        <TabsContent value="audit" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Audit Logs
+                <Badge variant="secondary">{auditLogs.length} records</Badge>
+              </CardTitle>
+              <CardDescription>
+                Complete audit trail of all system actions — real-time from database
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[600px]">
+                {auditLogs.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-[300px] text-center">
+                    <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Audit Logs Yet</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Audit logs will appear here as users interact with the system.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {auditLogs.map((log) => (
+                      <div key={log.id} className="flex items-start justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-xs shrink-0">{log.action}</Badge>
+                            {log.ip_address && (
+                              <span className="text-xs text-muted-foreground font-mono">
+                                IP: {log.ip_address}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            User: {log.user_id ? `${log.user_id.substring(0, 8)}...` : 'System'}
+                          </p>
+                          {log.user_agent && (
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">
+                              {log.user_agent.substring(0, 80)}...
+                            </p>
+                          )}
+                          {log.metadata && Object.keys(log.metadata).length > 0 && (
+                            <pre className="text-xs text-muted-foreground mt-1 bg-muted/30 p-1 rounded overflow-auto max-h-20">
+                              {JSON.stringify(log.metadata, null, 2)}
+                            </pre>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap ml-3">
+                          {new Date(log.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Real-time Alert System Tab */}
