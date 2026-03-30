@@ -554,6 +554,9 @@ const Auth = () => {
 
   const completeLogin = async (userId: string, userName?: string, userEmail?: string) => {
     try {
+      // Log successful login with IP
+      logLoginAttempt(userEmail || email, true, userIpRef.current || undefined);
+
       // Play login success sound
       const loginSound = new Audio('/sounds/notification.mp3');
       loginSound.volume = 0.5;
