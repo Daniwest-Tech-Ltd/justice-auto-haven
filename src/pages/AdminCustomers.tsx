@@ -57,8 +57,8 @@ const AdminCustomers = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchCustomers();
-    getCurrentAdmin();
+    void fetchCustomers();
+    void getCurrentAdmin();
     
     // Refresh every 10 seconds to update online status
     const interval = setInterval(fetchCustomers, 10000);
@@ -66,7 +66,8 @@ const AdminCustomers = () => {
   }, []);
 
   const getCurrentAdmin = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
     if (user) {
       setCurrentAdminId(user.id);
     }
