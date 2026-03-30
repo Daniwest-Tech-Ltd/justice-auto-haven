@@ -957,6 +957,68 @@ const AISecurityDashboard = () => {
           </ScrollArea>
         </TabsContent>
 
+        {/* Audit Logs Tab */}
+        <TabsContent value="audit" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Audit Logs
+                <Badge variant="secondary">{auditLogs.length} records</Badge>
+              </CardTitle>
+              <CardDescription>
+                Complete audit trail of all system actions — real-time from database
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[600px]">
+                {auditLogs.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-[300px] text-center">
+                    <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Audit Logs Yet</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Audit logs will appear here as users interact with the system.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {auditLogs.map((log) => (
+                      <div key={log.id} className="flex items-start justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-xs shrink-0">{log.action}</Badge>
+                            {log.ip_address && (
+                              <span className="text-xs text-muted-foreground font-mono">
+                                IP: {log.ip_address}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            User: {log.user_id ? `${log.user_id.substring(0, 8)}...` : 'System'}
+                          </p>
+                          {log.user_agent && (
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">
+                              {log.user_agent.substring(0, 80)}...
+                            </p>
+                          )}
+                          {log.metadata && Object.keys(log.metadata).length > 0 && (
+                            <pre className="text-xs text-muted-foreground mt-1 bg-muted/30 p-1 rounded overflow-auto max-h-20">
+                              {JSON.stringify(log.metadata, null, 2)}
+                            </pre>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap ml-3">
+                          {new Date(log.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Real-time Alert System Tab */}
         <TabsContent value="realtime" className="space-y-4">
           <RealtimeAlertSystem />
