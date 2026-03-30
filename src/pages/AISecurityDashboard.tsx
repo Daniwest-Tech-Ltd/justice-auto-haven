@@ -712,10 +712,11 @@ const AISecurityDashboard = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="hidden md:grid w-full grid-cols-8 mb-4">
+        <TabsList className="hidden md:grid w-full grid-cols-9 mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="modules">Modules</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
+          <TabsTrigger value="audit">Audit Logs</TabsTrigger>
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
           <TabsTrigger value="realtime">Real-time</TabsTrigger>
           <TabsTrigger value="workflows">Auto-Response</TabsTrigger>
