@@ -70,7 +70,7 @@ const AdminSettings = () => {
   const [savingCompany, setSavingCompany] = useState(false);
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string>("");
+  const [userId, setUserId] = useState<string | undefined>(undefined);
   const [fingerprintDevices, setFingerprintDevices] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("profile");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -119,10 +119,19 @@ const AdminSettings = () => {
   const [sendingTest, setSendingTest] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchProfile();
-    fetchCompanySettings();
-    fetchMaintenanceStatus();
-    fetchBackupData();
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+      setUserId(session.user.id);
+      fetchProfile();
+      fetchCompanySettings();
+      fetchMaintenanceStatus();
+      fetchBackupData();
+    };
+    init();
   }, []);
   
   const loadFingerprintDevices = async () => {
