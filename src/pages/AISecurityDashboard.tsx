@@ -105,14 +105,15 @@ const AISecurityDashboard = () => {
   const loadAllData = async () => {
     setLoading(true);
     try {
-      const [alertsData, incidentsData, threatData, playbooksData, cryptoData, loginsData, twoFAData] = await Promise.all([
+      const [alertsData, incidentsData, threatData, playbooksData, cryptoData, loginsData, twoFAData, auditData] = await Promise.all([
         supabase.from("security_events").select("*").order("created_at", { ascending: false }).limit(100),
         supabase.from("security_incidents").select("*").order("created_at", { ascending: false }),
         supabase.from("threat_intelligence").select("*").eq("active", true).order("last_seen", { ascending: false }).limit(50),
         supabase.from("security_playbooks").select("*").order("name"),
         supabase.from("crypto_inventory").select("*").order("expiry_date", { ascending: true }),
         supabase.from("failed_logins").select("*").order("created_at", { ascending: false }).limit(50),
-        supabase.from("two_factor_auth").select("*").order("created_at", { ascending: false }).limit(50)
+        supabase.from("two_factor_auth").select("*").order("created_at", { ascending: false }).limit(50),
+        supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(100)
       ]);
       
       if (alertsData.data) setAlerts(alertsData.data);
@@ -122,6 +123,7 @@ const AISecurityDashboard = () => {
       if (cryptoData.data) setCryptoAssets(cryptoData.data);
       if (loginsData.data) setFailedLogins(loginsData.data);
       if (twoFAData.data) setTwoFactorAttempts(twoFAData.data);
+      if (auditData.data) setAuditLogs(auditData.data);
     } catch (error) {
       console.error("Error loading data:", error);
       toast({ title: "Error", description: "Failed to load security data", variant: "destructive" });
