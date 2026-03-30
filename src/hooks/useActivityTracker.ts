@@ -6,6 +6,12 @@ export const useActivityTracker = (enabled = true) => {
   const location = useLocation();
   const sessionIdRef = useRef<string | null>(null);
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const trackingBlockedRef = useRef(false);
+
+  const isAuthError = (error: any) => {
+    const status = error?.status ?? error?.code;
+    return status === 401 || status === 403 || status === "401" || status === "403";
+  };
 
   // Log activity - uses getSession (cache) instead of getUser (network)
   const logActivity = async (
@@ -14,19 +20,28 @@ export const useActivityTracker = (enabled = true) => {
     targetId?: string,
     details?: any
   ) => {
-    if (!enabled) return;
+    if (!enabled || trackingBlockedRef.current) return;
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) return;
 
-      await supabase.from("activity_logs").insert({
+      const { error } = await supabase.from("activity_logs").insert({
         user_id: session.user.id,
         action_type: actionType,
         target_table: targetTable,
         target_id: targetId,
         details: details || {},
       });
+
+      if (error) {
+        if (isAuthError(error)) {
+          trackingBlockedRef.current = true;
+          return;
+        }
+
+        throw error;
+      }
     } catch (error) {
       console.error("Error logging activity:", error);
     }
@@ -34,11 +49,35 @@ export const useActivityTracker = (enabled = true) => {
 
   // Start session on login
   const startSession = async () => {
-    if (!enabled) return;
+    if (!enabled || trackingBlockedRef.current || sessionIdRef.current) return;
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) return;
+
+      const { data: existingSession, error: existingSessionError } = await supabase
+        .from("sessions")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .is("logout_at", null)
+        .order("login_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingSessionError) {
+        if (isAuthError(existingSessionError)) {
+          trackingBlockedRef.current = true;
+          return;
+        }
+
+        throw existingSessionError;
+      }
+
+      if (existingSession?.id) {
+        sessionIdRef.current = existingSession.id;
+        startHeartbeat();
+        return;
+      }
 
       const { data, error } = await supabase
         .from("sessions")
@@ -50,9 +89,18 @@ export const useActivityTracker = (enabled = true) => {
           },
         })
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        if (isAuthError(error)) {
+          trackingBlockedRef.current = true;
+          return;
+        }
+
+        throw error;
+      }
+
+      if (!data?.id) return;
       sessionIdRef.current = data.id;
 
       // Start heartbeat
@@ -67,13 +115,17 @@ export const useActivityTracker = (enabled = true) => {
     try {
       if (!sessionIdRef.current) return;
 
-      await supabase
+      const { error } = await supabase
         .from("sessions")
         .update({
           logout_at: new Date().toISOString(),
           last_activity_at: new Date().toISOString(),
         })
         .eq("id", sessionIdRef.current);
+
+      if (error && !isAuthError(error)) {
+        throw error;
+      }
 
       stopHeartbeat();
       sessionIdRef.current = null;
@@ -84,17 +136,28 @@ export const useActivityTracker = (enabled = true) => {
 
   // Update last activity (heartbeat)
   const updateActivity = async () => {
-    if (!enabled) return;
+    if (!enabled || trackingBlockedRef.current) return;
 
     try {
       if (!sessionIdRef.current) return;
 
-      await supabase
+      const { error } = await supabase
         .from("sessions")
         .update({
           last_activity_at: new Date().toISOString(),
         })
         .eq("id", sessionIdRef.current);
+
+      if (error) {
+        if (isAuthError(error)) {
+          trackingBlockedRef.current = true;
+          stopHeartbeat();
+          sessionIdRef.current = null;
+          return;
+        }
+
+        throw error;
+      }
     } catch (error) {
       console.error("Error updating activity:", error);
     }
@@ -131,6 +194,8 @@ export const useActivityTracker = (enabled = true) => {
   useEffect(() => {
     if (!enabled) {
       stopHeartbeat();
+      sessionIdRef.current = null;
+      trackingBlockedRef.current = false;
       return;
     }
 
@@ -145,7 +210,7 @@ export const useActivityTracker = (enabled = true) => {
       }
     };
 
-    initSession();
+    void initSession();
 
     // Cleanup on unmount or tab close
     const handleBeforeUnload = () => {

@@ -15,6 +15,12 @@ export const useSessionTimeout = (enabled = true) => {
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
   const activityThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const trackingBlockedRef = useRef(false);
+
+  const isAuthError = (error: any) => {
+    const status = error?.status ?? error?.code;
+    return status === 401 || status === 403 || status === "401" || status === "403";
+  };
 
   const resetTimers = useCallback(() => {
     if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
@@ -23,7 +29,7 @@ export const useSessionTimeout = (enabled = true) => {
   }, []);
 
   const updateTrackedSession = useCallback(async (payload: Record<string, string>) => {
-    if (!sessionId) return;
+    if (!sessionId || trackingBlockedRef.current) return;
 
     const { error } = await supabase
       .from("sessions")
@@ -31,6 +37,11 @@ export const useSessionTimeout = (enabled = true) => {
       .eq("id", sessionId);
 
     if (error) {
+      if (isAuthError(error)) {
+        trackingBlockedRef.current = true;
+        return;
+      }
+
       console.error("Session tracking update failed:", error);
     }
   }, [sessionId]);
@@ -151,6 +162,7 @@ export const useSessionTimeout = (enabled = true) => {
       resetTimers();
       setShowWarning(false);
       setSessionId(null);
+      trackingBlockedRef.current = false;
 
       if (activityThrottleRef.current) {
         clearTimeout(activityThrottleRef.current);
@@ -171,6 +183,10 @@ export const useSessionTimeout = (enabled = true) => {
 
         lastActivityRef.current = Date.now();
 
+        if (trackingBlockedRef.current) {
+          return;
+        }
+
         const { data: existingSessions, error: selectError } = await supabase
           .from("sessions")
           .select("id")
@@ -179,6 +195,11 @@ export const useSessionTimeout = (enabled = true) => {
           .order("login_at", { ascending: false });
 
         if (selectError) {
+          if (isAuthError(selectError)) {
+            trackingBlockedRef.current = true;
+            return;
+          }
+
           throw selectError;
         }
 
@@ -198,6 +219,11 @@ export const useSessionTimeout = (enabled = true) => {
           .maybeSingle();
 
         if (insertError) {
+          if (isAuthError(insertError)) {
+            trackingBlockedRef.current = true;
+            return;
+          }
+
           throw insertError;
         }
 
