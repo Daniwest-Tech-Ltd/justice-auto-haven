@@ -64,6 +64,7 @@ const Auth = () => {
   const oauthCallbackHandledRef = useRef<string | null>(null);
   const { toast } = useToast();
   const { logLoginAttempt, logSuspiciousActivity } = useSecurityLogger();
+  const userIpRef = useRef<string | null>(null);
   
   // Turnstile CAPTCHA hooks for login and signup
   const loginTurnstile = useTurnstile(TURNSTILE_SITE_KEY);
@@ -97,6 +98,14 @@ const Auth = () => {
   } | null>(null);
   const [maintenanceCountdown, setMaintenanceCountdown] = useState("");
 
+
+  // Fetch user's public IP on mount
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then(res => res.json())
+      .then(data => { userIpRef.current = data.ip; })
+      .catch(() => { userIpRef.current = null; });
+  }, []);
 
   useEffect(() => {
     // Check maintenance once on mount, don't check repeatedly
