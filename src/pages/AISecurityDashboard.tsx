@@ -465,7 +465,7 @@ const AISecurityDashboard = () => {
                 <Clock className="h-3 w-3 inline mr-1" />
                 {currentTime.toLocaleString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' })}
               </p>
-          </div>
+            </div>
         </div>
         <div className="flex gap-2">
           <Button onClick={exportToPDF} variant="outline" size="sm" className="gap-2">
