@@ -97,6 +97,9 @@ const AISecurityDashboard = () => {
     loadAllData();
     subscribeToRealtime();
     runAIAnalysis();
+    // Real-time clock
+    const clockInterval = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(clockInterval);
   }, []);
 
   const loadAllData = async () => {
