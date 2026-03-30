@@ -461,7 +461,10 @@ const AISecurityDashboard = () => {
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">AI Security Guardian</h1>
               <p className="text-muted-foreground text-sm">Enterprise-Grade Zero Trust Security • Justice Ultimate Automobiles</p>
-            </div>
+              <p className="text-xs text-muted-foreground font-mono mt-1">
+                <Clock className="h-3 w-3 inline mr-1" />
+                {currentTime.toLocaleString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' })}
+              </p>
           </div>
         </div>
         <div className="flex gap-2">
