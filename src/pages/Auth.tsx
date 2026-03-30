@@ -919,9 +919,9 @@ const Auth = () => {
             }
             
             await logLoginAttempt(
-              profileData.user_id,
+              email,
               false,
-              "Failed login attempt with incorrect password"
+              userIpRef.current || undefined
             );
             
             setSuspensionReason(updateData.suspended_reason);
@@ -944,7 +944,7 @@ const Auth = () => {
           }
         } else {
           // Log failed attempt
-          await logLoginAttempt(email, false);
+          await logLoginAttempt(email, false, userIpRef.current || undefined);
           
           // Check if error is CAPTCHA related
           const isCaptchaError = error.message.toLowerCase().includes('captcha') || 
