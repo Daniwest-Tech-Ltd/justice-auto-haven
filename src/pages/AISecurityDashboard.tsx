@@ -685,7 +685,7 @@ const AISecurityDashboard = () => {
               <SheetTitle>Security Menu</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-2 mt-6">
-              {["overview", "modules", "alerts", "incidents", "realtime", "workflows", "playbooks", "pqc"].map((tab) => (
+              {["overview", "modules", "alerts", "audit", "incidents", "realtime", "workflows", "playbooks", "pqc"].map((tab) => (
                 <Button
                   key={tab}
                   variant={activeTab === tab ? "default" : "ghost"}
@@ -698,6 +698,7 @@ const AISecurityDashboard = () => {
                   {tab === "overview" && "Security Overview"}
                   {tab === "modules" && "Security Modules"}
                   {tab === "alerts" && "Alerts"}
+                  {tab === "audit" && "Audit Logs"}
                   {tab === "incidents" && "Incidents"}
                   {tab === "realtime" && "Real-time"}
                   {tab === "workflows" && "Auto-Response"}
