@@ -79,6 +79,7 @@ const AISecurityDashboard = () => {
   const [cryptoAssets, setCryptoAssets] = useState<any[]>([]);
   const [failedLogins, setFailedLogins] = useState<any[]>([]);
   const [twoFactorAttempts, setTwoFactorAttempts] = useState<any[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
@@ -88,6 +89,7 @@ const AISecurityDashboard = () => {
   const [aiAnomalies, setAiAnomalies] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
   const { toast } = useToast();
 
