@@ -673,6 +673,7 @@ const AISecurityDashboard = () => {
               {activeTab === "overview" && "Security Overview"}
               {activeTab === "modules" && "Security Modules"}
               {activeTab === "alerts" && "Alerts"}
+              {activeTab === "audit" && "Audit Logs"}
               {activeTab === "incidents" && "Incidents"}
               {activeTab === "realtime" && "Real-time Monitoring"}
               {activeTab === "workflows" && "Auto-Response"}
