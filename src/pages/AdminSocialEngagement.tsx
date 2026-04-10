@@ -26,6 +26,8 @@ interface CommentRow {
   comment_text: string;
   is_anonymous: boolean;
   created_at: string;
+  contact_phone?: string | null;
+  contact_email?: string | null;
   car_make?: string;
   car_model?: string;
   car_year?: number;
@@ -254,14 +256,26 @@ const AdminSocialEngagement = () => {
                         </span>
                       </div>
                       <p className="text-sm mt-1">{c.comment_text}</p>
-                      {c.car_make && (
-                        <button
-                          onClick={() => navigate(`/car/${c.car_id}`)}
-                          className="text-xs text-primary hover:underline mt-1"
-                        >
-                          on {c.car_make} {c.car_model} {c.car_year}
-                        </button>
-                      )}
+                      <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        {c.car_make && (
+                          <button
+                            onClick={() => navigate(`/car/${c.car_id}`)}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            on {c.car_make} {c.car_model} {c.car_year}
+                          </button>
+                        )}
+                        {c.contact_phone && (
+                          <a href={`tel:${c.contact_phone}`} className="text-xs text-muted-foreground hover:text-primary">
+                            📞 {c.contact_phone}
+                          </a>
+                        )}
+                        {c.contact_email && (
+                          <a href={`mailto:${c.contact_email}`} className="text-xs text-muted-foreground hover:text-primary">
+                            ✉️ {c.contact_email}
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>

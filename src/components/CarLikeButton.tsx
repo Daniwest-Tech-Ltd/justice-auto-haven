@@ -3,7 +3,6 @@ import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
 
 interface CarLikeButtonProps {
   carId: string;
@@ -15,16 +14,24 @@ const formatCount = (count: number): string => {
   return count.toString();
 };
 
+const getSessionId = (): string => {
+  let sid = localStorage.getItem("jua_session_id");
+  if (!sid) {
+    sid = crypto.randomUUID();
+    localStorage.setItem("jua_session_id", sid);
+  }
+  return sid;
+};
+
 const CarLikeButton = ({ carId }: CarLikeButtonProps) => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [likeCount, setLikeCount] = useState(0);
   const [dislikeCount, setDislikeCount] = useState(0);
   const [userReaction, setUserReaction] = useState<"like" | "dislike" | null>(null);
 
   useEffect(() => {
     fetchCounts();
-    if (user) fetchUserReaction();
+    fetchUserReaction();
   }, [carId, user?.id]);
 
   const fetchCounts = async () => {
@@ -37,44 +44,53 @@ const CarLikeButton = ({ carId }: CarLikeButtonProps) => {
   };
 
   const fetchUserReaction = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("car_likes")
-      .select("reaction_type")
-      .eq("car_id", carId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+    let query = supabase.from("car_likes").select("id, reaction_type").eq("car_id", carId);
+    if (user) {
+      query = query.eq("user_id", user.id);
+    } else {
+      query = query.eq("session_id", getSessionId()).is("user_id", null);
+    }
+    const { data } = await query.maybeSingle();
     setUserReaction((data?.reaction_type as "like" | "dislike") || null);
   };
 
   const handleReaction = async (type: "like" | "dislike") => {
-    if (!user) {
-      toast({ title: "Please log in", description: "You need to be logged in to react", variant: "destructive" });
-      return;
-    }
-
     try {
-      if (userReaction === type) {
+      // Find existing reaction
+      let findQuery = supabase.from("car_likes").select("id, reaction_type").eq("car_id", carId);
+      if (user) {
+        findQuery = findQuery.eq("user_id", user.id);
+      } else {
+        findQuery = findQuery.eq("session_id", getSessionId()).is("user_id", null);
+      }
+      const { data: existing } = await findQuery.maybeSingle();
+
+      if (existing && existing.reaction_type === type) {
         // Remove reaction
-        await supabase.from("car_likes").delete().eq("car_id", carId).eq("user_id", user.id);
+        await supabase.from("car_likes").delete().eq("id", existing.id);
         setUserReaction(null);
         if (type === "like") setLikeCount((c) => c - 1);
         else setDislikeCount((c) => c - 1);
-      } else if (userReaction) {
+      } else if (existing) {
         // Switch reaction
-        await supabase.from("car_likes").update({ reaction_type: type, updated_at: new Date().toISOString() }).eq("car_id", carId).eq("user_id", user.id);
+        await supabase.from("car_likes").update({ reaction_type: type, updated_at: new Date().toISOString() }).eq("id", existing.id);
         setUserReaction(type);
         if (type === "like") { setLikeCount((c) => c + 1); setDislikeCount((c) => c - 1); }
         else { setDislikeCount((c) => c + 1); setLikeCount((c) => c - 1); }
       } else {
         // New reaction
-        await supabase.from("car_likes").insert({ car_id: carId, user_id: user.id, reaction_type: type });
+        await supabase.from("car_likes").insert({
+          car_id: carId,
+          user_id: user?.id || null,
+          session_id: user ? null : getSessionId(),
+          reaction_type: type,
+        });
         setUserReaction(type);
         if (type === "like") setLikeCount((c) => c + 1);
         else setDislikeCount((c) => c + 1);
       }
-    } catch {
-      toast({ title: "Error", description: "Failed to save reaction", variant: "destructive" });
+    } catch (err) {
+      console.error("Reaction error:", err);
     }
   };
 

@@ -882,6 +882,8 @@ export type Database = {
         Row: {
           car_id: string
           comment_text: string
+          contact_email: string | null
+          contact_phone: string | null
           created_at: string
           display_name: string
           id: string
@@ -892,6 +894,8 @@ export type Database = {
         Insert: {
           car_id: string
           comment_text: string
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           display_name?: string
           id?: string
@@ -902,6 +906,8 @@ export type Database = {
         Update: {
           car_id?: string
           comment_text?: string
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           display_name?: string
           id?: string
@@ -1046,24 +1052,27 @@ export type Database = {
           created_at: string
           id: string
           reaction_type: string
+          session_id: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           car_id: string
           created_at?: string
           id?: string
           reaction_type: string
+          session_id?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           car_id?: string
           created_at?: string
           id?: string
           reaction_type?: string
+          session_id?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
