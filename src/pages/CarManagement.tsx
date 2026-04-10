@@ -15,6 +15,7 @@ import {
   Flame, Sparkles, Tag, AlertTriangle, CheckCircle, XCircle, FileText
 } from "lucide-react";
 import { SalesRecordModal } from "@/components/SalesRecordModal";
+import CarCompleteness from "@/components/CarCompleteness";
 import { usePagination } from "@/hooks/usePagination";
 import {
   Pagination,
@@ -831,6 +832,7 @@ const CarManagement = () => {
                     <p className="text-sm text-muted-foreground">
                       Stock ID: {car.stock_id || "N/A"}
                     </p>
+                    <CarCompleteness car={car} />
                   </CardHeader>
 
                   <CardContent className="pt-0">
