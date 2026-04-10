@@ -888,6 +888,7 @@ export type Database = {
           display_name: string
           id: string
           is_anonymous: boolean
+          parent_id: string | null
           updated_at: string
           user_id: string | null
         }
@@ -900,6 +901,7 @@ export type Database = {
           display_name?: string
           id?: string
           is_anonymous?: boolean
+          parent_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -912,6 +914,7 @@ export type Database = {
           display_name?: string
           id?: string
           is_anonymous?: boolean
+          parent_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -921,6 +924,13 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "car_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "car_comments"
             referencedColumns: ["id"]
           },
         ]
@@ -1077,6 +1087,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "car_likes_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      car_ratings: {
+        Row: {
+          car_id: string
+          created_at: string
+          id: string
+          rating: number
+          session_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          id?: string
+          rating: number
+          session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_ratings_car_id_fkey"
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
