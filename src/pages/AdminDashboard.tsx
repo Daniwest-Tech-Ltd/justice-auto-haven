@@ -20,7 +20,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone, Eye, EyeOff, RefreshCw, CreditCard } from "lucide-react";
+import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone, Eye, EyeOff, RefreshCw, CreditCard, ThumbsUp } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -229,6 +229,7 @@ const AdminDashboard = () => {
         { title: "Videos", icon: Video, path: "/admin/videos" },
         { title: "Blogs", icon: BookOpen, path: "/admin/blogs" },
         { title: "Notes", icon: FileText, path: "/admin/notes" },
+        { title: "Social Engagement", icon: ThumbsUp, path: "/admin/social-engagement" },
       ]
     },
     {

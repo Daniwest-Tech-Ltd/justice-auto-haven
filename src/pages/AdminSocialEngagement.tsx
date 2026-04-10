@@ -1,0 +1,277 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ThumbsUp, ThumbsDown, MessageSquare, TrendingUp, User, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import LoadingScreen from "@/components/LoadingScreen";
+
+interface CarWithLikes {
+  car_id: string;
+  make: string;
+  model: string;
+  year: number;
+  stock_id: string | null;
+  likes: number;
+  dislikes: number;
+  image: string | null;
+}
+
+interface CommentRow {
+  id: string;
+  car_id: string;
+  display_name: string;
+  comment_text: string;
+  is_anonymous: boolean;
+  created_at: string;
+  car_make?: string;
+  car_model?: string;
+  car_year?: number;
+}
+
+const AdminSocialEngagement = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [topLiked, setTopLiked] = useState<CarWithLikes[]>([]);
+  const [topDisliked, setTopDisliked] = useState<CarWithLikes[]>([]);
+  const [comments, setComments] = useState<CommentRow[]>([]);
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [totalDislikes, setTotalDislikes] = useState(0);
+  const [totalComments, setTotalComments] = useState(0);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      // Fetch all likes with car info
+      const { data: likesData } = await supabase
+        .from("car_likes")
+        .select("car_id, reaction_type");
+
+      // Aggregate likes per car
+      const carLikesMap: Record<string, { likes: number; dislikes: number }> = {};
+      (likesData || []).forEach((l: any) => {
+        if (!carLikesMap[l.car_id]) carLikesMap[l.car_id] = { likes: 0, dislikes: 0 };
+        if (l.reaction_type === "like") carLikesMap[l.car_id].likes++;
+        else carLikesMap[l.car_id].dislikes++;
+      });
+
+      const carIds = Object.keys(carLikesMap);
+      let carsInfo: any[] = [];
+      if (carIds.length > 0) {
+        const { data } = await supabase.from("cars").select("id, make, model, year, stock_id, main_images, images").in("id", carIds);
+        carsInfo = data || [];
+      }
+
+      const carsWithLikes: CarWithLikes[] = carsInfo.map((car: any) => {
+        const imgs = car.main_images || car.images;
+        let image = null;
+        if (Array.isArray(imgs) && imgs.length > 0) image = imgs[0];
+        return {
+          car_id: car.id,
+          make: car.make,
+          model: car.model,
+          year: car.year,
+          stock_id: car.stock_id,
+          likes: carLikesMap[car.id]?.likes || 0,
+          dislikes: carLikesMap[car.id]?.dislikes || 0,
+          image,
+        };
+      });
+
+      setTopLiked([...carsWithLikes].sort((a, b) => b.likes - a.likes).slice(0, 20));
+      setTopDisliked([...carsWithLikes].sort((a, b) => b.dislikes - a.dislikes).slice(0, 20));
+      setTotalLikes((likesData || []).filter((l: any) => l.reaction_type === "like").length);
+      setTotalDislikes((likesData || []).filter((l: any) => l.reaction_type === "dislike").length);
+
+      // Fetch comments
+      const { data: commentsData, count } = await supabase
+        .from("car_comments")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      // Enrich with car info
+      const commentCarIds = [...new Set((commentsData || []).map((c: any) => c.car_id))];
+      let commentCars: any[] = [];
+      if (commentCarIds.length > 0) {
+        const { data } = await supabase.from("cars").select("id, make, model, year").in("id", commentCarIds);
+        commentCars = data || [];
+      }
+      const carMap = Object.fromEntries(commentCars.map((c: any) => [c.id, c]));
+
+      setComments((commentsData || []).map((c: any) => ({
+        ...c,
+        car_make: carMap[c.car_id]?.make,
+        car_model: carMap[c.car_id]?.model,
+        car_year: carMap[c.car_id]?.year,
+      })));
+      setTotalComments(count || 0);
+    } catch (err) {
+      console.error("Error loading social data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <LoadingScreen />;
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="outline" size="icon" onClick={() => navigate("/admin-dashboard")}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold">Social Engagement</h1>
+          <p className="text-muted-foreground">Likes, dislikes & comments on your vehicles</p>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Card>
+          <CardContent className="pt-6 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center">
+              <ThumbsUp className="h-6 w-6 text-green-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{totalLikes.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Total Likes</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-red-500/20 flex items-center justify-center">
+              <ThumbsDown className="h-6 w-6 text-red-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{totalDislikes.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Total Dislikes</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+              <MessageSquare className="h-6 w-6 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{totalComments.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Total Comments</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="liked">
+        <TabsList className="mb-4">
+          <TabsTrigger value="liked" className="gap-1"><ThumbsUp className="h-4 w-4" /> Top Liked</TabsTrigger>
+          <TabsTrigger value="disliked" className="gap-1"><ThumbsDown className="h-4 w-4" /> Most Disliked</TabsTrigger>
+          <TabsTrigger value="comments" className="gap-1"><MessageSquare className="h-4 w-4" /> Comments</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="liked">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {topLiked.length === 0 ? (
+              <p className="text-muted-foreground col-span-full text-center py-8">No likes yet</p>
+            ) : topLiked.map((car, i) => (
+              <Card key={car.car_id} className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/car/${car.car_id}`)}>
+                <div className="flex gap-4 p-4">
+                  <div className="relative">
+                    <span className="absolute -top-1 -left-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">#{i + 1}</span>
+                    {car.image ? (
+                      <img src={car.image} alt={`${car.make} ${car.model}`} className="h-20 w-28 object-cover rounded" />
+                    ) : (
+                      <div className="h-20 w-28 bg-muted rounded flex items-center justify-center text-muted-foreground text-xs">No img</div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{car.make} {car.model}</h3>
+                    <p className="text-xs text-muted-foreground">{car.year} • {car.stock_id || "N/A"}</p>
+                    <div className="flex gap-3 mt-2">
+                      <Badge className="bg-green-500/20 text-green-600 gap-1"><ThumbsUp className="h-3 w-3" /> {car.likes}</Badge>
+                      <Badge variant="secondary" className="gap-1"><ThumbsDown className="h-3 w-3" /> {car.dislikes}</Badge>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="disliked">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {topDisliked.length === 0 ? (
+              <p className="text-muted-foreground col-span-full text-center py-8">No dislikes yet</p>
+            ) : topDisliked.map((car, i) => (
+              <Card key={car.car_id} className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/car/${car.car_id}`)}>
+                <div className="flex gap-4 p-4">
+                  <div className="relative">
+                    <span className="absolute -top-1 -left-1 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">#{i + 1}</span>
+                    {car.image ? (
+                      <img src={car.image} alt={`${car.make} ${car.model}`} className="h-20 w-28 object-cover rounded" />
+                    ) : (
+                      <div className="h-20 w-28 bg-muted rounded flex items-center justify-center text-muted-foreground text-xs">No img</div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{car.make} {car.model}</h3>
+                    <p className="text-xs text-muted-foreground">{car.year} • {car.stock_id || "N/A"}</p>
+                    <div className="flex gap-3 mt-2">
+                      <Badge variant="secondary" className="gap-1"><ThumbsUp className="h-3 w-3" /> {car.likes}</Badge>
+                      <Badge className="bg-red-500/20 text-red-600 gap-1"><ThumbsDown className="h-3 w-3" /> {car.dislikes}</Badge>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="comments">
+          <div className="space-y-3">
+            {comments.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No comments yet</p>
+            ) : comments.map((c) => (
+              <Card key={c.id}>
+                <CardContent className="pt-4">
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm">{c.display_name}</span>
+                        {c.is_anonymous && <Badge variant="outline" className="text-xs">Anonymous</Badge>}
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(c.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                      <p className="text-sm mt-1">{c.comment_text}</p>
+                      {c.car_make && (
+                        <button
+                          onClick={() => navigate(`/car/${c.car_id}`)}
+                          className="text-xs text-primary hover:underline mt-1"
+                        >
+                          on {c.car_make} {c.car_model} {c.car_year}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default AdminSocialEngagement;
