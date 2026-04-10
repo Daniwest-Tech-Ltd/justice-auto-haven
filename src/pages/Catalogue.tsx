@@ -609,7 +609,7 @@ const Catalogue = () => {
                       {/* Date Added - Marquee */}
                       {car.created_at && (
                         <div className="overflow-hidden rounded bg-muted/50 mb-3">
-                          <div className="flex animate-[marquee_12s_linear_infinite] whitespace-nowrap py-0.5">
+                          <div className="flex animate-marquee whitespace-nowrap py-0.5">
                             <span className="text-xs text-muted-foreground px-2 flex items-center gap-1">
                               <Clock className="h-3 w-3 text-primary" />
                               Added: {new Date(car.created_at).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })} at {new Date(car.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
