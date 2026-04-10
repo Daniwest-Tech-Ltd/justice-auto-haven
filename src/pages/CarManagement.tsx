@@ -832,6 +832,22 @@ const CarManagement = () => {
                     <p className="text-sm text-muted-foreground">
                       Stock ID: {car.stock_id || "N/A"}
                     </p>
+                    {/* Date Added - Marquee */}
+                    {car.created_at && (
+                      <div className="overflow-hidden rounded bg-muted/50 mt-1">
+                        <div className="flex animate-[marquee_10s_linear_infinite] whitespace-nowrap py-0.5">
+                          <span className="text-[10px] text-muted-foreground px-2 flex items-center gap-1">
+                            <Clock className="h-2.5 w-2.5 text-primary" />
+                            Added: {new Date(car.created_at).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })} at {new Date(car.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                          </span>
+                          <span className="text-[10px] text-primary font-semibold px-3">•</span>
+                          <span className="text-[10px] text-muted-foreground px-2 flex items-center gap-1">
+                            <Clock className="h-2.5 w-2.5 text-primary" />
+                            Added: {new Date(car.created_at).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })} at {new Date(car.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                     <CarCompleteness car={car} />
                   </CardHeader>
 
