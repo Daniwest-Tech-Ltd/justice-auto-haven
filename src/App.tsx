@@ -107,6 +107,7 @@ const BackupRecovery = lazyWithRetry(() => import("./pages/BackupRecovery"));
 const PaymentsManagement = lazyWithRetry(() => import("./pages/PaymentsManagement"));
 const AssetFinanceApplication = lazyWithRetry(() => import("./pages/AssetFinanceApplication"));
 const AssetFinanceManagement = lazyWithRetry(() => import("./pages/AssetFinanceManagement"));
+const AdminSocialEngagement = lazyWithRetry(() => import("./pages/AdminSocialEngagement"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient();
