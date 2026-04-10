@@ -15,6 +15,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ColorBall } from "@/components/ColorSelector";
 import christmasGarland from "@/assets/christmas-garland.png";
 import specialOffer from "@/assets/special-offer.png";
+import CarLikeButton from "@/components/CarLikeButton";
+import CarCommentSection from "@/components/CarCommentSection";
 
 interface Car {
   id: string;
@@ -629,6 +631,11 @@ const Catalogue = () => {
                         <p className="text-xs text-muted-foreground mt-1">Negotiable • Payment Plans Available</p>
                       </div>
                       
+                      {/* Like/Dislike */}
+                      <div className="flex items-center justify-between border-t border-border pt-2 mb-2">
+                        <CarLikeButton carId={car.id} />
+                      </div>
+
                       <div className="grid grid-cols-2 gap-2 mt-auto">
                         <Link to={`/car/${car.id}`} className="block">
                           <Button variant="outline" className="w-full text-xs h-9">
@@ -647,6 +654,9 @@ const Catalogue = () => {
                           </Button>
                         </a>
                       </div>
+
+                      {/* Comments */}
+                      <CarCommentSection carId={car.id} />
                     </div>
                   </div>
                 );
