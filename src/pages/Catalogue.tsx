@@ -606,21 +606,11 @@ const Catalogue = () => {
                       <p className="text-sm text-muted-foreground mb-1">
                         Stock ID: <span className="font-mono font-semibold">{car.stock_id || "N/A"}</span>
                       </p>
-                      {/* Date Added - Marquee */}
                       {car.created_at && (
-                        <div className="overflow-hidden rounded bg-muted/50 mb-3">
-                          <div className="flex animate-marquee whitespace-nowrap py-0.5">
-                            <span className="text-xs text-muted-foreground px-2 flex items-center gap-1">
-                              <Clock className="h-3 w-3 text-primary" />
-                              Added: {new Date(car.created_at).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })} at {new Date(car.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
-                            </span>
-                            <span className="text-xs text-primary font-semibold px-4">•</span>
-                            <span className="text-xs text-muted-foreground px-2 flex items-center gap-1">
-                              <Clock className="h-3 w-3 text-primary" />
-                              Added: {new Date(car.created_at).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })} at {new Date(car.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
-                            </span>
-                          </div>
-                        </div>
+                        <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
+                          <Clock className="h-3 w-3 text-primary" />
+                          Added: {new Date(car.created_at).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })} at {new Date(car.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                        </p>
                       )}
                       
                       <div className="grid grid-cols-2 gap-2 text-sm mb-4">
