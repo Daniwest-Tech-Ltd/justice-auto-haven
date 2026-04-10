@@ -446,6 +446,14 @@ const AppContent = () => {
             } 
           />
           <Route 
+            path="/admin/social-engagement" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminSocialEngagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/system-health" 
             element={
               <ProtectedRoute requiredRole="admin">
