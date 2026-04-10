@@ -26,6 +26,8 @@ interface CommentRow {
   comment_text: string;
   is_anonymous: boolean;
   created_at: string;
+  contact_phone?: string | null;
+  contact_email?: string | null;
   car_make?: string;
   car_model?: string;
   car_year?: number;
