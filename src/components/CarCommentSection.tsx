@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MessageSquare, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +26,8 @@ const CarCommentSection = ({ carId }: CarCommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
@@ -38,11 +41,15 @@ const CarCommentSection = ({ carId }: CarCommentSectionProps) => {
     if (showComments) fetchComments();
   }, [showComments, carId]);
 
-  // Pre-fill display name from profile
+  // Pre-fill display name from profile if logged in
   useEffect(() => {
     if (user && !displayName) {
-      supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle()
-        .then(({ data }) => { if (data?.full_name) setDisplayName(data.full_name); });
+      supabase.from("profiles").select("full_name, email, phone").eq("user_id", user.id).maybeSingle()
+        .then(({ data }) => {
+          if (data?.full_name) setDisplayName(data.full_name);
+          if (data?.email) setContactEmail(data.email);
+          if (data?.phone) setContactPhone(data.phone);
+        });
     }
   }, [user]);
 
@@ -62,27 +69,26 @@ const CarCommentSection = ({ carId }: CarCommentSectionProps) => {
   };
 
   const handleSubmit = async () => {
-    if (!user) {
-      toast({ title: "Please log in", description: "You need to be logged in to comment", variant: "destructive" });
-      return;
-    }
     if (!commentText.trim()) return;
 
     setSubmitting(true);
     try {
       const { error } = await supabase.from("car_comments").insert({
         car_id: carId,
-        user_id: user.id,
-        display_name: isAnonymous ? "Anonymous" : (displayName.trim() || "Anonymous"),
+        user_id: user?.id || null,
+        display_name: isAnonymous ? "Anonymous" : (displayName.trim() || "Guest"),
         comment_text: commentText.trim(),
         is_anonymous: isAnonymous,
+        contact_phone: contactPhone.trim() || null,
+        contact_email: contactEmail.trim() || null,
       });
       if (error) throw error;
       setCommentText("");
       setCommentCount((c) => c + 1);
       fetchComments();
-      toast({ title: "Comment posted!" });
-    } catch {
+      toast({ title: "Comment posted!", description: "Your feedback has been submitted successfully." });
+    } catch (err) {
+      console.error("Comment error:", err);
       toast({ title: "Error", description: "Failed to post comment", variant: "destructive" });
     } finally {
       setSubmitting(false);
@@ -114,44 +120,63 @@ const CarCommentSection = ({ carId }: CarCommentSectionProps) => {
 
       {showComments && (
         <div className="mt-2 border-t border-border pt-3 space-y-3" onClick={(e) => e.preventDefault()}>
-          {/* Comment input */}
-          {user && (
-            <div className="space-y-2">
-              <div className="flex gap-2">
+          {/* Comment form - available to everyone */}
+          <div className="space-y-2 bg-muted/30 rounded-lg p-3">
+            <Textarea
+              placeholder="Write your comment or message..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              className="text-xs min-h-[60px] resize-none"
+            />
+
+            <div className="flex items-center gap-1.5 mb-2">
+              <Checkbox
+                id={`anon-${carId}`}
+                checked={isAnonymous}
+                onCheckedChange={(v) => setIsAnonymous(v as boolean)}
+                className="h-3.5 w-3.5"
+              />
+              <label htmlFor={`anon-${carId}`} className="text-xs text-muted-foreground cursor-pointer">
+                Comment anonymously
+              </label>
+            </div>
+
+            {!isAnonymous && (
+              <div className="grid grid-cols-1 gap-2">
                 <Input
-                  placeholder="Add a comment..."
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  className="h-8 text-xs"
-                  onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
+                  placeholder="Your name (optional)"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="h-7 text-xs"
                 />
-                <Button size="sm" className="h-8 px-3" onClick={handleSubmit} disabled={submitting || !commentText.trim()}>
-                  <Send className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="flex items-center gap-3">
-                {!isAnonymous && (
+                <div className="grid grid-cols-2 gap-2">
                   <Input
-                    placeholder="Your name"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="h-7 text-xs w-40"
+                    placeholder="Phone (optional)"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    className="h-7 text-xs"
                   />
-                )}
-                <div className="flex items-center gap-1.5">
-                  <Checkbox
-                    id={`anon-${carId}`}
-                    checked={isAnonymous}
-                    onCheckedChange={(v) => setIsAnonymous(v as boolean)}
-                    className="h-3.5 w-3.5"
+                  <Input
+                    placeholder="Email (optional)"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    className="h-7 text-xs"
+                    type="email"
                   />
-                  <label htmlFor={`anon-${carId}`} className="text-xs text-muted-foreground cursor-pointer">
-                    Anonymous
-                  </label>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+
+            <Button
+              size="sm"
+              className="w-full h-8 gap-1 text-xs"
+              onClick={handleSubmit}
+              disabled={submitting || !commentText.trim()}
+            >
+              <Send className="h-3 w-3" />
+              Submit Comment
+            </Button>
+          </div>
 
           {/* Comments list */}
           <div className="max-h-48 overflow-y-auto space-y-2">
