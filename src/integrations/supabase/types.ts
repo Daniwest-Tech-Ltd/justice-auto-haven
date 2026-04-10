@@ -878,6 +878,47 @@ export type Database = {
           },
         ]
       }
+      car_comments: {
+        Row: {
+          car_id: string
+          comment_text: string
+          created_at: string
+          display_name: string
+          id: string
+          is_anonymous: boolean
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          car_id: string
+          comment_text: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_anonymous?: boolean
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          car_id?: string
+          comment_text?: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_anonymous?: boolean
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_comments_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       car_comparisons: {
         Row: {
           car_ids: Json
@@ -992,6 +1033,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "car_inquiries_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      car_likes: {
+        Row: {
+          car_id: string
+          created_at: string
+          id: string
+          reaction_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          id?: string
+          reaction_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_likes_car_id_fkey"
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
