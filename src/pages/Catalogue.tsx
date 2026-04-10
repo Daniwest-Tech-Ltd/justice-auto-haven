@@ -17,6 +17,7 @@ import christmasGarland from "@/assets/christmas-garland.png";
 import specialOffer from "@/assets/special-offer.png";
 import CarLikeButton from "@/components/CarLikeButton";
 import CarCommentSection from "@/components/CarCommentSection";
+import CarRating from "@/components/CarRating";
 
 interface Car {
   id: string;
@@ -631,8 +632,13 @@ const Catalogue = () => {
                         <p className="text-xs text-muted-foreground mt-1">Negotiable • Payment Plans Available</p>
                       </div>
                       
+                      {/* Rating */}
+                      <div className="border-t border-border pt-2 mb-1">
+                        <CarRating carId={car.id} />
+                      </div>
+                      
                       {/* Like/Dislike */}
-                      <div className="flex items-center justify-between border-t border-border pt-2 mb-2">
+                      <div className="flex items-center justify-between pt-1 mb-2">
                         <CarLikeButton carId={car.id} />
                       </div>
 
