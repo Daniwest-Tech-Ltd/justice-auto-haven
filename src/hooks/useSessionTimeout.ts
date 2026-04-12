@@ -9,6 +9,7 @@ const COUNTDOWN_DURATION = 60;
 export const useSessionTimeout = (enabled = true) => {
   const [showWarning, setShowWarning] = useState(false);
   const [countdown, setCountdown] = useState(COUNTDOWN_DURATION);
+
   const sessionIdRef = useRef<string | null>(null);
   const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -17,69 +18,75 @@ export const useSessionTimeout = (enabled = true) => {
   const activityThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const trackingBlockedRef = useRef(false);
   const enabledRef = useRef(enabled);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     enabledRef.current = enabled;
   }, [enabled]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const isAuthError = (error: any) => {
     const status = error?.status ?? error?.code;
     return status === 401 || status === 403 || status === "401" || status === "403";
   };
 
-  const clearAllTimers = useCallback(() => {
+  // All timer/state logic uses refs and direct function calls — no useCallback chains
+  const clearAllTimers = () => {
     if (warningTimerRef.current) { clearTimeout(warningTimerRef.current); warningTimerRef.current = null; }
     if (logoutTimerRef.current) { clearTimeout(logoutTimerRef.current); logoutTimerRef.current = null; }
     if (countdownIntervalRef.current) { clearInterval(countdownIntervalRef.current); countdownIntervalRef.current = null; }
-  }, []);
+  };
 
-  const updateTrackedSession = useCallback(async (payload: Record<string, string>) => {
+  const updateTrackedSession = async (payload: Record<string, string>) => {
     if (!sessionIdRef.current || trackingBlockedRef.current) return;
     const { error } = await supabase
       .from("sessions")
       .update(payload)
       .eq("id", sessionIdRef.current);
-    if (error) {
-      if (isAuthError(error)) { trackingBlockedRef.current = true; return; }
-      console.error("Session tracking update failed:", error);
+    if (error && isAuthError(error)) {
+      trackingBlockedRef.current = true;
     }
-  }, []);
+  };
 
-  const doLogout = useCallback(async () => {
-    if (!enabledRef.current) return;
+  const doLogout = async () => {
+    if (!mountedRef.current) return;
     clearAllTimers();
-    setShowWarning(false);
+    if (mountedRef.current) setShowWarning(false);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const user = session?.user ?? null;
-      if (user) {
-        await supabase.from("profiles").update({ is_online: false }).eq("user_id", user.id);
+      if (session?.user) {
+        supabase.from("profiles").update({ is_online: false }).eq("user_id", session.user.id).then(() => {});
       }
       if (sessionIdRef.current && !trackingBlockedRef.current) {
-        await supabase.from("sessions").update({
+        supabase.from("sessions").update({
           logout_at: new Date().toISOString(),
           last_activity_at: new Date().toISOString(),
-        }).eq("id", sessionIdRef.current);
+        }).eq("id", sessionIdRef.current).then(() => {});
       }
     } catch (e) {
-      console.error("Logout error:", e);
-    } finally {
-      await supabase.auth.signOut();
-      toast.error("Session expired. Please login again.");
-      window.location.href = "/auth";
+      // ignore
     }
-  }, [clearAllTimers]);
+    await supabase.auth.signOut();
+    toast.error("Session expired. Please login again.");
+    window.location.href = "/auth";
+  };
 
-  const startTimer = useCallback(() => {
+  const startTimer = () => {
     if (!enabledRef.current) return;
     clearAllTimers();
 
     warningTimerRef.current = setTimeout(() => {
+      if (!mountedRef.current || !enabledRef.current) return;
       const elapsed = Date.now() - lastActivityRef.current;
       if (elapsed >= WARNING_TIME) {
         setShowWarning(true);
         setCountdown(COUNTDOWN_DURATION);
         countdownIntervalRef.current = setInterval(() => {
+          if (!mountedRef.current) return;
           setCountdown(prev => {
             if (prev <= 1) {
               if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
@@ -90,20 +97,21 @@ export const useSessionTimeout = (enabled = true) => {
         }, 1000);
         logoutTimerRef.current = setTimeout(() => { void doLogout(); }, COUNTDOWN_DURATION * 1000);
       } else {
-        // Re-schedule
         startTimer();
       }
     }, WARNING_TIME);
-  }, [clearAllTimers, doLogout]);
+  };
 
   const extendSession = useCallback(async () => {
     if (!enabledRef.current) return;
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) { await doLogout(); return; }
-      await updateTrackedSession({ last_activity_at: new Date().toISOString() });
-      setShowWarning(false);
-      setCountdown(COUNTDOWN_DURATION);
+      if (!session?.user) { void doLogout(); return; }
+      updateTrackedSession({ last_activity_at: new Date().toISOString() });
+      if (mountedRef.current) {
+        setShowWarning(false);
+        setCountdown(COUNTDOWN_DURATION);
+      }
       lastActivityRef.current = Date.now();
       startTimer();
       toast.success("Session extended successfully");
@@ -111,18 +119,23 @@ export const useSessionTimeout = (enabled = true) => {
       console.error("Failed to extend session:", error);
       toast.error("Failed to extend session");
     }
-  }, [doLogout, startTimer, updateTrackedSession]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Activity handler — uses refs to avoid circular deps
+  const handleLogout = useCallback(async () => {
+    void doLogout();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Activity handler
   useEffect(() => {
     if (!enabled) return;
 
     const onActivity = () => {
       lastActivityRef.current = Date.now();
-      // Don't auto-extend if warning is showing — user must click
       if (!activityThrottleRef.current) {
-        activityThrottleRef.current = setTimeout(async () => {
-          await updateTrackedSession({ last_activity_at: new Date().toISOString() });
+        activityThrottleRef.current = setTimeout(() => {
+          updateTrackedSession({ last_activity_at: new Date().toISOString() });
           activityThrottleRef.current = null;
         }, 30000);
       }
@@ -134,7 +147,8 @@ export const useSessionTimeout = (enabled = true) => {
       events.forEach(e => window.removeEventListener(e, onActivity));
       if (activityThrottleRef.current) { clearTimeout(activityThrottleRef.current); activityThrottleRef.current = null; }
     };
-  }, [enabled, updateTrackedSession]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled]);
 
   // Init session tracking
   useEffect(() => {
@@ -182,13 +196,14 @@ export const useSessionTimeout = (enabled = true) => {
 
     void init();
     return () => { clearAllTimers(); };
-  }, [enabled, clearAllTimers, startTimer]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled]);
 
   return {
     showWarning,
     countdown,
     timeLeft: countdown,
     extendSession,
-    handleLogout: doLogout,
+    handleLogout,
   };
 };
