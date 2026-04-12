@@ -8,6 +8,10 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// Global lock to prevent concurrent token refreshes (refresh-token storm prevention)
+let isRefreshing = false;
+let refreshPromise: Promise<any> | null = null;
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: localStorage,
@@ -15,5 +19,31 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
     detectSessionInUrl: true,
     flowType: 'pkce',
-  }
+  },
+  global: {
+    fetch: async (url: RequestInfo | URL, options?: RequestInit) => {
+      const response = await fetch(url, options);
+      
+      // If we get a 429, wait and DON'T retry automatically - let the caller handle it
+      if (response.status === 429) {
+        console.warn('Rate limited (429) - backing off');
+      }
+      
+      return response;
+    },
+  },
 });
+
+// Wrap refreshSession to deduplicate concurrent calls
+const originalRefreshSession = supabase.auth.refreshSession.bind(supabase.auth);
+supabase.auth.refreshSession = async (...args: any[]) => {
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
+  }
+  isRefreshing = true;
+  refreshPromise = originalRefreshSession(...args).finally(() => {
+    isRefreshing = false;
+    refreshPromise = null;
+  });
+  return refreshPromise;
+};
