@@ -110,7 +110,20 @@ const AssetFinanceManagement = lazyWithRetry(() => import("./pages/AssetFinanceM
 const AdminSocialEngagement = lazyWithRetry(() => import("./pages/AdminSocialEngagement"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on auth errors or rate limits
+        const status = error?.status ?? error?.code;
+        if (status === 401 || status === 403 || status === 429) return false;
+        return failureCount < 2;
+      },
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const AppContent = () => {
   const location = useLocation();
