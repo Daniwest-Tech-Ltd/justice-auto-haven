@@ -29,7 +29,41 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const requestData: NotificationRequest = await req.json();
-    const { type, to, data, email, name, subject: customSubject, message } = requestData;
+    const { type, to, data, email, name, subject: customSubject, message, staffName, staffEmail, time: clockTime, date: clockDate } = requestData;
+
+    // For clock_in type, send to admin emails + staff email
+    if (type === "clock_in") {
+      const adminEmails = ["daniwesttechnologies@gmail.com", "justicevincentt@gmail.com"];
+      const recipients = [...adminEmails];
+      if (staffEmail && !recipients.includes(staffEmail)) recipients.push(staffEmail);
+
+      const clockSubject = `Staff Clock-In: ${staffName || "Unknown"} — ${clockDate || new Date().toLocaleDateString("en-KE")}`;
+      const clockHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #1e40af;">🕐 Staff Clock-In Notification</h1>
+          <p><strong>${staffName || "A staff member"}</strong> has clocked in.</p>
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Staff:</strong> ${staffName}</p>
+            <p style="margin: 5px 0;"><strong>Email:</strong> ${staffEmail}</p>
+            <p style="margin: 5px 0;"><strong>Time:</strong> ${clockTime}</p>
+            <p style="margin: 5px 0;"><strong>Date:</strong> ${clockDate}</p>
+          </div>
+          <p style="font-size: 12px; color: #6b7280;">Justice Ultimate Automobiles — HR System</p>
+        </div>
+      `;
+
+      const emailResponse = await resend.emails.send({
+        from: "Justice Ultimate Automobiles <noreply@justiceultimateautomobiles.com>",
+        to: recipients,
+        subject: clockSubject,
+        html: clockHtml,
+      });
+
+      return new Response(JSON.stringify(emailResponse), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     // Determine recipient email
     const recipientEmail = to || email;
