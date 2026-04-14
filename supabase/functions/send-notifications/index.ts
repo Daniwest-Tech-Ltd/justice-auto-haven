@@ -9,13 +9,17 @@ const corsHeaders = {
 };
 
 interface NotificationRequest {
-  type: "rental" | "trade_in" | "trade_in_approved" | "trade_in_rejected" | "crm_lead" | "payroll" | "test";
+  type: "rental" | "trade_in" | "trade_in_approved" | "trade_in_rejected" | "crm_lead" | "payroll" | "test" | "clock_in";
   to?: string;
   email?: string;
   name?: string;
   subject?: string;
   message?: string;
   data?: any;
+  staffName?: string;
+  staffEmail?: string;
+  time?: string;
+  date?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
