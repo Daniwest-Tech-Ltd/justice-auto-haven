@@ -68,6 +68,7 @@ const HRManagement = () => {
       fetchStaff();
       fetchStats();
       fetchAllUsers();
+      fetchPendingReceipts();
     }
   }, [user, role]);
 
