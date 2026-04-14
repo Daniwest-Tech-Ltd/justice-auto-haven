@@ -236,8 +236,10 @@ const HRManagement = () => {
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={() => navigate("/admin/hr/documents")}><FolderOpen className="mr-2 h-4 w-4" />Documents</Button>
             <Button variant="outline" onClick={() => navigate("/admin/hr/attendance")}><Clock className="mr-2 h-4 w-4" />Attendance</Button>
             <Button variant="outline" onClick={() => navigate("/admin/hr/payroll")}><DollarSign className="mr-2 h-4 w-4" />Payroll</Button>
+            <Button variant="outline" onClick={() => navigate("/admin/sales-management")}><FileText className="mr-2 h-4 w-4" />Sales</Button>
             <Button onClick={() => navigate("/admin/hr/add-staff")}><UserPlus className="mr-2 h-4 w-4" />Add Staff</Button>
           </div>
         </div>
