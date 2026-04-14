@@ -111,6 +111,9 @@ const AdminSocialEngagement = lazyWithRetry(() => import("./pages/AdminSocialEng
 const StaffDashboard = lazyWithRetry(() => import("./pages/StaffDashboard"));
 const SalesManagement = lazyWithRetry(() => import("./pages/SalesManagement"));
 const CustomerDocuments = lazyWithRetry(() => import("./pages/CustomerDocuments"));
+const MyOrders = lazyWithRetry(() => import("./pages/MyOrders"));
+const OrderTracking = lazyWithRetry(() => import("./pages/OrderTracking"));
+const SalesOrderManagement = lazyWithRetry(() => import("./pages/SalesOrderManagement"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient({
@@ -590,6 +593,20 @@ const AppContent = () => {
               </ProtectedRoute>
             } 
           />
+          
+          {/* Sales Order Management */}
+          <Route 
+            path="/admin/sales-orders" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SalesOrderManagement />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Customer Order Pages */}
+          <Route path="/my-orders" element={<ProtectedRoute requiredRole="customer"><MyOrders /></ProtectedRoute>} />
+          <Route path="/my-orders/:id" element={<ProtectedRoute requiredRole="customer"><OrderTracking /></ProtectedRoute>} />
           
           {/* HR & Staff Routes */}
           <Route 
