@@ -161,7 +161,11 @@ const PayrollManagement = () => {
               <p className="text-muted-foreground">Generate and manage staff payroll</p>
             </div>
           </div>
-          <DollarSign className="h-8 w-8 text-primary" />
+          <div className="flex gap-2">
+            <Button onClick={handleSendAllReceipts} variant="outline">
+              <Download className="h-4 w-4 mr-2" />Send All Salary Receipts
+            </Button>
+          </div>
         </div>
 
         <div className="flex gap-4">
