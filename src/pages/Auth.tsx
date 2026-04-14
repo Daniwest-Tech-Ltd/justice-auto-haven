@@ -446,7 +446,13 @@ const Auth = () => {
       const isAdminUser =
         isAdmin ||
         Boolean(roleRows?.some((row) => row.role === "admin"));
-      const isStaffUser = !isAdminUser && Boolean(roleRows?.some((row) => row.role === "staff"));
+      
+      // Determine specific staff role for routing
+      const staffRole = roleRows?.find((row) => ["hr_manager", "hr_staff", "sales_manager", "sales_rep", "marketing_manager", "marketing_staff", "ceo", "system_administrator"].includes(row.role))?.role;
+      const isStaffUser = !isAdminUser && Boolean(roleRows?.some((row) => row.role === "staff") || staffRole);
+      const isHRStaff = staffRole && (staffRole.includes("hr") || staffRole === "ceo");
+      const isSalesStaff = staffRole && (staffRole.includes("sales") || staffRole.includes("marketing"));
+      
       const displayName = existingProfile?.full_name || oauthName || session.user.email;
       const roleLabel = isAdminUser ? "admin" : isStaffUser ? "staff" : "customer";
 
@@ -455,7 +461,11 @@ const Auth = () => {
       });
 
       if (isActive) {
-        const dest = isAdminUser ? "/admin-dashboard" : isStaffUser ? "/staff-dashboard" : "/customer-dashboard";
+        let dest = "/customer-dashboard";
+        if (isAdminUser) dest = "/admin-dashboard";
+        else if (isHRStaff) dest = "/hr-dashboard";
+        else if (isSalesStaff) dest = "/sales-dashboard";
+        else if (isStaffUser) dest = "/staff-dashboard";
         navigate(dest, { replace: true });
       }
     };
@@ -611,13 +621,22 @@ const Auth = () => {
       const isAdmin =
         isAdminEmail ||
         Boolean(roleRows?.some((row) => row.role === "admin"));
-      const isStaff = !isAdmin && Boolean(roleRows?.some((row) => row.role === "staff"));
+      
+      // Determine specific staff role for routing
+      const staffRole = roleRows?.find((row) => ["hr_manager", "hr_staff", "sales_manager", "sales_rep", "marketing_manager", "marketing_staff", "ceo", "system_administrator"].includes(row.role))?.role;
+      const isStaff = !isAdmin && Boolean(roleRows?.some((row) => row.role === "staff") || staffRole);
+      const isHRStaff = staffRole && (staffRole.includes("hr") || staffRole === "ceo");
+      const isSalesStaff = staffRole && (staffRole.includes("sales") || staffRole.includes("marketing"));
       
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
         description: `Logged in as ${isAdmin ? "admin" : isStaff ? "staff" : "customer"}`,
       });
 
-      const dest = isAdmin ? "/admin-dashboard" : isStaff ? "/staff-dashboard" : "/customer-dashboard";
+      let dest = "/customer-dashboard";
+      if (isAdmin) dest = "/admin-dashboard";
+      else if (isHRStaff) dest = "/hr-dashboard";
+      else if (isSalesStaff) dest = "/sales-dashboard";
+      else if (isStaff) dest = "/staff-dashboard";
       navigate(dest, { replace: true });
     } catch (error: any) {
       console.error("completeLogin error:", error);
