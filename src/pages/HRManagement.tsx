@@ -434,8 +434,8 @@ const AttendanceOverview = () => {
                 <TableRow key={a.id}>
                   <TableCell className="font-medium">{a.staff?.first_name} {a.staff?.last_name}</TableCell>
                   <TableCell>{a.staff?.department}</TableCell>
-                  <TableCell className="text-green-600 font-mono">{formatTime(a.clock_in)}</TableCell>
-                  <TableCell className="text-red-600 font-mono">{formatTime(a.clock_out)}</TableCell>
+                  <TableCell className="text-primary font-mono">{formatTime(a.clock_in)}</TableCell>
+                  <TableCell className="text-destructive font-mono">{formatTime(a.clock_out)}</TableCell>
                   <TableCell>
                     <Badge variant={a.status === "present" ? "default" : a.status === "absent" ? "destructive" : "secondary"}>
                       {a.status}
