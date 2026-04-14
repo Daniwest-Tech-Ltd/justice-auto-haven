@@ -74,7 +74,7 @@ serve(async (req: Request) => {
       if (resend && customer.email) {
         try {
           await resend.emails.send({
-            from: "Justice Ultimate Automobiles <onboarding@resend.dev>",
+            from: "Justice Ultimate Automobiles <noreply@justiceultimateautomobiles.com>",
             to: [customer.email],
             subject: `${holiday.emoji} Happy ${holiday.name}! — Justice Ultimate Automobiles`,
             html: `
