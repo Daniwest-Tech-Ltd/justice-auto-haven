@@ -646,8 +646,15 @@ const Auth = () => {
           .select("role")
           .eq("user_id", userId);
         const isAdmin = Boolean(roleRows?.some((row) => row.role === "admin"));
-        const isStaff = !isAdmin && Boolean(roleRows?.some((row) => row.role === "staff"));
-        const dest = isAdmin ? "/admin-dashboard" : isStaff ? "/staff-dashboard" : "/customer-dashboard";
+        const staffRole = roleRows?.find((row) => ["hr_manager", "hr_staff", "sales_manager", "sales_rep", "marketing_manager", "marketing_staff", "ceo", "system_administrator"].includes(row.role))?.role;
+        const isStaff = !isAdmin && Boolean(roleRows?.some((row) => row.role === "staff") || staffRole);
+        const isHR = staffRole && (staffRole.includes("hr") || staffRole === "ceo");
+        const isSales = staffRole && (staffRole.includes("sales") || staffRole.includes("marketing"));
+        let dest = "/customer-dashboard";
+        if (isAdmin) dest = "/admin-dashboard";
+        else if (isHR) dest = "/hr-dashboard";
+        else if (isSales) dest = "/sales-dashboard";
+        else if (isStaff) dest = "/staff-dashboard";
         navigate(dest, { replace: true });
       } catch {
         navigate("/customer-dashboard", { replace: true });

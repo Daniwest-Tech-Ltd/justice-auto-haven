@@ -85,6 +85,17 @@ export default function StaffDashboard() {
         await supabase.from("attendance").insert([{ staff_id: staff.id, date: today, clock_in: now, status: "present" }]);
       }
 
+      // Send clock-in email notification
+      supabase.functions.invoke("send-notifications", {
+        body: {
+          type: "clock_in",
+          staffName: `${staff.first_name} ${staff.last_name}`,
+          staffEmail: staff.email,
+          time: new Date().toLocaleTimeString("en-KE"),
+          date: new Date().toLocaleDateString("en-KE"),
+        },
+      }).catch(() => {});
+
       toast.success("Clocked in successfully! ✅");
       fetchAttendance();
     } catch (err: any) {
