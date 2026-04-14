@@ -445,15 +445,18 @@ const Auth = () => {
 
       const isAdminUser =
         isAdmin ||
-        Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
+        Boolean(roleRows?.some((row) => row.role === "admin"));
+      const isStaffUser = !isAdminUser && Boolean(roleRows?.some((row) => row.role === "staff"));
       const displayName = existingProfile?.full_name || oauthName || session.user.email;
+      const roleLabel = isAdminUser ? "admin" : isStaffUser ? "staff" : "customer";
 
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-        description: `Logged in as ${isAdminUser ? "admin" : "customer"}`,
+        description: `Logged in as ${roleLabel}`,
       });
 
       if (isActive) {
-        navigate(isAdminUser ? "/admin-dashboard" : "/customer-dashboard", { replace: true });
+        const dest = isAdminUser ? "/admin-dashboard" : isStaffUser ? "/staff-dashboard" : "/customer-dashboard";
+        navigate(dest, { replace: true });
       }
     };
 
