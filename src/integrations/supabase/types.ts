@@ -3274,6 +3274,81 @@ export type Database = {
           },
         ]
       }
+      salary_receipt_sequence: {
+        Row: {
+          last_number: number
+          prefix: string
+          updated_at: string | null
+        }
+        Insert: {
+          last_number?: number
+          prefix?: string
+          updated_at?: string | null
+        }
+        Update: {
+          last_number?: number
+          prefix?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      salary_receipts: {
+        Row: {
+          allowances: number | null
+          basic_salary: number
+          created_at: string
+          deductions: number | null
+          id: string
+          net_pay: number
+          pay_period: string
+          payroll_id: string | null
+          receipt_number: string
+          sent_at: string | null
+          staff_id: string
+        }
+        Insert: {
+          allowances?: number | null
+          basic_salary?: number
+          created_at?: string
+          deductions?: number | null
+          id?: string
+          net_pay?: number
+          pay_period: string
+          payroll_id?: string | null
+          receipt_number: string
+          sent_at?: string | null
+          staff_id: string
+        }
+        Update: {
+          allowances?: number | null
+          basic_salary?: number
+          created_at?: string
+          deductions?: number | null
+          id?: string
+          net_pay?: number
+          pay_period?: string
+          payroll_id?: string | null
+          receipt_number?: string
+          sent_at?: string | null
+          staff_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salary_receipts_payroll_id_fkey"
+            columns: ["payroll_id"]
+            isOneToOne: false
+            referencedRelation: "payroll"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salary_receipts_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales: {
         Row: {
           car_id: string
@@ -4923,6 +4998,7 @@ export type Database = {
         Returns: string
       }
       generate_receipt_number: { Args: never; Returns: string }
+      generate_salary_receipt_number: { Args: never; Returns: string }
       generate_stock_id: { Args: never; Returns: string }
       get_days_in_stock: { Args: { car_listed_at: string }; Returns: number }
       get_profit_margin: {
@@ -5012,6 +5088,9 @@ export type Database = {
         | "security_officer"
         | "system_admin"
         | "it_support"
+        | "hr_manager"
+        | "hr_staff"
+        | "marketing_staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5158,6 +5237,9 @@ export const Constants = {
         "security_officer",
         "system_admin",
         "it_support",
+        "hr_manager",
+        "hr_staff",
+        "marketing_staff",
       ],
     },
   },
