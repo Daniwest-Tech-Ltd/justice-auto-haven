@@ -87,15 +87,22 @@ const HRManagement = () => {
     if (!error && data) setStaff(data);
   };
 
+  const fetchPendingReceipts = async () => {
+    const { data } = await supabase.from("sales_receipts").select("*").order("created_at", { ascending: false });
+    if (data) setPendingReceipts(data);
+  };
+
   const fetchStats = async () => {
     const { data: staffData } = await supabase.from("staff").select("*");
     const { data: payrollData } = await supabase.from("payroll").select("*").eq("payment_status", "pending");
+    const { data: receiptData } = await supabase.from("sales_receipts").select("id").eq("status", "pending");
     if (staffData && payrollData) {
       setStats({
         totalStaff: staffData.length,
         activeStaff: staffData.filter((s: any) => s.status === "active").length,
         pendingPayroll: payrollData.length,
         totalSalary: payrollData.reduce((sum: number, p: any) => sum + (p.basic_salary || 0), 0),
+        pendingReceipts: receiptData?.length || 0,
       });
     }
   };
