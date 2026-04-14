@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Calendar, User, ExternalLink, Share2 } from "lucide-react";
+import { Calendar, ExternalLink, Share2, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LoadingScreen from "@/components/LoadingScreen";
+import ContentLikeButton from "@/components/ContentLikeButton";
+import ContentCommentSection from "@/components/ContentCommentSection";
 
 interface Blog {
   id: string;
@@ -20,6 +22,22 @@ interface Blog {
   links: any;
   created_at: string;
 }
+
+const formatDateTime = (dateStr: string | null) => {
+  if (!dateStr) return "N/A";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-KE", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }) + " " + d.toLocaleTimeString("en-KE", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+};
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -86,10 +104,17 @@ const Blogs = () => {
 
               {/* Content */}
               <div className="p-6 space-y-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  {blog.published_at ? new Date(blog.published_at).toLocaleDateString() : "N/A"}
+                {/* Timestamp */}
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>Added: {formatDateTime(blog.created_at)}</span>
                 </div>
+                {blog.published_at && blog.published_at !== blog.created_at && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>Published: {formatDateTime(blog.published_at)}</span>
+                  </div>
+                )}
 
                 <h3 className="text-xl font-bold line-clamp-2">{blog.title}</h3>
                 
@@ -116,6 +141,12 @@ const Blogs = () => {
                   </div>
                 )}
 
+                {/* Like/Dislike */}
+                <ContentLikeButton contentId={blog.id} contentType="blog" />
+
+                {/* Comments */}
+                <ContentCommentSection contentId={blog.id} contentType="blog" />
+
                 <div className="flex gap-2">
                   <Dialog>
                     <DialogTrigger asChild>
@@ -126,12 +157,18 @@ const Blogs = () => {
                         <DialogTitle>{blog.title}</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>Added: {formatDateTime(blog.created_at)}</span>
+                        </div>
                         {blog.featured_image && (
                           <img src={blog.featured_image} alt={blog.title} className="w-full rounded-lg" />
                         )}
                         <div className="prose prose-sm dark:prose-invert max-w-none">
                           <p className="whitespace-pre-wrap">{blog.content}</p>
                         </div>
+                        <ContentLikeButton contentId={blog.id} contentType="blog" />
+                        <ContentCommentSection contentId={blog.id} contentType="blog" />
                       </div>
                     </DialogContent>
                   </Dialog>

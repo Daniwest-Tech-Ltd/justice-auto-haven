@@ -1369,6 +1369,92 @@ export type Database = {
         }
         Relationships: []
       }
+      content_comments: {
+        Row: {
+          comment_text: string
+          contact_email: string | null
+          contact_phone: string | null
+          content_id: string
+          content_type: string
+          created_at: string
+          display_name: string
+          id: string
+          is_anonymous: boolean
+          parent_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          comment_text: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          content_id: string
+          content_type: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_anonymous?: boolean
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          comment_text?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_anonymous?: boolean
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "content_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_likes: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          reaction_type: string
+          session_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          reaction_type: string
+          session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       cookies_log: {
         Row: {
           created_at: string | null
