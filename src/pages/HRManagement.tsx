@@ -254,9 +254,10 @@ const HRManagement = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="staff">Staff Members</TabsTrigger>
             <TabsTrigger value="users">All Users / Assign Roles</TabsTrigger>
+            <TabsTrigger value="receipts">Receipt Approvals ({stats.pendingReceipts})</TabsTrigger>
             <TabsTrigger value="attendance">Today's Attendance</TabsTrigger>
           </TabsList>
 
