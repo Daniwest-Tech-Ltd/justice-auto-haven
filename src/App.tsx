@@ -109,6 +109,8 @@ const AssetFinanceApplication = lazyWithRetry(() => import("./pages/AssetFinance
 const AssetFinanceManagement = lazyWithRetry(() => import("./pages/AssetFinanceManagement"));
 const AdminSocialEngagement = lazyWithRetry(() => import("./pages/AdminSocialEngagement"));
 const StaffDashboard = lazyWithRetry(() => import("./pages/StaffDashboard"));
+const HRDashboard = lazyWithRetry(() => import("./pages/HRDashboard"));
+const SalesDashboard = lazyWithRetry(() => import("./pages/SalesDashboard"));
 const SalesManagement = lazyWithRetry(() => import("./pages/SalesManagement"));
 const CustomerDocuments = lazyWithRetry(() => import("./pages/CustomerDocuments"));
 const MyOrders = lazyWithRetry(() => import("./pages/MyOrders"));
@@ -571,8 +573,10 @@ const AppContent = () => {
             } 
           />
           
-          {/* Staff Dashboard */}
+          {/* Staff Dashboards */}
           <Route path="/staff-dashboard" element={<StaffDashboard />} />
+          <Route path="/hr-dashboard" element={<HRDashboard />} />
+          <Route path="/sales-dashboard" element={<SalesDashboard />} />
           
           {/* Sales Management */}
           <Route 
