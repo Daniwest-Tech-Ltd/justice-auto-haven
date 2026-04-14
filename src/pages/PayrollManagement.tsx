@@ -143,6 +143,31 @@ const PayrollManagement = () => {
     }
   };
 
+  const handleSendAllReceipts = async () => {
+    toast({ title: "Sending Receipts", description: "Generating and emailing salary receipts to all staff..." });
+    try {
+      const { data, error } = await supabase.functions.invoke("send-monthly-salary-receipts", { body: {} });
+      if (error) throw error;
+      toast({ title: "Receipts Sent", description: `${data?.sent || 0} salary receipts sent successfully.` });
+      fetchPayroll();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleSendSingleReceipt = async (staffId: string) => {
+    toast({ title: "Sending Receipt", description: "Generating salary receipt..." });
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-salary-receipt", {
+        body: { staff_id: staffId, send_email: true },
+      });
+      if (error) throw error;
+      toast({ title: "Receipt Sent", description: `Receipt ${data?.receipt_number} sent successfully.` });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
