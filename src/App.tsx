@@ -108,6 +108,7 @@ const PaymentsManagement = lazyWithRetry(() => import("./pages/PaymentsManagemen
 const AssetFinanceApplication = lazyWithRetry(() => import("./pages/AssetFinanceApplication"));
 const AssetFinanceManagement = lazyWithRetry(() => import("./pages/AssetFinanceManagement"));
 const AdminSocialEngagement = lazyWithRetry(() => import("./pages/AdminSocialEngagement"));
+const StaffDashboard = lazyWithRetry(() => import("./pages/StaffDashboard"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient({
@@ -564,6 +565,9 @@ const AppContent = () => {
               </ProtectedRoute>
             } 
           />
+          
+          {/* Staff Dashboard */}
+          <Route path="/staff-dashboard" element={<StaffDashboard />} />
           
           {/* HR & Staff Routes */}
           <Route 

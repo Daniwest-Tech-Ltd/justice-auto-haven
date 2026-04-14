@@ -3,22 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Briefcase, Clock, LogOut, RefreshCw, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Calendar, Briefcase, Clock, LogOut, RefreshCw, LogIn, LogOutIcon } from "lucide-react";
 import { toast } from "sonner";
 import DashboardHolidayBanner, { DashboardSnowfall } from "@/components/DashboardHolidayBanner";
-
-interface JobCard {
-  id: string;
-  job_number: string;
-  title: string;
-  description: string;
-  priority: string;
-  status: string;
-  due_date: string;
-}
 
 interface StaffData {
   id: string;
@@ -29,202 +18,186 @@ interface StaffData {
   avatar_url: string | null;
 }
 
+interface AttendanceRecord {
+  id: string;
+  date: string;
+  status: string;
+  clock_in: string | null;
+  clock_out: string | null;
+}
+
 export default function StaffDashboard() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [staff, setStaff] = useState<StaffData | null>(null);
-  const [jobCards, setJobCards] = useState<JobCard[]>([]);
+  const [todayAttendance, setTodayAttendance] = useState<AttendanceRecord | null>(null);
+  const [recentAttendance, setRecentAttendance] = useState<AttendanceRecord[]>([]);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [loading, setLoading] = useState(true);
+  const [clockingIn, setClockingIn] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+    if (!user) { navigate("/auth"); return; }
     fetchStaffData();
-    fetchJobCards();
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, [user]);
+
+  useEffect(() => {
+    if (staff) { fetchAttendance(); }
+  }, [staff]);
 
   const fetchStaffData = async () => {
     try {
-      const { data, error } = await supabase
-        .from("staff")
-        .select("*")
-        .eq("user_id", user?.id)
-        .single();
-
+      const { data, error } = await supabase.from("staff").select("*").eq("user_id", user?.id).maybeSingle();
       if (error) throw error;
       setStaff(data);
-    } catch (error: any) {
+    } catch {
       toast.error("Failed to load staff data");
-    }
-  };
-
-  const fetchJobCards = async () => {
-    try {
-      const { data: staffData } = await supabase
-        .from("staff")
-        .select("id")
-        .eq("user_id", user?.id)
-        .single();
-
-      if (!staffData) return;
-
-      const { data, error } = await supabase
-        .from("job_cards")
-        .select("*")
-        .eq("assigned_to", staffData.id)
-        .order("due_date");
-
-      if (error) throw error;
-      setJobCards(data || []);
-    } catch (error: any) {
-      toast.error("Failed to load job cards");
     } finally {
       setLoading(false);
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high": return "bg-red-500";
-      case "normal": return "bg-blue-500";
-      case "low": return "bg-gray-500";
-      default: return "bg-gray-500";
+  const fetchAttendance = async () => {
+    if (!staff) return;
+    const today = new Date().toISOString().split("T")[0];
+
+    const [{ data: todayData }, { data: recentData }] = await Promise.all([
+      supabase.from("attendance").select("*").eq("staff_id", staff.id).eq("date", today).maybeSingle(),
+      supabase.from("attendance").select("*").eq("staff_id", staff.id).order("date", { ascending: false }).limit(7),
+    ]);
+
+    setTodayAttendance(todayData);
+    setRecentAttendance(recentData || []);
+  };
+
+  const handleClockIn = async () => {
+    if (!staff) return;
+    setClockingIn(true);
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const now = new Date().toISOString();
+
+      if (todayAttendance) {
+        await supabase.from("attendance").update({ clock_in: now, status: "present" }).eq("id", todayAttendance.id);
+      } else {
+        await supabase.from("attendance").insert([{ staff_id: staff.id, date: today, clock_in: now, status: "present" }]);
+      }
+
+      toast.success("Clocked in successfully! ✅");
+      fetchAttendance();
+    } catch (err: any) {
+      toast.error("Failed to clock in: " + err.message);
+    } finally {
+      setClockingIn(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed": return "bg-green-500";
-      case "in_progress": return "bg-yellow-500";
-      case "pending": return "bg-orange-500";
-      default: return "bg-gray-500";
+  const handleClockOut = async () => {
+    if (!todayAttendance) return;
+    setClockingIn(true);
+    try {
+      await supabase.from("attendance").update({ clock_out: new Date().toISOString() }).eq("id", todayAttendance.id);
+      toast.success("Clocked out successfully! 👋");
+      fetchAttendance();
+    } catch (err: any) {
+      toast.error("Failed to clock out: " + err.message);
+    } finally {
+      setClockingIn(false);
     }
   };
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
+  const formatTime = (t: string | null) => t ? new Date(t).toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><p>Loading...</p></div>;
+
+  if (!staff) return (
+    <div className="min-h-screen flex items-center justify-center flex-col gap-4">
+      <p className="text-muted-foreground">No staff profile found. Contact your administrator.</p>
+      <Button variant="outline" onClick={signOut}><LogOut className="h-4 w-4 mr-2" />Logout</Button>
+    </div>
+  );
+
+  const hasClockedIn = todayAttendance?.clock_in;
+  const hasClockedOut = todayAttendance?.clock_out;
 
   return (
     <div className="min-h-screen bg-background">
       <DashboardSnowfall />
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-5xl mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-foreground">
-              Welcome, {staff?.first_name}!
-            </h1>
-            <p className="text-muted-foreground">
-              {staff?.role} • {staff?.department}
-            </p>
+            <h1 className="text-3xl font-bold">Welcome, {staff.first_name}!</h1>
+            <p className="text-muted-foreground capitalize">{staff.role?.replace(/_/g, " ")} • {staff.department}</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search job cards..."
-                className="pl-10 w-64"
-              />
-            </div>
+          <div className="flex items-center gap-2">
             <DashboardHolidayBanner />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => {
-                fetchStaffData();
-                fetchJobCards();
-                toast.success("Dashboard data refreshed");
-              }}
-              title="Refresh Dashboard"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" onClick={signOut}>
-              <LogOut className="h-5 w-5 mr-2" />
-              Logout
-            </Button>
+            <Button variant="outline" size="icon" onClick={() => { fetchStaffData(); fetchAttendance(); toast.success("Refreshed"); }}><RefreshCw className="h-4 w-4" /></Button>
+            <Button variant="outline" onClick={signOut}><LogOut className="h-4 w-4 mr-2" />Logout</Button>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <Briefcase className="h-10 w-10 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Total Jobs</p>
-                <p className="text-3xl font-bold">{jobCards.length}</p>
+        {/* Clock-in/out Section */}
+        <Card className="border-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" />Attendance — {currentTime.toLocaleDateString("en-KE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <div className="text-center">
+                <p className="text-4xl font-mono font-bold">{currentTime.toLocaleTimeString("en-KE")}</p>
+                <p className="text-sm text-muted-foreground mt-1">Current Time</p>
               </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <Clock className="h-10 w-10 text-yellow-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Pending</p>
-                <p className="text-3xl font-bold">
-                  {jobCards.filter((j) => j.status === "pending").length}
-                </p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <Calendar className="h-10 w-10 text-green-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Completed</p>
-                <p className="text-3xl font-bold">
-                  {jobCards.filter((j) => j.status === "completed").length}
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
 
-        {/* Job Cards */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">My Job Cards</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {jobCards.length === 0 ? (
-              <Card className="col-span-full p-8 text-center">
-                <p className="text-muted-foreground">No job cards assigned yet</p>
-              </Card>
-            ) : (
-              jobCards.map((card) => (
-                <Card key={card.id} className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-semibold text-lg">{card.title}</h3>
-                      <Badge className={`${getPriorityColor(card.priority)} text-white`}>
-                        {card.priority}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {card.job_number}
-                    </p>
-                    {card.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {card.description}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between pt-4 border-t">
-                      <span className="text-sm text-muted-foreground">
-                        Due: {new Date(card.due_date).toLocaleDateString()}
-                      </span>
-                      <Badge className={`${getStatusColor(card.status)} text-white`}>
-                        {card.status.replace("_", " ")}
-                      </Badge>
-                    </div>
+              <div className="flex-1 grid grid-cols-2 gap-4">
+                <div className="text-center p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground">Clock In</p>
+                  <p className="text-lg font-mono font-semibold">{formatTime(todayAttendance?.clock_in || null)}</p>
+                </div>
+                <div className="text-center p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground">Clock Out</p>
+                  <p className="text-lg font-mono font-semibold">{formatTime(todayAttendance?.clock_out || null)}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                {!hasClockedIn ? (
+                  <Button onClick={handleClockIn} disabled={clockingIn} size="lg" className="bg-primary">
+                    <LogIn className="h-4 w-4 mr-2" />Clock In
+                  </Button>
+                ) : !hasClockedOut ? (
+                  <Button onClick={handleClockOut} disabled={clockingIn} size="lg" variant="destructive">
+                    <LogOutIcon className="h-4 w-4 mr-2" />Clock Out
+                  </Button>
+                ) : (
+                  <Badge variant="secondary" className="text-sm px-4 py-2">✅ Attendance Complete</Badge>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Attendance */}
+        <Card>
+          <CardHeader><CardTitle>Recent Attendance</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {recentAttendance.map((a) => (
+                <div key={a.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <span className="font-medium">{new Date(a.date).toLocaleDateString("en-KE", { weekday: "short", month: "short", day: "numeric" })}</span>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span>In: <span className="font-mono">{formatTime(a.clock_in)}</span></span>
+                    <span>Out: <span className="font-mono">{formatTime(a.clock_out)}</span></span>
+                    <Badge variant={a.status === "present" ? "default" : a.status === "absent" ? "destructive" : "secondary"}>{a.status}</Badge>
                   </div>
-                </Card>
-              ))
-            )}
-          </div>
-        </div>
+                </div>
+              ))}
+              {recentAttendance.length === 0 && <p className="text-center text-muted-foreground py-4">No attendance records yet</p>}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
