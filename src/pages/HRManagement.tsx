@@ -24,6 +24,8 @@ interface UserWithRole {
 }
 
 const STAFF_ROLES = [
+  { value: "ceo", label: "CEO" },
+  { value: "system_administrator", label: "System Administrator (IT)" },
   { value: "hr_manager", label: "HR Manager" },
   { value: "hr_staff", label: "HR Staff" },
   { value: "sales_manager", label: "Sales Manager" },
