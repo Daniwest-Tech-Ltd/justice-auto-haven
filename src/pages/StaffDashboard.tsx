@@ -16,6 +16,7 @@ interface StaffData {
   role: string;
   department: string;
   avatar_url: string | null;
+  email: string | null;
 }
 
 interface AttendanceRecord {
