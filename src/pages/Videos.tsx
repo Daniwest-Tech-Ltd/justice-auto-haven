@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
-import { Play } from "lucide-react";
+import { Play, Clock } from "lucide-react";
+import ContentLikeButton from "@/components/ContentLikeButton";
+import ContentCommentSection from "@/components/ContentCommentSection";
 
 interface Video {
   id: string;
@@ -15,7 +17,24 @@ interface Video {
   video_type: string | null;
   is_published: boolean;
   category: string | null;
+  created_at: string;
 }
+
+const formatDateTime = (dateStr: string | null) => {
+  if (!dateStr) return "N/A";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-KE", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }) + " " + d.toLocaleTimeString("en-KE", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+};
 
 const Videos = () => {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -38,7 +57,6 @@ const Videos = () => {
       if (error) throw error;
       setVideos(data || []);
       
-      // Extract unique categories
       const uniqueCategories = Array.from(
         new Set(data?.map(v => v.category).filter(Boolean) as string[])
       );
@@ -81,7 +99,6 @@ const Videos = () => {
         />
       );
     } else {
-      // Upload type - direct video player
       return (
         <video
           className="w-full h-full object-cover"
@@ -163,10 +180,23 @@ const Videos = () => {
 
               {/* Content */}
               <div className="p-6 space-y-4">
+                {/* Timestamp */}
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>Added: {formatDateTime(video.created_at)}</span>
+                </div>
+
                 <h3 className="text-xl font-bold mb-2">{video.title}</h3>
                 {video.description && (
                   <p className="text-sm text-muted-foreground line-clamp-3">{video.description}</p>
                 )}
+
+                {/* Like/Dislike */}
+                <ContentLikeButton contentId={video.id} contentType="video" />
+
+                {/* Comments */}
+                <ContentCommentSection contentId={video.id} contentType="video" />
+
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
