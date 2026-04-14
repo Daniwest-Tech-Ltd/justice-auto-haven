@@ -358,6 +358,110 @@ const HRManagement = () => {
             </Card>
           </TabsContent>
 
+          {/* Receipt Approvals Tab */}
+          <TabsContent value="receipts">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                  <CardTitle>Sales Receipt Approvals</CardTitle>
+                  <div className="relative w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search receipts..." className="pl-9" value={receiptSearch} onChange={(e) => setReceiptSearch(e.target.value)} />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Receipt #</TableHead>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Car</TableHead>
+                        <TableHead>Amount (KES)</TableHead>
+                        <TableHead>Payment</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Logbook</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingReceipts
+                        .filter(r => {
+                          const q = receiptSearch.toLowerCase();
+                          return (r.customer_name || "").toLowerCase().includes(q) ||
+                            (r.receipt_number || "").toLowerCase().includes(q) ||
+                            (r.car_make || "").toLowerCase().includes(q);
+                        })
+                        .map((r) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="font-mono text-sm">{r.receipt_number}</TableCell>
+                          <TableCell className="font-medium">{r.customer_name}</TableCell>
+                          <TableCell>{r.car_make} {r.car_model} {r.car_year}</TableCell>
+                          <TableCell>KES {r.amount?.toLocaleString()}</TableCell>
+                          <TableCell className="capitalize">{r.payment_method?.replace(/_/g, " ")}</TableCell>
+                          <TableCell>
+                            <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>
+                              {r.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={r.logbook_status === "processed" ? "default" : "outline"}>
+                              {r.logbook_status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{new Date(r.created_at).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" })}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2 flex-wrap">
+                              {r.status === "pending" && (
+                                <>
+                                  <Button size="sm" onClick={async () => {
+                                    await supabase.from("sales_receipts").update({ status: "approved", approved_by: user?.id, approved_at: new Date().toISOString() }).eq("id", r.id);
+                                    if (r.customer_email) {
+                                      await supabase.functions.invoke("send-receipt-email", {
+                                        body: {
+                                          customer_email: r.customer_email,
+                                          customer_name: r.customer_name,
+                                          receipt_number: r.receipt_number,
+                                          amount: r.amount,
+                                          currency: "KES",
+                                          payment_method: r.payment_method || "N/A",
+                                          transaction_date: new Date(r.created_at).toLocaleDateString("en-KE"),
+                                          description: `${r.car_make} ${r.car_model} ${r.car_year} - APPROVED`,
+                                        },
+                                      });
+                                    }
+                                    toast({ title: "Receipt Approved", description: `Receipt ${r.receipt_number} approved and customer notified` });
+                                    fetchPendingReceipts();
+                                    fetchStats();
+                                  }}>
+                                    <CheckCircle className="h-3 w-3 mr-1" />Approve
+                                  </Button>
+                                  <Button size="sm" variant="destructive" onClick={async () => {
+                                    await supabase.from("sales_receipts").update({ status: "rejected", approved_by: user?.id, approved_at: new Date().toISOString() }).eq("id", r.id);
+                                    toast({ title: "Receipt Rejected" });
+                                    fetchPendingReceipts();
+                                    fetchStats();
+                                  }}>
+                                    <XCircle className="h-3 w-3 mr-1" />Reject
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {pendingReceipts.length === 0 && (
+                        <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No receipts to review</TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Today's Attendance Tab */}
           <TabsContent value="attendance">
             <AttendanceOverview />
