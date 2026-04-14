@@ -113,10 +113,10 @@ const CustomerDashboard = () => {
 
   const menuItems = [
     { title: "My Dashboard", icon: Home, path: "/customer-dashboard" },
+    { title: "My Orders", icon: ShoppingCart, path: "/my-orders" },
     { title: "Whitelist", icon: Heart, path: "/wishlist" },
     { title: "My Vehicles", icon: Car, path: "/customer/vehicles" },
     { title: "Bookings", icon: Calendar, path: "/customer/bookings" },
-    { title: "Orders", icon: ShoppingCart, path: "/order-status" },
     { title: "Messages", icon: MessageSquare, path: "/customer/messages" },
     { title: "My Badge", icon: Award, path: "/customer/badge" },
     { title: "Settings", icon: Settings, path: "/customer/settings" },
