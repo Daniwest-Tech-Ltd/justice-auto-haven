@@ -44,9 +44,11 @@ const STAFF_ROLES = [
 const HRManagement = () => {
   const [staff, setStaff] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<UserWithRole[]>([]);
+  const [pendingReceipts, setPendingReceipts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [staffSearch, setStaffSearch] = useState("");
-  const [stats, setStats] = useState({ totalStaff: 0, activeStaff: 0, pendingPayroll: 0, totalSalary: 0 });
+  const [receiptSearch, setReceiptSearch] = useState("");
+  const [stats, setStats] = useState({ totalStaff: 0, activeStaff: 0, pendingPayroll: 0, totalSalary: 0, pendingReceipts: 0 });
   const [roleDialog, setRoleDialog] = useState(false);
   const [salaryDialog, setSalaryDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
