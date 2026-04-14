@@ -115,25 +115,26 @@ const HRManagement = () => {
       const lastName = nameParts.slice(1).join(" ") || "";
 
       const { data: existingStaff } = await supabase.from("staff").select("id").eq("user_id", selectedUser.user_id).maybeSingle();
+      const dept = assignDept || getDepartmentFromRole(assignRole);
 
       if (existingStaff) {
         await supabase.from("staff").update({
-          role: assignRole,
-          department: assignDept || getDepartmentFromRole(assignRole),
+          role: assignRole as any,
+          department: dept,
           status: "active",
         }).eq("id", existingStaff.id);
       } else {
-        await supabase.from("staff").insert({
+        await supabase.from("staff").insert([{
           user_id: selectedUser.user_id,
           username: selectedUser.email.split("@")[0],
           email: selectedUser.email,
           first_name: firstName,
           last_name: lastName,
           phone: selectedUser.phone || "",
-          role: assignRole,
-          department: assignDept || getDepartmentFromRole(assignRole),
+          role: assignRole as any,
+          department: dept,
           status: "active",
-        });
+        }]);
       }
 
       toast({ title: "Role Assigned", description: `${selectedUser.full_name} assigned as ${assignRole.replace(/_/g, " ")}` });
