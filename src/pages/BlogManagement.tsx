@@ -138,6 +138,19 @@ const BlogManagement = () => {
 
         if (error) throw error;
 
+        // Send update notification to all customers
+        if (formData.is_published) {
+          supabase.functions.invoke("send-content-notification", {
+            body: {
+              type: "blog",
+              title: formData.title,
+              excerpt: formData.excerpt || undefined,
+              imageUrl: formData.featured_image || undefined,
+              isUpdate: true,
+            },
+          }).catch(err => console.error("Blog update notification error:", err));
+        }
+
         toast({
           title: "Success",
           description: "Blog post updated successfully",
@@ -153,6 +166,19 @@ const BlogManagement = () => {
           }]);
 
         if (error) throw error;
+
+        // Send new blog notification to all customers
+        if (formData.is_published) {
+          supabase.functions.invoke("send-content-notification", {
+            body: {
+              type: "blog",
+              title: formData.title,
+              excerpt: formData.excerpt || undefined,
+              imageUrl: formData.featured_image || undefined,
+              isUpdate: false,
+            },
+          }).catch(err => console.error("Blog notification error:", err));
+        }
 
         toast({
           title: "Success",

@@ -116,6 +116,18 @@ const VideoManagement = () => {
 
         if (error) throw error;
 
+        // Send update notification to all customers
+        if (formData.is_published) {
+          supabase.functions.invoke("send-content-notification", {
+            body: {
+              type: "video",
+              title: formData.title,
+              excerpt: formData.description || undefined,
+              isUpdate: true,
+            },
+          }).catch(err => console.error("Video update notification error:", err));
+        }
+
         toast({
           title: "Success",
           description: "Video updated successfully",
@@ -134,6 +146,18 @@ const VideoManagement = () => {
           });
 
         if (error) throw error;
+
+        // Send new video notification to all customers
+        if (formData.is_published) {
+          supabase.functions.invoke("send-content-notification", {
+            body: {
+              type: "video",
+              title: formData.title,
+              excerpt: formData.description || undefined,
+              isUpdate: false,
+            },
+          }).catch(err => console.error("Video notification error:", err));
+        }
 
         toast({
           title: "Success",
