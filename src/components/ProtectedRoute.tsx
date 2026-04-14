@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: "admin" | "customer";
+  requiredRole?: "admin" | "customer" | "staff";
 }
 
 const ADMIN_EMAILS = ["daniwesttechnologies@gmail.com", "justicevincentt@gmail.com"];
@@ -81,7 +81,12 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   }
 
   const isAdminEmail = ADMIN_EMAILS.includes((user.email || "").toLowerCase());
-  const effectiveRole = role?.role || (isAdminEmail ? "admin" : "customer");
+  const userRole = role?.role || (isAdminEmail ? "admin" : "customer");
+  
+  // Determine effective role category for access control
+  const STAFF_ROLES = ["staff", "hr_manager", "hr_staff", "sales_manager", "sales_rep", "marketing_manager", "marketing_staff", "operations_manager", "ceo", "system_administrator"];
+  const isStaffRole = STAFF_ROLES.includes(userRole);
+  const effectiveRole = isAdminEmail ? "admin" : userRole === "admin" ? "admin" : isStaffRole ? "staff" : "customer";
 
   // Check if customer account is suspended or blocked
   if (effectiveRole === "customer" && (accountStatus === "suspended" || accountStatus === "blocked")) {
@@ -99,8 +104,14 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     );
   }
 
+  // Staff can access admin routes too (they see the same pages)
+  if (requiredRole === "admin" && (effectiveRole === "admin" || effectiveRole === "staff")) {
+    return <>{children}</>;
+  }
+
   if (requiredRole && effectiveRole !== requiredRole) {
-    return <Navigate to={effectiveRole === "admin" ? "/admin-dashboard" : "/customer-dashboard"} replace />;
+    const dest = effectiveRole === "admin" ? "/admin-dashboard" : effectiveRole === "staff" ? "/staff-dashboard" : "/customer-dashboard";
+    return <Navigate to={dest} replace />;
   }
 
   return <>{children}</>;
