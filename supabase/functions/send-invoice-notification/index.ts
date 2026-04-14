@@ -109,7 +109,7 @@ serve(async (req: Request) => {
             "Authorization": `Bearer ${resendApiKey}`,
           },
           body: JSON.stringify({
-            from: "Justice Ultimate Automobiles <onboarding@resend.dev>",
+            from: "Justice Ultimate Automobiles <noreply@justiceultimateautomobiles.com>",
             to: [invoice.customer_email],
             subject: `Your Invoice ${invoice.invoice_no} - Justice Ultimate Automobiles`,
             html: emailHtml,
