@@ -610,26 +610,27 @@ const Auth = () => {
 
       const isAdmin =
         isAdminEmail ||
-        Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
+        Boolean(roleRows?.some((row) => row.role === "admin"));
+      const isStaff = !isAdmin && Boolean(roleRows?.some((row) => row.role === "staff"));
       
       sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-        description: `Logged in as ${isAdmin ? "admin" : "customer"}`,
+        description: `Logged in as ${isAdmin ? "admin" : isStaff ? "staff" : "customer"}`,
       });
 
-      // ALWAYS navigate - this is the critical part
-      navigate(isAdmin ? "/admin-dashboard" : "/customer-dashboard", { replace: true });
+      const dest = isAdmin ? "/admin-dashboard" : isStaff ? "/staff-dashboard" : "/customer-dashboard";
+      navigate(dest, { replace: true });
     } catch (error: any) {
       console.error("completeLogin error:", error);
-      // Even if something fails, still try to navigate
       try {
         const { data: roleRows } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", userId);
-        const isAdmin = Boolean(roleRows?.some((row) => row.role === "admin" || row.role === "staff"));
-        navigate(isAdmin ? "/admin-dashboard" : "/customer-dashboard", { replace: true });
+        const isAdmin = Boolean(roleRows?.some((row) => row.role === "admin"));
+        const isStaff = !isAdmin && Boolean(roleRows?.some((row) => row.role === "staff"));
+        const dest = isAdmin ? "/admin-dashboard" : isStaff ? "/staff-dashboard" : "/customer-dashboard";
+        navigate(dest, { replace: true });
       } catch {
-        // Last resort: just go to customer dashboard
         navigate("/customer-dashboard", { replace: true });
       }
     }
