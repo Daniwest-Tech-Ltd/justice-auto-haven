@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserPlus, Calendar, DollarSign, TrendingUp, ArrowLeft, Search, Shield, Clock, FileText, Edit } from "lucide-react";
+import { Users, UserPlus, Calendar, DollarSign, TrendingUp, ArrowLeft, Search, Shield, Clock, FileText, Edit, CheckCircle, XCircle, FolderOpen } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -44,9 +44,11 @@ const STAFF_ROLES = [
 const HRManagement = () => {
   const [staff, setStaff] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<UserWithRole[]>([]);
+  const [pendingReceipts, setPendingReceipts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [staffSearch, setStaffSearch] = useState("");
-  const [stats, setStats] = useState({ totalStaff: 0, activeStaff: 0, pendingPayroll: 0, totalSalary: 0 });
+  const [receiptSearch, setReceiptSearch] = useState("");
+  const [stats, setStats] = useState({ totalStaff: 0, activeStaff: 0, pendingPayroll: 0, totalSalary: 0, pendingReceipts: 0 });
   const [roleDialog, setRoleDialog] = useState(false);
   const [salaryDialog, setSalaryDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
@@ -66,6 +68,7 @@ const HRManagement = () => {
       fetchStaff();
       fetchStats();
       fetchAllUsers();
+      fetchPendingReceipts();
     }
   }, [user, role]);
 
@@ -84,15 +87,22 @@ const HRManagement = () => {
     if (!error && data) setStaff(data);
   };
 
+  const fetchPendingReceipts = async () => {
+    const { data } = await supabase.from("sales_receipts").select("*").order("created_at", { ascending: false });
+    if (data) setPendingReceipts(data);
+  };
+
   const fetchStats = async () => {
     const { data: staffData } = await supabase.from("staff").select("*");
     const { data: payrollData } = await supabase.from("payroll").select("*").eq("payment_status", "pending");
+    const { data: receiptData } = await supabase.from("sales_receipts").select("id").eq("status", "pending");
     if (staffData && payrollData) {
       setStats({
         totalStaff: staffData.length,
         activeStaff: staffData.filter((s: any) => s.status === "active").length,
         pendingPayroll: payrollData.length,
         totalSalary: payrollData.reduce((sum: number, p: any) => sum + (p.basic_salary || 0), 0),
+        pendingReceipts: receiptData?.length || 0,
       });
     }
   };
@@ -226,8 +236,10 @@ const HRManagement = () => {
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={() => navigate("/admin/hr/documents")}><FolderOpen className="mr-2 h-4 w-4" />Documents</Button>
             <Button variant="outline" onClick={() => navigate("/admin/hr/attendance")}><Clock className="mr-2 h-4 w-4" />Attendance</Button>
             <Button variant="outline" onClick={() => navigate("/admin/hr/payroll")}><DollarSign className="mr-2 h-4 w-4" />Payroll</Button>
+            <Button variant="outline" onClick={() => navigate("/admin/sales-management")}><FileText className="mr-2 h-4 w-4" />Sales</Button>
             <Button onClick={() => navigate("/admin/hr/add-staff")}><UserPlus className="mr-2 h-4 w-4" />Add Staff</Button>
           </div>
         </div>
@@ -237,14 +249,15 @@ const HRManagement = () => {
           <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Total Staff</CardTitle><Users className="h-4 w-4 text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold">{stats.totalStaff}</div><p className="text-xs text-muted-foreground">{stats.activeStaff} active</p></CardContent></Card>
           <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Active Staff</CardTitle><TrendingUp className="h-4 w-4 text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold">{stats.activeStaff}</div></CardContent></Card>
           <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Pending Payroll</CardTitle><Calendar className="h-4 w-4 text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold">{stats.pendingPayroll}</div></CardContent></Card>
-          <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Total Salary</CardTitle><DollarSign className="h-4 w-4 text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold">KES {stats.totalSalary.toLocaleString()}</div></CardContent></Card>
+          <Card><CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium">Pending Receipts</CardTitle><FileText className="h-4 w-4 text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold text-orange-500">{stats.pendingReceipts}</div></CardContent></Card>
         </div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="staff">Staff Members</TabsTrigger>
             <TabsTrigger value="users">All Users / Assign Roles</TabsTrigger>
+            <TabsTrigger value="receipts">Receipt Approvals ({stats.pendingReceipts})</TabsTrigger>
             <TabsTrigger value="attendance">Today's Attendance</TabsTrigger>
           </TabsList>
 
@@ -337,6 +350,110 @@ const HRManagement = () => {
                       ))}
                       {filteredUsers.length === 0 && (
                         <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No users found</TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Receipt Approvals Tab */}
+          <TabsContent value="receipts">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                  <CardTitle>Sales Receipt Approvals</CardTitle>
+                  <div className="relative w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search receipts..." className="pl-9" value={receiptSearch} onChange={(e) => setReceiptSearch(e.target.value)} />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Receipt #</TableHead>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Car</TableHead>
+                        <TableHead>Amount (KES)</TableHead>
+                        <TableHead>Payment</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Logbook</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingReceipts
+                        .filter(r => {
+                          const q = receiptSearch.toLowerCase();
+                          return (r.customer_name || "").toLowerCase().includes(q) ||
+                            (r.receipt_number || "").toLowerCase().includes(q) ||
+                            (r.car_make || "").toLowerCase().includes(q);
+                        })
+                        .map((r) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="font-mono text-sm">{r.receipt_number}</TableCell>
+                          <TableCell className="font-medium">{r.customer_name}</TableCell>
+                          <TableCell>{r.car_make} {r.car_model} {r.car_year}</TableCell>
+                          <TableCell>KES {r.amount?.toLocaleString()}</TableCell>
+                          <TableCell className="capitalize">{r.payment_method?.replace(/_/g, " ")}</TableCell>
+                          <TableCell>
+                            <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>
+                              {r.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={r.logbook_status === "processed" ? "default" : "outline"}>
+                              {r.logbook_status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{new Date(r.created_at).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" })}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2 flex-wrap">
+                              {r.status === "pending" && (
+                                <>
+                                  <Button size="sm" onClick={async () => {
+                                    await supabase.from("sales_receipts").update({ status: "approved", approved_by: user?.id, approved_at: new Date().toISOString() }).eq("id", r.id);
+                                    if (r.customer_email) {
+                                      await supabase.functions.invoke("send-receipt-email", {
+                                        body: {
+                                          customer_email: r.customer_email,
+                                          customer_name: r.customer_name,
+                                          receipt_number: r.receipt_number,
+                                          amount: r.amount,
+                                          currency: "KES",
+                                          payment_method: r.payment_method || "N/A",
+                                          transaction_date: new Date(r.created_at).toLocaleDateString("en-KE"),
+                                          description: `${r.car_make} ${r.car_model} ${r.car_year} - APPROVED`,
+                                        },
+                                      });
+                                    }
+                                    toast({ title: "Receipt Approved", description: `Receipt ${r.receipt_number} approved and customer notified` });
+                                    fetchPendingReceipts();
+                                    fetchStats();
+                                  }}>
+                                    <CheckCircle className="h-3 w-3 mr-1" />Approve
+                                  </Button>
+                                  <Button size="sm" variant="destructive" onClick={async () => {
+                                    await supabase.from("sales_receipts").update({ status: "rejected", approved_by: user?.id, approved_at: new Date().toISOString() }).eq("id", r.id);
+                                    toast({ title: "Receipt Rejected" });
+                                    fetchPendingReceipts();
+                                    fetchStats();
+                                  }}>
+                                    <XCircle className="h-3 w-3 mr-1" />Reject
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {pendingReceipts.length === 0 && (
+                        <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No receipts to review</TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>

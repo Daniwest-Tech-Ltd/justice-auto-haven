@@ -1610,6 +1610,68 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_documents: {
+        Row: {
+          car_id: string | null
+          car_info: string | null
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          notes: string | null
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          car_id?: string | null
+          car_info?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          car_id?: string | null
+          car_info?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_documents_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_reports: {
         Row: {
           date: string
@@ -2102,6 +2164,47 @@ export type Database = {
             columns: ["incident_id"]
             isOneToOne: false
             referencedRelation: "security_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_reminders: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          invoice_id: string | null
+          message: string | null
+          reminder_date: string
+          sent: boolean | null
+          sent_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          invoice_id?: string | null
+          message?: string | null
+          reminder_date: string
+          sent?: boolean | null
+          sent_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          invoice_id?: string | null
+          message?: string | null
+          reminder_date?: string
+          sent?: boolean | null
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_reminders_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
         ]
@@ -3389,6 +3492,120 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_receipt_sequence: {
+        Row: {
+          last_number: number | null
+          prefix: string
+          updated_at: string | null
+        }
+        Insert: {
+          last_number?: number | null
+          prefix?: string
+          updated_at?: string | null
+        }
+        Update: {
+          last_number?: number | null
+          prefix?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      sales_receipts: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          car_id: string | null
+          car_make: string | null
+          car_model: string | null
+          car_stock_id: string | null
+          car_year: number | null
+          created_at: string | null
+          created_by: string | null
+          customer_email: string | null
+          customer_id_number: string | null
+          customer_name: string
+          customer_phone: string | null
+          id: string
+          logbook_status: string
+          notes: string | null
+          payment_method: string | null
+          receipt_file_url: string | null
+          receipt_number: string
+          rejection_reason: string | null
+          sale_id: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          car_id?: string | null
+          car_make?: string | null
+          car_model?: string | null
+          car_stock_id?: string | null
+          car_year?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          customer_email?: string | null
+          customer_id_number?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          id?: string
+          logbook_status?: string
+          notes?: string | null
+          payment_method?: string | null
+          receipt_file_url?: string | null
+          receipt_number: string
+          rejection_reason?: string | null
+          sale_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          car_id?: string | null
+          car_make?: string | null
+          car_model?: string | null
+          car_stock_id?: string | null
+          car_year?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          customer_email?: string | null
+          customer_id_number?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          id?: string
+          logbook_status?: string
+          notes?: string | null
+          payment_method?: string | null
+          receipt_file_url?: string | null
+          receipt_number?: string
+          rejection_reason?: string | null
+          sale_id?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_receipts_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_receipts_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
             referencedColumns: ["id"]
           },
         ]
@@ -4999,6 +5216,7 @@ export type Database = {
       }
       generate_receipt_number: { Args: never; Returns: string }
       generate_salary_receipt_number: { Args: never; Returns: string }
+      generate_sales_receipt_number: { Args: never; Returns: string }
       generate_stock_id: { Args: never; Returns: string }
       get_days_in_stock: { Args: { car_listed_at: string }; Returns: number }
       get_profit_margin: {
