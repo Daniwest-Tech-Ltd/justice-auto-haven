@@ -144,12 +144,13 @@ const SalesManagement = () => {
       const { data: invoiceNo } = await supabase.rpc("generate_invoice_number");
 
       const { data: inv } = await supabase.from("invoices").insert({
-        invoice_no: invoiceNo,
+        invoice_no: invoiceNo || `INV-${Date.now()}`,
+        customer_id: user?.id || "",
         customer_name: invoiceForm.customerName,
         customer_email: invoiceForm.customerEmail,
         customer_phone: invoiceForm.customerPhone,
         subtotal, vat_rate: vatRate, vat_amount: vatAmount, grand_total: grandTotal,
-        items: [{ description: `${selectedCar.make} ${selectedCar.model} ${selectedCar.year}`, quantity: 1, unit_price: selectedCar.price, total: selectedCar.price }],
+        items: [{ description: `${selectedCar.make} ${selectedCar.model} ${selectedCar.year}`, quantity: 1, unit_price: selectedCar.price, total: selectedCar.price }] as any,
         notes: invoiceForm.notes,
         status: "draft",
       }).select().single();
