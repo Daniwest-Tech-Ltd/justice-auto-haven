@@ -252,10 +252,14 @@ const PayrollManagement = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button size="sm" variant="outline" onClick={() => generatePayslip(item)}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => generatePayslip(item)}>
+                          <Download className="mr-1 h-3 w-3" />PDF
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleSendSingleReceipt(item.staff_id)}>
+                          📧 Email Receipt
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
