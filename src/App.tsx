@@ -566,6 +566,9 @@ const AppContent = () => {
             } 
           />
           
+          {/* Staff Dashboard */}
+          <Route path="/staff-dashboard" element={<StaffDashboard />} />
+          
           {/* HR & Staff Routes */}
           <Route 
             path="/admin/hr" 
