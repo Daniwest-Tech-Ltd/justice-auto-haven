@@ -329,6 +329,33 @@ const CarDetails = () => {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-4">
+              {user && car.status === "available" && (
+                <Button 
+                  className="w-full col-span-2 bg-primary hover:bg-primary/90 text-lg h-12"
+                  onClick={async () => {
+                    try {
+                      const { error } = await supabase.from("customer_orders").insert({
+                        customer_id: user.id,
+                        car_id: car.id,
+                        car_make: car.make,
+                        car_model: car.model,
+                        car_year: car.year,
+                        car_price: car.price,
+                        car_color: car.color,
+                        status: "order_placed"
+                      });
+                      if (error) throw error;
+                      // Log tracking
+                      toast({ title: "✅ Order Placed!", description: "Your order has been submitted. Track it from My Orders." });
+                      navigate("/my-orders");
+                    } catch (err: any) {
+                      toast({ title: "Error", description: err.message, variant: "destructive" });
+                    }
+                  }}
+                >
+                  🛒 Order This Car
+                </Button>
+              )}
               <Button 
                 variant="outline" 
                 className="w-full"

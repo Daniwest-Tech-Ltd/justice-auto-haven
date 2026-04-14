@@ -1672,6 +1672,107 @@ export type Database = {
           },
         ]
       }
+      customer_orders: {
+        Row: {
+          assigned_sales_agent: string | null
+          car_color: string | null
+          car_id: string | null
+          car_make: string | null
+          car_model: string | null
+          car_price: number | null
+          car_vin: string | null
+          car_year: number | null
+          completed_at: string | null
+          created_at: string
+          customer_id: string
+          customer_notes: string | null
+          handover_date: string | null
+          handover_location: string | null
+          hr_approved_at: string | null
+          hr_approved_by: string | null
+          id: string
+          invoice_number: string | null
+          logbook_completed_at: string | null
+          logbook_started_at: string | null
+          notes: string | null
+          payment_amount: number | null
+          payment_method: string | null
+          payment_receipt_url: string | null
+          payment_reference: string | null
+          receipt_number: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_sales_agent?: string | null
+          car_color?: string | null
+          car_id?: string | null
+          car_make?: string | null
+          car_model?: string | null
+          car_price?: number | null
+          car_vin?: string | null
+          car_year?: number | null
+          completed_at?: string | null
+          created_at?: string
+          customer_id: string
+          customer_notes?: string | null
+          handover_date?: string | null
+          handover_location?: string | null
+          hr_approved_at?: string | null
+          hr_approved_by?: string | null
+          id?: string
+          invoice_number?: string | null
+          logbook_completed_at?: string | null
+          logbook_started_at?: string | null
+          notes?: string | null
+          payment_amount?: number | null
+          payment_method?: string | null
+          payment_receipt_url?: string | null
+          payment_reference?: string | null
+          receipt_number?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_sales_agent?: string | null
+          car_color?: string | null
+          car_id?: string | null
+          car_make?: string | null
+          car_model?: string | null
+          car_price?: number | null
+          car_vin?: string | null
+          car_year?: number | null
+          completed_at?: string | null
+          created_at?: string
+          customer_id?: string
+          customer_notes?: string | null
+          handover_date?: string | null
+          handover_location?: string | null
+          hr_approved_at?: string | null
+          hr_approved_by?: string | null
+          id?: string
+          invoice_number?: string | null
+          logbook_completed_at?: string | null
+          logbook_started_at?: string | null
+          notes?: string | null
+          payment_amount?: number | null
+          payment_method?: string | null
+          payment_receipt_url?: string | null
+          payment_reference?: string | null
+          receipt_number?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_orders_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_reports: {
         Row: {
           date: string
@@ -2588,6 +2689,156 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      order_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_request: boolean | null
+          notes: string | null
+          order_id: string
+          request_message: string | null
+          requested_by: string | null
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_request?: boolean | null
+          notes?: string | null
+          order_id: string
+          request_message?: string | null
+          requested_by?: string | null
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_request?: boolean | null
+          notes?: string | null
+          order_id?: string
+          request_message?: string | null
+          requested_by?: string | null
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_documents_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "customer_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_invoice_sequence: {
+        Row: {
+          last_number: number | null
+          prefix: string
+          updated_at: string | null
+        }
+        Insert: {
+          last_number?: number | null
+          prefix?: string
+          updated_at?: string | null
+        }
+        Update: {
+          last_number?: number | null
+          prefix?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      order_messages: {
+        Row: {
+          attachment_name: string | null
+          attachment_url: string | null
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          order_id: string
+          sender_id: string
+        }
+        Insert: {
+          attachment_name?: string | null
+          attachment_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          order_id: string
+          sender_id: string
+        }
+        Update: {
+          attachment_name?: string | null
+          attachment_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          order_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_messages_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "customer_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_tracking_log: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          order_id: string
+          status: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          order_id: string
+          status: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          order_id?: string
+          status?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_tracking_log_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "customer_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       otp_audit_trail: {
         Row: {
@@ -5210,6 +5461,7 @@ export type Database = {
       generate_activation_code: { Args: never; Returns: string }
       generate_invoice_number: { Args: never; Returns: string }
       generate_job_number: { Args: never; Returns: string }
+      generate_order_number: { Args: never; Returns: string }
       generate_reactivation_otp: {
         Args: { _admin_id: string; _user_id: string }
         Returns: string
