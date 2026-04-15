@@ -518,6 +518,10 @@ const CarManagement = () => {
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
+              <Button variant="outline" onClick={() => navigate("/admin/cars/drafts")} className="gap-2">
+                <FileText className="h-5 w-5" />
+                Drafts
+              </Button>
               <Button onClick={() => navigate("/admin/cars/add")} className="gap-2">
                 <Plus className="h-5 w-5" />
                 Add New Car
