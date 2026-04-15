@@ -283,7 +283,7 @@ const HRManagement = () => {
                       <TableRow>
                         <TableHead>Name</TableHead>
                         <TableHead>Role</TableHead>
-                        <TableHead>Department</TableHead>
+                        <TableHead>Departments</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
