@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Search, Car, FileText, DollarSign, CheckCircle, Clock, Send, Plus, Download, Upload, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Search, Car, FileText, DollarSign, CheckCircle, Clock, Send, Plus, Download, Upload, ShoppingCart, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -207,9 +207,14 @@ const SalesManagement = () => {
               <p className="text-muted-foreground">Manage car sales, invoices, and receipts</p>
             </div>
           </div>
-          <Button onClick={() => navigate("/admin/sales-orders")} className="gap-2">
-            <ShoppingCart className="w-4 h-4" /> Customer Orders
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/admin/sales-prospects")} className="gap-2">
+              <Users className="w-4 h-4" /> Prospects
+            </Button>
+            <Button onClick={() => navigate("/admin/sales-orders")} className="gap-2">
+              <ShoppingCart className="w-4 h-4" /> Customer Orders
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}

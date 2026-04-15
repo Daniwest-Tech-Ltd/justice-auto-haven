@@ -1150,6 +1150,7 @@ export type Database = {
           inspection_status: string | null
           insurance_expiry: string | null
           insurance_status: string | null
+          is_draft: boolean | null
           is_featured: boolean | null
           is_published: boolean | null
           is_rental: boolean | null
@@ -1201,6 +1202,7 @@ export type Database = {
           inspection_status?: string | null
           insurance_expiry?: string | null
           insurance_status?: string | null
+          is_draft?: boolean | null
           is_featured?: boolean | null
           is_published?: boolean | null
           is_rental?: boolean | null
@@ -1252,6 +1254,7 @@ export type Database = {
           inspection_status?: string | null
           insurance_expiry?: string | null
           insurance_status?: string | null
+          is_draft?: boolean | null
           is_featured?: boolean | null
           is_published?: boolean | null
           is_rental?: boolean | null
@@ -3746,6 +3749,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sales_prospects: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          email: string | null
+          id: string
+          interest: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          reminder_date: string | null
+          reminder_sent: boolean | null
+          source: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          reminder_date?: string | null
+          reminder_sent?: boolean | null
+          source?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          reminder_date?: string | null
+          reminder_sent?: boolean | null
+          source?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       sales_receipt_sequence: {
         Row: {
