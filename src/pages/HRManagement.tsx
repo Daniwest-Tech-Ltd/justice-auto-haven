@@ -41,7 +41,7 @@ const STAFF_ROLES = [
   { value: "security_officer", label: "Security Officer" },
   { value: "it_support", label: "IT Staff" },
   { value: "system_admin", label: "System Admin" },
-  { value: "Customer_role", label: "Customer"},
+  { value: "customer", label: "Customer" },
 ];
 
 const HRManagement = () => {
