@@ -136,6 +136,7 @@ const CarManagement = () => {
     const { data, error } = await supabase
       .from("cars")
       .select("*")
+      .neq("is_draft", true)
       .order("created_at", { ascending: sortOrder === "asc" });
 
     if (error) {
