@@ -136,6 +136,52 @@ const AddCar = () => {
     return uploadedUrls;
   };
 
+  const saveAsDraft = async () => {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate("/auth"); return; }
+
+      const { data: carData, error } = await supabase
+        .from("cars")
+        .insert([{
+          make: formData.make || '', model: formData.model || '',
+          year: formData.year || new Date().getFullYear(),
+          month: formData.month || null,
+          price: formData.price ? parseFloat(formData.price) : 0,
+          mileage: formData.mileage, engine: formData.engine,
+          fuel_type: formData.fuel_type, transmission: formData.transmission,
+          drive_type: formData.drive_type, color: formData.color,
+          stock_id: formData.stock_id || null, description: formData.description,
+          status: "draft", is_draft: true, is_published: false,
+          main_images: [], additional_images: [], images: [],
+          vin: formData.vin || null, vin_history: formData.vin_history || null,
+          available_colors: availableColors.length > 0 ? availableColors : null,
+        }] as any)
+        .select("id, stock_id")
+        .single();
+
+      if (error) throw error;
+
+      // Upload images if any
+      const mainImageUrls = await uploadImages(carData.id, mainImages, "main");
+      const additionalImageUrls = await uploadImages(carData.id, additionalImages, "additional");
+      if (mainImageUrls.length > 0 || additionalImageUrls.length > 0) {
+        await supabase.from("cars").update({
+          main_images: mainImageUrls, additional_images: additionalImageUrls,
+          images: [...mainImageUrls, ...additionalImageUrls],
+        }).eq("id", carData.id);
+      }
+
+      toast({ title: "Saved as Draft", description: `Draft saved with Stock ID: ${carData.stock_id || "Auto"}` });
+      setTimeout(() => navigate("/admin/cars/drafts"), 1000);
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -147,7 +193,6 @@ const AddCar = () => {
         return;
       }
 
-      // Insert car - stock_id is auto-assigned by database trigger (only on actual insert)
       const { data: carData, error: insertError } = await supabase
         .from("cars")
         .insert([
@@ -166,13 +211,14 @@ const AddCar = () => {
             stock_id: formData.stock_id || null,
             description: formData.description,
             status: "available",
+            is_draft: false,
             main_images: [],
             additional_images: [],
             images: [],
             vin: formData.vin || null,
             vin_history: formData.vin_history || null,
             available_colors: availableColors.length > 0 ? availableColors : null,
-          },
+          } as any,
         ])
         .select("id, stock_id")
         .single();
@@ -556,6 +602,14 @@ const AddCar = () => {
             }}
           >
             {uploadComplete ? "✓ Car Added!" : loading ? "Adding Car..." : "Add Car"}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={loading || uploadComplete}
+            onClick={saveAsDraft}
+          >
+            💾 Save as Draft
           </Button>
           <Button type="button" variant="outline" onClick={() => navigate("/admin/cars")} disabled={loading}>
             Cancel
