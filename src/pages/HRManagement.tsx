@@ -39,7 +39,7 @@ const STAFF_ROLES = [
   { value: "finance_staff", label: "Finance Staff" },
   { value: "driver", label: "Driver" },
   { value: "security_officer", label: "Security Officer" },
-  { value: "it_support", label: "IT Support" },
+  { value: "it_support", label: "IT Staff" },
   { value: "system_admin", label: "System Admin" },
 ];
 
