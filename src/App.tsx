@@ -116,6 +116,8 @@ const CustomerDocuments = lazyWithRetry(() => import("./pages/CustomerDocuments"
 const MyOrders = lazyWithRetry(() => import("./pages/MyOrders"));
 const OrderTracking = lazyWithRetry(() => import("./pages/OrderTracking"));
 const SalesOrderManagement = lazyWithRetry(() => import("./pages/SalesOrderManagement"));
+const CarDrafts = lazyWithRetry(() => import("./pages/CarDrafts"));
+const SalesProspects = lazyWithRetry(() => import("./pages/SalesProspects"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient({
@@ -611,6 +613,12 @@ const AppContent = () => {
           {/* Customer Order Pages */}
           <Route path="/my-orders" element={<ProtectedRoute requiredRole="customer"><MyOrders /></ProtectedRoute>} />
           <Route path="/my-orders/:id" element={<ProtectedRoute requiredRole="customer"><OrderTracking /></ProtectedRoute>} />
+          
+          {/* Car Drafts */}
+          <Route path="/admin/cars/drafts" element={<ProtectedRoute requiredRole="admin"><CarDrafts /></ProtectedRoute>} />
+          
+          {/* Sales Prospects */}
+          <Route path="/admin/sales-prospects" element={<ProtectedRoute requiredRole="admin"><SalesProspects /></ProtectedRoute>} />
           
           {/* HR & Staff Routes */}
           <Route 
