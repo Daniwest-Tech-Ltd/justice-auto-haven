@@ -207,9 +207,14 @@ const SalesManagement = () => {
               <p className="text-muted-foreground">Manage car sales, invoices, and receipts</p>
             </div>
           </div>
-          <Button onClick={() => navigate("/admin/sales-orders")} className="gap-2">
-            <ShoppingCart className="w-4 h-4" /> Customer Orders
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/admin/sales-prospects")} className="gap-2">
+              <Users className="w-4 h-4" /> Prospects
+            </Button>
+            <Button onClick={() => navigate("/admin/sales-orders")} className="gap-2">
+              <ShoppingCart className="w-4 h-4" /> Customer Orders
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
