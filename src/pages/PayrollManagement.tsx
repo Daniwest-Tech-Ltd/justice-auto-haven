@@ -116,15 +116,16 @@ const PayrollManagement = () => {
     const startDate = new Date(selectedYear, selectedMonth, 1);
     const endDate = new Date(selectedYear, selectedMonth + 1, 0);
 
+    const basicSalary = 0; // Salary should be set when generating payroll
     const { data, error } = await supabase.from("payroll").insert({
       staff_id: staffId,
       pay_period_start: startDate.toISOString().split('T')[0],
       pay_period_end: endDate.toISOString().split('T')[0],
-      basic_salary: staffMember.salary,
+      basic_salary: basicSalary,
       allowances: 0,
       overtime_pay: 0,
       deductions: 0,
-      net_pay: staffMember.salary,
+      net_pay: basicSalary,
       payment_status: "pending",
     }).select();
 
