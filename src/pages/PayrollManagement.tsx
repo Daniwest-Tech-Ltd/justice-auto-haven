@@ -58,9 +58,9 @@ const PayrollManagement = () => {
     // Employee Details
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Employee: ${payrollItem.staff.full_name}`, 20, 50);
-    doc.text(`Staff ID: ${payrollItem.staff.staff_id}`, 20, 58);
-    doc.text(`Position: ${payrollItem.staff.position}`, 20, 66);
+    doc.text(`Employee: ${payrollItem.staff?.first_name || ''} ${payrollItem.staff?.last_name || ''}`, 20, 50);
+    doc.text(`Staff ID: ${payrollItem.staff?.id || ''}`, 20, 58);
+    doc.text(`Position: ${payrollItem.staff?.role || ''}`, 20, 66);
     doc.text(`Department: ${payrollItem.staff.department}`, 20, 74);
     
     // Pay Period
@@ -240,7 +240,7 @@ const PayrollManagement = () => {
               <TableBody>
                 {payroll.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.staff.full_name}</TableCell>
+                    <TableCell className="font-medium">{item.staff?.first_name} {item.staff?.last_name}</TableCell>
                     <TableCell>
                       {new Date(item.pay_period_start).toLocaleDateString()} - {new Date(item.pay_period_end).toLocaleDateString()}
                     </TableCell>
@@ -277,8 +277,8 @@ const PayrollManagement = () => {
               {staff.map((member) => (
                 <div key={member.id} className="flex justify-between items-center p-4 border rounded-lg">
                   <div>
-                    <p className="font-medium">{member.full_name}</p>
-                    <p className="text-sm text-muted-foreground">{member.position} - KES {parseFloat(member.salary).toLocaleString()}</p>
+                    <p className="font-medium">{member.first_name} {member.last_name}</p>
+                    <p className="text-sm text-muted-foreground">{member.role} - {member.department}</p>
                   </div>
                   <Button onClick={() => generatePayroll(member.id)}>
                     Generate Payroll
