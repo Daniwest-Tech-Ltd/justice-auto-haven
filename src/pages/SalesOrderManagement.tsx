@@ -47,12 +47,28 @@ const SalesOrderManagement = () => {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: ordersData, error } = await supabase
         .from("customer_orders")
-        .select("*, profiles:customer_id(full_name, email, phone)")
+        .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      setOrders(data || []);
+
+      // Fetch profile info for each unique customer_id
+      const customerIds = [...new Set((ordersData || []).map(o => o.customer_id).filter(Boolean))];
+      let profilesMap: Record<string, any> = {};
+      if (customerIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, email, phone")
+          .in("user_id", customerIds);
+        (profiles || []).forEach(p => { profilesMap[p.user_id] = p; });
+      }
+
+      const enriched = (ordersData || []).map(o => ({
+        ...o,
+        profiles: profilesMap[o.customer_id] || null,
+      }));
+      setOrders(enriched);
     } catch { toast.error("Failed to load orders"); }
     finally { setLoading(false); }
   };

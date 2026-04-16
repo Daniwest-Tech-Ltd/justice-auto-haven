@@ -146,8 +146,8 @@ const AttendanceManagement = () => {
     const exportData = staff.map((member) => {
       const record = getAttendanceForStaff(member.id);
       return {
-        Name: member.full_name,
-        Position: member.position,
+        Name: `${member.first_name} ${member.last_name}`,
+        Position: member.role,
         Department: member.department,
         Status: record?.status || "Not Recorded",
         "Clock In": record?.clock_in ? new Date(record.clock_in).toLocaleTimeString() : "-",
@@ -225,7 +225,7 @@ const AttendanceManagement = () => {
                     const record = getAttendanceForStaff(member.id);
                     return (
                       <TableRow key={member.id}>
-                        <TableCell className="font-medium">{member.full_name}</TableCell>
+                        <TableCell className="font-medium">{member.first_name} {member.last_name}</TableCell>
                         <TableCell>
                           {record ? (
                             <Badge variant={record.status === "present" ? "default" : "secondary"}>
