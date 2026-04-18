@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getCurrentSale } from "@/lib/currentSale";
 
 const formSchema = z.object({
   full_name: z.string().min(3, "Full name must be at least 3 characters"),
@@ -300,7 +301,7 @@ const AssetFinanceApplication = () => {
       <section className="relative py-16 bg-gradient-to-r from-primary via-primary/90 to-amber-600 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <Badge className="mb-4 bg-white/20 text-white border-white/30 text-lg px-4 py-2">
-            🎉 New Year Mega Sale 2026
+            {getCurrentSale().badge}
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Apply for Asset Finance

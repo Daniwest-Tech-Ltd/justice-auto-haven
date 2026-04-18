@@ -159,50 +159,97 @@ export const fixedHolidays: Record<string, Holiday> = {
   }
 };
 
-// Movable holidays for 2026 (these change yearly)
+// Additional fixed-date awareness days (not in fixedHolidays above)
+const additionalFixedHolidays: Record<string, Holiday> = {
+  "01-24": {
+    name: "International Day of Education",
+    message: "International Day of Education — Justice Ultimate Automobiles believes in the power of learning to drive change.",
+    theme: "default",
+    emoji: "📚"
+  },
+  "04-07": {
+    name: "World Health Day",
+    message: "World Health Day — Justice Ultimate Automobiles wishes you good health and safe journeys always.",
+    theme: "default",
+    emoji: "🩺"
+  },
+  "11-19": {
+    name: "International Men's Day",
+    message: "Happy International Men's Day! Justice Ultimate Automobiles celebrates the strength and contribution of men everywhere.",
+    theme: "default",
+    emoji: "👨"
+  },
+};
+
+// Movable holidays for 2026 (verified Kenyan calendar dates)
+// - Good Friday: 3 April 2026
+// - Easter Sunday: 5 April 2026
+// - Easter Monday: 6 April 2026
+// - Mother's Day: 10 May 2026 (2nd Sunday)
+// - Eid al-Fitr: ~20-21 March 2026
+// - Eid al-Adha: ~27-28 May 2026
+// - Father's Day: 21 June 2026 (3rd Sunday)
 export const movableHolidays2026: Record<string, Holiday> = {
-  "02-28": {
+  "03-20": {
     name: "Eid al-Fitr",
     message: "Eid Mubarak! Justice Ultimate Automobiles wishes you blessings, joy, and peace. Celebrate with our special Eid offers.",
     theme: "eid",
     emoji: "🌙"
   },
-  "03-01": {
+  "03-21": {
     name: "Eid al-Fitr",
     message: "Eid Mubarak! Justice Ultimate Automobiles wishes you blessings, joy, and peace. Celebrate with our special Eid offers.",
     theme: "eid",
     emoji: "🌙"
   },
-  "04-18": {
+  "04-03": {
     name: "Good Friday",
     message: "Good Friday — Justice Ultimate Automobiles reflects on sacrifice, love, and redemption. May your faith guide you.",
     theme: "easter",
     emoji: "✝️"
   },
-  "04-20": {
+  "04-05": {
     name: "Easter Sunday",
     message: "Happy Easter! Justice Ultimate Automobiles celebrates new life, hope, and resurrection. Enjoy our Easter offers!",
     theme: "easter",
     emoji: "🐣"
   },
-  "04-21": {
+  "04-06": {
     name: "Easter Monday",
     message: "Happy Easter Monday! Continue the celebration with Justice Ultimate Automobiles special Easter deals.",
     theme: "easter",
     emoji: "🐰"
   },
-  "10-03": {
-    name: "Mawlid al-Nabi",
-    message: "Mawlid Mubarak! Justice Ultimate Automobiles celebrates the birth of Prophet Muhammad (PBUH). Peace and blessings to all.",
-    theme: "eid",
-    emoji: "🌙"
+  "05-10": {
+    name: "Mother's Day",
+    message: "Happy Mother's Day! Justice Ultimate Automobiles celebrates the love, strength, and sacrifices of mothers everywhere.",
+    theme: "valentine",
+    emoji: "💐"
   },
-  "12-13": {
+  "05-27": {
     name: "Eid al-Adha",
     message: "Eid al-Adha Mubarak! May your sacrifices be accepted and your celebrations blessed. — Justice Ultimate Automobiles",
     theme: "eid",
     emoji: "🐑"
-  }
+  },
+  "05-28": {
+    name: "Eid al-Adha",
+    message: "Eid al-Adha Mubarak! May your sacrifices be accepted and your celebrations blessed. — Justice Ultimate Automobiles",
+    theme: "eid",
+    emoji: "🐑"
+  },
+  "06-21": {
+    name: "Father's Day",
+    message: "Happy Father's Day! Justice Ultimate Automobiles honors the dedication and love of fathers everywhere.",
+    theme: "default",
+    emoji: "👨‍👧"
+  },
+  "10-10": {
+    name: "World Mental Health Day",
+    message: "World Mental Health Day — Justice Ultimate Automobiles cares about your wellbeing. You matter.",
+    theme: "default",
+    emoji: "💚"
+  },
 };
 
 export const getTodayHoliday = (): Holiday | null => {
@@ -210,17 +257,10 @@ export const getTodayHoliday = (): Holiday | null => {
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
   const key = `${month}-${day}`;
-  
-  // Check fixed holidays first
-  if (fixedHolidays[key]) {
-    return fixedHolidays[key];
-  }
-  
-  // Check movable holidays for 2026
-  if (movableHolidays2026[key]) {
-    return movableHolidays2026[key];
-  }
-  
+
+  if (fixedHolidays[key]) return fixedHolidays[key];
+  if (additionalFixedHolidays[key]) return additionalFixedHolidays[key];
+  if (movableHolidays2026[key]) return movableHolidays2026[key];
   return null;
 };
 

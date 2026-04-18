@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Car, Wrench, Package, Search, Calendar, Globe } from "lucide-react";
 import { useState } from "react";
+import { getCurrentSale } from "@/lib/currentSale";
 
 const Services = () => {
+  const sale = getCurrentSale();
   const [flippedCard, setFlippedCard] = useState<number | null>(null);
 
   const services = [
@@ -77,7 +79,7 @@ const Services = () => {
       {/* Hero */}
       <section className="text-center glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
         <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-2 rounded-full mb-4 animate-pulse">
-          🎉 NEW YEAR MEGA SALE 2026
+          {sale.badge}
         </div>
         <h1 className="text-5xl font-bold mb-4">
           <span className="bg-gradient-accent bg-clip-text text-transparent">Car Services & Asset Finance Kenya | Justice Ultimate Automobiles</span>

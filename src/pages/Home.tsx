@@ -17,8 +17,10 @@ import danielImage from "@/assets/daniel-maina.jpg";
 import abigaelImage from "@/assets/abigael-muthoni.jpg";
 import specialOffer from "@/assets/special-offer.png";
 import CertificateModal from "@/components/CertificateModal";
+import { getCurrentSale } from "@/lib/currentSale";
 
 const Home = () => {
+  const sale = getCurrentSale();
   const [featuredCars, setFeaturedCars] = useState<any[]>([]);
   const [heroCars, setHeroCars] = useState<any[]>([]);
   const [availableCars, setAvailableCars] = useState<any[]>([]);
@@ -163,17 +165,17 @@ const Home = () => {
         <div className="relative container mx-auto px-4 h-full flex items-start pt-6">
           <div className="max-w-2xl space-y-4">
             <div className="inline-block bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white text-base sm:text-lg md:text-xl px-6 py-3 rounded-md shadow-lg mb-4 animate-pulse font-bold">
-              🎉 NEW YEAR MEGA SALE 2026
+              {sale.banner}
             </div>
             <h1 className="text-3xl md:text-5xl font-bold leading-tight">
-              New Year Mega Sale 2026 – <span className="text-transparent bg-clip-text bg-gradient-gold">Drive Your Dream Car Today!</span>
+              {sale.short} – <span className="text-transparent bg-clip-text bg-gradient-gold">Drive Your Dream Car Today!</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground">
               Up to 90% Asset Financing • Fast 3-Day Approval • Trusted Dealer in Nairobi
             </p>
             <p className="text-lg">
               Justice Ultimate Automobiles is a trusted car dealership in Nairobi offering quality vehicles, 
-              flexible asset financing, and fast approvals. Start 2026 with your dream car!
+              flexible asset financing, and fast approvals. Get your dream car this {sale.month}!
             </p>
             <div className="flex flex-wrap gap-4">
               <Button size="lg" className="text-lg bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600" onClick={() => navigate("/asset-finance")}>
@@ -195,7 +197,7 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="text-4xl font-bold">🎉 New Year Mega Sale 2026 – Find Your Dream Car!</h2>
+              <h2 className="text-4xl font-bold">🎉 {sale.short} – Find Your Dream Car!</h2>
               <p className="text-muted-foreground">
                 Up to 90% Asset Financing • Fast Approval • Try "Toyota Harrier Hybrid" or use filters below
               </p>
