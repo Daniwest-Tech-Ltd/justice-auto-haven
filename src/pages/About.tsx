@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import ceoImage from "@/assets/ceo.jpg";
 import danielImage from "@/assets/daniel-maina.jpg";
 import { useState } from "react";
+import { getCurrentSale } from "@/lib/currentSale";
 
 const About = () => {
+  const sale = getCurrentSale();
   const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>({});
 
   const toggleCard = (cardId: string) => {
@@ -17,7 +19,7 @@ const About = () => {
       <section className="text-center space-y-6">
         <div className="glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
           <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-2 rounded-full mb-4 animate-pulse">
-            🎉 NEW YEAR MEGA SALE 2026
+            {sale.badge}
           </div>
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
             About Justice Ultimate Automobiles | <span className="bg-gradient-accent bg-clip-text text-transparent">Trusted Car Dealers in Kenya</span>
@@ -96,7 +98,7 @@ const About = () => {
             { year: "2021", event: "First cross-border sale to Westlands International Client" },
             { year: "2022", event: "Expanded sourcing and exports to Japan" },
             { year: "2024", event: "Surpassed 10,000 vehicles sold globally" },
-            { year: "2026", event: "🎉 New Year Mega Sale - Up to 90% Asset Financing!" },
+            { year: String(sale.year), event: `🎉 ${sale.short} - Up to 90% Asset Financing!` },
           ].map((milestone) => (
             <div key={milestone.year} className="glass rounded-xl p-6 text-center">
               <div className="text-3xl font-bold text-primary mb-2">{milestone.year}</div>

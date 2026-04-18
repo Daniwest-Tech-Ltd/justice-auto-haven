@@ -18,6 +18,7 @@ import specialOffer from "@/assets/special-offer.png";
 import CarLikeButton from "@/components/CarLikeButton";
 import CarCommentSection from "@/components/CarCommentSection";
 import CarRating from "@/components/CarRating";
+import { getCurrentSale } from "@/lib/currentSale";
 
 interface Car {
   id: string;
@@ -44,6 +45,7 @@ interface Brand {
 }
 
 const Catalogue = () => {
+  const sale = getCurrentSale();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
@@ -310,7 +312,7 @@ const Catalogue = () => {
         {/* New Year 2026 Mega Sale Badge - Top Center */}
         <div className="flex justify-center mb-2 pt-1">
           <div className="bg-gradient-to-r from-primary via-yellow-500 to-primary px-6 py-2 rounded-full shadow-lg animate-pulse">
-            <span className="text-white font-bold text-lg">🎉 New Year Mega Sale 2026 - Up to 90% Asset Financing</span>
+            <span className="text-white font-bold text-lg">🎉 {sale.short} - Up to 90% Asset Financing</span>
           </div>
         </div>
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
@@ -340,7 +342,7 @@ const Catalogue = () => {
           </div>
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-3xl md:text-5xl font-bold mb-2 bg-gradient-accent bg-clip-text text-transparent">
-              New Year Mega Sale 2026 – Kenya's Trusted Car Dealership
+              {sale.tagline}
             </h1>
             <p className="text-base md:text-lg text-muted-foreground mb-2">
               Buy Quality Vehicles with Up to 90% Asset Financing • Fast 3-Day Approval • Nairobi Westlands

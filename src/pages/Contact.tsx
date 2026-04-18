@@ -5,8 +5,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentSale } from "@/lib/currentSale";
 
 const Contact = () => {
+  const sale = getCurrentSale();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -79,7 +81,7 @@ const Contact = () => {
       {/* Header */}
       <div className="text-center glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
         <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-2 rounded-full mb-4 animate-pulse">
-          🎉 NEW YEAR MEGA SALE 2026
+          {sale.banner}
         </div>
         <h1 className="text-5xl font-bold mb-4">Contact Justice Ultimate Automobiles | Nairobi Car Dealership</h1>
         <p className="text-lg text-muted-foreground">
