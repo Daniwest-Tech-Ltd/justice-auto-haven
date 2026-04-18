@@ -256,7 +256,7 @@ const Home = () => {
                 </div>
                 <h2 className="text-4xl font-bold glitter-text">Featured Cars for Sale in Kenya</h2>
               </div>
-              <p className="text-muted-foreground">New Year Special - Premium quality vehicles with up to 90% Asset Financing!</p>
+              <p className="text-muted-foreground">{sale.short} - Premium quality vehicles with up to 90% Asset Financing!</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredCars.map((car) => {
@@ -326,7 +326,7 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-12">
             <div className="bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-white text-base sm:text-lg px-6 py-3 rounded-md shadow-lg animate-pulse font-bold w-full sm:w-auto text-center sm:text-left">
-              🚗 NEW YEAR 2026 DEALS
+              🚗 {sale.banner.replace('🎉 ', '')} DEALS
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold glitter-text">Quality Used Cars for Sale in Nairobi, Kenya</h2>
           </div>
@@ -395,7 +395,7 @@ const Home = () => {
           <div className="max-w-5xl mx-auto">
             <div className="text-center space-y-6 mb-12">
               <div className="inline-block bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white text-base sm:text-lg px-6 py-3 rounded-md shadow-lg font-bold">
-                🎉 NEW YEAR 2026 SPECIAL
+                🎉 {sale.short.toUpperCase()}
               </div>
               <h2 className="text-4xl font-bold">Up to 90% Asset Financing Available!</h2>
               <p className="text-lg text-muted-foreground">
