@@ -257,17 +257,10 @@ export const getTodayHoliday = (): Holiday | null => {
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
   const key = `${month}-${day}`;
-  
-  // Check fixed holidays first
-  if (fixedHolidays[key]) {
-    return fixedHolidays[key];
-  }
-  
-  // Check movable holidays for 2026
-  if (movableHolidays2026[key]) {
-    return movableHolidays2026[key];
-  }
-  
+
+  if (fixedHolidays[key]) return fixedHolidays[key];
+  if (additionalFixedHolidays[key]) return additionalFixedHolidays[key];
+  if (movableHolidays2026[key]) return movableHolidays2026[key];
   return null;
 };
 
