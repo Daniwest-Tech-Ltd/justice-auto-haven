@@ -95,3 +95,6 @@ verify_jwt = false
 
 [functions.pesapal-initiate]
 verify_jwt = false
+
+[functions.send-apology-and-april-offer]
+verify_jwt = false

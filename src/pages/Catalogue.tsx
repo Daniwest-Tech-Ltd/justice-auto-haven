@@ -309,7 +309,7 @@ const Catalogue = () => {
 
       {/* Hero Banner Section */}
       <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-3 mb-4">
-        {/* New Year 2026 Mega Sale Badge - Top Center */}
+        {/* Dynamic Monthly Sale Badge - Top Center */}
         <div className="flex justify-center mb-2 pt-1">
           <div className="bg-gradient-to-r from-primary via-yellow-500 to-primary px-6 py-2 rounded-full shadow-lg animate-pulse">
             <span className="text-white font-bold text-lg">🎉 {sale.short} - Up to 90% Asset Financing</span>
