@@ -17,6 +17,7 @@ import danielImage from "@/assets/daniel-maina.jpg";
 import abigaelImage from "@/assets/abigael-muthoni.jpg";
 import specialOffer from "@/assets/special-offer.png";
 import CertificateModal from "@/components/CertificateModal";
+import { getCurrentSale } from "@/lib/currentSale";
 
 const Home = () => {
   const [featuredCars, setFeaturedCars] = useState<any[]>([]);
