@@ -367,45 +367,40 @@ const About = () => {
 
         {/* Company Credentials */}
         <div className="glass-strong rounded-3xl p-12">
-          <h3 className="text-3xl font-bold mb-8 text-center">📋 Company Credentials</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="space-y-2">
-              <div className="text-3xl mb-2">🏢</div>
-              <h4 className="font-bold">Certificate of Incorporation</h4>
-              <p className="text-sm text-muted-foreground">Registered & Licensed Business</p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-3xl mb-2">📄</div>
-              <h4 className="font-bold">Business Permit</h4>
-              <p className="text-sm text-muted-foreground">County Government Approved</p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-3xl mb-2">💼</div>
-              <h4 className="font-bold">KRA Compliance</h4>
-              <p className="text-sm text-muted-foreground">Tax Compliant & PIN Verified</p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-3xl mb-2">🚗</div>
-              <h4 className="font-bold">NTSA Dealer License</h4>
-              <p className="text-sm text-muted-foreground">Authorized Motor Vehicle Dealer</p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-3xl mb-2">📍</div>
-              <h4 className="font-bold">Physical Office</h4>
-              <p className="text-sm text-muted-foreground">Mpesi Lane 11, Westlands</p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="text-3xl mb-2">🌍</div>
-              <h4 className="font-bold">Export Certified</h4>
-              <p className="text-sm text-muted-foreground">International Trade License</p>
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-bold mb-3">📋 Company Credentials</h3>
+            <p className="text-muted-foreground">Verified credentials and official documents — click any tile to view our certificates and company profile.</p>
+            <div className="flex flex-wrap justify-center gap-3 mt-6">
+              <Button onClick={() => setShowCertificate(true)} className="gap-2">
+                <Award className="h-4 w-4" /> View Certificate
+              </Button>
+              <Button onClick={() => setShowCertificate(true)} variant="outline" className="gap-2">
+                <FileText className="h-4 w-4" /> View Company Profile
+              </Button>
             </div>
           </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[
+              { icon: "🏢", title: "Certificate of Incorporation", desc: "Registered & Licensed Business" },
+              { icon: "📄", title: "Business Permit", desc: "County Government Approved" },
+              { icon: "💼", title: "KRA Compliance", desc: "Tax Compliant & PIN Verified" },
+              { icon: "🚗", title: "NTSA Dealer License", desc: "Authorized Motor Vehicle Dealer" },
+              { icon: "📍", title: "Physical Office", desc: "Muthithi Road, Westlands" },
+              { icon: "🌍", title: "Export Certified", desc: "International Trade License" },
+            ].map((cred) => (
+              <button
+                key={cred.title}
+                onClick={() => setShowCertificate(true)}
+                className="glass rounded-xl p-6 text-left hover:scale-105 transition-transform space-y-2"
+              >
+                <div className="text-3xl mb-2">{cred.icon}</div>
+                <h4 className="font-bold">{cred.title}</h4>
+                <p className="text-sm text-muted-foreground">{cred.desc}</p>
+              </button>
+            ))}
+          </div>
         </div>
+
 
         {/* Contact Verification */}
         <div className="glass-strong rounded-3xl p-8">
@@ -472,6 +467,7 @@ const About = () => {
           </Link>
         </div>
       </section>
+      <CertificateModal open={showCertificate} onOpenChange={setShowCertificate} />
     </div>
   );
 };
