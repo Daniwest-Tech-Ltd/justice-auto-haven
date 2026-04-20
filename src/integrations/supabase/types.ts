@@ -1291,6 +1291,69 @@ export type Database = {
         }
         Relationships: []
       }
+      company_documents: {
+        Row: {
+          certificate_number: string | null
+          created_at: string
+          description: string | null
+          display_order: number | null
+          document_type: string
+          expiry_date: string | null
+          file_name: string | null
+          file_size: number | null
+          file_url: string
+          id: string
+          is_featured: boolean | null
+          issue_date: string | null
+          issuing_authority: string | null
+          mime_type: string | null
+          status: string | null
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          certificate_number?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          document_type: string
+          expiry_date?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url: string
+          id?: string
+          is_featured?: boolean | null
+          issue_date?: string | null
+          issuing_authority?: string | null
+          mime_type?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          certificate_number?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          document_type?: string
+          expiry_date?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          is_featured?: boolean | null
+          issue_date?: string | null
+          issuing_authority?: string | null
+          mime_type?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       company_settings: {
         Row: {
           company_name: string
