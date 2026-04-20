@@ -248,6 +248,7 @@ const AdminDashboard = () => {
       label: "HR & Internal Systems",
       items: [
         { title: "HR Management", icon: UserCog, path: "/admin/hr" },
+        { title: "Company Documents", icon: FileText, path: "/admin/company-documents" },
         { title: "Cookie Management", icon: Cookie, path: "/admin/cookie-management" },
       ]
     },
