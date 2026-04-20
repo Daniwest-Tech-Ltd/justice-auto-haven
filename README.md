@@ -2,42 +2,42 @@
 
 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1100px; margin: auto; padding: 30px; background: rgba(0,0,0,0.85); border-radius: 20px; backdrop-filter: blur(25px); color: #ffffff; line-height: 1.8;">
 
-<h1 style="color:#00bfff;">🚀 Justice Ultimate Automobiles System (JUA)</h1>
+<h1 style="color:#00bfff;"> Justice Ultimate Automobiles System (JUA)</h1>
 
 <p><strong>Ultimate Systems • Trusted Car Masters • Enterprise Automotive Intelligence</strong></p>
 
 ---
 
-<h2 style="color:#ffa500;">🌐 Official Domains</h2>
+<h2 style="color:#ffa500;"> Official Domains</h2>
 
 * 🌍 https://justiceultimateautomobiles.com
 * 🇰🇪 https://justiceultimateautomobiles.co.ke *(Launching Soon)*
 
 ---
 
-<h2 style="color:#ffa500;">🏢 Company Overview</h2>
+<h2 style="color:#ffa500;"> Company Overview</h2>
 
 <p>
 <strong>Justice Ultimate Automobiles</strong> is a next-generation automotive and logistics technology company built by <strong>Daniwest Tech Sol</strong>.
 </p>
 
 <ul>
-<li>🚗 Automotive Sales & Dealership Systems</li>
-<li>🚚 Logistics Division: <strong>Justice Corporate Logistics Kenya</strong></li>
-<li>👥 HR, Staff & Customer Ecosystem</li>
-<li>📊 AI Business Intelligence Systems</li>
-<li>🔐 Advanced Cybersecurity Infrastructure</li>
+<li> Automotive Sales & Dealership Systems</li>
+<li> Logistics Division: <strong>Justice Corporate Logistics Kenya</strong></li>
+<li> HR, Staff & Customer Ecosystem</li>
+<li> AI Business Intelligence Systems</li>
+<li> Advanced Cybersecurity Infrastructure</li>
 </ul>
 
 <p>
-🕒 Development: <strong>2+ Years</strong><br>
-💻 Commits: <strong>1000+ Git Commits</strong><br>
-🚀 Status: <strong>Actively Evolving Enterprise System</strong>
+ Development: <strong>2+ Years</strong><br>
+ Commits: <strong>1000+ Git Commits</strong><br>
+ Status: <strong>Actively Evolving Enterprise System</strong>
 </p>
 
 ---
 
-<h2 style="color:#ffa500;">🏗️ COMPANY STRUCTURE FLOWCHART</h2>
+<h2 style="color:#ffa500;"> COMPANY STRUCTURE FLOWCHART</h2>
 
 ```mermaid
 flowchart TD
@@ -97,7 +97,7 @@ G1 --> G2[Payroll & Attendance]
 
 ---
 
-<h2 style="color:#ffa500;">🚗 VEHICLE MANAGEMENT FLOW</h2>
+<h2 style="color:#ffa500;"> VEHICLE MANAGEMENT FLOW</h2>
 
 ```mermaid
 flowchart LR
@@ -110,7 +110,7 @@ E --> F[Delivery]
 
 ---
 
-<h2 style="color:#ffa500;">🚚 LOGISTICS & RENTALS FLOW</h2>
+<h2 style="color:#ffa500;"> LOGISTICS & RENTALS FLOW</h2>
 
 ```mermaid
 flowchart TD
@@ -129,7 +129,7 @@ I --> J[Billing & Invoice]
 
 ---
 
-<h2 style="color:#ffa500;">📊 SALES PIPELINE FLOW</h2>
+<h2 style="color:#ffa500;"> SALES PIPELINE FLOW</h2>
 
 ```mermaid
 flowchart TD
@@ -148,7 +148,7 @@ I --> J[Vehicle Delivery]
 
 ---
 
-<h2 style="color:#ffa500;">🧠 SYSTEM ARCHITECTURE</h2>
+<h2 style="color:#ffa500;"> SYSTEM ARCHITECTURE</h2>
 
 ```mermaid
 flowchart TD
@@ -174,7 +174,7 @@ I --> J[Monitoring System]
 
 ---
 
-<h2 style="color:#ffa500;">🔐 SECURITY FLOW</h2>
+<h2 style="color:#ffa500;"> SECURITY FLOW</h2>
 
 ```mermaid
 flowchart TD
@@ -191,34 +191,34 @@ G --> H[Auto Response System]
 
 ---
 
-<h2 style="color:#ffa500;">⚡ SYSTEM FEATURES</h2>
+<h2 style="color:#ffa500;"> SYSTEM FEATURES</h2>
 
 <ul>
-<li>🚗 Full vehicle catalogue management</li>
-<li>📦 Logistics & rentals system</li>
-<li>📩 Email + WhatsApp notifications</li>
-<li>🤖 AI chatbot assistant</li>
-<li>📊 Business intelligence dashboard</li>
-<li>⚡ Fast customer response system</li>
-<li>🔐 Multi-role authentication</li>
-<li>📈 Real-time analytics</li>
+<li> Full vehicle catalogue management</li>
+<li> Logistics & rentals system</li>
+<li> Email + WhatsApp notifications</li>
+<li> AI chatbot assistant</li>
+<li> Business intelligence dashboard</li>
+<li> Fast customer response system</li>
+<li> Multi-role authentication</li>
+<li> Real-time analytics</li>
 </ul>
 
 ---
 
-<h2 style="color:#ffa500;">🔐 ADVANCED SECURITY</h2>
+<h2 style="color:#ffa500;"> ADVANCED SECURITY</h2>
 
 <ul>
-<li>🔒 End-to-end encryption</li>
-<li>🛡️ Military-grade security architecture</li>
-<li>⚛️ Quantum cryptography-ready systems</li>
-<li>📡 Real-time threat monitoring</li>
-<li>🔑 Secure authentication (2FA)</li>
+<li> End-to-end encryption</li>
+<li> Military-grade security architecture</li>
+<li> Quantum cryptography-ready systems</li>
+<li> Real-time threat monitoring</li>
+<li> Secure authentication (2FA)</li>
 </ul>
 
 ---
 
-<h2 style="color:#ffa500;">🧠 AI SYSTEMS</h2>
+<h2 style="color:#ffa500;"> AI SYSTEMS</h2>
 
 <ul>
 <li>AI customer behavior analysis</li>
@@ -230,19 +230,19 @@ G --> H[Auto Response System]
 
 ---
 
-<h2 style="color:#ffa500;">🛠️ TECHNOLOGY STACK</h2>
+<h2 style="color:#ffa500;"> TECHNOLOGY STACK</h2>
 
 <ul>
-<li>⚛️ React + Vite</li>
-<li>📘 TypeScript</li>
-<li>🎨 Tailwind CSS</li>
-<li>🗄️ Supabase (Database & Auth)</li>
-<li>🖥️ Node.js Backend</li>
+<li> React + Vite</li>
+<li> TypeScript</li>
+<li> Tailwind CSS</li>
+<li> Supabase (Database & Auth)</li>
+<li> Node.js Backend</li>
 </ul>
 
 ---
 
-<h2 style="color:#ffa500;">⚙️ INSTALLATION</h2>
+<h2 style="color:#ffa500;"> INSTALLATION</h2>
 
 <pre>
 git clone https://github.com/your-repo.git
@@ -253,7 +253,7 @@ npm run dev
 
 ---
 
-<h2 style="color:#ffa500;">🚀 DEPLOYMENT</h2>
+<h2 style="color:#ffa500;"> DEPLOYMENT</h2>
 
 <ul>
 <li>Build: npm run build</li>
@@ -263,11 +263,11 @@ npm run dev
 
 ---
 
-<h2 style="color:#ffa500;">📈 DEVELOPMENT STATUS</h2>
+<h2 style="color:#ffa500;"> DEVELOPMENT STATUS</h2>
 
 <ul>
 <li>✔ 2+ Years Development</li>
-<li>✔ 1000+ Commits</li>
+<li>✔ 900+ Commits</li>
 <li>✔ Continuous Updates</li>
 <li>✔ Enterprise Scaling</li>
 </ul>
@@ -279,12 +279,12 @@ npm run dev
 <p>
 📞 0722827458<br>
 📞 0701460110<br>
-📧 support@justiceultimateautomobiles.com
+ support@justiceultimateautomobiles.com
 </p>
 
 ---
 
-<h2 style="color:#ffa500;">📜 LICENSE</h2>
+<h2 style="color:#ffa500;"> LICENSE</h2>
 
 <p>
 This system is proprietary and owned by <strong>Justice Ultimate Automobiles</strong>.  
@@ -294,7 +294,7 @@ Unauthorized use or distribution is strictly prohibited.
 ---
 
 <p style="color:#00bfff;">
-🚀 Daniwest Tech Sol — Engineering Africa’s Most Advanced Automotive & Logistics Platform
+ Daniwest Technologies — Engineering Africa’s Most Advanced Automotive & Logistics Platform
 </p>
 
 </div>
