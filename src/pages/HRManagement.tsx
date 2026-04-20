@@ -235,7 +235,7 @@ const HRManagement = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/admin-dashboard")}><ArrowLeft className="h-5 w-5" /></Button>
             <div>
               <h1 className="text-3xl font-bold">Human Resource Management</h1>
-              <p className="text-muted-foreground">Manage staff, payroll, attendance & roles</p>
+              <p className="text-muted-foreground">Manage Staff, Payroll, Attendance & Roles</p>
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
