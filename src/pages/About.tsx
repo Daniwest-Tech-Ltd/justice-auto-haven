@@ -4,10 +4,13 @@ import ceoImage from "@/assets/ceo.jpg";
 import danielImage from "@/assets/daniel-maina.jpg";
 import { useState } from "react";
 import { getCurrentSale } from "@/lib/currentSale";
+import CertificateModal from "@/components/CertificateModal";
+import { Award, FileText } from "lucide-react";
 
 const About = () => {
   const sale = getCurrentSale();
   const [flippedCards, setFlippedCards] = useState<{ [key: string]: boolean }>({});
+  const [showCertificate, setShowCertificate] = useState(false);
 
   const toggleCard = (cardId: string) => {
     setFlippedCards(prev => ({ ...prev, [cardId]: !prev[cardId] }));

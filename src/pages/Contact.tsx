@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
+import { Phone, Mail, MapPin, MessageCircle, Clock, Send, Building2, Headphones, ShoppingBag, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentSale } from "@/lib/currentSale";
@@ -36,7 +36,6 @@ const Contact = () => {
 
       if (error) throw error;
 
-      // Create notification for admin
       const { data: adminData } = await supabase
         .from("user_roles")
         .select("user_id")
@@ -53,229 +52,240 @@ const Contact = () => {
         });
       }
 
-      toast({
-        title: "Message Sent!",
-        description: "We'll get back to you as soon as possible.",
-      });
-
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
-      });
+      toast({ title: "Message Sent!", description: "We'll get back to you as soon as possible." });
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
   };
 
+  const contactCards = [
+    {
+      icon: Phone,
+      title: "Main Sales Line",
+      value: "0751 555 544",
+      href: "tel:+254751555544",
+      gradient: "from-blue-500/20 to-cyan-500/20",
+    },
+    {
+      icon: User,
+      title: "Justice Vincent — CEO",
+      value: "0722 827 458",
+      href: "tel:+254722827458",
+      gradient: "from-amber-500/20 to-orange-500/20",
+    },
+    {
+      icon: Headphones,
+      title: "Daniel Maina — System Admin",
+      value: "0701 460 110",
+      href: "tel:+254701460110",
+      gradient: "from-purple-500/20 to-pink-500/20",
+    },
+  ];
+
+  const departments = [
+    { icon: Mail, label: "General Inquiries", email: "info@justiceultimateautomobiles.com", color: "text-blue-500" },
+    { icon: Headphones, label: "Customer Support", email: "support@justiceultimateautomobiles.com", color: "text-green-500" },
+    { icon: ShoppingBag, label: "Sales Department", email: "sales@justiceultimateautomobiles.com", color: "text-amber-500" },
+    { icon: User, label: "CEO Direct", email: "justicevincentt@gmail.com", color: "text-purple-500" },
+  ];
+
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
-      {/* Header */}
-      <div className="text-center glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
-        <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-2 rounded-full mb-4 animate-pulse">
-          {sale.banner}
-        </div>
-        <h1 className="text-5xl font-bold mb-4">Contact Justice Ultimate Automobiles | Nairobi Car Dealership</h1>
-        <p className="text-lg text-muted-foreground">
-          Get in touch with Kenya's most trusted car dealership. We offer flexible asset financing with fast approvals. 
-          Contact us for car sales, rentals, trade-ins, and inquiries. Located in Nairobi, Westlands – Muthithi Road.
-        </p>
-        <p className="text-md text-muted-foreground mt-4 italic">
-          "Hello, Thanks for your message! We offer up to 90% asset financing with fast 3-day approvals. 
-          Contact us today for vehicle features, pricing, or finance options."
-        </p>
-        <div className="mt-6 flex flex-wrap gap-4 justify-center">
-          <div className="glass rounded-lg p-4">
-            <p className="text-sm font-semibold mb-1">Main Sales Line</p>
-            <a href="tel:+254751555544" className="text-accent hover:underline font-bold text-lg">0751 555 544</a>
-          </div>
-          <div className="glass rounded-lg p-4">
-            <p className="text-sm font-semibold mb-1">Justice Vincent - CEO</p>
-            <a href="tel:+254722827458" className="text-accent hover:underline font-bold text-lg">0722 827 458</a>
-          </div>
-          <div className="glass rounded-lg p-4">
-            <p className="text-sm font-semibold mb-1">Daniel Maina - System Admin</p>
-            <a href="tel:+254701460110" className="text-accent hover:underline font-bold text-lg">0701 460 110</a>
+      {/* Hero Header */}
+      <section className="relative">
+        <div className="glass-strong rounded-3xl p-8 md:p-12 max-w-5xl mx-auto text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+          <div className="relative">
+            <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm md:text-base px-5 py-2 rounded-full mb-4 animate-pulse shadow-lg">
+              {sale.banner}
+            </div>
+            <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+              Get in Touch with Justice Ultimate Automobiles
+            </h1>
+            <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto">
+              Kenya's most trusted car dealership. Up to 90% asset financing with 3-day approvals. Reach our team for sales,
+              rentals, trade-ins, and inquiries — based in Westlands, Nairobi.
+            </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Contact Form */}
-        <div className="glass-strong rounded-3xl p-8">
-          <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Input
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
+      {/* Quick Contact Cards */}
+      <section className="grid md:grid-cols-3 gap-5">
+        {contactCards.map((card) => (
+          <a
+            key={card.title}
+            href={card.href}
+            className={`group relative overflow-hidden glass-strong rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl`}
+          >
+            <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-50 group-hover:opacity-80 transition-opacity`} />
+            <div className="relative flex items-start gap-4">
+              <div className="h-12 w-12 rounded-xl bg-background/60 backdrop-blur-sm flex items-center justify-center shadow-sm">
+                <card.icon className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1">{card.title}</p>
+                <p className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{card.value}</p>
+              </div>
             </div>
-            <div>
-              <Input
-                type="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
+          </a>
+        ))}
+      </section>
+
+      {/* Main Grid: Form + Info */}
+      <div className="grid lg:grid-cols-5 gap-8">
+        {/* Contact Form (3 cols) */}
+        <div className="lg:col-span-3">
+          <div className="glass-strong rounded-3xl p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 h-40 w-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <Send className="h-5 w-5 text-primary" />
+                </div>
+                <h2 className="text-2xl font-bold">Send us a Message</h2>
+              </div>
+              <p className="text-sm text-muted-foreground mb-6">We typically respond within 1 hour during business hours.</p>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Input
+                    placeholder="Full Name *"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    className="bg-background/60 backdrop-blur-sm"
+                  />
+                  <Input
+                    type="email"
+                    placeholder="Email Address *"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    className="bg-background/60 backdrop-blur-sm"
+                  />
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Input
+                    type="tel"
+                    placeholder="Phone Number"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="bg-background/60 backdrop-blur-sm"
+                  />
+                  <Input
+                    placeholder="Subject *"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    required
+                    className="bg-background/60 backdrop-blur-sm"
+                  />
+                </div>
+                <Textarea
+                  placeholder="Your Message *"
+                  rows={6}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  required
+                  className="bg-background/60 backdrop-blur-sm resize-none"
+                />
+                <Button className="w-full gap-2" size="lg" type="submit" disabled={submitting}>
+                  {submitting ? "Sending..." : <>Send Message <Send className="h-4 w-4" /></>}
+                </Button>
+              </form>
             </div>
-            <div>
-              <Input
-                type="tel"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
-            </div>
-            <div>
-              <Input
-                placeholder="Subject"
-                value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <Textarea
-                placeholder="Message"
-                rows={6}
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                required
-              />
-            </div>
-            <Button className="w-full" size="lg" type="submit" disabled={submitting}>
-              {submitting ? "Sending..." : "Send Message"}
-            </Button>
-          </form>
+          </div>
         </div>
 
-        {/* Contact Information */}
-        <div className="space-y-6">
+        {/* Right Column (2 cols) */}
+        <div className="lg:col-span-2 space-y-5">
           {/* Location */}
-          <a 
-            href="https://maps.app.goo.gl/spVusF8WkEfe7pZx5" 
-            target="_blank" 
+          <a
+            href="https://maps.app.goo.gl/spVusF8WkEfe7pZx5"
+            target="_blank"
             rel="noopener noreferrer"
-            className="glass-strong rounded-2xl p-6 block hover:scale-105 transition-transform"
+            className="block glass-strong rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300 group"
           >
             <div className="flex items-start gap-4">
-              <MapPin className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-lg font-semibold mb-2">📍 Headquarters</h3>
-                <p className="text-muted-foreground">
-                  Muthithi Road, Westlands<br />
-                  Nairobi, Kenya
-                </p>
-                <p className="text-primary text-sm mt-2">Click to view on map →</p>
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
+                <MapPin className="h-6 w-6 text-red-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold mb-1">Headquarters</h3>
+                <p className="text-sm text-muted-foreground">Muthithi Road, Westlands<br />Nairobi, Kenya</p>
+                <p className="text-xs text-primary mt-2 group-hover:underline">View on Google Maps →</p>
               </div>
             </div>
           </a>
 
-          {/* Contact Methods */}
+          {/* Quick Reach */}
           <div className="glass-strong rounded-2xl p-6 space-y-4">
-            <h3 className="text-lg font-semibold mb-4">Get in Touch</h3>
-            
-            <a href="tel:+254722827458" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
-              <Phone className="h-5 w-5 text-primary" />
-              <div>
-                <div className="text-sm font-medium text-foreground">Phone / SMS</div>
-                <div>+254 722 827 458</div>
+            <h3 className="text-lg font-bold flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-primary" /> Quick Reach
+            </h3>
+            <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition-colors">
+              <MessageCircle className="h-5 w-5 text-green-600" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground">WhatsApp</p>
+                <p className="font-semibold">+254 722 827 458</p>
               </div>
             </a>
-
-            <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
-              <MessageCircle className="h-5 w-5 text-primary" />
-              <div>
-                <div className="text-sm font-medium text-foreground">WhatsApp</div>
-                <div>+254 722 827 458</div>
+            <a href="tel:+254722827458" className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition-colors">
+              <Phone className="h-5 w-5 text-blue-600" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground">Phone / SMS</p>
+                <p className="font-semibold">+254 722 827 458</p>
               </div>
             </a>
-
-            <a href="mailto:info@justiceultimateautomobiles.com" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
-              <Mail className="h-5 w-5 text-primary" />
-              <div>
-                <div className="text-sm font-medium text-foreground">General Inquiries</div>
-                <div>info@justiceultimateautomobiles.com</div>
-              </div>
-            </a>
-          </div>
-
-          {/* Departments */}
-          <div className="glass-strong rounded-2xl p-6">
-            <h3 className="text-lg font-semibold mb-4">Departments</h3>
-            <div className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-3"
-                asChild
-              >
-                <a href="mailto:info@justiceultimateautomobiles.com">
-                  <Mail className="h-4 w-4" />
-                  <div className="text-left flex-1">
-                    <p className="text-sm font-medium">📩 General Inquiries</p>
-                    <p className="text-xs text-muted-foreground">info@justiceultimateautomobiles.com</p>
-                  </div>
-                </a>
-              </Button>
-              
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-3"
-                asChild
-              >
-                <a href="mailto:support@justiceultimateautomobiles.com">
-                  <Mail className="h-4 w-4" />
-                  <div className="text-left flex-1">
-                    <p className="text-sm font-medium">💁 Support</p>
-                    <p className="text-xs text-muted-foreground">support@justiceultimateautomobiles.com</p>
-                  </div>
-                </a>
-              </Button>
-              
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-3"
-                asChild
-              >
-                <a href="mailto:sales@justiceultimateautomobiles.com">
-                  <Mail className="h-4 w-4" />
-                  <div className="text-left flex-1">
-                    <p className="text-sm font-medium">🔧 Sales</p>
-                    <p className="text-xs text-muted-foreground">sales@justiceultimateautomobiles.com</p>
-                  </div>
-                </a>
-              </Button>
-            </div>
           </div>
 
           {/* Office Hours */}
           <div className="glass-strong rounded-2xl p-6">
             <div className="flex items-start gap-4">
-              <Clock className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Office Hours</h3>
-                <p className="text-muted-foreground">
-                  ⏰ Nairobi (EAT): 8AM – 6PM, Mon–Sat<br />
-                  ⏰ London (GMT): 7AM – 5PM, Mon–Fri
-                </p>
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center flex-shrink-0">
+                <Clock className="h-6 w-6 text-purple-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold mb-2">Office Hours</h3>
+                <p className="text-sm text-muted-foreground">⏰ Nairobi (EAT): 8AM – 6PM, Mon–Sat</p>
+                <p className="text-sm text-muted-foreground">⏰ London (GMT): 7AM – 5PM, Mon–Fri</p>
               </div>
             </div>
           </div>
-
         </div>
       </div>
+
+      {/* Departments Section */}
+      <section className="glass-strong rounded-3xl p-8 md:p-12">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-3 mb-2">
+            <Building2 className="h-7 w-7 text-primary" />
+            <h2 className="text-3xl font-bold">Departments</h2>
+          </div>
+          <p className="text-muted-foreground">Reach the right team directly via email</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
+          {departments.map((dept) => (
+            <a
+              key={dept.email}
+              href={`mailto:${dept.email}`}
+              className="group glass rounded-xl p-5 flex items-center gap-4 hover:scale-[1.02] transition-all duration-300 hover:shadow-lg"
+            >
+              <div className="h-12 w-12 rounded-xl bg-background/60 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                <dept.icon className={`h-6 w-6 ${dept.color}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold mb-0.5">{dept.label}</p>
+                <p className="text-sm text-muted-foreground truncate group-hover:text-primary transition-colors">{dept.email}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };
