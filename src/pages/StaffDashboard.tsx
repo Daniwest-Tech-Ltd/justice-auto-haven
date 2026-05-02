@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -141,8 +141,8 @@ export default function StaffDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Welcome, {staff.first_name}!</h1>
-            <p className="text-muted-foreground capitalize">{staff.role?.replace(/_/g, " ")} • {staff.department}</p>
+            <h1 className="text-3xl font-bold">{getGreeting(staff.first_name)}</h1>
+            <p className="text-muted-foreground capitalize">{staff.role?.replace(/_/g, " ")} • {staff.department} • {new Date().toLocaleDateString("en-KE", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
           </div>
           <div className="flex items-center gap-2">
             <DashboardHolidayBanner />

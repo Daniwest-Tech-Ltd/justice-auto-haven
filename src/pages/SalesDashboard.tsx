@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Car, Clock, DollarSign, LogOut, RefreshCw, Search, FileText, ShoppingCart, TrendingUp, LogIn, LogOutIcon } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
