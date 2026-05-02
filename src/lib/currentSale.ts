@@ -18,7 +18,7 @@ const MONTH_SALE_LABELS: Record<number, string> = {
   1: "Valentine Special Sale",   // February
   2: "March Special Offer Sale", // March
   3: "April Special Offer Sale", // April
-  4: "Labour Day Mega Sale",     // May
+  4: "May Special Offer Sale",   // May
   5: "Madaraka Special Sale",    // June
   6: "Mid-Year Mega Sale",       // July
   7: "August Special Offer Sale",// August

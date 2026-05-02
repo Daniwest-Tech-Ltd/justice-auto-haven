@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Clock, DollarSign, LogOut, RefreshCw, Search, CheckCircle, XCircle, FileText, FolderOpen, Calendar, TrendingUp, LogIn, LogOutIcon } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
@@ -147,8 +147,8 @@ export default function HRDashboard() {
         {/* Header */}
         <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
-            <h1 className="text-3xl font-bold">HR Dashboard</h1>
-            <p className="text-muted-foreground">Welcome, {staffProfile?.first_name || user?.email} — HR Management</p>
+            <h1 className="text-3xl font-bold">{getGreeting(staffProfile?.first_name || user?.email?.split("@")[0] || "there")}</h1>
+            <p className="text-muted-foreground">HR Management — {currentTime.toLocaleDateString("en-KE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })} • {currentTime.toLocaleTimeString("en-KE")}</p>
           </div>
           <div className="flex items-center gap-2">
             <DashboardHolidayBanner />

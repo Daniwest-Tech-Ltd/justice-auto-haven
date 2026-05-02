@@ -107,7 +107,22 @@ const Catalogue = () => {
 
     // Apply filters at database level
     if (searchQuery) {
-      query = query.or(`make.ilike.%${searchQuery}%,model.ilike.%${searchQuery}%,year.eq.${searchQuery}`);
+      const q = searchQuery.trim();
+      const safe = q.replace(/[,()]/g, " ");
+      const conditions = [
+        `make.ilike.%${safe}%`,
+        `model.ilike.%${safe}%`,
+        `color.ilike.%${safe}%`,
+        `fuel_type.ilike.%${safe}%`,
+        `transmission.ilike.%${safe}%`,
+        `drive_type.ilike.%${safe}%`,
+        `body_type.ilike.%${safe}%`,
+        `stock_id.ilike.%${safe}%`,
+        `description.ilike.%${safe}%`,
+      ];
+      // Only add year.eq if numeric
+      if (/^\d{4}$/.test(q)) conditions.push(`year.eq.${q}`);
+      query = query.or(conditions.join(","));
     }
 
     if (filters.brand !== "all") {
@@ -449,7 +464,7 @@ const Catalogue = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by make, model, or year..."
+                  placeholder="Search any car — make, model, year, colour, fuel, transmission or stock ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -530,9 +545,12 @@ const Catalogue = () => {
         {cars.length === 0 ? (
           <div className="glass-strong rounded-lg p-12 text-center">
             <Car className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-xl font-semibold mb-2">No vehicles found</h3>
+            <h3 className="text-xl font-semibold mb-2">We couldn't find a match{searchQuery ? ` for "${searchQuery}"` : ""}</h3>
+            <p className="text-muted-foreground mb-2">
+              Sorry, that vehicle isn't in our current stock. Our inventory updates daily — please try a different make, model, year, colour or stock ID.
+            </p>
             <p className="text-muted-foreground mb-6">
-              Try adjusting your filters or search criteria
+              Need help finding the perfect car? Call us on <a href="tel:+254722827458" className="text-primary font-semibold">0722 827 458</a> and our team will source it for you.
             </p>
             <Button onClick={clearFilters}>Clear All Filters</Button>
           </div>

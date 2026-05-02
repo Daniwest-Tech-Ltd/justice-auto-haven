@@ -1,7 +1,9 @@
-import { Link } from "react-router-dom";
-import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search } from "lucide-react";
 import BrandMarquee from "./BrandMarquee";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import {
   Tooltip,
   TooltipContent,
@@ -10,9 +12,36 @@ import {
 } from "./ui/tooltip";
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const [footerSearch, setFooterSearch] = useState("");
+
+  const handleFooterSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = footerSearch.trim();
+    navigate(q ? `/catalogue?search=${encodeURIComponent(q)}` : "/catalogue");
+  };
+
   return (
     <TooltipProvider>
     <footer className="bg-secondary/50 backdrop-blur-sm border-t border-border">
+      {/* Quick Search */}
+      <div className="container mx-auto px-4 pt-8">
+        <form onSubmit={handleFooterSearch} className="max-w-2xl mx-auto flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search any car — make, model, year, colour, fuel, stock ID..."
+              value={footerSearch}
+              onChange={(e) => setFooterSearch(e.target.value)}
+              className="pl-9"
+              aria-label="Search vehicles"
+            />
+          </div>
+          <Button type="submit">Search</Button>
+        </form>
+      </div>
+
       {/* Brand Marquee */}
       <div className="container mx-auto px-4 py-8">
         <h3 className="text-xl font-semibold text-center mb-4 text-foreground">Our Trusted Partners</h3>

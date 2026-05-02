@@ -444,7 +444,7 @@ const AdminDashboard = () => {
               </Avatar>
               <div>
                 <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
-                <p className="text-muted-foreground">Welcome to Admin Dashboard</p>
+                <p className="text-muted-foreground">Admin Dashboard — {new Date().toLocaleDateString("en-KE", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
               </div>
             </div>
 
