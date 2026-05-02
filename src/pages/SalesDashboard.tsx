@@ -124,8 +124,8 @@ export default function SalesDashboard() {
         {/* Header */}
         <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Sales Dashboard</h1>
-            <p className="text-muted-foreground">Welcome, {staffProfile?.first_name || user?.email} — Sales & Marketing</p>
+            <h1 className="text-3xl font-bold">{getGreeting(staffProfile?.first_name || user?.email?.split("@")[0] || "there")}</h1>
+            <p className="text-muted-foreground">Sales & Marketing — {new Date().toLocaleDateString("en-KE", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
           </div>
           <div className="flex items-center gap-2">
             <DashboardHolidayBanner />
