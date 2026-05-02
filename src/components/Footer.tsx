@@ -24,6 +24,24 @@ const Footer = () => {
   return (
     <TooltipProvider>
     <footer className="bg-secondary/50 backdrop-blur-sm border-t border-border">
+      {/* Quick Search */}
+      <div className="container mx-auto px-4 pt-8">
+        <form onSubmit={handleFooterSearch} className="max-w-2xl mx-auto flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search any car — make, model, year, colour, fuel, stock ID..."
+              value={footerSearch}
+              onChange={(e) => setFooterSearch(e.target.value)}
+              className="pl-9"
+              aria-label="Search vehicles"
+            />
+          </div>
+          <Button type="submit">Search</Button>
+        </form>
+      </div>
+
       {/* Brand Marquee */}
       <div className="container mx-auto px-4 py-8">
         <h3 className="text-xl font-semibold text-center mb-4 text-foreground">Our Trusted Partners</h3>
