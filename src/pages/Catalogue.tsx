@@ -116,9 +116,13 @@ const Catalogue = () => {
         `fuel_type.ilike.%${safe}%`,
         `transmission.ilike.%${safe}%`,
         `drive_type.ilike.%${safe}%`,
-        `body_type.ilike.%${safe}%`,
+        `engine.ilike.%${safe}%`,
+        `mileage.ilike.%${safe}%`,
         `stock_id.ilike.%${safe}%`,
+        `vin.ilike.%${safe}%`,
         `description.ilike.%${safe}%`,
+        `notes.ilike.%${safe}%`,
+        `status.ilike.%${safe}%`,
       ];
       // Only add year.eq if numeric
       if (/^\d{4}$/.test(q)) conditions.push(`year.eq.${q}`);
