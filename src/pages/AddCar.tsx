@@ -40,6 +40,7 @@ const AddCar = () => {
     description: "",
     vin: "",
     vin_history: "",
+    yard_location: "Westlands, Nairobi",
   });
   const [availableColors, setAvailableColors] = useState<string[]>([]);
 
