@@ -65,6 +65,19 @@ const Catalogue = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const itemsPerPage = 12;
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches("catalogue"));
+  const [showRecent, setShowRecent] = useState(false);
+
+  // Persist search after the user pauses typing (debounced)
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) return;
+    const t = setTimeout(() => {
+      addRecentSearch(q, "catalogue");
+      setRecentSearches(getRecentSearches("catalogue"));
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
   // Fetch brands with React Query
   const { data: brands = [] } = useQuery({
