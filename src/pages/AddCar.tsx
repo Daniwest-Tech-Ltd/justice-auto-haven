@@ -55,6 +55,7 @@ const AddCar = () => {
   const driveTypes = ["2WD", "FWD", "RWD", "4WD", "AWD"];
   const colors = ["White", "Black", "Silver", "Grey", "Blue", "Red", "Green", "Yellow", "Orange", "Brown", "Beige", "Gold", "Purple", "Maroon", "Wine", "Pink"];
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const yardLocations = ["Westlands, Nairobi", "Nyeri", "Kiambu", "Mombasa", "Eldoret", "Kisumu"];
 
   const handleMainImageSelect = (index: number, file: File | null) => {
     if (file) {
