@@ -150,6 +150,11 @@ const Catalogue = () => {
       query = query.eq("make", filters.brand);
     }
 
+    const locationParam = searchParams.get("location");
+    if (locationParam) {
+      query = query.ilike("yard_location", `%${locationParam}%`);
+    }
+
     if (filters.year !== "all") {
       query = query.eq("year", parseInt(filters.year));
     }
