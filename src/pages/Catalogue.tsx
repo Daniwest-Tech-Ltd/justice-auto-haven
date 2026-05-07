@@ -19,6 +19,8 @@ import CarLikeButton from "@/components/CarLikeButton";
 import CarCommentSection from "@/components/CarCommentSection";
 import CarRating from "@/components/CarRating";
 import { getCurrentSale } from "@/lib/currentSale";
+import { getRecentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } from "@/lib/recentSearches";
+import { X as XIcon, Clock as ClockIcon } from "lucide-react";
 
 interface Car {
   id: string;
@@ -63,6 +65,19 @@ const Catalogue = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const itemsPerPage = 12;
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches("catalogue"));
+  const [showRecent, setShowRecent] = useState(false);
+
+  // Persist search after the user pauses typing (debounced)
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) return;
+    const t = setTimeout(() => {
+      addRecentSearch(q, "catalogue");
+      setRecentSearches(getRecentSearches("catalogue"));
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
   // Fetch brands with React Query
   const { data: brands = [] } = useQuery({
@@ -116,9 +131,13 @@ const Catalogue = () => {
         `fuel_type.ilike.%${safe}%`,
         `transmission.ilike.%${safe}%`,
         `drive_type.ilike.%${safe}%`,
-        `body_type.ilike.%${safe}%`,
+        `engine.ilike.%${safe}%`,
+        `mileage.ilike.%${safe}%`,
         `stock_id.ilike.%${safe}%`,
+        `vin.ilike.%${safe}%`,
         `description.ilike.%${safe}%`,
+        `notes.ilike.%${safe}%`,
+        `status.ilike.%${safe}%`,
       ];
       // Only add year.eq if numeric
       if (/^\d{4}$/.test(q)) conditions.push(`year.eq.${q}`);
@@ -462,13 +481,62 @@ const Catalogue = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             <div className="lg:col-span-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
                 <Input
                   placeholder="Search any car — make, model, year, colour, fuel, transmission or stock ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowRecent(true)}
+                  onBlur={() => setTimeout(() => setShowRecent(false), 150)}
                   className="pl-10"
                 />
+                {showRecent && recentSearches.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-72 overflow-y-auto">
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-border text-xs text-muted-foreground">
+                      <span>Recent searches on this device</span>
+                      <button
+                        type="button"
+                        className="hover:text-foreground"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          clearRecentSearches("catalogue");
+                          setRecentSearches([]);
+                        }}
+                      >
+                        Clear all
+                      </button>
+                    </div>
+                    {recentSearches.map((term) => (
+                      <div
+                        key={term}
+                        className="flex items-center justify-between px-3 py-2 hover:bg-accent/40 cursor-pointer text-sm"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setSearchQuery(term);
+                          setShowRecent(false);
+                        }}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <ClockIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                          <span className="truncate">{term}</span>
+                        </div>
+                        <button
+                          type="button"
+                          aria-label={`Remove ${term}`}
+                          className="text-muted-foreground hover:text-destructive ml-2"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeRecentSearch(term, "catalogue");
+                            setRecentSearches(getRecentSearches("catalogue"));
+                          }}
+                        >
+                          <XIcon className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

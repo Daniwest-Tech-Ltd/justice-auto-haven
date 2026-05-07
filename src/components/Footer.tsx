@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search, Clock, X } from "lucide-react";
 import BrandMarquee from "./BrandMarquee";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -10,15 +10,32 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import {
+  getRecentSearches,
+  addRecentSearch,
+  removeRecentSearch,
+  clearRecentSearches,
+} from "@/lib/recentSearches";
 
 const Footer = () => {
   const navigate = useNavigate();
   const [footerSearch, setFooterSearch] = useState("");
+  const [recent, setRecent] = useState<string[]>(() => getRecentSearches("catalogue"));
+  const [showRecent, setShowRecent] = useState(false);
+
+  const submitSearch = (term: string) => {
+    const q = term.trim();
+    if (q) {
+      addRecentSearch(q, "catalogue");
+      setRecent(getRecentSearches("catalogue"));
+    }
+    navigate(q ? `/catalogue?search=${encodeURIComponent(q)}` : "/catalogue");
+    setShowRecent(false);
+  };
 
   const handleFooterSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = footerSearch.trim();
-    navigate(q ? `/catalogue?search=${encodeURIComponent(q)}` : "/catalogue");
+    submitSearch(footerSearch);
   };
 
   return (
@@ -26,17 +43,65 @@ const Footer = () => {
     <footer className="bg-secondary/50 backdrop-blur-sm border-t border-border">
       {/* Quick Search */}
       <div className="container mx-auto px-4 pt-8">
-        <form onSubmit={handleFooterSearch} className="max-w-2xl mx-auto flex gap-2">
+        <form onSubmit={handleFooterSearch} className="max-w-2xl mx-auto flex gap-2 relative">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
             <Input
               type="search"
               placeholder="Search any car — make, model, year, colour, fuel, stock ID..."
               value={footerSearch}
               onChange={(e) => setFooterSearch(e.target.value)}
+              onFocus={() => setShowRecent(true)}
+              onBlur={() => setTimeout(() => setShowRecent(false), 150)}
               className="pl-9"
               aria-label="Search vehicles"
             />
+            {showRecent && recent.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-72 overflow-y-auto text-left">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-border text-xs text-muted-foreground">
+                  <span>Recent searches on this device</span>
+                  <button
+                    type="button"
+                    className="hover:text-foreground"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      clearRecentSearches("catalogue");
+                      setRecent([]);
+                    }}
+                  >
+                    Clear all
+                  </button>
+                </div>
+                {recent.map((term) => (
+                  <div
+                    key={term}
+                    className="flex items-center justify-between px-3 py-2 hover:bg-accent/40 cursor-pointer text-sm"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      submitSearch(term);
+                    }}
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                      <span className="truncate">{term}</span>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${term}`}
+                      className="text-muted-foreground hover:text-destructive ml-2"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeRecentSearch(term, "catalogue");
+                        setRecent(getRecentSearches("catalogue"));
+                      }}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <Button type="submit">Search</Button>
         </form>
