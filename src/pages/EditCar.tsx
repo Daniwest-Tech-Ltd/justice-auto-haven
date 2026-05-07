@@ -421,7 +421,22 @@ const EditCar = () => {
                     <SelectItem value="sold">Sold</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+            </div>
+
+            <div className="mt-4">
+              <Label htmlFor="yard_location">Yard Location (Optional)</Label>
+              <Combobox
+                options={["Westlands, Nairobi", "Nyeri", "Kiambu", "Mombasa", "Eldoret", "Kisumu"]}
+                value={formData.yard_location}
+                onValueChange={(value) => setFormData({ ...formData, yard_location: value })}
+                placeholder="Select or type yard location"
+                searchPlaceholder="Search location..."
+                emptyMessage="No location found."
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Defaults to Westlands, Nairobi if blank.
+              </p>
+            </div>
             </div>
 
             {/* Other available colors (multi-select dropdown, optional) */}
