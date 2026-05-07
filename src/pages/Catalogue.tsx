@@ -701,6 +701,19 @@ const Catalogue = () => {
                       <p className="text-sm text-muted-foreground mb-1">
                         Stock ID: <span className="font-mono font-semibold">{car.stock_id || "N/A"}</span>
                       </p>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2 cursor-help w-fit">
+                              <MapPin className="h-3.5 w-3.5 text-primary" />
+                              <span className="truncate max-w-[180px]">{car.yard_location || "Westlands, Nairobi"}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <p className="text-xs">Yard location: {car.yard_location || "Westlands, Nairobi"}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       {car.created_at && (
                         <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
                           <Clock className="h-3 w-3 text-primary" />
