@@ -38,6 +38,7 @@ interface Car {
   stock_id: string | null;
   is_featured: boolean | null;
   created_at: string | null;
+  yard_location: string | null;
 }
 
 interface Brand {
