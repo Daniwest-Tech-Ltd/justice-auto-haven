@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search, Clock, X } from "lucide-react";
 import BrandMarquee from "./BrandMarquee";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -10,15 +10,32 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import {
+  getRecentSearches,
+  addRecentSearch,
+  removeRecentSearch,
+  clearRecentSearches,
+} from "@/lib/recentSearches";
 
 const Footer = () => {
   const navigate = useNavigate();
   const [footerSearch, setFooterSearch] = useState("");
+  const [recent, setRecent] = useState<string[]>(() => getRecentSearches("catalogue"));
+  const [showRecent, setShowRecent] = useState(false);
+
+  const submitSearch = (term: string) => {
+    const q = term.trim();
+    if (q) {
+      addRecentSearch(q, "catalogue");
+      setRecent(getRecentSearches("catalogue"));
+    }
+    navigate(q ? `/catalogue?search=${encodeURIComponent(q)}` : "/catalogue");
+    setShowRecent(false);
+  };
 
   const handleFooterSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = footerSearch.trim();
-    navigate(q ? `/catalogue?search=${encodeURIComponent(q)}` : "/catalogue");
+    submitSearch(footerSearch);
   };
 
   return (
