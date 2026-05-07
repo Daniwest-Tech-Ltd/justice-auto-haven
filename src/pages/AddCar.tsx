@@ -540,6 +540,21 @@ const AddCar = () => {
               </div>
             </div>
 
+            <div className="space-y-2 mt-6">
+              <Label htmlFor="yard_location">Yard Location (Optional)</Label>
+              <Combobox
+                options={yardLocations}
+                value={formData.yard_location}
+                onValueChange={(value) => setFormData({ ...formData, yard_location: value })}
+                placeholder="Select or type yard location"
+                searchPlaceholder="Search location..."
+                emptyMessage="No location found."
+              />
+              <p className="text-xs text-muted-foreground">
+                Defaults to Westlands, Nairobi if not selected. Editable later.
+              </p>
+            </div>
+
             {/* Other available colors (multi-select dropdown, optional) */}
             <div className="mt-6 p-4 border border-border rounded-lg bg-muted/30">
               <AvailableColorsMultiSelect
