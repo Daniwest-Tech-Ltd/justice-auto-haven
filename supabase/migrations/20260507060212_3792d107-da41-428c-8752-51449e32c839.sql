@@ -1,0 +1,1 @@
+ALTER TABLE public.cars ADD COLUMN IF NOT EXISTS yard_location TEXT DEFAULT 'Westlands, Nairobi';

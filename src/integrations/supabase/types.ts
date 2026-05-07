@@ -1183,6 +1183,7 @@ export type Database = {
           views_count: number | null
           vin: string | null
           vin_history: string | null
+          yard_location: string | null
           year: number
         }
         Insert: {
@@ -1235,6 +1236,7 @@ export type Database = {
           views_count?: number | null
           vin?: string | null
           vin_history?: string | null
+          yard_location?: string | null
           year?: number
         }
         Update: {
@@ -1287,6 +1289,7 @@ export type Database = {
           views_count?: number | null
           vin?: string | null
           vin_history?: string | null
+          yard_location?: string | null
           year?: number
         }
         Relationships: []
