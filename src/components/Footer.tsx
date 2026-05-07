@@ -142,46 +142,17 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-bold mb-4 text-foreground">Car By Brands</h4>
             <ul className="space-y-2">
-              <li>
-                <Link 
-                  to="/catalogue?brand=Toyota" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Toyota
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/catalogue?brand=BMW" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  BMW
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/catalogue?brand=Mercedes" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Mercedes
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/catalogue?brand=Land Rover" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Land Rover
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/catalogue?brand=Nissan" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Nissan
-                </Link>
-              </li>
+              {["Toyota", "BMW", "Mercedes", "Land Rover", "Nissan"].map((b) => (
+                <li key={b}>
+                  <Link
+                    to={`/catalogue?brand=${encodeURIComponent(b)}`}
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    className="text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    {b}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -189,54 +160,17 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-bold mb-4 text-foreground">Car By Location</h4>
             <ul className="space-y-2">
-              <li>
-                <Link 
-                  to="/catalogue" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Nairobi Cars
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/catalogue" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Nyeri Cars
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/catalogue" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Kisii Cars
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/catalogue" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Kiambu Cars
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/catalogue" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Mombasa Cars
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/catalogue" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Eldoret Cars
-                </Link>
-              </li>
+              {["Nairobi", "Nyeri", "Kisii", "Kiambu", "Mombasa", "Eldoret"].map((loc) => (
+                <li key={loc}>
+                  <Link
+                    to={`/catalogue?location=${encodeURIComponent(loc)}`}
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    className="text-muted-foreground hover:text-accent transition-colors"
+                  >
+                    {loc} Cars
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

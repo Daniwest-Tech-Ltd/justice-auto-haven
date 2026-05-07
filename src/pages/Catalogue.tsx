@@ -21,6 +21,7 @@ import CarRating from "@/components/CarRating";
 import { getCurrentSale } from "@/lib/currentSale";
 import { getRecentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } from "@/lib/recentSearches";
 import { X as XIcon, Clock as ClockIcon } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Car {
   id: string;
@@ -38,6 +39,7 @@ interface Car {
   stock_id: string | null;
   is_featured: boolean | null;
   created_at: string | null;
+  yard_location: string | null;
 }
 
 interface Brand {
@@ -146,6 +148,11 @@ const Catalogue = () => {
 
     if (filters.brand !== "all") {
       query = query.eq("make", filters.brand);
+    }
+
+    const locationParam = searchParams.get("location");
+    if (locationParam) {
+      query = query.ilike("yard_location", `%${locationParam}%`);
     }
 
     if (filters.year !== "all") {
@@ -694,6 +701,19 @@ const Catalogue = () => {
                       <p className="text-sm text-muted-foreground mb-1">
                         Stock ID: <span className="font-mono font-semibold">{car.stock_id || "N/A"}</span>
                       </p>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2 cursor-help w-fit">
+                              <MapPin className="h-3.5 w-3.5 text-primary" />
+                              <span className="truncate max-w-[180px]">{car.yard_location || "Westlands, Nairobi"}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <p className="text-xs">Yard location: {car.yard_location || "Westlands, Nairobi"}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       {car.created_at && (
                         <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
                           <Clock className="h-3 w-3 text-primary" />

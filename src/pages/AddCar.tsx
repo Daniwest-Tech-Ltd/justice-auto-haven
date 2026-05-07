@@ -40,6 +40,7 @@ const AddCar = () => {
     description: "",
     vin: "",
     vin_history: "",
+    yard_location: "Westlands, Nairobi",
   });
   const [availableColors, setAvailableColors] = useState<string[]>([]);
 
@@ -54,6 +55,7 @@ const AddCar = () => {
   const driveTypes = ["2WD", "FWD", "RWD", "4WD", "AWD"];
   const colors = ["White", "Black", "Silver", "Grey", "Blue", "Red", "Green", "Yellow", "Orange", "Brown", "Beige", "Gold", "Purple", "Maroon", "Wine", "Pink"];
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const yardLocations = ["Westlands, Nairobi", "Nyeri", "Kiambu", "Mombasa", "Eldoret", "Kisumu"];
 
   const handleMainImageSelect = (index: number, file: File | null) => {
     if (file) {
@@ -157,6 +159,7 @@ const AddCar = () => {
           main_images: [], additional_images: [], images: [],
           vin: formData.vin || null, vin_history: formData.vin_history || null,
           available_colors: availableColors.length > 0 ? availableColors : null,
+          yard_location: formData.yard_location || 'Westlands, Nairobi',
         }] as any)
         .select("id, stock_id")
         .single();
@@ -218,6 +221,7 @@ const AddCar = () => {
             vin: formData.vin || null,
             vin_history: formData.vin_history || null,
             available_colors: availableColors.length > 0 ? availableColors : null,
+            yard_location: formData.yard_location || 'Westlands, Nairobi',
           } as any,
         ])
         .select("id, stock_id")
@@ -534,6 +538,21 @@ const AddCar = () => {
                   Leave empty for auto-generated ID, or enter your own
                 </p>
               </div>
+            </div>
+
+            <div className="space-y-2 mt-6">
+              <Label htmlFor="yard_location">Yard Location (Optional)</Label>
+              <Combobox
+                options={yardLocations}
+                value={formData.yard_location}
+                onValueChange={(value) => setFormData({ ...formData, yard_location: value })}
+                placeholder="Select or type yard location"
+                searchPlaceholder="Search location..."
+                emptyMessage="No location found."
+              />
+              <p className="text-xs text-muted-foreground">
+                Defaults to Westlands, Nairobi if not selected. Editable later.
+              </p>
             </div>
 
             {/* Other available colors (multi-select dropdown, optional) */}
