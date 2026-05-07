@@ -221,6 +221,7 @@ const AddCar = () => {
             vin: formData.vin || null,
             vin_history: formData.vin_history || null,
             available_colors: availableColors.length > 0 ? availableColors : null,
+            yard_location: formData.yard_location || 'Westlands, Nairobi',
           } as any,
         ])
         .select("id, stock_id")
