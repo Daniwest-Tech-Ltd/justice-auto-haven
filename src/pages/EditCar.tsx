@@ -39,6 +39,7 @@ const EditCar = () => {
     is_rental: false,
     vin: "",
     vin_history: "",
+    yard_location: "Westlands, Nairobi",
   });
   const [existingMainImages, setExistingMainImages] = useState<string[]>([]);
   const [existingAdditionalImages, setExistingAdditionalImages] = useState<string[]>([]);
