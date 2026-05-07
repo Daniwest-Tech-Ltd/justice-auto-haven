@@ -21,6 +21,7 @@ import CarRating from "@/components/CarRating";
 import { getCurrentSale } from "@/lib/currentSale";
 import { getRecentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } from "@/lib/recentSearches";
 import { X as XIcon, Clock as ClockIcon } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Car {
   id: string;
