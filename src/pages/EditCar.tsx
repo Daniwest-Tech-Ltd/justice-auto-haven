@@ -88,6 +88,7 @@ const EditCar = () => {
           is_rental: data.is_rental || false,
           vin: (data as any).vin || "",
           vin_history: (data as any).vin_history || "",
+          yard_location: (data as any).yard_location || "Westlands, Nairobi",
         });
         
         // Load images from new structure, fallback to old
