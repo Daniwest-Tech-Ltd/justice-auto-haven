@@ -44,8 +44,10 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Generate 6-digit OTP code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate cryptographically secure 6-digit OTP code
+    const rand = new Uint32Array(1);
+    crypto.getRandomValues(rand);
+    const code = String(100000 + (rand[0] % 900000)).padStart(6, '0');
     
     // Store code in database (expires in 10 minutes)
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();

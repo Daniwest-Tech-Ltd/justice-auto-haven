@@ -36,8 +36,10 @@ serve(async (req) => {
       throw new Error("User not found");
     }
 
-    // Generate 6-digit OTP
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate cryptographically secure 6-digit OTP
+    const rand = new Uint32Array(1);
+    crypto.getRandomValues(rand);
+    const code = String(100000 + (rand[0] % 900000)).padStart(6, '0');
 
     // Store OTP with 10 minute expiry
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
