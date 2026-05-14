@@ -740,11 +740,15 @@ const Catalogue = () => {
                       </div>
                       
                       <div className="border-t border-primary/10 pt-3 mb-4">
-                        <p className="text-sm text-muted-foreground mb-1">Price</p>
-                        <p className="text-2xl font-bold text-primary">
-                          KSh {car.price.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">Negotiable • Payment Plans Available</p>
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1.5">Price</p>
+                        <div className="relative inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500/15 via-green-500/20 to-emerald-500/15 border border-emerald-400/40 shadow-[0_0_20px_-5px_rgba(16,185,129,0.6)] backdrop-blur-sm overflow-hidden">
+                          <span className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-emerald-400 to-green-600 animate-pulse" />
+                          <span className="text-emerald-400 font-mono text-sm font-bold">KSh</span>
+                          <span className="text-2xl font-extrabold font-mono tabular-nums text-emerald-300 drop-shadow-[0_0_8px_rgba(16,185,129,0.7)]">
+                            {car.price.toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">Negotiable • Payment Plans Available</p>
                       </div>
                       
                       {/* Rating */}
