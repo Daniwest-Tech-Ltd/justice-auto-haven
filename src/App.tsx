@@ -119,6 +119,8 @@ const SalesOrderManagement = lazyWithRetry(() => import("./pages/SalesOrderManag
 const CarDrafts = lazyWithRetry(() => import("./pages/CarDrafts"));
 const SalesProspects = lazyWithRetry(() => import("./pages/SalesProspects"));
 const CompanyDocuments = lazyWithRetry(() => import("./pages/CompanyDocuments"));
+const MotorbikeCatalogue = lazyWithRetry(() => import("./pages/MotorbikeCatalogue"));
+const MotorbikeManagement = lazyWithRetry(() => import("./pages/MotorbikeManagement"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient({
@@ -223,6 +225,8 @@ const AppContent = () => {
           <Route path="/contact" element={<Layout><Contact /></Layout>} />
           <Route path="/services" element={<Layout><Services /></Layout>} />
           <Route path="/catalogue" element={<Layout><Catalogue /></Layout>} />
+          <Route path="/motorbikes" element={<Layout><MotorbikeCatalogue /></Layout>} />
+          <Route path="/motorbike-catalogue" element={<Layout><MotorbikeCatalogue /></Layout>} />
           <Route path="/videos" element={<Layout><Videos /></Layout>} />
           <Route path="/blogs" element={<Layout><Blogs /></Layout>} />
           <Route path="/terms" element={<Layout><TermsOfUse /></Layout>} />
@@ -346,6 +350,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <CarManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/motorbikes" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <MotorbikeManagement />
               </ProtectedRoute>
             } 
           />

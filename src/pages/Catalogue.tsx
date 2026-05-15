@@ -380,6 +380,13 @@ const Catalogue = () => {
             >
               RENT
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/motorbikes')}
+              className="font-semibold"
+            >
+              MOTORBIKES
+            </Button>
           </div>
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-3xl md:text-5xl font-bold mb-2 bg-gradient-accent bg-clip-text text-transparent">

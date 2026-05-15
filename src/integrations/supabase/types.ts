@@ -2657,6 +2657,75 @@ export type Database = {
         }
         Relationships: []
       }
+      motorbikes: {
+        Row: {
+          color: string | null
+          condition: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          engine_cc: number | null
+          fuel_type: string | null
+          id: string
+          images: Json | null
+          is_featured: boolean | null
+          make: string
+          mileage: string | null
+          model: string
+          price: number
+          status: string | null
+          stock_id: string | null
+          transmission: string | null
+          updated_at: string
+          yard_location: string | null
+          year: number
+        }
+        Insert: {
+          color?: string | null
+          condition?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          engine_cc?: number | null
+          fuel_type?: string | null
+          id?: string
+          images?: Json | null
+          is_featured?: boolean | null
+          make: string
+          mileage?: string | null
+          model: string
+          price?: number
+          status?: string | null
+          stock_id?: string | null
+          transmission?: string | null
+          updated_at?: string
+          yard_location?: string | null
+          year: number
+        }
+        Update: {
+          color?: string | null
+          condition?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          engine_cc?: number | null
+          fuel_type?: string | null
+          id?: string
+          images?: Json | null
+          is_featured?: boolean | null
+          make?: string
+          mileage?: string | null
+          model?: string
+          price?: number
+          status?: string | null
+          stock_id?: string | null
+          transmission?: string | null
+          updated_at?: string
+          yard_location?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
       notification_config: {
         Row: {
           created_at: string | null

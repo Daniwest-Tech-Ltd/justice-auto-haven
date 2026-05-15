@@ -135,6 +135,11 @@ const Footer = () => {
                   Videos
                 </Link>
               </li>
+              <li>
+                <Link to="/motorbikes" className="text-muted-foreground hover:text-accent transition-colors">
+                  Motorbikes
+                </Link>
+              </li>
             </ul>
           </div>
 
