@@ -203,6 +203,7 @@ const AdminDashboard = () => {
       label: "Vehicle Management",
       items: [
         { title: "Vehicles", icon: Car, path: "/admin/cars" },
+        { title: "Motorbikes", icon: Car, path: "/admin/motorbikes" },
         { title: "Vehicle Analytics", icon: TrendingUp, path: "/admin/vehicle-analytics" },
         { title: "Brands", icon: Grid3x3, path: "/admin/brands" },
         { title: "Trade-Ins", icon: Package, path: "/admin/trade-ins" },
