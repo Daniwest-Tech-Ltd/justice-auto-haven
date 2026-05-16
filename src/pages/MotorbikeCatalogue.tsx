@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Bike, Gauge, Fuel, Search, Cpu, Zap } from "lucide-react";
+import useDisableRightClick from "@/hooks/useDisableRightClick";
 
 interface Motorbike {
   id: string;
@@ -29,6 +30,7 @@ interface Motorbike {
 }
 
 const MotorbikeCatalogue = () => {
+  useDisableRightClick();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [bikes, setBikes] = useState<Motorbike[]>([]);
@@ -143,7 +145,9 @@ const MotorbikeCatalogue = () => {
               return (
                 <Card
                   key={b.id}
-                  className="group overflow-hidden border-border/60 hover:border-primary/50 transition-all hover:shadow-[0_0_25px_-5px_hsl(var(--primary)/0.4)] relative"
+                  onClick={() => navigate(`/motorbike/${b.stock_id || b.id}`)}
+                  className="group overflow-hidden border-2 border-primary/30 bg-card/95 backdrop-blur-md hover:border-primary transition-all hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)] relative cursor-pointer select-none"
+                  onContextMenu={(e) => e.preventDefault()}
                 >
                   {/* Tech accent corner */}
                   <span className="absolute top-0 left-0 h-px w-12 bg-gradient-to-r from-emerald-400 to-transparent" />
