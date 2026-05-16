@@ -121,6 +121,7 @@ const SalesProspects = lazyWithRetry(() => import("./pages/SalesProspects"));
 const CompanyDocuments = lazyWithRetry(() => import("./pages/CompanyDocuments"));
 const MotorbikeCatalogue = lazyWithRetry(() => import("./pages/MotorbikeCatalogue"));
 const MotorbikeManagement = lazyWithRetry(() => import("./pages/MotorbikeManagement"));
+const MotorbikeDetails = lazyWithRetry(() => import("./pages/MotorbikeDetails"));
 import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient({
@@ -227,6 +228,7 @@ const AppContent = () => {
           <Route path="/catalogue" element={<Layout><Catalogue /></Layout>} />
           <Route path="/motorbikes" element={<Layout><MotorbikeCatalogue /></Layout>} />
           <Route path="/motorbike-catalogue" element={<Layout><MotorbikeCatalogue /></Layout>} />
+          <Route path="/motorbike/:id" element={<Layout><MotorbikeDetails /></Layout>} />
           <Route path="/videos" element={<Layout><Videos /></Layout>} />
           <Route path="/blogs" element={<Layout><Blogs /></Layout>} />
           <Route path="/terms" element={<Layout><TermsOfUse /></Layout>} />
