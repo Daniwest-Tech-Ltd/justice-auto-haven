@@ -158,8 +158,9 @@ const MotorbikeCatalogue = () => {
                       <img
                         src={img}
                         alt={`${b.make} ${b.model} ${b.year}`}
-                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 pointer-events-none"
                         loading="lazy"
+                        draggable={false}
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">
@@ -227,15 +228,15 @@ const MotorbikeCatalogue = () => {
                     <Button
                       variant="outline"
                       className="flex-1"
-                      onClick={() => window.open(`https://wa.me/254722827458?text=Hi, I'm interested in ${b.make} ${b.model} ${b.year} (${b.stock_id || b.id})`, "_blank")}
+                      onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/254722827458?text=Hi, I'm interested in ${b.make} ${b.model} ${b.year} (${b.stock_id || b.id})`, "_blank"); }}
                     >
                       Enquire
                     </Button>
                     <Button
                       className="flex-1"
-                      onClick={() => window.open("tel:+254722827458")}
+                      onClick={(e) => { e.stopPropagation(); navigate(`/motorbike/${b.stock_id || b.id}`); }}
                     >
-                      Call
+                      View Details
                     </Button>
                   </CardFooter>
                 </Card>
