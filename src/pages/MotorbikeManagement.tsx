@@ -126,9 +126,16 @@ const MotorbikeManagement = () => {
     setForm((f) => ({ ...f, images: (f.images || []).filter((u) => u !== url) }));
   };
 
+  const setMainImage = (url: string) => {
+    setForm((f) => {
+      const imgs = (f.images || []).filter((u) => u !== url);
+      return { ...f, images: [url, ...imgs] };
+    });
+  };
+
   const save = async () => {
     if (!form.make || !form.model || !form.year || !form.price) {
-      toast({ title: "Missing fields", description: "Make, model, year and price are required", variant: "destructive" });
+      toast({ title: "Missing fields", description: "Make, model, year and price are required (images are optional)", variant: "destructive" });
       return;
     }
     setSaving(true);
@@ -368,11 +375,17 @@ const MotorbikeManagement = () => {
 
             {/* Images */}
             <div className="md:col-span-2">
-              <Label>Images</Label>
+              <Label>Images <span className="text-xs text-muted-foreground font-normal">(optional — first image is the main photo)</span></Label>
               <div className="mt-2">
                 <label className="flex items-center gap-2 px-4 py-2 border-2 border-dashed rounded-md cursor-pointer hover:border-primary transition">
                   <Upload className="h-4 w-4" />
-                  <span className="text-sm">{uploading ? "Uploading..." : "Upload images"}</span>
+                  <span className="text-sm">
+                    {uploading
+                      ? "Uploading..."
+                      : (form.images && form.images.length > 0)
+                        ? "Upload more images"
+                        : "Upload main image (and optional additional images)"}
+                  </span>
                   <input
                     type="file"
                     multiple
@@ -384,16 +397,29 @@ const MotorbikeManagement = () => {
                 </label>
                 {form.images && form.images.length > 0 && (
                   <div className="grid grid-cols-4 gap-2 mt-3">
-                    {form.images.map((url) => (
-                      <div key={url} className="relative aspect-square rounded overflow-hidden border">
+                    {form.images.map((url, i) => (
+                      <div key={url} className={`relative aspect-square rounded overflow-hidden border-2 ${i === 0 ? "border-primary" : "border-border"}`}>
                         <img src={url} alt="" className="object-cover w-full h-full" />
+                        {i === 0 && (
+                          <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-primary text-primary-foreground text-[9px] font-bold font-mono">MAIN</span>
+                        )}
                         <button
                           type="button"
                           onClick={() => removeImage(url)}
                           className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                          title="Remove"
                         >
                           <X className="h-3 w-3" />
                         </button>
+                        {i !== 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setMainImage(url)}
+                            className="absolute bottom-1 left-1 right-1 bg-background/90 text-foreground text-[9px] font-semibold py-0.5 rounded hover:bg-primary hover:text-primary-foreground transition"
+                          >
+                            Set as Main
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
