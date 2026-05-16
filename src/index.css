@@ -146,6 +146,22 @@ All colors MUST be HSL.
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.5);
   }
 
+  /* About page — solid, readable surfaces over the busy hero background */
+  .about-page .glass-strong,
+  .about-page .glass {
+    background: hsl(var(--card) / 0.95) !important;
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid hsl(var(--primary) / 0.25);
+    color: hsl(var(--card-foreground));
+  }
+  .about-page .glass-strong p,
+  .about-page .glass p,
+  .about-page .glass-strong li,
+  .about-page .glass li {
+    color: hsl(var(--card-foreground) / 0.85);
+  }
+
   /* Professional Auth Form Styling */
   /* Keyframe Animations for Auth Buttons */
   @keyframes padlock-open {
