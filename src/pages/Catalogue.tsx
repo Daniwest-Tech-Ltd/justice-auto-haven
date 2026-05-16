@@ -22,6 +22,7 @@ import { getCurrentSale } from "@/lib/currentSale";
 import { getRecentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } from "@/lib/recentSearches";
 import { X as XIcon, Clock as ClockIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import useDisableRightClick from "@/hooks/useDisableRightClick";
 
 interface Car {
   id: string;
@@ -49,6 +50,7 @@ interface Brand {
 }
 
 const Catalogue = () => {
+  useDisableRightClick();
   const sale = getCurrentSale();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
