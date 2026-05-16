@@ -34,7 +34,7 @@ const About = () => {
   );
 
   return (
-    <div className="relative">
+    <div className="relative about-page">
       {/* Top tech loading bar */}
       <div className="fixed top-16 left-0 right-0 h-[2px] bg-primary/10 z-40">
         <div

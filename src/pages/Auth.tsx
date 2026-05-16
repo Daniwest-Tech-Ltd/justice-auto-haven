@@ -41,10 +41,12 @@ import { Combobox } from "@/components/ui/combobox";
 import { PhoneInputWithCountryCode } from "@/components/PhoneInputWithCountryCode";
 import HolidayBanner from "@/components/HolidayBanner";
 import { Snowfall } from "@/components/SeasonalEffects";
+import useDisableRightClick from "@/hooks/useDisableRightClick";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
 
 const Auth = () => {
+  useDisableRightClick();
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
