@@ -496,3 +496,15 @@ All colors MUST be HSL.
 .animate-snowfall {
   animation: snowfall 10s linear infinite;
 }
+
+/* Visible certificate scrollbar */
+.cert-scroll::-webkit-scrollbar { width: 14px; }
+.cert-scroll::-webkit-scrollbar-track { background: hsl(var(--secondary)); border-radius: 8px; }
+.cert-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)));
+  border-radius: 8px;
+  border: 2px solid hsl(var(--secondary));
+  box-shadow: 0 0 8px hsl(var(--primary) / 0.6);
+}
+.cert-scroll::-webkit-scrollbar-thumb:hover { background: hsl(var(--accent)); }
+.cert-scroll { scrollbar-width: auto; scrollbar-color: hsl(var(--primary)) hsl(var(--secondary)); }
