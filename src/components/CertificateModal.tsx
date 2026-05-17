@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { X, FileText, ChevronLeft, ChevronRight, Building2, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
   const [activeTab, setActiveTab] = useState<"certificate" | "profile">("certificate");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -39,7 +40,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
         .select("*")
         .eq("status", "active")
         .order("display_order", { ascending: true });
-      setDocs((data as any) || []);
+      setDocs((data as CompanyDocument[]) || []);
       setLoading(false);
     })();
   }, [open]);
@@ -54,13 +55,18 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
 
   useEffect(() => {
     setCurrentIndex(0);
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [activeTab]);
+
+  useEffect(() => {
+    if (open) scrollRef.current?.scrollTo({ top: 0 });
+  }, [open, currentIndex]);
 
   const renderFile = (url: string, alt: string) => {
     if (url.match(/\.pdf$/i)) {
       return <iframe src={url} className="w-full h-[60vh] rounded-lg border border-border" title={alt} />;
     }
-    return <img src={url} alt={alt} className="w-full h-auto rounded-lg shadow-2xl border-4 border-accent/30" />;
+    return <img src={url} alt={alt} className="block w-full h-auto rounded-lg shadow-2xl border-4 border-accent/30" />;
   };
 
   return (
@@ -94,9 +100,9 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
             </Button>
           </div>
 
-          <div className="flex-1 overflow-y-scroll bg-secondary/20 cert-scroll">
-            <div className="p-6">
-            <div className="max-w-3xl mx-auto">
+          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-secondary/20 cert-scroll">
+            <div className="p-4 md:p-6 pb-24">
+              <div className="max-w-4xl mx-auto">
               {loading ? (
                 <div className="text-center text-muted-foreground py-12">Loading documents…</div>
               ) : filtered.length === 0 ? (
@@ -109,7 +115,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
                     <img
                       src={certificateImageFallback}
                       alt="Justice Ultimate Automobiles - Certificate"
-                      className="w-full h-auto rounded-lg shadow-2xl border-4 border-accent/30 mt-6"
+                      className="block w-full h-auto rounded-lg shadow-2xl border-4 border-accent/30 mt-6"
                     />
                   )}
                 </div>
@@ -142,7 +148,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
                   {current && (
                     <>
                       {current.file_url.startsWith("/src/assets/")
-                        ? <img src={certificateImageFallback} alt={current.title} className="w-full h-auto rounded-lg shadow-2xl border-4 border-accent/30" />
+                        ? <img src={certificateImageFallback} alt={current.title} className="block w-full h-auto rounded-lg shadow-2xl border-4 border-accent/30" />
                         : renderFile(current.file_url, current.title)}
 
                       <div className="mt-6 glass-strong rounded-xl p-6 space-y-3">
@@ -177,8 +183,17 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
                   )}
                 </>
               )}
+              </div>
             </div>
-            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              className="absolute bottom-4 right-5 z-20 border border-primary/30 shadow-lg"
+              onClick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })}
+            >
+              Scroll down
+            </Button>
           </div>
         </div>
       </DialogContent>
