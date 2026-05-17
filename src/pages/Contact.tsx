@@ -54,8 +54,8 @@ const Contact = () => {
 
       toast({ title: "Message Sent!", description: "We'll get back to you as soon as possible." });
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error", description: error instanceof Error ? error.message : "Failed to send message.", variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
