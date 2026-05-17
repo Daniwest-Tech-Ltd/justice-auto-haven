@@ -306,10 +306,10 @@ const CarDetails = () => {
                 </Button>
               </a>
               
-              <a href="mailto:justicevincentt@gmail.com" className="block">
+              <a href="mailto:support@justiceultimateautomobiles.com" className="block">
                 <Button variant="outline" className="w-full" size="lg">
                   <Mail className="mr-2 h-5 w-5" />
-                  justicevincentt@gmail.com
+                  support@justiceultimateautomobiles.com
                 </Button>
               </a>
               

@@ -284,8 +284,8 @@ export const PaymentMethodsModal = ({ open, onOpenChange }: PaymentMethodsModalP
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail className="h-5 w-5 text-primary" />
-                  <a href="mailto:justicevincentt@gmail.com" className="text-sm hover:text-primary">
-                    justicevincentt@gmail.com
+                  <a href="mailto:support@justiceultimateautomobiles.com" className="text-sm hover:text-primary">
+                    support@justiceultimateautomobiles.com
                   </a>
                 </div>
               </div>

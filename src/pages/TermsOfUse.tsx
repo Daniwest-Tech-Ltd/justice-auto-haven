@@ -196,7 +196,7 @@ const TermsOfUse = () => {
             <div className="bg-background/50 p-4 rounded-lg border border-border">
               <p className="font-semibold mb-2">Justice Ultimate Automobiles</p>
               <p><strong>CEO:</strong> Justice Vincent</p>
-              <p><strong>Email:</strong> <a href="mailto:justicevincentt@gmail.com" className="text-primary hover:underline">justicevincentt@gmail.com</a></p>
+              <p><strong>Email:</strong> <a href="mailto:support@justiceultimateautomobiles.com" className="text-primary hover:underline">support@justiceultimateautomobiles.com</a></p>
               <p><strong>Phone:</strong> <a href="tel:+254722827458" className="text-primary hover:underline">+254 722 827 458</a></p>
               <p><strong>Address:</strong> Mpesi Lane 11, Westlands, Nairobi, Kenya</p>
               <p className="mt-3">
