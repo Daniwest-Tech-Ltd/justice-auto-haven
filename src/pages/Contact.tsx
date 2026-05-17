@@ -280,7 +280,7 @@ const Contact = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold mb-0.5">{dept.label}</p>
-                <p className="text-sm text-muted-foreground truncate group-hover:text-primary transition-colors">{dept.email}</p>
+                <p className="text-sm text-muted-foreground break-all group-hover:text-primary transition-colors">{dept.email}</p>
               </div>
             </a>
           ))}
