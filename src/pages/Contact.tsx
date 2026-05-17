@@ -89,7 +89,7 @@ const Contact = () => {
     { icon: Mail, label: "General Inquiries", email: "info@justiceultimateautomobiles.com", color: "text-blue-500" },
     { icon: Headphones, label: "Customer Support", email: "support@justiceultimateautomobiles.com", color: "text-green-500" },
     { icon: ShoppingBag, label: "Sales Department", email: "sales@justiceultimateautomobiles.com", color: "text-amber-500" },
-    { icon: User, label: "CEO Direct", email: "justicevincentt@gmail.com", color: "text-purple-500" },
+    
   ];
 
   return (
