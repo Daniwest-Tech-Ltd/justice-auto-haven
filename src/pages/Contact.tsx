@@ -248,7 +248,7 @@ const Contact = () => {
               <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center flex-shrink-0">
                 <Clock className="h-6 w-6 text-purple-500" />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h3 className="text-lg font-bold mb-2">Office Hours</h3>
                 <p className="text-sm text-muted-foreground">⏰ Nairobi (EAT): 8AM – 6PM, Mon–Sat</p>
                 <p className="text-sm text-muted-foreground">⏰ London (GMT): 7AM – 5PM, Mon–Fri</p>
