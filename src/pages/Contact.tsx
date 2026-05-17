@@ -213,7 +213,7 @@ const Contact = () => {
               <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
                 <MapPin className="h-6 w-6 text-red-500" />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h3 className="text-lg font-bold mb-1">Headquarters</h3>
                 <p className="text-sm text-muted-foreground">Muthithi Road, Westlands<br />Nairobi, Kenya</p>
                 <p className="text-xs text-primary mt-2 group-hover:underline">View on Google Maps →</p>
@@ -228,14 +228,14 @@ const Contact = () => {
             </h3>
             <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition-colors">
               <MessageCircle className="h-5 w-5 text-green-600" />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground">WhatsApp</p>
                 <p className="font-semibold">+254 722 827 458</p>
               </div>
             </a>
             <a href="tel:+254722827458" className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition-colors">
               <Phone className="h-5 w-5 text-blue-600" />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground">Phone / SMS</p>
                 <p className="font-semibold">+254 722 827 458</p>
               </div>
