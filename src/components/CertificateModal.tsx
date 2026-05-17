@@ -40,7 +40,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
         .select("*")
         .eq("status", "active")
         .order("display_order", { ascending: true });
-      setDocs((data as any) || []);
+      setDocs((data as CompanyDocument[]) || []);
       setLoading(false);
     })();
   }, [open]);
