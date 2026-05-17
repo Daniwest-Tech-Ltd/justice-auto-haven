@@ -93,7 +93,7 @@ const Contact = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-12">
+    <div className="contact-page container mx-auto px-4 py-12 space-y-12">
       {/* Hero Header */}
       <section className="relative">
         <div className="glass-strong rounded-3xl p-8 md:p-12 max-w-5xl mx-auto text-center relative overflow-hidden">
