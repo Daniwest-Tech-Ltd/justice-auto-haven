@@ -178,7 +178,8 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
                 </>
               )}
             </div>
-          </div>
+            </div>
+          </ScrollArea>
         </div>
       </DialogContent>
     </Dialog>
