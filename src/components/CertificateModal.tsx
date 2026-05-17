@@ -94,7 +94,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
             </Button>
           </div>
 
-          <ScrollArea className="flex-1 bg-secondary/20">
+          <div className="flex-1 overflow-y-scroll bg-secondary/20 cert-scroll">
             <div className="p-6">
             <div className="max-w-3xl mx-auto">
               {loading ? (
