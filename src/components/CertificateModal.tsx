@@ -66,7 +66,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
     if (url.match(/\.pdf$/i)) {
       return <iframe src={url} className="w-full h-[60vh] rounded-lg border border-border" title={alt} />;
     }
-    return <img src={url} alt={alt} className="w-full h-auto rounded-lg shadow-2xl border-4 border-accent/30" />;
+    return <img src={url} alt={alt} className="block w-full h-auto rounded-lg shadow-2xl border-4 border-accent/30" />;
   };
 
   return (
