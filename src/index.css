@@ -496,3 +496,121 @@ All colors MUST be HSL.
 .animate-snowfall {
   animation: snowfall 10s linear infinite;
 }
+
+/* Visible certificate scrollbar */
+.cert-scroll::-webkit-scrollbar { width: 14px; }
+.cert-scroll::-webkit-scrollbar-track { background: hsl(var(--secondary)); border-radius: 8px; }
+.cert-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)));
+  border-radius: 8px;
+  border: 2px solid hsl(var(--secondary));
+  box-shadow: 0 0 8px hsl(var(--primary) / 0.6);
+}
+.cert-scroll::-webkit-scrollbar-thumb:hover { background: hsl(var(--accent)); }
+.cert-scroll { scrollbar-width: auto; scrollbar-color: hsl(var(--primary)) hsl(var(--secondary)); }
+
+/* ============ Home Tech Theme ============ */
+.home-tech { position: relative; overflow-x: hidden; }
+
+.tech-grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(hsl(var(--primary) / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+  z-index: 0;
+}
+
+.tech-scanline {
+  position: fixed;
+  left: 0; right: 0; top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(var(--accent)), transparent);
+  box-shadow: 0 0 12px hsl(var(--primary) / 0.7);
+  animation: tech-scan 6s linear infinite;
+  z-index: 1;
+}
+
+@keyframes tech-scan {
+  0% { transform: translateY(0); opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+.home-tech > section { position: relative; z-index: 2; }
+
+/* Tech card upgrades */
+.home-tech .glass-strong,
+.home-tech .glass {
+  position: relative;
+  border: 1px solid hsl(var(--primary) / 0.35) !important;
+  background: linear-gradient(135deg, hsl(var(--card) / 0.92), hsl(var(--secondary) / 0.85)) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  box-shadow:
+    0 0 0 1px hsl(var(--primary) / 0.08) inset,
+    0 10px 40px -20px hsl(var(--primary) / 0.45),
+    0 0 24px -8px hsl(var(--accent) / 0.25);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.home-tech .glass-strong::before,
+.home-tech .glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.6), transparent 40%, hsl(var(--accent) / 0.5));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.home-tech .glass-strong:hover,
+.home-tech .glass:hover {
+  transform: translateY(-4px);
+  border-color: hsl(var(--accent) / 0.7) !important;
+  box-shadow:
+    0 0 0 1px hsl(var(--accent) / 0.25) inset,
+    0 20px 60px -20px hsl(var(--primary) / 0.6),
+    0 0 40px -6px hsl(var(--accent) / 0.45);
+}
+
+/* Corner brackets for that HUD feel */
+.home-tech .glass-strong::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: calc(var(--radius) - 4px);
+  pointer-events: none;
+  background:
+    linear-gradient(hsl(var(--accent)), hsl(var(--accent))) top left / 14px 2px no-repeat,
+    linear-gradient(hsl(var(--accent)), hsl(var(--accent))) top left / 2px 14px no-repeat,
+    linear-gradient(hsl(var(--accent)), hsl(var(--accent))) top right / 14px 2px no-repeat,
+    linear-gradient(hsl(var(--accent)), hsl(var(--accent))) top right / 2px 14px no-repeat,
+    linear-gradient(hsl(var(--accent)), hsl(var(--accent))) bottom left / 14px 2px no-repeat,
+    linear-gradient(hsl(var(--accent)), hsl(var(--accent))) bottom left / 2px 14px no-repeat,
+    linear-gradient(hsl(var(--accent)), hsl(var(--accent))) bottom right / 14px 2px no-repeat,
+    linear-gradient(hsl(var(--accent)), hsl(var(--accent))) bottom right / 2px 14px no-repeat;
+  opacity: 0.55;
+}
+
+/* Section dividers with circuit line */
+.home-tech section + section {
+  border-top: 1px solid hsl(var(--primary) / 0.18);
+  background-image: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.25) 50%, transparent 100%);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: top;
+}
+
+/* Headings get a subtle tech glow */
+.home-tech h1, .home-tech h2 {
+  text-shadow: 0 0 18px hsl(var(--primary) / 0.25);
+  letter-spacing: -0.01em;
+}

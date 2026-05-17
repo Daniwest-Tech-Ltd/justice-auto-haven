@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { X, FileText, ChevronLeft, ChevronRight, Building2, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { supabase } from "@/integrations/supabase/client";
 import certificateImageFallback from "@/assets/company-certificate.png";
 
@@ -94,7 +94,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
             </Button>
           </div>
 
-          <ScrollArea className="flex-1 bg-secondary/20">
+          <div className="flex-1 overflow-y-scroll bg-secondary/20 cert-scroll">
             <div className="p-6">
             <div className="max-w-3xl mx-auto">
               {loading ? (
@@ -179,7 +179,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
               )}
             </div>
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

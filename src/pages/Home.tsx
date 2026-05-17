@@ -140,7 +140,10 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen animate-fade-in">
+    <div className="min-h-screen animate-fade-in home-tech relative">
+      {/* Tech grid + scanline overlay */}
+      <div className="tech-grid-overlay pointer-events-none" aria-hidden="true" />
+      <div className="tech-scanline pointer-events-none" aria-hidden="true" />
       {/* Hero Section with Slideshow */}
       <section className="relative h-[600px] overflow-hidden" aria-label="Featured Vehicles Showcase">
         <div className="absolute inset-0">
