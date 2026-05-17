@@ -507,7 +507,34 @@ All colors MUST be HSL.
   box-shadow: 0 0 8px hsl(var(--primary) / 0.6);
 }
 .cert-scroll::-webkit-scrollbar-thumb:hover { background: hsl(var(--accent)); }
-.cert-scroll { scrollbar-width: auto; scrollbar-color: hsl(var(--primary)) hsl(var(--secondary)); }
+.cert-scroll {
+  scrollbar-width: auto;
+  scrollbar-color: hsl(var(--primary)) hsl(var(--secondary));
+  scroll-behavior: smooth;
+}
+
+/* Contact page — readable contact details over glass tiles */
+.contact-page .glass-strong,
+.contact-page .glass {
+  background: linear-gradient(135deg, hsl(var(--card) / 0.96), hsl(var(--secondary) / 0.92)) !important;
+  border: 1px solid hsl(var(--primary) / 0.3);
+  box-shadow: 0 12px 36px -18px hsl(var(--primary) / 0.45), 0 0 0 1px hsl(var(--accent) / 0.08) inset;
+  color: hsl(var(--card-foreground));
+}
+
+.contact-page .glass-strong p,
+.contact-page .glass p,
+.contact-page .glass-strong h2,
+.contact-page .glass h2,
+.contact-page .glass-strong h3,
+.contact-page .glass h3 {
+  color: hsl(var(--card-foreground));
+  overflow-wrap: anywhere;
+}
+
+.contact-page .text-muted-foreground {
+  color: hsl(var(--card-foreground) / 0.82) !important;
+}
 
 /* ============ Home Tech Theme ============ */
 .home-tech { position: relative; overflow-x: hidden; }
