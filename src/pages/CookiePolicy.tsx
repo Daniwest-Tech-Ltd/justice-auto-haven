@@ -124,7 +124,7 @@ const CookiePolicy = () => {
             <h2 className="text-2xl font-bold mb-4 text-foreground">9. Contact Us</h2>
             <p className="leading-relaxed">
               If you have any questions about our use of cookies or this Cookie Policy, please contact us at:<br />
-              Email: justicevincentt@gmail.com<br />
+              Email: support@justiceultimateautomobiles.com<br />
               Phone: +254 722 827 458<br />
               Address: Mpesi Lane 11, Westlands, Nairobi, Kenya
             </p>

@@ -636,7 +636,7 @@ const Home = () => {
                       WhatsApp: 0722 827 458
                     </a>
                     <a 
-                      href="mailto:justicevincentt@gmail.com" 
+                      href="mailto:support@justiceultimateautomobiles.com" 
                       className="block w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm py-2 px-4 rounded-lg text-center transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -936,9 +936,9 @@ const Home = () => {
                     <Button
                       variant="outline"
                       className="w-full justify-start text-left"
-                      onClick={() => window.open("mailto:justicevincentt@gmail.com")}
+                      onClick={() => window.open("mailto:support@justiceultimateautomobiles.com")}
                     >
-                      justicevincentt@gmail.com
+                      support@justiceultimateautomobiles.com
                     </Button>
                   </div>
                 </div>

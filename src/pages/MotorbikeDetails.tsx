@@ -187,7 +187,7 @@ const MotorbikeDetails = () => {
             <div className="space-y-3">
               <a href="tel:+254722827458"><Button className="w-full bg-green-600 hover:bg-green-700" size="lg"><Phone className="mr-2 h-5 w-5" /> +254 722 827 458</Button></a>
               <a href={enquireUrl} target="_blank" rel="noopener noreferrer"><Button className="w-full bg-green-500 hover:bg-green-600" size="lg"><MessageCircle className="mr-2 h-5 w-5" /> WhatsApp Enquiry</Button></a>
-              <a href="mailto:justicevincentt@gmail.com"><Button variant="outline" className="w-full" size="lg"><Mail className="mr-2 h-5 w-5" /> Email</Button></a>
+              <a href="mailto:support@justiceultimateautomobiles.com"><Button variant="outline" className="w-full" size="lg"><Mail className="mr-2 h-5 w-5" /> Email</Button></a>
             </div>
 
             {bike.stock_id && (

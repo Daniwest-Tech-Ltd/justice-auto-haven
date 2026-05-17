@@ -70,7 +70,7 @@ const FAQs = () => {
               Can I inspect the vehicle before purchasing?
             </AccordionTrigger>
             <AccordionContent className="text-foreground/80 pt-4">
-              Absolutely! We highly recommend physical inspections. You can visit our showroom at Mpesi Lane 11, Westlands, Nairobi to view and test drive vehicles. Schedule an appointment by calling +254 722 827 458 or emailing justicevincentt@gmail.com.
+              Absolutely! We highly recommend physical inspections. You can visit our showroom at Mpesi Lane 11, Westlands, Nairobi to view and test drive vehicles. Schedule an appointment by calling +254 722 827 458 or emailing support@justiceultimateautomobiles.com.
             </AccordionContent>
           </AccordionItem>
 
@@ -154,7 +154,7 @@ const FAQs = () => {
               <p className="mb-3">We offer multiple support channels:</p>
               <ul className="list-disc list-inside space-y-1">
                 <li><strong>Phone:</strong> +254 722 827 458</li>
-                <li><strong>Email:</strong> justicevincentt@gmail.com</li>
+                <li><strong>Email:</strong> support@justiceultimateautomobiles.com</li>
                 <li><strong>WhatsApp:</strong> Available on request</li>
                 <li><strong>Live Chat:</strong> Available on our website during business hours</li>
                 <li><strong>In-Person:</strong> Visit our office at Mpesi Lane 11, Westlands</li>

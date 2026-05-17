@@ -42,8 +42,8 @@ const HelpSupport = () => {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-2">Send us an email</p>
-              <a href="mailto:justicevincentt@gmail.com" className="font-semibold text-primary hover:underline break-all">
-                justicevincentt@gmail.com
+              <a href="mailto:support@justiceultimateautomobiles.com" className="font-semibold text-primary hover:underline break-all">
+                support@justiceultimateautomobiles.com
               </a>
               <p className="text-xs text-muted-foreground mt-2">24-48 hour response</p>
             </CardContent>
@@ -213,7 +213,7 @@ const HelpSupport = () => {
               </div>
               <div className="bg-background/50 p-4 rounded-lg border border-border">
                 <h4 className="font-semibold mb-2">Email Support</h4>
-                <a href="mailto:justicevincentt@gmail.com" className="text-primary hover:underline break-all">justicevincentt@gmail.com</a>
+                <a href="mailto:support@justiceultimateautomobiles.com" className="text-primary hover:underline break-all">support@justiceultimateautomobiles.com</a>
               </div>
             </div>
             <p className="text-sm text-muted-foreground mt-4">

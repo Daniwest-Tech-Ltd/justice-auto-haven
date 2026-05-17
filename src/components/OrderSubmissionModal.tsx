@@ -131,7 +131,7 @@ export const OrderSubmissionModal = ({ open, onOpenChange, car }: OrderSubmissio
             <div className="bg-accent/50 p-4 rounded-lg space-y-2">
               <p className="text-sm font-medium">For more information, contact us:</p>
               <p className="text-sm">📞 Phone: 0722827458</p>
-              <p className="text-sm">📧 Email: justicevincentt@gmail.com</p>
+              <p className="text-sm">📧 Email: support@justiceultimateautomobiles.com</p>
               <p className="text-sm text-muted-foreground">Response within 24 hours ⏳</p>
             </div>
             <Button onClick={handleClose} className="w-full">
