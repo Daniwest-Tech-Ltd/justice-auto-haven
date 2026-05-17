@@ -102,7 +102,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
 
           <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-secondary/20 cert-scroll">
             <div className="p-4 md:p-6 pb-24">
-            <div className="max-w-4xl mx-auto">
+              <div className="max-w-4xl mx-auto">
               {loading ? (
                 <div className="text-center text-muted-foreground py-12">Loading documents…</div>
               ) : filtered.length === 0 ? (
@@ -183,7 +183,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
                   )}
                 </>
               )}
-            </div>
+              </div>
             </div>
             <Button
               type="button"
