@@ -498,19 +498,27 @@ All colors MUST be HSL.
 }
 
 /* Visible certificate scrollbar */
-.cert-scroll::-webkit-scrollbar { width: 14px; }
-.cert-scroll::-webkit-scrollbar-track { background: hsl(var(--secondary)); border-radius: 8px; }
+.cert-scroll::-webkit-scrollbar { width: 20px; }
+.cert-scroll::-webkit-scrollbar-track {
+  background: hsl(var(--secondary));
+  border-radius: 999px;
+  border: 4px solid hsl(var(--background));
+}
 .cert-scroll::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)));
-  border-radius: 8px;
-  border: 2px solid hsl(var(--secondary));
-  box-shadow: 0 0 8px hsl(var(--primary) / 0.6);
+  border-radius: 999px;
+  border: 4px solid hsl(var(--secondary));
+  box-shadow: 0 0 12px hsl(var(--primary) / 0.65);
 }
 .cert-scroll::-webkit-scrollbar-thumb:hover { background: hsl(var(--accent)); }
 .cert-scroll {
   scrollbar-width: auto;
   scrollbar-color: hsl(var(--primary)) hsl(var(--secondary));
   scroll-behavior: smooth;
+}
+
+.cert-scroll-buttons {
+  pointer-events: auto;
 }
 
 /* Contact page — readable contact details over glass tiles */
