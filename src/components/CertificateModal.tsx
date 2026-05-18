@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { X, FileText, ChevronLeft, ChevronRight, Building2, Award } from "lucide-react";
+import { X, FileText, ChevronLeft, ChevronRight, Building2, Award, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +62,23 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
     if (open) scrollRef.current?.scrollTo({ top: 0 });
   }, [open, currentIndex]);
 
+  const scrollCertificate = (direction: "top" | "down" | "bottom") => {
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+
+    if (direction === "top") {
+      scroller.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (direction === "bottom") {
+      scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" });
+      return;
+    }
+
+    scroller.scrollBy({ top: Math.max(scroller.clientHeight * 0.75, 360), behavior: "smooth" });
+  };
+
   const renderFile = (url: string, alt: string) => {
     if (url.match(/\.pdf$/i)) {
       return <iframe src={url} className="w-full h-[60vh] rounded-lg border border-border" title={alt} />;
@@ -71,8 +88,8 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[95vw] h-[90vh] p-0 overflow-hidden">
-        <div className="relative h-full flex flex-col">
+      <DialogContent className="max-w-5xl w-[96vw] h-[92vh] p-0 overflow-hidden flex flex-col gap-0">
+        <div className="relative h-full min-h-0 flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur-sm">
             <DialogTitle className="text-lg font-semibold">Company Documents</DialogTitle>
             <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="rounded-full hover:bg-destructive/10">
@@ -100,7 +117,7 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
             </Button>
           </div>
 
-          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-secondary/20 cert-scroll">
+          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll overscroll-contain bg-secondary/20 cert-scroll pr-3">
             <div className="p-4 md:p-6 pb-24">
               <div className="max-w-4xl mx-auto">
               {loading ? (
@@ -185,14 +202,16 @@ const CertificateModal = ({ open, onOpenChange }: CertificateModalProps) => {
               )}
               </div>
             </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              className="absolute bottom-4 right-5 z-20 border border-primary/30 shadow-lg"
-              onClick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })}
-            >
-              Scroll down
+          </div>
+          <div className="absolute bottom-4 right-6 z-30 flex flex-col gap-2 rounded-lg border border-primary/30 bg-background/95 p-2 shadow-2xl backdrop-blur cert-scroll-buttons">
+            <Button type="button" size="sm" variant="secondary" className="h-9 px-3" onClick={() => scrollCertificate("top")}>
+              <ChevronUp className="h-4 w-4" /> Top
+            </Button>
+            <Button type="button" size="sm" className="h-10 px-3 shadow-lg" onClick={() => scrollCertificate("down")}>
+              <ChevronDown className="h-4 w-4" /> Scroll down
+            </Button>
+            <Button type="button" size="sm" variant="outline" className="h-9 px-3 bg-background/90" onClick={() => scrollCertificate("bottom")}>
+              Bottom
             </Button>
           </div>
         </div>
