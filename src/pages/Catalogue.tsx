@@ -1005,6 +1005,14 @@ const Catalogue = () => {
 
       {/* Payment Methods Modal */}
       <PaymentMethodsModal open={paymentModalOpen} onOpenChange={setPaymentModalOpen} />
+
+      {/* Fullscreen image viewer */}
+      <FullscreenImageViewer
+        open={!!fullscreen}
+        onOpenChange={(o) => !o && setFullscreen(null)}
+        images={fullscreen?.images || []}
+        title={fullscreen?.title}
+      />
     </div>
   );
 };
