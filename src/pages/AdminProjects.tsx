@@ -98,7 +98,7 @@ const AdminProjects = () => {
         supabase.from("sales").select("id", { count: "exact", head: true }),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("rental_bookings").select("id", { count: "exact", head: true }),
-        supabase.from("trade_in_requests").select("id", { count: "exact", head: true }),
+        supabase.from("trade_ins").select("id", { count: "exact", head: true }),
       ]);
 
       const merged: WorkItem[] = [];
