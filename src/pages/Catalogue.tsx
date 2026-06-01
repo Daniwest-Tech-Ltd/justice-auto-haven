@@ -651,8 +651,14 @@ const Catalogue = () => {
                 return (
                   <div
                     key={car.id}
-                    className="glass-strong rounded-xl overflow-hidden flex flex-col border border-primary/20 hover:border-primary/40 transition-all hover:shadow-xl hover:shadow-primary/10 christmas-card"
+                    className="group glass-strong rounded-xl overflow-hidden flex flex-col border border-primary/20 hover:border-primary/60 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-1 christmas-card relative"
                   >
+                    {/* Tech corner accents */}
+                    <span className="pointer-events-none absolute top-0 left-0 h-8 w-px bg-gradient-to-b from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="pointer-events-none absolute top-0 left-0 h-px w-8 bg-gradient-to-r from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="pointer-events-none absolute bottom-0 right-0 h-8 w-px bg-gradient-to-t from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="pointer-events-none absolute bottom-0 right-0 h-px w-8 bg-gradient-to-l from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
                     <Link to={`/car/${car.id}`} className="block">
                       <div className="relative aspect-[4/3] overflow-hidden">
                         {/* Christmas Offer Badge - Top Left */}
@@ -663,8 +669,10 @@ const Catalogue = () => {
                         <img
                           src={images[0] || "/placeholder.svg"}
                           alt={`${car.make} ${car.model}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         
                         {/* Year Badge - Center */}
                         <Badge className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary/90 shadow-2xl text-xl px-6 py-2 font-bold">
@@ -683,6 +691,22 @@ const Catalogue = () => {
                             </Badge>
                           )}
                         </div>
+
+                        {/* Fullscreen button */}
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          title="View fullscreen"
+                          className="absolute bottom-3 right-14 z-10 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const imgs = images.length ? images : ["/placeholder.svg"];
+                            setFullscreen({ images: imgs, title: `${car.make} ${car.model} ${car.year}` });
+                          }}
+                        >
+                          <Maximize2 className="h-4 w-4" />
+                        </Button>
 
                         <Button
                           size="icon"
@@ -703,6 +727,7 @@ const Catalogue = () => {
                         )}
                       </div>
                     </Link>
+                    
                     
                     <div className="p-5 flex-1 flex flex-col">
                       <Link to={`/car/${car.id}`}>
