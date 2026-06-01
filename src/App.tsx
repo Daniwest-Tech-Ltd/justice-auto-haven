@@ -49,6 +49,7 @@ const AdminSettings = lazyWithRetry(() => import("./pages/AdminSettings"));
 const Auth = lazyWithRetry(() => import("./pages/Auth"));
 const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
 const AdminDashboard = lazyWithRetry(() => import("./pages/AdminDashboard"));
+const AdminProjects = lazyWithRetry(() => import("./pages/AdminProjects"));
 const CustomerDashboard = lazyWithRetry(() => import("./pages/CustomerDashboard"));
 const CustomerVehicles = lazyWithRetry(() => import("./pages/CustomerVehicles"));
 const CustomerBookings = lazyWithRetry(() => import("./pages/CustomerBookings"));
@@ -360,6 +361,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <MotorbikeManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/projects" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminProjects />
               </ProtectedRoute>
             } 
           />

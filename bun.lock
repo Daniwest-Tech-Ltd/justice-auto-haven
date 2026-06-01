@@ -43,6 +43,7 @@
         "embla-carousel-react": "^8.6.0",
         "html2canvas": "^1.4.1",
         "input-otp": "^1.4.2",
+        "jsbarcode": "^3.12.3",
         "jspdf": "^4.2.1",
         "jspdf-autotable": "^5.0.2",
         "lucide-react": "^0.462.0",
@@ -807,6 +808,8 @@
     "js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
 
     "js-yaml": ["js-yaml@4.1.1", "", { "dependencies": { "argparse": "^2.0.1" }, "bin": "bin/js-yaml.js" }, "sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA=="],
+
+    "jsbarcode": ["jsbarcode@3.12.3", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/jsbarcode/-/jsbarcode-3.12.3.tgz", {}, "sha512-CuHU9hC6dPsHF5oVFMo8NW76uQVjH4L22CsP4hW+dNnGywJHC/B0ThA1CTDVLnxKLrrpYdicBLnd2xsgTfRnvg=="],
 
     "json-buffer": ["json-buffer@3.0.1", "", {}, "sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ=="],
 
