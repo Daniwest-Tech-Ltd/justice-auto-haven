@@ -23,6 +23,8 @@ import { getRecentSearches, addRecentSearch, removeRecentSearch, clearRecentSear
 import { X as XIcon, Clock as ClockIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import useDisableRightClick from "@/hooks/useDisableRightClick";
+import FullscreenImageViewer from "@/components/FullscreenImageViewer";
+import { Maximize2 } from "lucide-react";
 
 interface Car {
   id: string;
@@ -71,6 +73,7 @@ const Catalogue = () => {
   const itemsPerPage = 12;
   const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches("catalogue"));
   const [showRecent, setShowRecent] = useState(false);
+  const [fullscreen, setFullscreen] = useState<{ images: string[]; title: string } | null>(null);
 
   // Persist search after the user pauses typing (debounced)
   useEffect(() => {
