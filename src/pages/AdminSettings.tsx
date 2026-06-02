@@ -1233,6 +1233,108 @@ const AdminSettings = () => {
                     <li>Maintenance mode will automatically end after the selected duration</li>
                   </ul>
                 </div>
+
+                {/* ===== KILL SWITCH (Billing Block) ===== */}
+                <div className="rounded-xl border-2 border-red-500/30 bg-gradient-to-br from-red-500/5 to-amber-500/5 p-6 space-y-6 shadow-[0_0_40px_rgba(239,68,68,0.12)]">
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-full bg-red-500/15 border border-red-500/40 flex items-center justify-center">
+                        <Lock className="h-6 w-6 text-red-500" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold">Kill Switch — Billing Block</h3>
+                        <p className="text-xs text-muted-foreground max-w-md">
+                          Locks the entire frontend behind a service-billing notice and redirects every visitor to the login page. Only admins can disable it.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${killSwitch.kill_switch_active ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}>
+                        {killSwitch.kill_switch_active ? "ACTIVE" : "OFF"}
+                      </span>
+                      <Button
+                        size="lg"
+                        onClick={toggleKillSwitch}
+                        className={
+                          killSwitch.kill_switch_active
+                            ? "bg-red-600 hover:bg-red-500 text-white shadow-[0_0_25px_rgba(239,68,68,0.6)] min-w-[180px]"
+                            : "bg-green-600 hover:bg-green-500 text-white shadow-[0_0_25px_rgba(34,197,94,0.5)] min-w-[180px]"
+                        }
+                      >
+                        {killSwitch.kill_switch_active ? "TURN OFF" : "ACTIVATE KILL SWITCH"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Optional countdown (auto-disable)</Label>
+                    <div className="grid grid-cols-2 gap-3 max-w-md">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Days</Label>
+                        <Input type="number" min={0} value={killCountdownDays} onChange={(e) => setKillCountdownDays(parseInt(e.target.value) || 0)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Hours</Label>
+                        <Input type="number" min={0} max={23} value={killCountdownHours} onChange={(e) => setKillCountdownHours(parseInt(e.target.value) || 0)} />
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">Leave both at 0 for indefinite. Applied at activation.</p>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Service amounts shown on the block & invoice (USD)</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { k: "billing_vercel_usd", label: "Vercel" },
+                        { k: "billing_render_usd", label: "Render" },
+                        { k: "billing_resend_usd", label: "Resend" },
+                        { k: "billing_supabase_usd", label: "Supabase" },
+                      ].map((f) => (
+                        <div key={f.k}>
+                          <Label className="text-xs">{f.label}</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={killSwitch[f.k] ?? 0}
+                            onChange={(e) => {
+                              const v = parseFloat(e.target.value) || 0;
+                              const next = { ...killSwitch, [f.k]: v };
+                              next.billing_total_usd =
+                                Number(next.billing_vercel_usd || 0) +
+                                Number(next.billing_render_usd || 0) +
+                                Number(next.billing_resend_usd || 0) +
+                                Number(next.billing_supabase_usd || 0);
+                              setKillSwitch(next);
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Total (auto)</Label>
+                        <Input readOnly value={`$${Number(killSwitch.billing_total_usd || 0).toFixed(2)}`} className="font-bold text-amber-600" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Supabase due date</Label>
+                        <Input
+                          type="date"
+                          value={killSwitch.billing_due_date || ""}
+                          onChange={(e) => setKillSwitch({ ...killSwitch, billing_due_date: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" onClick={saveKillSwitchBilling}>
+                      <Save className="mr-2 h-4 w-4" /> Save billing details
+                    </Button>
+                    <Button variant="outline" onClick={() => downloadKillSwitchInvoice(killSwitch)}>
+                      <Download className="mr-2 h-4 w-4" /> Download Invoice
+                    </Button>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
