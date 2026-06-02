@@ -175,9 +175,68 @@ const AdminSettings = () => {
           hours: Math.round((endTime.getTime() - now.getTime()) / (1000 * 60 * 60)),
           message: data.message || "System under maintenance. Please check back later."
         });
+        setKillSwitch((prev: any) => ({ ...prev, ...data }));
       }
     } catch (error) {
       console.error("Error fetching maintenance:", error);
+    }
+  };
+
+  const toggleKillSwitch = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      if (!user || !maintenanceId) {
+        toast({ title: "Error", description: "No maintenance row found. Toggle maintenance once first.", variant: "destructive" });
+        return;
+      }
+      const turningOn = !killSwitch.kill_switch_active;
+      let until: string | null = null;
+      if (turningOn && (killCountdownDays > 0 || killCountdownHours > 0)) {
+        const ms = (killCountdownDays * 86400 + killCountdownHours * 3600) * 1000;
+        until = new Date(Date.now() + ms).toISOString();
+      }
+      const payload = {
+        kill_switch_active: turningOn,
+        kill_switch_until: turningOn ? until : null,
+        kill_switch_activated_at: turningOn ? new Date().toISOString() : null,
+        kill_switch_activated_by: turningOn ? user.id : null,
+        billing_total_usd: killSwitch.billing_total_usd,
+        billing_vercel_usd: killSwitch.billing_vercel_usd,
+        billing_render_usd: killSwitch.billing_render_usd,
+        billing_resend_usd: killSwitch.billing_resend_usd,
+        billing_supabase_usd: killSwitch.billing_supabase_usd,
+        billing_due_date: killSwitch.billing_due_date,
+      };
+      const { error } = await supabase.from("system_maintenance").update(payload).eq("id", maintenanceId);
+      if (error) throw error;
+      setKillSwitch({ ...killSwitch, ...payload });
+      toast({
+        title: turningOn ? "🔴 Kill switch ACTIVATED" : "🟢 Kill switch disabled",
+        description: turningOn ? "All frontend pages are now blocked." : "System access restored.",
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const saveKillSwitchBilling = async () => {
+    if (!maintenanceId) {
+      toast({ title: "Error", description: "No maintenance row. Toggle maintenance once first.", variant: "destructive" });
+      return;
+    }
+    const total =
+      Number(killSwitch.billing_vercel_usd || 0) +
+      Number(killSwitch.billing_render_usd || 0) +
+      Number(killSwitch.billing_resend_usd || 0) +
+      Number(killSwitch.billing_supabase_usd || 0);
+    const payload = { ...killSwitch, billing_total_usd: total };
+    const { error } = await supabase.from("system_maintenance").update(payload).eq("id", maintenanceId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setKillSwitch(payload);
+      toast({ title: "Saved", description: "Billing details updated." });
     }
   };
 
