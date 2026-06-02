@@ -10,7 +10,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound, Database, Users, HardDrive, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw, Play, Shield, Calendar, Settings } from "lucide-react";
+import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound, Database, Users, HardDrive, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw, Play, Shield, Calendar, Settings, Lock, Download } from "lucide-react";
+import { downloadKillSwitchInvoice } from "@/components/KillSwitchOverlay";
 import { PasswordChangeDialog } from "@/components/PasswordChangeDialog";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Textarea } from "@/components/ui/textarea";
@@ -99,6 +100,19 @@ const AdminSettings = () => {
     message: "System under maintenance. Please check back later."
   });
   const [maintenanceId, setMaintenanceId] = useState<string | null>(null);
+  const [killSwitch, setKillSwitch] = useState<any>({
+    kill_switch_active: false,
+    kill_switch_until: null,
+    billing_total_usd: 96.15,
+    billing_vercel_usd: 61.51,
+    billing_render_usd: 34.64,
+    billing_resend_usd: 25.0,
+    billing_supabase_usd: 25.0,
+    billing_due_date: "2026-06-14",
+    message: "System under maintenance. Please check back later.",
+  });
+  const [killCountdownDays, setKillCountdownDays] = useState(0);
+  const [killCountdownHours, setKillCountdownHours] = useState(0);
   // Backup states
   const [backupInProgress, setBackupInProgress] = useState(false);
   const [backupSettings, setBackupSettings] = useState<BackupSettings | null>(null);
@@ -161,9 +175,68 @@ const AdminSettings = () => {
           hours: Math.round((endTime.getTime() - now.getTime()) / (1000 * 60 * 60)),
           message: data.message || "System under maintenance. Please check back later."
         });
+        setKillSwitch((prev: any) => ({ ...prev, ...data }));
       }
     } catch (error) {
       console.error("Error fetching maintenance:", error);
+    }
+  };
+
+  const toggleKillSwitch = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      if (!user || !maintenanceId) {
+        toast({ title: "Error", description: "No maintenance row found. Toggle maintenance once first.", variant: "destructive" });
+        return;
+      }
+      const turningOn = !killSwitch.kill_switch_active;
+      let until: string | null = null;
+      if (turningOn && (killCountdownDays > 0 || killCountdownHours > 0)) {
+        const ms = (killCountdownDays * 86400 + killCountdownHours * 3600) * 1000;
+        until = new Date(Date.now() + ms).toISOString();
+      }
+      const payload = {
+        kill_switch_active: turningOn,
+        kill_switch_until: turningOn ? until : null,
+        kill_switch_activated_at: turningOn ? new Date().toISOString() : null,
+        kill_switch_activated_by: turningOn ? user.id : null,
+        billing_total_usd: killSwitch.billing_total_usd,
+        billing_vercel_usd: killSwitch.billing_vercel_usd,
+        billing_render_usd: killSwitch.billing_render_usd,
+        billing_resend_usd: killSwitch.billing_resend_usd,
+        billing_supabase_usd: killSwitch.billing_supabase_usd,
+        billing_due_date: killSwitch.billing_due_date,
+      };
+      const { error } = await supabase.from("system_maintenance").update(payload).eq("id", maintenanceId);
+      if (error) throw error;
+      setKillSwitch({ ...killSwitch, ...payload });
+      toast({
+        title: turningOn ? "🔴 Kill switch ACTIVATED" : "🟢 Kill switch disabled",
+        description: turningOn ? "All frontend pages are now blocked." : "System access restored.",
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const saveKillSwitchBilling = async () => {
+    if (!maintenanceId) {
+      toast({ title: "Error", description: "No maintenance row. Toggle maintenance once first.", variant: "destructive" });
+      return;
+    }
+    const total =
+      Number(killSwitch.billing_vercel_usd || 0) +
+      Number(killSwitch.billing_render_usd || 0) +
+      Number(killSwitch.billing_resend_usd || 0) +
+      Number(killSwitch.billing_supabase_usd || 0);
+    const payload = { ...killSwitch, billing_total_usd: total };
+    const { error } = await supabase.from("system_maintenance").update(payload).eq("id", maintenanceId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setKillSwitch(payload);
+      toast({ title: "Saved", description: "Billing details updated." });
     }
   };
 
@@ -1159,6 +1232,108 @@ const AdminSettings = () => {
                     <li>You can disable maintenance mode at any time</li>
                     <li>Maintenance mode will automatically end after the selected duration</li>
                   </ul>
+                </div>
+
+                {/* ===== KILL SWITCH (Billing Block) ===== */}
+                <div className="rounded-xl border-2 border-red-500/30 bg-gradient-to-br from-red-500/5 to-amber-500/5 p-6 space-y-6 shadow-[0_0_40px_rgba(239,68,68,0.12)]">
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-full bg-red-500/15 border border-red-500/40 flex items-center justify-center">
+                        <Lock className="h-6 w-6 text-red-500" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold">Kill Switch — Billing Block</h3>
+                        <p className="text-xs text-muted-foreground max-w-md">
+                          Locks the entire frontend behind a service-billing notice and redirects every visitor to the login page. Only admins can disable it.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${killSwitch.kill_switch_active ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}>
+                        {killSwitch.kill_switch_active ? "ACTIVE" : "OFF"}
+                      </span>
+                      <Button
+                        size="lg"
+                        onClick={toggleKillSwitch}
+                        className={
+                          killSwitch.kill_switch_active
+                            ? "bg-red-600 hover:bg-red-500 text-white shadow-[0_0_25px_rgba(239,68,68,0.6)] min-w-[180px]"
+                            : "bg-green-600 hover:bg-green-500 text-white shadow-[0_0_25px_rgba(34,197,94,0.5)] min-w-[180px]"
+                        }
+                      >
+                        {killSwitch.kill_switch_active ? "TURN OFF" : "ACTIVATE KILL SWITCH"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Optional countdown (auto-disable)</Label>
+                    <div className="grid grid-cols-2 gap-3 max-w-md">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Days</Label>
+                        <Input type="number" min={0} value={killCountdownDays} onChange={(e) => setKillCountdownDays(parseInt(e.target.value) || 0)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Hours</Label>
+                        <Input type="number" min={0} max={23} value={killCountdownHours} onChange={(e) => setKillCountdownHours(parseInt(e.target.value) || 0)} />
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">Leave both at 0 for indefinite. Applied at activation.</p>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Service amounts shown on the block & invoice (USD)</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { k: "billing_vercel_usd", label: "Vercel" },
+                        { k: "billing_render_usd", label: "Render" },
+                        { k: "billing_resend_usd", label: "Resend" },
+                        { k: "billing_supabase_usd", label: "Supabase" },
+                      ].map((f) => (
+                        <div key={f.k}>
+                          <Label className="text-xs">{f.label}</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={killSwitch[f.k] ?? 0}
+                            onChange={(e) => {
+                              const v = parseFloat(e.target.value) || 0;
+                              const next = { ...killSwitch, [f.k]: v };
+                              next.billing_total_usd =
+                                Number(next.billing_vercel_usd || 0) +
+                                Number(next.billing_render_usd || 0) +
+                                Number(next.billing_resend_usd || 0) +
+                                Number(next.billing_supabase_usd || 0);
+                              setKillSwitch(next);
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Total (auto)</Label>
+                        <Input readOnly value={`$${Number(killSwitch.billing_total_usd || 0).toFixed(2)}`} className="font-bold text-amber-600" />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Supabase due date</Label>
+                        <Input
+                          type="date"
+                          value={killSwitch.billing_due_date || ""}
+                          onChange={(e) => setKillSwitch({ ...killSwitch, billing_due_date: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" onClick={saveKillSwitchBilling}>
+                      <Save className="mr-2 h-4 w-4" /> Save billing details
+                    </Button>
+                    <Button variant="outline" onClick={() => downloadKillSwitchInvoice(killSwitch)}>
+                      <Download className="mr-2 h-4 w-4" /> Download Invoice
+                    </Button>
+                  </div>
                 </div>
               </div>
             </TabsContent>

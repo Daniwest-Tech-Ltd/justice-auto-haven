@@ -105,7 +105,7 @@ const SystemSettings = () => {
     allow_data_deletion: true,
   });
 
-  const [maintenanceMode, setMaintenanceMode] = useState({
+  const [maintenanceMode, setMaintenanceMode] = useState<any>({
     is_active: false,
     message: "We are currently undergoing scheduled maintenance. We'll be back soon!",
     start_time: "",
@@ -114,7 +114,17 @@ const SystemSettings = () => {
     countdown_days: 0,
     countdown_weeks: 0,
     auto_reactivate: false,
+    kill_switch_active: false,
+    kill_switch_until: null,
+    billing_total_usd: 96.15,
+    billing_vercel_usd: 61.51,
+    billing_render_usd: 34.64,
+    billing_resend_usd: 25.0,
+    billing_supabase_usd: 25.0,
+    billing_due_date: "2026-06-14",
   });
+  const [killCountdownDays, setKillCountdownDays] = useState<number>(0);
+  const [killCountdownHours, setKillCountdownHours] = useState<number>(0);
 
   useEffect(() => {
     fetchAllSettings();
@@ -499,6 +509,140 @@ const SystemSettings = () => {
                     </Button>
                     <Button variant="outline" onClick={() => navigate("/")}>
                       Preview Maintenance Page
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* ===== KILL SWITCH (Billing Block) ===== */}
+              <Card className="glass-strong border-2 border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.15)]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lock className="h-5 w-5 text-red-500" />
+                    Kill Switch — Billing Block
+                  </CardTitle>
+                  <CardDescription>
+                    Locks the entire frontend behind a full-page billing notice and redirects every visitor to the login page. Only admins can disable it.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30">
+                    <div>
+                      <Label className="text-lg font-semibold">
+                        Status: {maintenanceMode.kill_switch_active ? (
+                          <span className="text-red-500">ACTIVE — system blocked</span>
+                        ) : (
+                          <span className="text-green-500">OFF — system live</span>
+                        )}
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        When ON, all pages show the service-billing tile and clicks redirect to /auth.
+                      </p>
+                    </div>
+                    <Button
+                      size="lg"
+                      onClick={async () => {
+                        const turningOn = !maintenanceMode.kill_switch_active;
+                        let until: string | null = null;
+                        if (turningOn && (killCountdownDays > 0 || killCountdownHours > 0)) {
+                          const ms = (killCountdownDays * 86400 + killCountdownHours * 3600) * 1000;
+                          until = new Date(Date.now() + ms).toISOString();
+                        }
+                        const { data: u } = await supabase.auth.getUser();
+                        const payload = {
+                          ...maintenanceMode,
+                          kill_switch_active: turningOn,
+                          kill_switch_until: turningOn ? until : null,
+                          kill_switch_activated_at: turningOn ? new Date().toISOString() : null,
+                          kill_switch_activated_by: turningOn ? u.user?.id ?? null : null,
+                        };
+                        setMaintenanceMode(payload);
+                        await handleSaveSettings("system_maintenance", payload);
+                      }}
+                      className={
+                        maintenanceMode.kill_switch_active
+                          ? "bg-red-600 hover:bg-red-500 text-white shadow-[0_0_25px_rgba(239,68,68,0.6)] min-w-[180px]"
+                          : "bg-green-600 hover:bg-green-500 text-white shadow-[0_0_25px_rgba(34,197,94,0.5)] min-w-[180px]"
+                      }
+                    >
+                      {maintenanceMode.kill_switch_active ? "TURN OFF" : "ACTIVATE KILL SWITCH"}
+                    </Button>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Optional countdown (until auto-disable)</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Days</Label>
+                        <Input type="number" min={0} value={killCountdownDays} onChange={(e) => setKillCountdownDays(parseInt(e.target.value) || 0)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Hours</Label>
+                        <Input type="number" min={0} max={23} value={killCountdownHours} onChange={(e) => setKillCountdownHours(parseInt(e.target.value) || 0)} />
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Leave both at 0 for an indefinite block. Countdown is applied only at activation.
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Service amounts (USD) shown on the block & invoice</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { k: "billing_vercel_usd", label: "Vercel" },
+                        { k: "billing_render_usd", label: "Render" },
+                        { k: "billing_resend_usd", label: "Resend" },
+                        { k: "billing_supabase_usd", label: "Supabase" },
+                      ].map((f) => (
+                        <div key={f.k}>
+                          <Label className="text-xs">{f.label}</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={maintenanceMode[f.k] ?? 0}
+                            onChange={(e) => {
+                              const v = parseFloat(e.target.value) || 0;
+                              const next = { ...maintenanceMode, [f.k]: v };
+                              next.billing_total_usd =
+                                (next.billing_vercel_usd || 0) +
+                                (next.billing_render_usd || 0) +
+                                (next.billing_resend_usd || 0) +
+                                (next.billing_supabase_usd || 0);
+                              setMaintenanceMode(next);
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Total (auto)</Label>
+                        <Input readOnly value={`$${Number(maintenanceMode.billing_total_usd || 0).toFixed(2)}`} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Supabase due date</Label>
+                        <Input
+                          type="date"
+                          value={maintenanceMode.billing_due_date || ""}
+                          onChange={(e) => setMaintenanceMode({ ...maintenanceMode, billing_due_date: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <Button variant="outline" onClick={() => handleSaveSettings("system_maintenance", maintenanceMode)} disabled={saving}>
+                      <Save className="mr-2 h-4 w-4" /> Save billing details
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        const mod = await import("@/components/KillSwitchOverlay");
+                        mod.downloadKillSwitchInvoice(maintenanceMode);
+                      }}
+                    >
+                      Download Invoice (preview)
                     </Button>
                   </div>
                 </CardContent>
