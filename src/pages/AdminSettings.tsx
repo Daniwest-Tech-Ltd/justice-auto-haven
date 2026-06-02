@@ -10,7 +10,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound, Database, Users, HardDrive, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw, Play, Shield, Calendar, Settings } from "lucide-react";
+import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound, Database, Users, HardDrive, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw, Play, Shield, Calendar, Settings, Lock, Download } from "lucide-react";
+import { downloadKillSwitchInvoice } from "@/components/KillSwitchOverlay";
 import { PasswordChangeDialog } from "@/components/PasswordChangeDialog";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Textarea } from "@/components/ui/textarea";
