@@ -105,7 +105,7 @@ const SystemSettings = () => {
     allow_data_deletion: true,
   });
 
-  const [maintenanceMode, setMaintenanceMode] = useState({
+  const [maintenanceMode, setMaintenanceMode] = useState<any>({
     is_active: false,
     message: "We are currently undergoing scheduled maintenance. We'll be back soon!",
     start_time: "",
@@ -114,7 +114,17 @@ const SystemSettings = () => {
     countdown_days: 0,
     countdown_weeks: 0,
     auto_reactivate: false,
+    kill_switch_active: false,
+    kill_switch_until: null,
+    billing_total_usd: 96.15,
+    billing_vercel_usd: 61.51,
+    billing_render_usd: 34.64,
+    billing_resend_usd: 25.0,
+    billing_supabase_usd: 25.0,
+    billing_due_date: "2026-06-14",
   });
+  const [killCountdownDays, setKillCountdownDays] = useState<number>(0);
+  const [killCountdownHours, setKillCountdownHours] = useState<number>(0);
 
   useEffect(() => {
     fetchAllSettings();
