@@ -221,6 +221,7 @@ const AppContent = () => {
           onLogout={handleLogout}
         />
       )}
+      <KillSwitchOverlay />
       <Routes>
           {/* Public Routes with Layout */}
           <Route path="/" element={<Layout><Home /></Layout>} />
