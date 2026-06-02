@@ -13,6 +13,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import { applyTheme } from "./lib/theme";
 import type { Theme } from "./lib/theme";
 import { supabase } from "@/integrations/supabase/client";
+import KillSwitchOverlay from "./components/KillSwitchOverlay";
 
 // Lazy load pages with retry logic for chunk loading failures
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
