@@ -100,6 +100,19 @@ const AdminSettings = () => {
     message: "System under maintenance. Please check back later."
   });
   const [maintenanceId, setMaintenanceId] = useState<string | null>(null);
+  const [killSwitch, setKillSwitch] = useState<any>({
+    kill_switch_active: false,
+    kill_switch_until: null,
+    billing_total_usd: 96.15,
+    billing_vercel_usd: 61.51,
+    billing_render_usd: 34.64,
+    billing_resend_usd: 25.0,
+    billing_supabase_usd: 25.0,
+    billing_due_date: "2026-06-14",
+    message: "System under maintenance. Please check back later.",
+  });
+  const [killCountdownDays, setKillCountdownDays] = useState(0);
+  const [killCountdownHours, setKillCountdownHours] = useState(0);
   // Backup states
   const [backupInProgress, setBackupInProgress] = useState(false);
   const [backupSettings, setBackupSettings] = useState<BackupSettings | null>(null);
