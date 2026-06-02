@@ -4669,31 +4669,61 @@ export type Database = {
       }
       system_maintenance: {
         Row: {
+          billing_due_date: string | null
+          billing_render_usd: number | null
+          billing_resend_usd: number | null
+          billing_supabase_usd: number | null
+          billing_total_usd: number | null
+          billing_vercel_usd: number | null
           created_at: string | null
           created_by: string | null
           end_time: string
           id: string
           is_active: boolean
+          kill_switch_activated_at: string | null
+          kill_switch_activated_by: string | null
+          kill_switch_active: boolean
+          kill_switch_until: string | null
           message: string | null
           start_time: string
           updated_at: string | null
         }
         Insert: {
+          billing_due_date?: string | null
+          billing_render_usd?: number | null
+          billing_resend_usd?: number | null
+          billing_supabase_usd?: number | null
+          billing_total_usd?: number | null
+          billing_vercel_usd?: number | null
           created_at?: string | null
           created_by?: string | null
           end_time: string
           id?: string
           is_active?: boolean
+          kill_switch_activated_at?: string | null
+          kill_switch_activated_by?: string | null
+          kill_switch_active?: boolean
+          kill_switch_until?: string | null
           message?: string | null
           start_time: string
           updated_at?: string | null
         }
         Update: {
+          billing_due_date?: string | null
+          billing_render_usd?: number | null
+          billing_resend_usd?: number | null
+          billing_supabase_usd?: number | null
+          billing_total_usd?: number | null
+          billing_vercel_usd?: number | null
           created_at?: string | null
           created_by?: string | null
           end_time?: string
           id?: string
           is_active?: boolean
+          kill_switch_activated_at?: string | null
+          kill_switch_activated_by?: string | null
+          kill_switch_active?: boolean
+          kill_switch_until?: string | null
           message?: string | null
           start_time?: string
           updated_at?: string | null
