@@ -248,12 +248,58 @@ const KillSwitchOverlay = () => {
   const due = new Date(state.billing_due_date).toDateString();
   const invoiceNo = `JUA-SVC-${(state.kill_switch_activated_at || today).toString().slice(-8).replace(/\D/g, "") || "00000001"}`;
 
-  const lineItems = [
-    { name: "Vercel", desc: "Frontend hosting & bandwidth", amount: state.billing_vercel_usd },
-    { name: "Render", desc: "Backend server compute", amount: state.billing_render_usd },
-    { name: "Resend", desc: "Transactional email delivery", amount: state.billing_resend_usd },
-    { name: "Supabase", desc: "Database & auth (Pro renewal)", amount: state.billing_supabase_usd },
+  const services = [
+    {
+      key: "vercel",
+      name: "Vercel",
+      logo: vercelLogo,
+      desc: "Frontend hosting & bandwidth",
+      amount: state.billing_vercel_usd,
+      upgrade: state.billing_vercel_upgrade_usd ?? 0,
+      exceeded: state.billing_vercel_exceeded_date,
+      due: state.billing_vercel_due_date,
+      pastDue: !!state.billing_vercel_past_due,
+      note: state.billing_vercel_note ?? "Public site and customer pages will be unreachable.",
+    },
+    {
+      key: "render",
+      name: "Render",
+      logo: renderLogo,
+      desc: "Backend server compute",
+      amount: state.billing_render_usd,
+      upgrade: state.billing_render_upgrade_usd ?? 0,
+      exceeded: state.billing_render_exceeded_date,
+      due: state.billing_render_due_date,
+      pastDue: !!state.billing_render_past_due,
+      note: state.billing_render_note ?? "Background jobs, webhooks and scheduled tasks will not run.",
+    },
+    {
+      key: "resend",
+      name: "Resend",
+      logo: resendLogo,
+      desc: "Transactional email delivery",
+      amount: state.billing_resend_usd,
+      upgrade: state.billing_resend_upgrade_usd ?? 0,
+      exceeded: state.billing_resend_exceeded_date,
+      due: state.billing_resend_due_date,
+      pastDue: !!state.billing_resend_past_due,
+      note: state.billing_resend_note ?? "OTPs, password resets and notifications will not be delivered.",
+    },
+    {
+      key: "supabase",
+      name: "Supabase",
+      logo: supabaseLogo,
+      desc: "Database & auth (Pro renewal)",
+      amount: state.billing_supabase_usd,
+      upgrade: state.billing_supabase_upgrade_usd ?? 0,
+      exceeded: state.billing_supabase_exceeded_date,
+      due: state.billing_supabase_due_date,
+      pastDue: !!state.billing_supabase_past_due,
+      note: state.billing_supabase_note ?? "Logins, orders and all data access will be blocked.",
+    },
   ];
+
+  const totalUpgrade = services.reduce((s, x) => s + (Number(x.upgrade) || 0), 0);
 
   return (
     <div
