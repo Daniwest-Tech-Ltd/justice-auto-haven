@@ -205,14 +205,6 @@ const KillSwitchOverlay = () => {
   const isAdminPath = path.startsWith("/admin") || path.startsWith("/system-") || path.startsWith("/staff") || path.startsWith("/hr");
   const isAdmin = !!user && role?.role === "admin";
 
-  // Block redirect: any non-auth public visitor → push to /auth
-  useEffect(() => {
-    if (!state?.kill_switch_active) return;
-    if (isAuthPage) return;
-    if (isAdmin && isAdminPath) return; // admin can keep working
-    navigate("/auth", { replace: true });
-  }, [state?.kill_switch_active, path, isAdmin, isAdminPath, isAuthPage, navigate]);
-
   const visible = useMemo(() => {
     if (!state?.kill_switch_active) return false;
     if (isAuthPage) return false;
@@ -226,65 +218,74 @@ const KillSwitchOverlay = () => {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-950/98 backdrop-blur-xl text-white"
-      onContextMenu={(e) => e.preventDefault()}
+      onClick={goAuth}
+      className="fixed bottom-4 right-4 z-[9999] w-[min(420px,calc(100vw-2rem))] cursor-pointer rounded-2xl border border-amber-400/40 bg-slate-950/95 backdrop-blur-xl text-white shadow-2xl shadow-amber-500/20 overflow-hidden animate-fade-in"
     >
-      <div className="absolute inset-0 opacity-[0.07] pointer-events-none"
-        style={{ backgroundImage: "linear-gradient(rgba(56,189,248,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.4) 1px,transparent 1px)", backgroundSize: "40px 40px" }}
-      />
-      <div className="relative max-w-5xl mx-auto px-6 py-10">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center">
-            <AlertTriangle className="h-5 w-5 text-red-400" />
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-amber-400 to-red-500" />
+      <div className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="h-8 w-8 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center">
+            <AlertTriangle className="h-4 w-4 text-red-400" />
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-red-400">System Locked</p>
-            <h1 className="text-2xl md:text-3xl font-extrabold">Usage limit exceeded</h1>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-red-400">Billing Notice</p>
+            <h2 className="text-sm font-bold truncate">Usage limit exceeded</h2>
+          </div>
+          <Lock className="h-4 w-4 text-amber-300/80" />
+        </div>
+
+        <p className="text-xs text-white/70 leading-relaxed mb-3">
+          Service quotas exceeded. Click anywhere to sign in.
+        </p>
+
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="rounded-lg bg-white/5 border border-white/10 p-2">
+            <p className="text-[9px] uppercase text-white/50">Vercel</p>
+            <p className="text-xs font-bold tabular-nums">{fmt(state.billing_vercel_usd)}</p>
+          </div>
+          <div className="rounded-lg bg-white/5 border border-white/10 p-2">
+            <p className="text-[9px] uppercase text-white/50">Render</p>
+            <p className="text-xs font-bold tabular-nums">{fmt(state.billing_render_usd)}</p>
+          </div>
+          <div className="rounded-lg bg-white/5 border border-white/10 p-2">
+            <p className="text-[9px] uppercase text-white/50">Resend</p>
+            <p className="text-xs font-bold tabular-nums">{fmt(state.billing_resend_usd)}</p>
+          </div>
+          <div className="rounded-lg bg-white/5 border border-white/10 p-2">
+            <p className="text-[9px] uppercase text-white/50">Supabase</p>
+            <p className="text-xs font-bold tabular-nums">{fmt(state.billing_supabase_usd)}</p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 mb-8">
-          <p className="text-white/80 leading-relaxed">
-            Access to this system is temporarily blocked because the underlying service
-            quotas (frontend hosting, backend compute, email delivery and database) have
-            been exceeded for this billing cycle. To upgrade to <span className="text-amber-300 font-semibold">Pro</span>,
-            please contact your service provider.
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <span className="text-xs uppercase tracking-wider text-white/60">Total due</span>
-            <span className="text-3xl font-extrabold text-amber-300 tabular-nums">{fmt(state.billing_total_usd)}</span>
-            <span className="text-xs text-white/50">• Supabase renewal: {new Date(state.billing_due_date).toDateString()}</span>
-          </div>
+        <div className="flex items-center justify-between mb-3 px-1">
+          <span className="text-[10px] uppercase tracking-wider text-white/60">Total due</span>
+          <span className="text-lg font-extrabold text-amber-300 tabular-nums">{fmt(state.billing_total_usd)}</span>
         </div>
 
         {state.kill_switch_until && (
-          <div className="mb-8 flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] py-5">
-            <div className="flex items-center gap-2 text-white/70 text-xs uppercase tracking-widest">
-              <Clock className="h-3 w-3" /> Time remaining
-            </div>
+          <div className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] py-2">
+            <Clock className="h-3 w-3 text-white/60" />
             <Countdown until={state.kill_switch_until} />
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <ServiceTile name="Vercel" color="#ffffff" amount={state.billing_vercel_usd} subtitle="Frontend → Hosting & bandwidth" onClick={goAuth} />
-          <ServiceTile name="Render" color="#46e599" amount={state.billing_render_usd} subtitle="Backend → Server compute" onClick={goAuth} />
-          <ServiceTile name="Resend" color="#a5b4fc" amount={state.billing_resend_usd} subtitle="Email delivery quota" onClick={goAuth} />
-          <ServiceTile name="Supabase" color="#3ecf8e" amount={state.billing_supabase_usd} subtitle="Database & auth renewal" onClick={goAuth} />
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button size="lg" onClick={() => downloadKillSwitchInvoice(state)} className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold">
-            <Download className="h-4 w-4 mr-2" /> Download Invoice
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            onClick={(e) => { e.stopPropagation(); downloadKillSwitchInvoice(state); }}
+            className="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold h-8 text-xs"
+          >
+            <Download className="h-3 w-3 mr-1" /> Download PDF
           </Button>
-          <Button size="lg" variant="outline" onClick={goAuth} className="border-white/20 text-white hover:bg-white/10">
-            Sign in to continue
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => { e.stopPropagation(); goAuth(); }}
+            className="border-white/20 text-white hover:bg-white/10 h-8 text-xs"
+          >
+            Sign in
           </Button>
         </div>
-
-        <p className="mt-8 text-center text-xs text-white/40">
-          Contact: support@justiceultimateautomobiles.com • +254 722 827 458
-        </p>
       </div>
     </div>
   );
