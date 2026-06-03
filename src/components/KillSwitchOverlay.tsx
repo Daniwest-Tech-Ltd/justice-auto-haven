@@ -198,7 +198,7 @@ const KillSwitchOverlay = () => {
     const load = async () => {
       const { data } = await (supabase as any)
         .from("system_maintenance")
-        .select("kill_switch_active,kill_switch_until,kill_switch_activated_at,billing_total_usd,billing_vercel_usd,billing_render_usd,billing_resend_usd,billing_supabase_usd,billing_due_date,message")
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
