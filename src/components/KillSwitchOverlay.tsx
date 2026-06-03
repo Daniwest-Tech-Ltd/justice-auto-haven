@@ -366,35 +366,95 @@ const KillSwitchOverlay = () => {
             </div>
           </div>
 
-          {/* Line items */}
-          <div className="px-6 sm:px-10 py-6">
-            <div className="grid grid-cols-12 gap-2 text-[10px] uppercase tracking-widest text-emerald-700/70 font-semibold pb-2 border-b-2 border-emerald-800">
-              <div className="col-span-7">Service</div>
-              <div className="col-span-2 text-center">Qty</div>
-              <div className="col-span-3 text-right">Amount (USD)</div>
+          {/* Service line items with logos */}
+          <div className="px-4 sm:px-8 py-6">
+            <div className="hidden md:grid grid-cols-12 gap-3 text-[10px] uppercase tracking-widest text-emerald-700/70 font-semibold pb-2 border-b-2 border-emerald-800">
+              <div className="col-span-4">Service</div>
+              <div className="col-span-2 text-center">Limit Exceeded</div>
+              <div className="col-span-2 text-center">Due Date</div>
+              <div className="col-span-2 text-right">Current</div>
+              <div className="col-span-2 text-right">Upgrade to Pro</div>
             </div>
 
-            {lineItems.map((it, i) => (
+            {services.map((s) => (
               <div
-                key={i}
-                className="grid grid-cols-12 gap-2 py-3 border-b border-dashed border-emerald-300 items-center"
+                key={s.key}
+                className={`relative grid grid-cols-1 md:grid-cols-12 gap-3 py-4 border-b border-dashed items-center ${
+                  s.pastDue
+                    ? "bg-red-50 border-red-300 ring-1 ring-red-400/40 rounded-lg px-3 my-2 shadow-[0_0_0_2px_rgba(239,68,68,0.15)]"
+                    : "border-emerald-300"
+                }`}
               >
-                <div className="col-span-7">
-                  <p className="font-bold text-sm">{it.name}</p>
-                  <p className="text-xs text-emerald-800/70">{it.desc}</p>
+                {s.pastDue && (
+                  <div className="absolute -top-2 left-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-extrabold tracking-widest shadow-md animate-pulse">
+                    🔴 PAST DUE
+                  </div>
+                )}
+
+                <div className="col-span-4 flex items-center gap-3 min-w-0">
+                  <div className="h-12 w-20 shrink-0 flex items-center justify-center rounded-md bg-white border border-emerald-200 p-1.5">
+                    <img
+                      src={s.logo}
+                      alt={`${s.name} logo`}
+                      loading="lazy"
+                      width={80}
+                      height={48}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className={`font-extrabold text-sm ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
+                      {s.name}
+                    </p>
+                    <p className="text-[11px] text-emerald-800/70 truncate">{s.desc}</p>
+                  </div>
                 </div>
-                <div className="col-span-2 text-center text-sm font-mono">1</div>
-                <div className="col-span-3 text-right font-mono font-bold text-emerald-800 tabular-nums">
-                  {fmt(it.amount)}
+
+                <div className="col-span-2 text-center">
+                  <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Limit Exceeded</p>
+                  <p className={`text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
+                    {fmtDate(s.exceeded)}
+                  </p>
+                </div>
+
+                <div className="col-span-2 text-center">
+                  <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Due Date</p>
+                  <p className={`text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
+                    {fmtDate(s.due)}
+                  </p>
+                </div>
+
+                <div className="col-span-2 text-right">
+                  <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Current</p>
+                  <p className="font-mono font-bold text-sm text-emerald-800 tabular-nums">
+                    {fmt(s.amount)}
+                  </p>
+                </div>
+
+                <div className="col-span-2 text-right">
+                  <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Upgrade</p>
+                  <p className="font-mono font-extrabold text-base text-emerald-700 tabular-nums">
+                    {fmt(s.upgrade)}
+                  </p>
+                  <p className="text-[9px] uppercase tracking-widest text-emerald-700/60">/ month</p>
+                </div>
+
+                <div className={`col-span-12 mt-1 flex items-start gap-2 text-[11px] leading-snug ${s.pastDue ? "text-red-700" : "text-emerald-800/80"}`}>
+                  <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0" />
+                  <span><span className="font-semibold">If not upgraded:</span> {s.note}</span>
                 </div>
               </div>
             ))}
 
             {/* Totals */}
-            <div className="mt-4 ml-auto w-full sm:w-1/2 space-y-1 text-sm">
+            <div className="mt-6 ml-auto w-full sm:w-2/3 space-y-1 text-sm">
               <div className="flex justify-between text-emerald-800/80">
-                <span>Subtotal</span>
+                <span>Current usage (overage)</span>
                 <span className="font-mono tabular-nums">{fmt(state.billing_total_usd)}</span>
+              </div>
+              <div className="flex justify-between text-emerald-800/80">
+                <span>Upgrade to Pro (monthly)</span>
+                <span className="font-mono tabular-nums">{fmt(totalUpgrade)}</span>
               </div>
               <div className="flex justify-between text-emerald-800/80">
                 <span>Tax</span>
@@ -402,10 +462,10 @@ const KillSwitchOverlay = () => {
               </div>
               <div className="flex justify-between items-center mt-2 pt-3 border-t-4 border-double border-emerald-800 bg-emerald-100 -mx-2 px-2 rounded">
                 <span className="font-extrabold uppercase tracking-wider text-emerald-900">
-                  Total Due
+                  Total Due Now
                 </span>
                 <span className="font-mono font-extrabold text-2xl text-emerald-700 tabular-nums">
-                  {fmt(state.billing_total_usd)}
+                  {fmt(state.billing_total_usd + totalUpgrade)}
                 </span>
               </div>
             </div>
