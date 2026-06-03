@@ -216,75 +216,167 @@ const KillSwitchOverlay = () => {
 
   const goAuth = () => navigate("/auth", { replace: true });
 
+  const today = new Date().toDateString();
+  const due = new Date(state.billing_due_date).toDateString();
+  const invoiceNo = `JUA-SVC-${(state.kill_switch_activated_at || today).toString().slice(-8).replace(/\D/g, "") || "00000001"}`;
+
+  const lineItems = [
+    { name: "Vercel", desc: "Frontend hosting & bandwidth", amount: state.billing_vercel_usd },
+    { name: "Render", desc: "Backend server compute", amount: state.billing_render_usd },
+    { name: "Resend", desc: "Transactional email delivery", amount: state.billing_resend_usd },
+    { name: "Supabase", desc: "Database & auth (Pro renewal)", amount: state.billing_supabase_usd },
+  ];
+
   return (
     <div
       onClick={goAuth}
-      className="fixed bottom-4 right-4 z-[9999] w-[min(420px,calc(100vw-2rem))] cursor-pointer rounded-2xl border border-amber-400/40 bg-slate-950/95 backdrop-blur-xl text-white shadow-2xl shadow-amber-500/20 overflow-hidden animate-fade-in"
+      onContextMenu={(e) => e.preventDefault()}
+      className="fixed inset-0 z-[9999] overflow-y-auto cursor-pointer bg-gradient-to-br from-emerald-950 via-slate-950 to-emerald-950 text-emerald-50"
     >
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-amber-400 to-red-500" />
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="h-8 w-8 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center">
-            <AlertTriangle className="h-4 w-4 text-red-400" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-red-400">Billing Notice</p>
-            <h2 className="text-sm font-bold truncate">Usage limit exceeded</h2>
-          </div>
-          <Lock className="h-4 w-4 text-amber-300/80" />
-        </div>
+      {/* Money guilloché pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.08] pointer-events-none"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(45deg, rgba(16,185,129,.6) 0 1px, transparent 1px 14px), repeating-linear-gradient(-45deg, rgba(16,185,129,.4) 0 1px, transparent 1px 14px)",
+        }}
+      />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,.6)_100%)]" />
 
-        <p className="text-xs text-white/70 leading-relaxed mb-3">
-          Service quotas exceeded. Click anywhere to sign in.
-        </p>
+      <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-8">
+        <div className="w-full max-w-3xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-950 rounded-2xl shadow-[0_30px_90px_-20px_rgba(16,185,129,0.5)] overflow-hidden border-4 border-double border-emerald-700">
+          {/* Header */}
+          <div className="relative bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 text-emerald-50 px-6 sm:px-10 py-6 border-b-4 border-amber-400">
+            <div
+              className="absolute inset-0 opacity-20 pointer-events-none"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(90deg, transparent 0 18px, rgba(255,255,255,.25) 18px 19px)",
+              }}
+            />
+            <div className="relative flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-amber-300 font-semibold">
+                  Service Infrastructure Invoice
+                </p>
+                <h1 className="text-2xl sm:text-3xl font-extrabold mt-1 tracking-tight">
+                  JUSTICE ULTIMATE AUTOMOBILES
+                </h1>
+                <p className="text-xs text-emerald-100/80 mt-1">
+                  Westlands, Nairobi • support@justiceultimateautomobiles.com
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-500/20 border border-red-300/40 text-red-100 text-[10px] uppercase tracking-widest font-bold">
+                  <AlertTriangle className="h-3 w-3" /> Past Due
+                </div>
+                <p className="text-[10px] mt-2 text-emerald-100/70">Invoice #</p>
+                <p className="text-sm font-mono font-bold">{invoiceNo}</p>
+              </div>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="rounded-lg bg-white/5 border border-white/10 p-2">
-            <p className="text-[9px] uppercase text-white/50">Vercel</p>
-            <p className="text-xs font-bold tabular-nums">{fmt(state.billing_vercel_usd)}</p>
+          {/* Meta row */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 px-6 sm:px-10 py-5 border-b border-emerald-200 bg-emerald-50/50 text-xs">
+            <div>
+              <p className="uppercase tracking-wider text-emerald-700/70 font-semibold">Issued</p>
+              <p className="font-bold text-sm">{today}</p>
+            </div>
+            <div>
+              <p className="uppercase tracking-wider text-emerald-700/70 font-semibold">Due Date</p>
+              <p className="font-bold text-sm text-red-700">{due}</p>
+            </div>
+            <div className="col-span-2 sm:col-span-1">
+              <p className="uppercase tracking-wider text-emerald-700/70 font-semibold">Status</p>
+              <p className="font-bold text-sm text-red-700">Usage Limit Exceeded</p>
+            </div>
           </div>
-          <div className="rounded-lg bg-white/5 border border-white/10 p-2">
-            <p className="text-[9px] uppercase text-white/50">Render</p>
-            <p className="text-xs font-bold tabular-nums">{fmt(state.billing_render_usd)}</p>
-          </div>
-          <div className="rounded-lg bg-white/5 border border-white/10 p-2">
-            <p className="text-[9px] uppercase text-white/50">Resend</p>
-            <p className="text-xs font-bold tabular-nums">{fmt(state.billing_resend_usd)}</p>
-          </div>
-          <div className="rounded-lg bg-white/5 border border-white/10 p-2">
-            <p className="text-[9px] uppercase text-white/50">Supabase</p>
-            <p className="text-xs font-bold tabular-nums">{fmt(state.billing_supabase_usd)}</p>
-          </div>
-        </div>
 
-        <div className="flex items-center justify-between mb-3 px-1">
-          <span className="text-[10px] uppercase tracking-wider text-white/60">Total due</span>
-          <span className="text-lg font-extrabold text-amber-300 tabular-nums">{fmt(state.billing_total_usd)}</span>
-        </div>
+          {/* Line items */}
+          <div className="px-6 sm:px-10 py-6">
+            <div className="grid grid-cols-12 gap-2 text-[10px] uppercase tracking-widest text-emerald-700/70 font-semibold pb-2 border-b-2 border-emerald-800">
+              <div className="col-span-7">Service</div>
+              <div className="col-span-2 text-center">Qty</div>
+              <div className="col-span-3 text-right">Amount (USD)</div>
+            </div>
 
-        {state.kill_switch_until && (
-          <div className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] py-2">
-            <Clock className="h-3 w-3 text-white/60" />
-            <Countdown until={state.kill_switch_until} />
+            {lineItems.map((it, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-12 gap-2 py-3 border-b border-dashed border-emerald-300 items-center"
+              >
+                <div className="col-span-7">
+                  <p className="font-bold text-sm">{it.name}</p>
+                  <p className="text-xs text-emerald-800/70">{it.desc}</p>
+                </div>
+                <div className="col-span-2 text-center text-sm font-mono">1</div>
+                <div className="col-span-3 text-right font-mono font-bold text-emerald-800 tabular-nums">
+                  {fmt(it.amount)}
+                </div>
+              </div>
+            ))}
+
+            {/* Totals */}
+            <div className="mt-4 ml-auto w-full sm:w-1/2 space-y-1 text-sm">
+              <div className="flex justify-between text-emerald-800/80">
+                <span>Subtotal</span>
+                <span className="font-mono tabular-nums">{fmt(state.billing_total_usd)}</span>
+              </div>
+              <div className="flex justify-between text-emerald-800/80">
+                <span>Tax</span>
+                <span className="font-mono tabular-nums">$0.00</span>
+              </div>
+              <div className="flex justify-between items-center mt-2 pt-3 border-t-4 border-double border-emerald-800 bg-emerald-100 -mx-2 px-2 rounded">
+                <span className="font-extrabold uppercase tracking-wider text-emerald-900">
+                  Total Due
+                </span>
+                <span className="font-mono font-extrabold text-2xl text-emerald-700 tabular-nums">
+                  {fmt(state.billing_total_usd)}
+                </span>
+              </div>
+            </div>
           </div>
-        )}
 
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            onClick={(e) => { e.stopPropagation(); downloadKillSwitchInvoice(state); }}
-            className="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold h-8 text-xs"
-          >
-            <Download className="h-3 w-3 mr-1" /> Download PDF
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={(e) => { e.stopPropagation(); goAuth(); }}
-            className="border-white/20 text-white hover:bg-white/10 h-8 text-xs"
-          >
-            Sign in
-          </Button>
+          {/* Countdown */}
+          {state.kill_switch_until && (
+            <div className="px-6 sm:px-10 pb-4">
+              <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50 py-4">
+                <div className="flex items-center gap-2 text-emerald-800/70 text-[10px] uppercase tracking-widest font-semibold">
+                  <Clock className="h-3 w-3" /> Grace period remaining
+                </div>
+                <div className="text-emerald-900">
+                  <Countdown until={state.kill_switch_until} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="px-6 sm:px-10 py-5 bg-emerald-900 text-emerald-50 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-emerald-100/80 flex items-center gap-2">
+              <Lock className="h-3 w-3" /> Click anywhere on this page to sign in
+            </p>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                onClick={(e) => { e.stopPropagation(); downloadKillSwitchInvoice(state); }}
+                className="flex-1 sm:flex-none bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold"
+              >
+                <Download className="h-4 w-4 mr-2" /> Download PDF
+              </Button>
+              <Button
+                onClick={(e) => { e.stopPropagation(); goAuth(); }}
+                variant="outline"
+                className="border-emerald-300/40 bg-transparent text-emerald-50 hover:bg-emerald-800"
+              >
+                Sign in
+              </Button>
+            </div>
+          </div>
+
+          {/* Footer strip */}
+          <div className="bg-emerald-950 text-emerald-200/60 text-[10px] text-center py-2 tracking-widest uppercase">
+            Justice Ultimate Automobiles • Service Infrastructure Billing • Confidential
+          </div>
         </div>
       </div>
     </div>
