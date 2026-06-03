@@ -5,6 +5,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Download, Lock, Clock } from "lucide-react";
 import jsPDF from "jspdf";
+import vercelLogo from "@/assets/logos/vercel.png";
+import renderLogo from "@/assets/logos/render.png";
+import resendLogo from "@/assets/logos/resend.png";
+import supabaseLogo from "@/assets/logos/supabase.png";
 
 type KillSwitchState = {
   kill_switch_active: boolean;
@@ -17,10 +21,34 @@ type KillSwitchState = {
   billing_supabase_usd: number;
   billing_due_date: string;
   message?: string;
+  // Per-service detail (added)
+  billing_vercel_exceeded_date?: string | null;
+  billing_vercel_due_date?: string | null;
+  billing_vercel_upgrade_usd?: number | null;
+  billing_vercel_past_due?: boolean | null;
+  billing_vercel_note?: string | null;
+  billing_render_exceeded_date?: string | null;
+  billing_render_due_date?: string | null;
+  billing_render_upgrade_usd?: number | null;
+  billing_render_past_due?: boolean | null;
+  billing_render_note?: string | null;
+  billing_resend_exceeded_date?: string | null;
+  billing_resend_due_date?: string | null;
+  billing_resend_upgrade_usd?: number | null;
+  billing_resend_past_due?: boolean | null;
+  billing_resend_note?: string | null;
+  billing_supabase_exceeded_date?: string | null;
+  billing_supabase_due_date?: string | null;
+  billing_supabase_upgrade_usd?: number | null;
+  billing_supabase_past_due?: boolean | null;
+  billing_supabase_note?: string | null;
 };
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n || 0);
+
+const fmtDate = (d?: string | null) =>
+  d ? new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "2-digit" }) : "—";
 
 export const downloadKillSwitchInvoice = (s: KillSwitchState) => {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
