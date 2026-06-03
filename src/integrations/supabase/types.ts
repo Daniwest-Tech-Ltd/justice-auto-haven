@@ -4670,10 +4670,30 @@ export type Database = {
       system_maintenance: {
         Row: {
           billing_due_date: string | null
+          billing_render_due_date: string | null
+          billing_render_exceeded_date: string | null
+          billing_render_note: string | null
+          billing_render_past_due: boolean | null
+          billing_render_upgrade_usd: number | null
           billing_render_usd: number | null
+          billing_resend_due_date: string | null
+          billing_resend_exceeded_date: string | null
+          billing_resend_note: string | null
+          billing_resend_past_due: boolean | null
+          billing_resend_upgrade_usd: number | null
           billing_resend_usd: number | null
+          billing_supabase_due_date: string | null
+          billing_supabase_exceeded_date: string | null
+          billing_supabase_note: string | null
+          billing_supabase_past_due: boolean | null
+          billing_supabase_upgrade_usd: number | null
           billing_supabase_usd: number | null
           billing_total_usd: number | null
+          billing_vercel_due_date: string | null
+          billing_vercel_exceeded_date: string | null
+          billing_vercel_note: string | null
+          billing_vercel_past_due: boolean | null
+          billing_vercel_upgrade_usd: number | null
           billing_vercel_usd: number | null
           created_at: string | null
           created_by: string | null
@@ -4690,10 +4710,30 @@ export type Database = {
         }
         Insert: {
           billing_due_date?: string | null
+          billing_render_due_date?: string | null
+          billing_render_exceeded_date?: string | null
+          billing_render_note?: string | null
+          billing_render_past_due?: boolean | null
+          billing_render_upgrade_usd?: number | null
           billing_render_usd?: number | null
+          billing_resend_due_date?: string | null
+          billing_resend_exceeded_date?: string | null
+          billing_resend_note?: string | null
+          billing_resend_past_due?: boolean | null
+          billing_resend_upgrade_usd?: number | null
           billing_resend_usd?: number | null
+          billing_supabase_due_date?: string | null
+          billing_supabase_exceeded_date?: string | null
+          billing_supabase_note?: string | null
+          billing_supabase_past_due?: boolean | null
+          billing_supabase_upgrade_usd?: number | null
           billing_supabase_usd?: number | null
           billing_total_usd?: number | null
+          billing_vercel_due_date?: string | null
+          billing_vercel_exceeded_date?: string | null
+          billing_vercel_note?: string | null
+          billing_vercel_past_due?: boolean | null
+          billing_vercel_upgrade_usd?: number | null
           billing_vercel_usd?: number | null
           created_at?: string | null
           created_by?: string | null
@@ -4710,10 +4750,30 @@ export type Database = {
         }
         Update: {
           billing_due_date?: string | null
+          billing_render_due_date?: string | null
+          billing_render_exceeded_date?: string | null
+          billing_render_note?: string | null
+          billing_render_past_due?: boolean | null
+          billing_render_upgrade_usd?: number | null
           billing_render_usd?: number | null
+          billing_resend_due_date?: string | null
+          billing_resend_exceeded_date?: string | null
+          billing_resend_note?: string | null
+          billing_resend_past_due?: boolean | null
+          billing_resend_upgrade_usd?: number | null
           billing_resend_usd?: number | null
+          billing_supabase_due_date?: string | null
+          billing_supabase_exceeded_date?: string | null
+          billing_supabase_note?: string | null
+          billing_supabase_past_due?: boolean | null
+          billing_supabase_upgrade_usd?: number | null
           billing_supabase_usd?: number | null
           billing_total_usd?: number | null
+          billing_vercel_due_date?: string | null
+          billing_vercel_exceeded_date?: string | null
+          billing_vercel_note?: string | null
+          billing_vercel_past_due?: boolean | null
+          billing_vercel_upgrade_usd?: number | null
           billing_vercel_usd?: number | null
           created_at?: string | null
           created_by?: string | null

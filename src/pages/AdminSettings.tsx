@@ -1281,42 +1281,84 @@ const AdminSettings = () => {
                     <p className="text-xs text-muted-foreground mt-2">Leave both at 0 for indefinite. Applied at activation.</p>
                   </div>
 
-                  <div>
-                    <Label className="mb-2 block">Service amounts shown on the block & invoice (USD)</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {[
-                        { k: "billing_vercel_usd", label: "Vercel" },
-                        { k: "billing_render_usd", label: "Render" },
-                        { k: "billing_resend_usd", label: "Resend" },
-                        { k: "billing_supabase_usd", label: "Supabase" },
-                      ].map((f) => (
-                        <div key={f.k}>
-                          <Label className="text-xs">{f.label}</Label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={killSwitch[f.k] ?? 0}
-                            onChange={(e) => {
-                              const v = parseFloat(e.target.value) || 0;
-                              const next = { ...killSwitch, [f.k]: v };
-                              next.billing_total_usd =
-                                Number(next.billing_vercel_usd || 0) +
-                                Number(next.billing_render_usd || 0) +
-                                Number(next.billing_resend_usd || 0) +
-                                Number(next.billing_supabase_usd || 0);
-                              setKillSwitch(next);
-                            }}
-                          />
+                  <div className="space-y-4">
+                    <Label className="block text-sm font-semibold">Per-service billing details</Label>
+                    {[
+                      { key: "vercel", label: "Vercel", desc: "Frontend hosting" },
+                      { key: "render", label: "Render", desc: "Backend compute" },
+                      { key: "resend", label: "Resend", desc: "Email delivery" },
+                      { key: "supabase", label: "Supabase", desc: "Database & auth" },
+                    ].map((svc) => {
+                      const k = (n: string) => `billing_${svc.key}_${n}`;
+                      const past = !!killSwitch[k("past_due")];
+                      return (
+                        <div
+                          key={svc.key}
+                          className={`rounded-lg border p-3 space-y-3 ${past ? "border-red-400 bg-red-50/40" : "border-border"}`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div>
+                              <p className="font-bold text-sm">{svc.label} <span className="text-xs font-normal text-muted-foreground">— {svc.desc}</span></p>
+                            </div>
+                            <label className="inline-flex items-center gap-2 text-xs cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={past}
+                                onChange={(e) => setKillSwitch({ ...killSwitch, [k("past_due")]: e.target.checked })}
+                                className="h-4 w-4"
+                              />
+                              <span className={past ? "text-red-700 font-bold" : "text-muted-foreground"}>🔴 PAST DUE</span>
+                            </label>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            <div>
+                              <Label className="text-[10px] uppercase">Current ($)</Label>
+                              <Input type="number" step="0.01" value={killSwitch[k("usd")] ?? 0}
+                                onChange={(e) => {
+                                  const v = parseFloat(e.target.value) || 0;
+                                  const next = { ...killSwitch, [k("usd")]: v };
+                                  next.billing_total_usd =
+                                    Number(next.billing_vercel_usd || 0) +
+                                    Number(next.billing_render_usd || 0) +
+                                    Number(next.billing_resend_usd || 0) +
+                                    Number(next.billing_supabase_usd || 0);
+                                  setKillSwitch(next);
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-[10px] uppercase">Upgrade Pro ($/mo)</Label>
+                              <Input type="number" step="0.01" value={killSwitch[k("upgrade_usd")] ?? 0}
+                                onChange={(e) => setKillSwitch({ ...killSwitch, [k("upgrade_usd")]: parseFloat(e.target.value) || 0 })} />
+                            </div>
+                            <div>
+                              <Label className="text-[10px] uppercase">Limit exceeded</Label>
+                              <Input type="date" value={killSwitch[k("exceeded_date")] || ""}
+                                onChange={(e) => setKillSwitch({ ...killSwitch, [k("exceeded_date")]: e.target.value })} />
+                            </div>
+                            <div>
+                              <Label className="text-[10px] uppercase">Due date</Label>
+                              <Input type="date" value={killSwitch[k("due_date")] || ""}
+                                onChange={(e) => setKillSwitch({ ...killSwitch, [k("due_date")]: e.target.value })} />
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-[10px] uppercase">Consequence note (shown on billing page)</Label>
+                            <Input value={killSwitch[k("note")] || ""}
+                              onChange={(e) => setKillSwitch({ ...killSwitch, [k("note")]: e.target.value })}
+                              placeholder="If not upgraded: …" />
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      );
+                    })}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs">Total (auto)</Label>
                         <Input readOnly value={`$${Number(killSwitch.billing_total_usd || 0).toFixed(2)}`} className="font-bold text-amber-600" />
                       </div>
                       <div>
-                        <Label className="text-xs">Supabase due date</Label>
+                        <Label className="text-xs">Overall billing due date (header)</Label>
                         <Input
                           type="date"
                           value={killSwitch.billing_due_date || ""}
