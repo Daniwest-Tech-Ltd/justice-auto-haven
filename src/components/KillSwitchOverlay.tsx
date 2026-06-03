@@ -318,7 +318,7 @@ const KillSwitchOverlay = () => {
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,.6)_100%)]" />
 
       <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-3xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-950 rounded-2xl shadow-[0_30px_90px_-20px_rgba(16,185,129,0.5)] overflow-hidden border-4 border-double border-emerald-700">
+        <div className="w-full max-w-5xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-950 rounded-2xl shadow-[0_30px_90px_-20px_rgba(16,185,129,0.5)] overflow-hidden border-4 border-double border-emerald-700">
           {/* Header */}
           <div className="relative bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 text-emerald-50 px-6 sm:px-10 py-6 border-b-4 border-amber-400">
             <div
