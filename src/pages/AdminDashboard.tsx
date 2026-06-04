@@ -486,17 +486,17 @@ const AdminDashboard = () => {
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800"
                 onClick={() => navigate("/admin/cars")}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Total Vehicles</p>
-                      <h3 className="text-4xl font-bold mt-2 text-orange-900 dark:text-orange-100">
+                      <h3 className="text-2xl sm:text-4xl font-bold mt-2 text-orange-900 dark:text-orange-100">
                         {showAccountDetails ? stats.totalVehicles : "•••"}
                       </h3>
                       <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">In inventory</p>
                     </div>
-                    <div className="h-16 w-16 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center">
-                      <Car className="h-8 w-8 text-orange-600 dark:text-orange-300" />
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center">
+                      <Car className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600 dark:text-orange-300" />
                     </div>
                   </div>
                 </CardContent>
@@ -506,17 +506,17 @@ const AdminDashboard = () => {
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800"
                 onClick={() => navigate("/admin/customers")}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Active Customers</p>
-                      <h3 className="text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">
+                      <h3 className="text-2xl sm:text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">
                         {showAccountDetails ? stats.activeCustomers : "•••"}
                       </h3>
                       <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Registered users</p>
                     </div>
-                    <div className="h-16 w-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                      <Users className="h-8 w-8 text-blue-600 dark:text-blue-300" />
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                      <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 dark:text-blue-300" />
                     </div>
                   </div>
                 </CardContent>
@@ -526,17 +526,17 @@ const AdminDashboard = () => {
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200 dark:border-green-800"
                 onClick={() => navigate("/admin/sales")}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-green-600 dark:text-green-400">Monthly Sales</p>
-                      <h3 className="text-2xl font-bold mt-2 text-green-900 dark:text-green-100">
+                      <h3 className="text-xl sm:text-2xl font-bold mt-2 text-green-900 dark:text-green-100">
                         {showAccountDetails ? `KSh ${stats.monthlySales.toLocaleString('en-KE')}` : "KSh •••••"}
                       </h3>
                       <p className="text-xs text-green-600 dark:text-green-400 mt-1">Total revenue</p>
                     </div>
-                    <div className="h-16 w-16 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
-                      <DollarSign className="h-8 w-8 text-green-600 dark:text-green-300" />
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
+                      <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 dark:text-green-300" />
                     </div>
                   </div>
                 </CardContent>
@@ -546,17 +546,17 @@ const AdminDashboard = () => {
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900 border-pink-200 dark:border-pink-800"
                 onClick={() => navigate("/admin/orders")}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-pink-600 dark:text-pink-400">Pending Orders</p>
-                      <h3 className="text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">
+                      <h3 className="text-2xl sm:text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">
                         {showAccountDetails ? stats.whitelistOrders : "•••"}
                       </h3>
                       <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Awaiting review</p>
                     </div>
-                    <div className="h-16 w-16 rounded-full bg-pink-200 dark:bg-pink-800 flex items-center justify-center">
-                      <Package className="h-8 w-8 text-pink-600 dark:text-pink-300" />
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-pink-200 dark:bg-pink-800 flex items-center justify-center">
+                      <Package className="h-6 w-6 sm:h-8 sm:w-8 text-pink-600 dark:text-pink-300" />
                     </div>
                   </div>
                 </CardContent>
