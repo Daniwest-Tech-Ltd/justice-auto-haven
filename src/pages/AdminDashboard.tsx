@@ -330,15 +330,16 @@ const AdminDashboard = () => {
           </SidebarContent>
         </Sidebar>
 
-        <main className="flex-1 w-full">
-          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-3">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-4">
+        <main className="flex-1 w-full min-w-0">
+          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-6 py-3">
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <div className="flex items-center gap-2 sm:gap-4 min-w-0">
                 <SidebarTrigger />
-                <img src={logo} alt="Justice Ultimate Automobiles" className="h-10 w-auto" />
-                <h1 className="text-xl font-bold">Justice Ultimate Automobiles Admin Dashboard</h1>
+                <img src={logo} alt="Justice Ultimate Automobiles" className="h-8 sm:h-10 w-auto shrink-0" />
+                <h1 className="text-sm sm:text-xl font-bold truncate hidden sm:block">Justice Ultimate Automobiles Admin Dashboard</h1>
+                <h1 className="text-sm font-bold truncate sm:hidden">Admin Dashboard</h1>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                 <Button variant="ghost" size="icon" onClick={() => navigate("/")} title="Home">
                   <Home className="h-5 w-5" />
                 </Button>
@@ -358,15 +359,22 @@ const AdminDashboard = () => {
                 <Button variant="ghost" size="icon" onClick={() => navigate("/admin/messages")}>
                   <MessageSquare className="h-5 w-5" />
                 </Button>
-                <Button onClick={handleGenerateDailyReports} size="sm" disabled={isGeneratingReports}>
+                <Button onClick={handleGenerateDailyReports} size="sm" disabled={isGeneratingReports} className="hidden md:inline-flex">
                   <FileText className="h-4 w-4 mr-2" />
                   {isGeneratingReports ? "Generating..." : "Generate Reports"}
                 </Button>
-                <Button onClick={() => navigate("/admin/cars/add")} size="sm">Add Vehicle</Button>
+                <Button onClick={handleGenerateDailyReports} size="icon" variant="outline" disabled={isGeneratingReports} className="md:hidden" title="Generate Reports">
+                  <FileText className="h-4 w-4" />
+                </Button>
+                <Button onClick={() => navigate("/admin/cars/add")} size="sm" className="hidden sm:inline-flex">Add Vehicle</Button>
+                <Button onClick={() => navigate("/admin/cars/add")} size="icon" className="sm:hidden" title="Add Vehicle">
+                  <Car className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 max-w-md">
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+              <div className="relative flex-1 min-w-[160px] max-w-md">
+
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
