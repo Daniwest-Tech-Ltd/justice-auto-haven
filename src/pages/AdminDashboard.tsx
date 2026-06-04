@@ -444,19 +444,20 @@ const AdminDashboard = () => {
             </div>
           </header>
 
-          <div className="p-6 space-y-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 border-2 border-primary/20">
+          <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <Avatar className="h-12 w-12 sm:h-16 sm:w-16 border-2 border-primary/20 shrink-0">
                 <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "Admin"} />
-                <AvatarFallback className="text-lg bg-primary/10">
+                <AvatarFallback className="text-base sm:text-lg bg-primary/10">
                   {profile?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || "AD"}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
-                <p className="text-muted-foreground">Admin Dashboard — {new Date().toLocaleDateString("en-KE", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-3xl font-bold truncate">{getGreeting(profile.full_name)}</h1>
+                <p className="text-xs sm:text-base text-muted-foreground">Admin Dashboard — {new Date().toLocaleDateString("en-KE", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
               </div>
             </div>
+
 
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Account Overview</h2>
