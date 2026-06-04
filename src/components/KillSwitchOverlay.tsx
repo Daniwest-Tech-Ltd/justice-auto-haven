@@ -156,13 +156,13 @@ const Countdown = ({ until }: { until: string }) => {
   const m = Math.floor((ms % 3600000) / 60000);
   const sec = Math.floor((ms % 60000) / 1000);
   const Cell = ({ v, l }: { v: number; l: string }) => (
-    <div className="flex flex-col items-center px-3 py-2 rounded-lg bg-white/5 border border-white/10 min-w-[64px]">
-      <span className="text-2xl font-bold tabular-nums">{String(v).padStart(2, "0")}</span>
-      <span className="text-[10px] uppercase tracking-wider text-white/60">{l}</span>
+    <div className="flex flex-col items-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-white/5 border border-white/10 min-w-[48px] sm:min-w-[64px]">
+      <span className="text-lg sm:text-2xl font-bold tabular-nums">{String(v).padStart(2, "0")}</span>
+      <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/60">{l}</span>
     </div>
   );
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
       <Cell v={d} l="Days" /><Cell v={h} l="Hours" /><Cell v={m} l="Mins" /><Cell v={sec} l="Secs" />
     </div>
   );
@@ -317,10 +317,10 @@ const KillSwitchOverlay = () => {
       />
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,.6)_100%)]" />
 
-      <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-5xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-950 rounded-2xl shadow-[0_30px_90px_-20px_rgba(16,185,129,0.5)] overflow-hidden border-4 border-double border-emerald-700">
+      <div className="relative min-h-screen flex items-center justify-center p-2 sm:p-4 md:p-8">
+        <div className="w-full max-w-5xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-950 rounded-xl sm:rounded-2xl shadow-[0_30px_90px_-20px_rgba(16,185,129,0.5)] overflow-hidden border-2 sm:border-4 border-double border-emerald-700">
           {/* Header */}
-          <div className="relative bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 text-emerald-50 px-6 sm:px-10 py-6 border-b-4 border-amber-400">
+          <div className="relative bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 text-emerald-50 px-3 sm:px-6 md:px-10 py-4 sm:py-6 border-b-2 sm:border-b-4 border-amber-400">
             <div
               className="absolute inset-0 opacity-20 pointer-events-none"
               style={{
@@ -328,46 +328,46 @@ const KillSwitchOverlay = () => {
                   "repeating-linear-gradient(90deg, transparent 0 18px, rgba(255,255,255,.25) 18px 19px)",
               }}
             />
-            <div className="relative flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-amber-300 font-semibold">
+            <div className="relative flex items-start justify-between gap-2 sm:gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em] text-amber-300 font-semibold">
                   Service Infrastructure Invoice
                 </p>
-                <h1 className="text-2xl sm:text-3xl font-extrabold mt-1 tracking-tight">
+                <h1 className="text-base sm:text-2xl md:text-3xl font-extrabold mt-1 tracking-tight leading-tight">
                   JUSTICE ULTIMATE AUTOMOBILES
                 </h1>
-                <p className="text-xs text-emerald-100/80 mt-1">
+                <p className="text-[10px] sm:text-xs text-emerald-100/80 mt-1 truncate">
                   Westlands, Nairobi • support@justiceultimateautomobiles.com
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-500/20 border border-red-300/40 text-red-100 text-[10px] uppercase tracking-widest font-bold">
+                <div className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full bg-red-500/20 border border-red-300/40 text-red-100 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">
                   <AlertTriangle className="h-3 w-3" /> Past Due
                 </div>
-                <p className="text-[10px] mt-2 text-emerald-100/70">Invoice #</p>
-                <p className="text-sm font-mono font-bold">{invoiceNo}</p>
+                <p className="text-[9px] sm:text-[10px] mt-2 text-emerald-100/70">Invoice #</p>
+                <p className="text-[11px] sm:text-sm font-mono font-bold">{invoiceNo}</p>
               </div>
             </div>
           </div>
 
           {/* Meta row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 px-6 sm:px-10 py-5 border-b border-emerald-200 bg-emerald-50/50 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 px-3 sm:px-6 md:px-10 py-3 sm:py-5 border-b border-emerald-200 bg-emerald-50/50 text-[11px] sm:text-xs">
             <div>
               <p className="uppercase tracking-wider text-emerald-700/70 font-semibold">Issued</p>
-              <p className="font-bold text-sm">{today}</p>
+              <p className="font-bold text-xs sm:text-sm">{today}</p>
             </div>
             <div>
               <p className="uppercase tracking-wider text-emerald-700/70 font-semibold">Due Date</p>
-              <p className="font-bold text-sm text-red-700">{due}</p>
+              <p className="font-bold text-xs sm:text-sm text-red-700">{due}</p>
             </div>
             <div className="col-span-2 sm:col-span-1">
               <p className="uppercase tracking-wider text-emerald-700/70 font-semibold">Status</p>
-              <p className="font-bold text-sm text-red-700">Usage Limit Exceeded</p>
+              <p className="font-bold text-xs sm:text-sm text-red-700">Usage Limit Exceeded</p>
             </div>
           </div>
 
           {/* Service line items with logos */}
-          <div className="px-4 sm:px-8 py-6">
+          <div className="px-2 sm:px-4 md:px-8 py-4 sm:py-6">
             <div className="hidden md:grid grid-cols-12 gap-3 text-[10px] uppercase tracking-widest text-emerald-700/70 font-semibold pb-2 border-b-2 border-emerald-800">
               <div className="col-span-4">Service</div>
               <div className="col-span-2 text-center">Limit Exceeded</div>
@@ -379,20 +379,20 @@ const KillSwitchOverlay = () => {
             {services.map((s) => (
               <div
                 key={s.key}
-                className={`relative grid grid-cols-1 md:grid-cols-12 gap-3 py-4 border-b border-dashed items-center ${
+                className={`relative grid grid-cols-2 md:grid-cols-12 gap-2 sm:gap-3 py-3 sm:py-4 border-b border-dashed items-center ${
                   s.pastDue
-                    ? "bg-red-50 border-red-300 ring-1 ring-red-400/40 rounded-lg px-3 my-2 shadow-[0_0_0_2px_rgba(239,68,68,0.15)]"
+                    ? "bg-red-50 border-red-300 ring-1 ring-red-400/40 rounded-lg px-2 sm:px-3 my-2 shadow-[0_0_0_2px_rgba(239,68,68,0.15)]"
                     : "border-emerald-300"
                 }`}
               >
                 {s.pastDue && (
-                  <div className="absolute -top-2 left-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-extrabold tracking-widest shadow-md animate-pulse">
+                  <div className="absolute -top-2 left-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-600 text-white text-[9px] sm:text-[10px] font-extrabold tracking-widest shadow-md animate-pulse">
                     🔴 PAST DUE
                   </div>
                 )}
 
-                <div className="col-span-4 flex items-center gap-3 min-w-0">
-                  <div className="h-12 w-20 shrink-0 flex items-center justify-center rounded-md bg-white border border-emerald-200 p-1.5">
+                <div className="col-span-2 md:col-span-4 flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="h-10 w-14 sm:h-12 sm:w-20 shrink-0 flex items-center justify-center rounded-md bg-white border border-emerald-200 p-1 sm:p-1.5">
                     <img
                       src={s.logo}
                       alt={`${s.name} logo`}
@@ -403,43 +403,43 @@ const KillSwitchOverlay = () => {
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className={`font-extrabold text-sm ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
+                    <p className={`font-extrabold text-xs sm:text-sm ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
                       {s.name}
                     </p>
-                    <p className="text-[11px] text-emerald-800/70 truncate">{s.desc}</p>
+                    <p className="text-[10px] sm:text-[11px] text-emerald-800/70 truncate">{s.desc}</p>
                   </div>
                 </div>
 
-                <div className="col-span-2 text-center">
+                <div className="md:col-span-2 md:text-center">
                   <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Limit Exceeded</p>
-                  <p className={`text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
+                  <p className={`text-[11px] sm:text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
                     {fmtDate(s.exceeded)}
                   </p>
                 </div>
 
-                <div className="col-span-2 text-center">
+                <div className="md:col-span-2 md:text-center">
                   <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Due Date</p>
-                  <p className={`text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
+                  <p className={`text-[11px] sm:text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
                     {fmtDate(s.due)}
                   </p>
                 </div>
 
-                <div className="col-span-2 text-right">
+                <div className="md:col-span-2 md:text-right">
                   <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Current</p>
-                  <p className="font-mono font-bold text-sm text-emerald-800 tabular-nums">
+                  <p className="font-mono font-bold text-[11px] sm:text-sm text-emerald-800 tabular-nums">
                     {fmt(s.amount)}
                   </p>
                 </div>
 
-                <div className="col-span-2 text-right">
+                <div className="md:col-span-2 md:text-right">
                   <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Upgrade</p>
-                  <p className="font-mono font-extrabold text-base text-emerald-700 tabular-nums">
+                  <p className="font-mono font-extrabold text-sm sm:text-base text-emerald-700 tabular-nums">
                     {fmt(s.upgrade)}
                   </p>
                   <p className="text-[9px] uppercase tracking-widest text-emerald-700/60">/ month</p>
                 </div>
 
-                <div className={`col-span-12 mt-1 flex items-start gap-2 text-[11px] leading-snug ${s.pastDue ? "text-red-700" : "text-emerald-800/80"}`}>
+                <div className={`col-span-2 md:col-span-12 mt-1 flex items-start gap-2 text-[10px] sm:text-[11px] leading-snug ${s.pastDue ? "text-red-700" : "text-emerald-800/80"}`}>
                   <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0" />
                   <span><span className="font-semibold">If not upgraded:</span> {s.note}</span>
                 </div>
@@ -447,7 +447,7 @@ const KillSwitchOverlay = () => {
             ))}
 
             {/* Totals */}
-            <div className="mt-6 ml-auto w-full sm:w-2/3 space-y-1 text-sm">
+            <div className="mt-4 sm:mt-6 sm:ml-auto w-full sm:w-2/3 space-y-1 text-xs sm:text-sm">
               <div className="flex justify-between text-emerald-800/80">
                 <span>Current usage (overage)</span>
                 <span className="font-mono tabular-nums">{fmt(state.billing_total_usd)}</span>
@@ -460,11 +460,11 @@ const KillSwitchOverlay = () => {
                 <span>Tax</span>
                 <span className="font-mono tabular-nums">$0.00</span>
               </div>
-              <div className="flex justify-between items-center mt-2 pt-3 border-t-4 border-double border-emerald-800 bg-emerald-100 -mx-2 px-2 rounded">
-                <span className="font-extrabold uppercase tracking-wider text-emerald-900">
+              <div className="flex justify-between items-center mt-2 pt-3 border-t-4 border-double border-emerald-800 bg-emerald-100 -mx-2 px-2 rounded gap-2">
+                <span className="font-extrabold uppercase tracking-wider text-emerald-900 text-xs sm:text-base">
                   Total Due Now
                 </span>
-                <span className="font-mono font-extrabold text-2xl text-emerald-700 tabular-nums">
+                <span className="font-mono font-extrabold text-lg sm:text-2xl text-emerald-700 tabular-nums">
                   {fmt(state.billing_total_usd + totalUpgrade)}
                 </span>
               </div>
@@ -473,8 +473,8 @@ const KillSwitchOverlay = () => {
 
           {/* Countdown */}
           {state.kill_switch_until && (
-            <div className="px-6 sm:px-10 pb-4">
-              <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50 py-4">
+            <div className="px-3 sm:px-6 md:px-10 pb-4">
+              <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50 py-3 sm:py-4 px-2">
                 <div className="flex items-center gap-2 text-emerald-800/70 text-[10px] uppercase tracking-widest font-semibold">
                   <Clock className="h-3 w-3" /> Grace period remaining
                 </div>
@@ -486,21 +486,21 @@ const KillSwitchOverlay = () => {
           )}
 
           {/* Actions */}
-          <div className="px-6 sm:px-10 py-5 bg-emerald-900 text-emerald-50 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-emerald-100/80 flex items-center gap-2">
-              <Lock className="h-3 w-3" /> Click anywhere on this page to sign in
+          <div className="px-3 sm:px-6 md:px-10 py-4 sm:py-5 bg-emerald-900 text-emerald-50 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-[11px] sm:text-xs text-emerald-100/80 flex items-center gap-2 text-center sm:text-left">
+              <Lock className="h-3 w-3 shrink-0" /> Click anywhere on this page to sign in
             </p>
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 onClick={(e) => { e.stopPropagation(); downloadKillSwitchInvoice(state); }}
-                className="flex-1 sm:flex-none bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold"
+                className="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold"
               >
                 <Download className="h-4 w-4 mr-2" /> Download PDF
               </Button>
               <Button
                 onClick={(e) => { e.stopPropagation(); goAuth(); }}
                 variant="outline"
-                className="border-emerald-300/40 bg-transparent text-emerald-50 hover:bg-emerald-800"
+                className="w-full sm:w-auto border-emerald-300/40 bg-transparent text-emerald-50 hover:bg-emerald-800"
               >
                 Sign in
               </Button>

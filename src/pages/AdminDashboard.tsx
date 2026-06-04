@@ -330,15 +330,16 @@ const AdminDashboard = () => {
           </SidebarContent>
         </Sidebar>
 
-        <main className="flex-1 w-full">
-          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-3">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-4">
+        <main className="flex-1 w-full min-w-0">
+          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-6 py-3">
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <div className="flex items-center gap-2 sm:gap-4 min-w-0">
                 <SidebarTrigger />
-                <img src={logo} alt="Justice Ultimate Automobiles" className="h-10 w-auto" />
-                <h1 className="text-xl font-bold">Justice Ultimate Automobiles Admin Dashboard</h1>
+                <img src={logo} alt="Justice Ultimate Automobiles" className="h-8 sm:h-10 w-auto shrink-0" />
+                <h1 className="text-sm sm:text-xl font-bold truncate hidden sm:block">Justice Ultimate Automobiles Admin Dashboard</h1>
+                <h1 className="text-sm font-bold truncate sm:hidden">Admin Dashboard</h1>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                 <Button variant="ghost" size="icon" onClick={() => navigate("/")} title="Home">
                   <Home className="h-5 w-5" />
                 </Button>
@@ -358,15 +359,22 @@ const AdminDashboard = () => {
                 <Button variant="ghost" size="icon" onClick={() => navigate("/admin/messages")}>
                   <MessageSquare className="h-5 w-5" />
                 </Button>
-                <Button onClick={handleGenerateDailyReports} size="sm" disabled={isGeneratingReports}>
+                <Button onClick={handleGenerateDailyReports} size="sm" disabled={isGeneratingReports} className="hidden md:inline-flex">
                   <FileText className="h-4 w-4 mr-2" />
                   {isGeneratingReports ? "Generating..." : "Generate Reports"}
                 </Button>
-                <Button onClick={() => navigate("/admin/cars/add")} size="sm">Add Vehicle</Button>
+                <Button onClick={handleGenerateDailyReports} size="icon" variant="outline" disabled={isGeneratingReports} className="md:hidden" title="Generate Reports">
+                  <FileText className="h-4 w-4" />
+                </Button>
+                <Button onClick={() => navigate("/admin/cars/add")} size="sm" className="hidden sm:inline-flex">Add Vehicle</Button>
+                <Button onClick={() => navigate("/admin/cars/add")} size="icon" className="sm:hidden" title="Add Vehicle">
+                  <Car className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 max-w-md">
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+              <div className="relative flex-1 min-w-[160px] max-w-md">
+
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
@@ -436,19 +444,20 @@ const AdminDashboard = () => {
             </div>
           </header>
 
-          <div className="p-6 space-y-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 border-2 border-primary/20">
+          <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <Avatar className="h-12 w-12 sm:h-16 sm:w-16 border-2 border-primary/20 shrink-0">
                 <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "Admin"} />
-                <AvatarFallback className="text-lg bg-primary/10">
+                <AvatarFallback className="text-base sm:text-lg bg-primary/10">
                   {profile?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || "AD"}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h1 className="text-3xl font-bold">{getGreeting(profile.full_name)}</h1>
-                <p className="text-muted-foreground">Admin Dashboard — {new Date().toLocaleDateString("en-KE", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-3xl font-bold truncate">{getGreeting(profile.full_name)}</h1>
+                <p className="text-xs sm:text-base text-muted-foreground">Admin Dashboard — {new Date().toLocaleDateString("en-KE", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
               </div>
             </div>
+
 
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Account Overview</h2>
@@ -477,17 +486,17 @@ const AdminDashboard = () => {
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800"
                 onClick={() => navigate("/admin/cars")}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Total Vehicles</p>
-                      <h3 className="text-4xl font-bold mt-2 text-orange-900 dark:text-orange-100">
+                      <h3 className="text-2xl sm:text-4xl font-bold mt-2 text-orange-900 dark:text-orange-100">
                         {showAccountDetails ? stats.totalVehicles : "•••"}
                       </h3>
                       <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">In inventory</p>
                     </div>
-                    <div className="h-16 w-16 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center">
-                      <Car className="h-8 w-8 text-orange-600 dark:text-orange-300" />
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-orange-200 dark:bg-orange-800 flex items-center justify-center">
+                      <Car className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600 dark:text-orange-300" />
                     </div>
                   </div>
                 </CardContent>
@@ -497,17 +506,17 @@ const AdminDashboard = () => {
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800"
                 onClick={() => navigate("/admin/customers")}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Active Customers</p>
-                      <h3 className="text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">
+                      <h3 className="text-2xl sm:text-4xl font-bold mt-2 text-blue-900 dark:text-blue-100">
                         {showAccountDetails ? stats.activeCustomers : "•••"}
                       </h3>
                       <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Registered users</p>
                     </div>
-                    <div className="h-16 w-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
-                      <Users className="h-8 w-8 text-blue-600 dark:text-blue-300" />
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                      <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 dark:text-blue-300" />
                     </div>
                   </div>
                 </CardContent>
@@ -517,17 +526,17 @@ const AdminDashboard = () => {
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200 dark:border-green-800"
                 onClick={() => navigate("/admin/sales")}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-green-600 dark:text-green-400">Monthly Sales</p>
-                      <h3 className="text-2xl font-bold mt-2 text-green-900 dark:text-green-100">
+                      <h3 className="text-xl sm:text-2xl font-bold mt-2 text-green-900 dark:text-green-100">
                         {showAccountDetails ? `KSh ${stats.monthlySales.toLocaleString('en-KE')}` : "KSh •••••"}
                       </h3>
                       <p className="text-xs text-green-600 dark:text-green-400 mt-1">Total revenue</p>
                     </div>
-                    <div className="h-16 w-16 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
-                      <DollarSign className="h-8 w-8 text-green-600 dark:text-green-300" />
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
+                      <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 dark:text-green-300" />
                     </div>
                   </div>
                 </CardContent>
@@ -537,17 +546,17 @@ const AdminDashboard = () => {
                 className="cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950 dark:to-pink-900 border-pink-200 dark:border-pink-800"
                 onClick={() => navigate("/admin/orders")}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-pink-600 dark:text-pink-400">Pending Orders</p>
-                      <h3 className="text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">
+                      <h3 className="text-2xl sm:text-4xl font-bold mt-2 text-pink-900 dark:text-pink-100">
                         {showAccountDetails ? stats.whitelistOrders : "•••"}
                       </h3>
                       <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">Awaiting review</p>
                     </div>
-                    <div className="h-16 w-16 rounded-full bg-pink-200 dark:bg-pink-800 flex items-center justify-center">
-                      <Package className="h-8 w-8 text-pink-600 dark:text-pink-300" />
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-pink-200 dark:bg-pink-800 flex items-center justify-center">
+                      <Package className="h-6 w-6 sm:h-8 sm:w-8 text-pink-600 dark:text-pink-300" />
                     </div>
                   </div>
                 </CardContent>
@@ -570,7 +579,7 @@ const AdminDashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Table>
+                  <div className="overflow-x-auto"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Stock ID</TableHead>
@@ -597,7 +606,7 @@ const AdminDashboard = () => {
                         </TableRow>
                       )}
                     </TableBody>
-                  </Table>
+                  </Table></div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -608,7 +617,7 @@ const AdminDashboard = () => {
                   <CardTitle>Customer Management</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Table>
+                  <div className="overflow-x-auto"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Name</TableHead>
@@ -655,7 +664,7 @@ const AdminDashboard = () => {
                         </TableRow>
                       )))}
                     </TableBody>
-                  </Table>
+                  </Table></div>
                 </CardContent>
               </Card>
             </TabsContent>

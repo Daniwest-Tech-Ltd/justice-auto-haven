@@ -8,6 +8,8 @@ import { Smartphone, Mail, Fingerprint, Clock, MessageCircle, Loader2 } from "lu
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { startAuthentication } from '@simplewebauthn/browser';
+import { Capacitor } from '@capacitor/core';
+import { NativeBiometric } from 'capacitor-native-biometric';
 
 interface TwoFactorDialogProps {
   open: boolean;
@@ -44,127 +46,7 @@ export const TwoFactorDialog = ({
   const { toast } = useToast();
   const verifyingRef = useRef(false);
 
-  // Auto-verify when 6 digits are entered
-  useEffect(() => {
-    if (code.length === 6 && !verifyingRef.current && !loading) {
-      verifyingRef.current = true;
-      setVerifying(true);
-      
-      const verify = async () => {
-        if (selectedMethod === 'email_otp' && countdown > 0) {
-          await verifyEmailOTP();
-        } else if (selectedMethod === 'whatsapp_otp' && whatsappCountdown > 0) {
-          await verifyWhatsAppOTP();
-        } else if (selectedMethod === 'totp') {
-          await verifyTOTP();
-        }
-        verifyingRef.current = false;
-        setVerifying(false);
-      };
-      
-      verify();
-    }
-  }, [code, selectedMethod]);
-
-  // ALWAYS auto-send BOTH email OTP AND WhatsApp OTP when dialog opens - this is mandatory for all users
-  useEffect(() => {
-    if (open && !otpSent) {
-      // Always send email OTP first - it's the default and mandatory method
-      handleEmailOTP();
-    }
-    // Also send WhatsApp OTP automatically to provide an alternative verification method
-    if (open && !whatsappOtpSent && availableMethods.whatsapp) {
-      // Small delay to avoid overwhelming the user with notifications
-      const timer = setTimeout(() => {
-        handleWhatsAppOTP();
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [open]);
-
-  // Countdown timer for email
-  useEffect(() => {
-    if (otpSent && countdown > 0) {
-      const timer = setInterval(() => {
-        setCountdown((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [otpSent, countdown]);
-
-  // Countdown timer for WhatsApp
-  useEffect(() => {
-    if (whatsappOtpSent && whatsappCountdown > 0) {
-      const timer = setInterval(() => {
-        setWhatsappCountdown((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [whatsappOtpSent, whatsappCountdown]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleEmailOTP = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.functions.invoke('send-email-otp', {
-        body: { userId, purpose: 'login' }
-      });
-
-      if (error) throw error;
-
-      setOtpSent(true);
-      setCountdown(600); // Reset to 10 minutes
-      toast({
-        title: "Code Sent",
-        description: "Check your email for the verification code (valid for 10 minutes)",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleWhatsAppOTP = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.functions.invoke('send-whatsapp-otp', {
-        body: { userId, purpose: 'login' }
-      });
-
-      // Don't throw on error - WhatsApp is optional
-      if (error) {
-        console.log("WhatsApp OTP not sent (optional):", error.message);
-      }
-
-      setWhatsappOtpSent(true);
-      setWhatsappCountdown(300); // Reset to 5 minutes
-      toast({
-        title: "Code Sent",
-        description: "Check your WhatsApp for the verification code (valid for 5 minutes)",
-      });
-    } catch (error: any) {
-      // Silent fail - WhatsApp is optional, don't block the user
-      console.log("WhatsApp OTP error (non-critical):", error?.message);
-      setWhatsappOtpSent(true);
-      toast({
-        title: "Code Sent",
-        description: "If you have WhatsApp configured, check for your verification code",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Define verification executors first so they are safely available to your effects hooks below
   const verifyEmailOTP = async () => {
     if (code.length !== 6) {
       toast({
@@ -209,7 +91,6 @@ export const TwoFactorDialog = ({
 
     setLoading(true);
     try {
-      // WhatsApp OTP uses the same verification as email OTP
       const { data, error } = await supabase.functions.invoke('verify-email-otp', {
         body: { userId, code, purpose: 'login' }
       });
@@ -262,10 +143,148 @@ export const TwoFactorDialog = ({
     }
   };
 
+  // Auto-verify effect when 6 digits are typed out completely
+  useEffect(() => {
+    if (code.length === 6 && !verifyingRef.current && !loading) {
+      verifyingRef.current = true;
+      setVerifying(true);
+      
+      const executeVerification = async () => {
+        if (selectedMethod === 'email_otp' && countdown > 0) {
+          await verifyEmailOTP();
+        } else if (selectedMethod === 'whatsapp_otp' && whatsappCountdown > 0) {
+          await verifyWhatsAppOTP();
+        } else if (selectedMethod === 'totp') {
+          await verifyTOTP();
+        }
+        verifyingRef.current = false;
+        setVerifying(false);
+      };
+      
+      executeVerification();
+    }
+  }, [code, selectedMethod]);
+
+  // ALWAYS auto-send BOTH email OTP AND WhatsApp OTP when dialog opens
+  useEffect(() => {
+    if (open && !otpSent) {
+      handleEmailOTP();
+    }
+    if (open && !whatsappOtpSent && availableMethods.whatsapp) {
+      const timer = setTimeout(() => {
+        handleWhatsAppOTP();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
+  // Countdown timer rules tracking intervals
+  useEffect(() => {
+    if (otpSent && countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [otpSent, countdown]);
+
+  useEffect(() => {
+    if (whatsappOtpSent && whatsappCountdown > 0) {
+      const timer = setInterval(() => {
+        setWhatsappCountdown((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [whatsappOtpSent, whatsappCountdown]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleEmailOTP = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-email-otp', {
+        body: { userId, purpose: 'login' }
+      });
+
+      if (error) throw error;
+
+      setOtpSent(true);
+      setCountdown(600);
+      toast({
+        title: "Code Sent",
+        description: "Check your email for the verification code (valid for 10 minutes)",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleWhatsAppOTP = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-whatsapp-otp', {
+        body: { userId, purpose: 'login' }
+      });
+
+      if (error) {
+        console.log("WhatsApp OTP not sent (optional):", error.message);
+      }
+
+      setWhatsappOtpSent(true);
+      setWhatsappCountdown(300);
+      toast({
+        title: "Code Sent",
+        description: "Check your WhatsApp for the verification code (valid for 5 minutes)",
+      });
+    } catch (error: any) {
+      console.log("WhatsApp OTP error (non-critical):", error?.message);
+      setWhatsappOtpSent(true);
+      toast({
+        title: "Code Sent",
+        description: "If you have WhatsApp configured, check for your verification code",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const verifyFingerprint = async () => {
     setLoading(true);
     try {
-      // Get stored credentials
+      if (Capacitor.isNativePlatform()) {
+        const biometricAvailable = await NativeBiometric.isAvailable();
+        
+        if (!biometricAvailable.isAvailable) {
+          throw new Error("Biometric hardware authentication is not set up or available on this device.");
+        }
+
+        await NativeBiometric.verifyIdentity({
+          reason: "Log in securely to your Justice Ultimate Automobiles account",
+          title: "Biometric Authentication",
+          subtitle: "Verify your identity using fingerprint or Face ID",
+          description: "Place your finger on the device sensor to continue",
+          useFallback: true
+        });
+
+        await supabase
+          .from("user_fingerprints")
+          .update({ last_used: new Date().toISOString() })
+          .eq("user_id", userId);
+
+        onSuccess();
+        return;
+      }
+
       const { data: credentials, error: credError } = await supabase
         .from("user_fingerprints")
         .select("*")
@@ -275,14 +294,12 @@ export const TwoFactorDialog = ({
         throw new Error("No fingerprint registered");
       }
 
-      // Convert challenge to base64url string
       const challengeBytes = crypto.getRandomValues(new Uint8Array(32));
       const challenge = btoa(String.fromCharCode(...challengeBytes))
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=/g, '');
 
-      // Create authentication options in correct format
       const authOptions = {
         challenge,
         allowCredentials: credentials.map(cred => ({
@@ -294,15 +311,10 @@ export const TwoFactorDialog = ({
         rpId: window.location.hostname,
       };
 
-      // Start authentication
       const authResult = await startAuthentication({ optionsJSON: authOptions });
-
-      // Verify with backend (in production, you'd verify the signature)
-      // For now, we'll just check if credential exists
       const credentialExists = credentials.some(c => c.credential_id === authResult.id);
 
       if (credentialExists) {
-        // Update last used
         await supabase
           .from("user_fingerprints")
           .update({ last_used: new Date().toISOString() })
@@ -315,7 +327,7 @@ export const TwoFactorDialog = ({
     } catch (error: any) {
       console.error("Fingerprint auth error:", error);
       toast({
-        title: "Error",
+        title: "Authentication Failed",
         description: error.message || "Fingerprint authentication failed",
         variant: "destructive",
       });
@@ -324,7 +336,6 @@ export const TwoFactorDialog = ({
     }
   };
 
-  // Count available methods for grid columns
   const methodCount = [
     availableMethods.email,
     availableMethods.whatsapp,
