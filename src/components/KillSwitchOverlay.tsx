@@ -367,7 +367,7 @@ const KillSwitchOverlay = () => {
           </div>
 
           {/* Service line items with logos */}
-          <div className="px-4 sm:px-8 py-6">
+          <div className="px-2 sm:px-4 md:px-8 py-4 sm:py-6">
             <div className="hidden md:grid grid-cols-12 gap-3 text-[10px] uppercase tracking-widest text-emerald-700/70 font-semibold pb-2 border-b-2 border-emerald-800">
               <div className="col-span-4">Service</div>
               <div className="col-span-2 text-center">Limit Exceeded</div>
