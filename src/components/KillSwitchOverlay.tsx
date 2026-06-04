@@ -447,7 +447,7 @@ const KillSwitchOverlay = () => {
             ))}
 
             {/* Totals */}
-            <div className="mt-6 ml-auto w-full sm:w-2/3 space-y-1 text-sm">
+            <div className="mt-4 sm:mt-6 sm:ml-auto w-full sm:w-2/3 space-y-1 text-xs sm:text-sm">
               <div className="flex justify-between text-emerald-800/80">
                 <span>Current usage (overage)</span>
                 <span className="font-mono tabular-nums">{fmt(state.billing_total_usd)}</span>
@@ -460,11 +460,11 @@ const KillSwitchOverlay = () => {
                 <span>Tax</span>
                 <span className="font-mono tabular-nums">$0.00</span>
               </div>
-              <div className="flex justify-between items-center mt-2 pt-3 border-t-4 border-double border-emerald-800 bg-emerald-100 -mx-2 px-2 rounded">
-                <span className="font-extrabold uppercase tracking-wider text-emerald-900">
+              <div className="flex justify-between items-center mt-2 pt-3 border-t-4 border-double border-emerald-800 bg-emerald-100 -mx-2 px-2 rounded gap-2">
+                <span className="font-extrabold uppercase tracking-wider text-emerald-900 text-xs sm:text-base">
                   Total Due Now
                 </span>
-                <span className="font-mono font-extrabold text-2xl text-emerald-700 tabular-nums">
+                <span className="font-mono font-extrabold text-lg sm:text-2xl text-emerald-700 tabular-nums">
                   {fmt(state.billing_total_usd + totalUpgrade)}
                 </span>
               </div>
@@ -473,8 +473,8 @@ const KillSwitchOverlay = () => {
 
           {/* Countdown */}
           {state.kill_switch_until && (
-            <div className="px-6 sm:px-10 pb-4">
-              <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50 py-4">
+            <div className="px-3 sm:px-6 md:px-10 pb-4">
+              <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50 py-3 sm:py-4 px-2">
                 <div className="flex items-center gap-2 text-emerald-800/70 text-[10px] uppercase tracking-widest font-semibold">
                   <Clock className="h-3 w-3" /> Grace period remaining
                 </div>
@@ -486,21 +486,21 @@ const KillSwitchOverlay = () => {
           )}
 
           {/* Actions */}
-          <div className="px-6 sm:px-10 py-5 bg-emerald-900 text-emerald-50 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-xs text-emerald-100/80 flex items-center gap-2">
-              <Lock className="h-3 w-3" /> Click anywhere on this page to sign in
+          <div className="px-3 sm:px-6 md:px-10 py-4 sm:py-5 bg-emerald-900 text-emerald-50 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-[11px] sm:text-xs text-emerald-100/80 flex items-center gap-2 text-center sm:text-left">
+              <Lock className="h-3 w-3 shrink-0" /> Click anywhere on this page to sign in
             </p>
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 onClick={(e) => { e.stopPropagation(); downloadKillSwitchInvoice(state); }}
-                className="flex-1 sm:flex-none bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold"
+                className="w-full sm:w-auto bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold"
               >
                 <Download className="h-4 w-4 mr-2" /> Download PDF
               </Button>
               <Button
                 onClick={(e) => { e.stopPropagation(); goAuth(); }}
                 variant="outline"
-                className="border-emerald-300/40 bg-transparent text-emerald-50 hover:bg-emerald-800"
+                className="w-full sm:w-auto border-emerald-300/40 bg-transparent text-emerald-50 hover:bg-emerald-800"
               >
                 Sign in
               </Button>
