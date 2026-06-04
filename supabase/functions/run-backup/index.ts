@@ -62,7 +62,7 @@ serve(async (req) => {
     let tablesBackedUp = 0;
     let totalRowsBackedUp = 0;
     let usersBackedUp = 0;
-    let filesBackedUp = 0;
+    const filesBackedUp = 0;
 
     console.log('Starting database backup...');
 

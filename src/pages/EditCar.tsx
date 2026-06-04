@@ -167,8 +167,8 @@ const EditCar = () => {
     setUploading(true);
 
     try {
-      let allMainImageUrls = [...existingMainImages];
-      let allAdditionalImageUrls = [...existingAdditionalImages];
+      const allMainImageUrls = [...existingMainImages];
+      const allAdditionalImageUrls = [...existingAdditionalImages];
 
       // Upload new main images
       for (const file of newMainImages) {

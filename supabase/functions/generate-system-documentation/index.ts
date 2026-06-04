@@ -649,7 +649,7 @@ function generateDocumentationHTML(content: string): string {
   const generatedDate = new Date().toLocaleString();
   
   // Convert markdown-like content to HTML
-  let htmlContent = content
+  const htmlContent = content
     .replace(/^# (.+)$/gm, '<h1 class="text-4xl font-bold mb-6 text-primary">$1</h1>')
     .replace(/^## (.+)$/gm, '<h2 class="text-3xl font-bold mb-4 mt-8 text-primary border-b-2 border-primary pb-2">$1</h2>')
     .replace(/^### (.+)$/gm, '<h3 class="text-2xl font-semibold mb-3 mt-6">$3</h3>')

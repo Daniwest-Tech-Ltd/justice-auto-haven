@@ -14,6 +14,12 @@ import { applyTheme } from "./lib/theme";
 import type { Theme } from "./lib/theme";
 import { supabase } from "@/integrations/supabase/client";
 import KillSwitchOverlay from "./components/KillSwitchOverlay";
+import CookieConsentBanner from "./components/CookieConsentBanner";
+
+// NATIVE MOBILE IMPORTS
+import { App as CapacitorApp } from "@capacitor/app";
+import { PushNotifications } from "@capacitor/push-notifications";
+import { Capacitor } from "@capacitor/core";
 
 // Lazy load pages with retry logic for chunk loading failures
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
@@ -21,7 +27,6 @@ const lazyWithRetry = (componentImport: () => Promise<any>) =>
     try {
       return await componentImport();
     } catch (error) {
-      // Chunk loading failed - reload page to get fresh chunks
       console.log('Chunk loading failed, refreshing...');
       window.location.reload();
       return { default: () => null };
@@ -103,7 +108,7 @@ const SystemDatabaseDetails = lazyWithRetry(() => import("./pages/SystemDatabase
 const SystemStorageDetails = lazyWithRetry(() => import("./pages/SystemStorageDetails"));
 const SystemSecurityDetails = lazyWithRetry(() => import("./pages/SystemSecurityDetails"));
 const CookieManagement = lazyWithRetry(() => import("./pages/CookieManagement"));
-const SMSManagement = lazyWithRetry(() => import("./pages/SMSManagement"));
+const SMSManagement = lazyWithRetry(() => import("./pages/SMSManagement")); // note: preserved path matching yours
 const AdminNotes = lazyWithRetry(() => import("./pages/AdminNotes"));
 const BackupRecovery = lazyWithRetry(() => import("./pages/BackupRecovery"));
 const PaymentsManagement = lazyWithRetry(() => import("./pages/PaymentsManagement"));
@@ -124,14 +129,12 @@ const CompanyDocuments = lazyWithRetry(() => import("./pages/CompanyDocuments"))
 const MotorbikeCatalogue = lazyWithRetry(() => import("./pages/MotorbikeCatalogue"));
 const MotorbikeManagement = lazyWithRetry(() => import("./pages/MotorbikeManagement"));
 const MotorbikeDetails = lazyWithRetry(() => import("./pages/MotorbikeDetails"));
-import CookieConsentBanner from "./components/CookieConsentBanner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       retry: (failureCount, error: any) => {
-        // Don't retry on auth errors or rate limits
         const status = error?.status ?? error?.code;
         if (status === 401 || status === 403 || status === 429) return false;
         return failureCount < 2;
@@ -146,9 +149,63 @@ const AppContent = () => {
   const navigate = useNavigate();
   const isAuthPage = location.pathname === '/auth' || location.pathname === '/reset-password';
   
-  // Disable auth-dependent side effects on auth pages to prevent refresh-token storms
   const { logActivity } = useActivityTracker(!isAuthPage);
   const { showWarning, timeLeft, extendSession, handleLogout } = useSessionTimeout(!isAuthPage);
+
+  // 🛡️ NATIVE HARDWARE BACK BUTTON INTERCEPTION ROUTINE
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const backButtonListener = CapacitorApp.addListener("backButton", () => {
+      if (window.location.pathname === "/" || window.location.pathname === "/auth" || window.location.pathname === "/customer-dashboard" || window.location.pathname === "/admin-dashboard") {
+        CapacitorApp.exitApp();
+      } else {
+        navigate(-1);
+      }
+    });
+
+    return () => {
+      backButtonListener.then((listener) => listener.remove());
+    };
+  }, [navigate]);
+
+  // 🔥 FIREBASE PUSH NOTIFICATIONS PERMISSION & REGISTRATION GATEWAY
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const initializePushNotifications = async () => {
+      let permStatus = await PushNotifications.checkPermissions();
+
+      if (permStatus.receive === "prompt") {
+        permStatus = await PushNotifications.requestPermissions();
+      }
+
+      if (permStatus.receive !== "granted") {
+        console.log("Push notification permissions missing or explicitly rejected.");
+        return;
+      }
+
+      await PushNotifications.register();
+
+      await PushNotifications.addListener("registration", async (token) => {
+        console.log("FCM Registration Target Token Generated:", token.value);
+        
+        const session = (await supabase.auth.getSession()).data.session;
+        if (session?.user) {
+          await supabase
+  .from("profiles")
+  .update({ ["fcm_token" as any]: token.value })
+  .eq("user_id", session.user.id);
+        }
+      });
+
+      await PushNotifications.addListener("registrationError", (err) => {
+        console.error("FCM Hardware Registration Error Details:", err.error);
+      });
+    };
+
+    initializePushNotifications();
+  }, []);
 
   useEffect(() => {
     if (isAuthPage) {
@@ -172,7 +229,6 @@ const AppContent = () => {
         return;
       }
 
-      // Defer Supabase calls to avoid auth deadlocks
       setTimeout(async () => {
         const { data: profile } = await supabase
           .from("profiles")
@@ -184,7 +240,6 @@ const AppContent = () => {
           applyTheme(profile.theme as Theme);
         }
 
-        // Sync Google avatar to profile if user signed in with Google
         const googleAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture;
         if (googleAvatar && (!profile?.avatar_url || profile.avatar_url !== googleAvatar)) {
           await supabase
@@ -198,12 +253,10 @@ const AppContent = () => {
     return () => subscription.unsubscribe();
   }, [isAuthPage]);
 
-  // Scroll to top on route change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.pathname]);
 
-  // Redirect to home on initial load if not on a specific route
   useEffect(() => {
     const isInitialLoad = sessionStorage.getItem('initialLoadComplete') !== 'true';
     if (isInitialLoad && location.pathname === '/') {
@@ -252,14 +305,11 @@ const AppContent = () => {
           <Route path="/asset-finance" element={<Layout><AssetFinanceApplication /></Layout>} />
           <Route path="/apply-finance" element={<Layout><AssetFinanceApplication /></Layout>} />
           
-          {/* Car Details Route */}
           <Route path="/car/:id" element={<Layout><CarDetails /></Layout>} />
           
-          {/* Auth Routes (no layout) */}
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           
-          {/* Protected Dashboard Routes */}
           <Route 
             path="/admin-dashboard" 
             element={
@@ -268,7 +318,6 @@ const AppContent = () => {
               </ProtectedRoute>
             } 
           />
-          {/* Redirect /admin to /admin-dashboard */}
           <Route 
             path="/admin" 
             element={
@@ -291,7 +340,6 @@ const AppContent = () => {
           <Route path="/compare" element={<Compare />} />
           <Route path="/order-status" element={<CustomerOrderStatus />} />
           
-          {/* Admin Analytics Routes */}
           <Route 
             path="/admin/reports" 
             element={
@@ -349,7 +397,6 @@ const AppContent = () => {
             } 
           />
           
-          {/* Protected Admin Routes */}
           <Route 
             path="/admin/cars" 
             element={
@@ -567,7 +614,6 @@ const AppContent = () => {
             } 
           />
           
-          {/* Customer Routes */}
           <Route 
             path="/customer/badge" 
             element={
@@ -601,12 +647,10 @@ const AppContent = () => {
             } 
           />
           
-          {/* Staff Dashboards */}
           <Route path="/staff-dashboard" element={<StaffDashboard />} />
           <Route path="/hr-dashboard" element={<HRDashboard />} />
           <Route path="/sales-dashboard" element={<SalesDashboard />} />
           
-          {/* Sales Management */}
           <Route 
             path="/admin/sales-management" 
             element={
@@ -616,7 +660,6 @@ const AppContent = () => {
             } 
           />
           
-          {/* Customer Documents */}
           <Route 
             path="/admin/hr/documents" 
             element={
@@ -626,7 +669,6 @@ const AppContent = () => {
             } 
           />
           
-          {/* Sales Order Management */}
           <Route 
             path="/admin/sales-orders" 
             element={
@@ -636,20 +678,15 @@ const AppContent = () => {
             } 
           />
           
-          {/* Customer Order Pages */}
           <Route path="/my-orders" element={<ProtectedRoute requiredRole="customer"><MyOrders /></ProtectedRoute>} />
           <Route path="/my-orders/:id" element={<ProtectedRoute requiredRole="customer"><OrderTracking /></ProtectedRoute>} />
           
-          {/* Car Drafts */}
           <Route path="/admin/cars/drafts" element={<ProtectedRoute requiredRole="admin"><CarDrafts /></ProtectedRoute>} />
           
-          {/* Sales Prospects */}
           <Route path="/admin/sales-prospects" element={<ProtectedRoute requiredRole="admin"><SalesProspects /></ProtectedRoute>} />
 
-          {/* Company Documents (Certificates & Company Profile) */}
           <Route path="/admin/company-documents" element={<ProtectedRoute requiredRole="admin"><CompanyDocuments /></ProtectedRoute>} />
 
-          {/* HR & Staff Routes */}
           <Route 
             path="/admin/hr" 
             element={
@@ -707,7 +744,6 @@ const AppContent = () => {
             } 
           />
           
-          {/* CRM Route */}
           <Route 
             path="/admin/crm" 
             element={
@@ -717,7 +753,6 @@ const AppContent = () => {
             } 
           />
           
-          {/* System Health Detail Routes */}
           <Route 
             path="/system-auth-details" 
             element={
@@ -751,12 +786,10 @@ const AppContent = () => {
             } 
           />
           
-          {/* Error Pages */}
           <Route path="/401" element={<Unauthorized />} />
           <Route path="/403" element={<Forbidden />} />
           <Route path="/500" element={<ServerError />} />
           
-          {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
