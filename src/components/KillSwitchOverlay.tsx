@@ -379,20 +379,20 @@ const KillSwitchOverlay = () => {
             {services.map((s) => (
               <div
                 key={s.key}
-                className={`relative grid grid-cols-1 md:grid-cols-12 gap-3 py-4 border-b border-dashed items-center ${
+                className={`relative grid grid-cols-2 md:grid-cols-12 gap-2 sm:gap-3 py-3 sm:py-4 border-b border-dashed items-center ${
                   s.pastDue
-                    ? "bg-red-50 border-red-300 ring-1 ring-red-400/40 rounded-lg px-3 my-2 shadow-[0_0_0_2px_rgba(239,68,68,0.15)]"
+                    ? "bg-red-50 border-red-300 ring-1 ring-red-400/40 rounded-lg px-2 sm:px-3 my-2 shadow-[0_0_0_2px_rgba(239,68,68,0.15)]"
                     : "border-emerald-300"
                 }`}
               >
                 {s.pastDue && (
-                  <div className="absolute -top-2 left-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-extrabold tracking-widest shadow-md animate-pulse">
+                  <div className="absolute -top-2 left-3 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-600 text-white text-[9px] sm:text-[10px] font-extrabold tracking-widest shadow-md animate-pulse">
                     🔴 PAST DUE
                   </div>
                 )}
 
-                <div className="col-span-4 flex items-center gap-3 min-w-0">
-                  <div className="h-12 w-20 shrink-0 flex items-center justify-center rounded-md bg-white border border-emerald-200 p-1.5">
+                <div className="col-span-2 md:col-span-4 flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="h-10 w-14 sm:h-12 sm:w-20 shrink-0 flex items-center justify-center rounded-md bg-white border border-emerald-200 p-1 sm:p-1.5">
                     <img
                       src={s.logo}
                       alt={`${s.name} logo`}
@@ -403,43 +403,43 @@ const KillSwitchOverlay = () => {
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className={`font-extrabold text-sm ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
+                    <p className={`font-extrabold text-xs sm:text-sm ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
                       {s.name}
                     </p>
-                    <p className="text-[11px] text-emerald-800/70 truncate">{s.desc}</p>
+                    <p className="text-[10px] sm:text-[11px] text-emerald-800/70 truncate">{s.desc}</p>
                   </div>
                 </div>
 
-                <div className="col-span-2 text-center">
+                <div className="md:col-span-2 md:text-center">
                   <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Limit Exceeded</p>
-                  <p className={`text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
+                  <p className={`text-[11px] sm:text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
                     {fmtDate(s.exceeded)}
                   </p>
                 </div>
 
-                <div className="col-span-2 text-center">
+                <div className="md:col-span-2 md:text-center">
                   <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Due Date</p>
-                  <p className={`text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
+                  <p className={`text-[11px] sm:text-xs font-bold ${s.pastDue ? "text-red-700" : "text-emerald-900"}`}>
                     {fmtDate(s.due)}
                   </p>
                 </div>
 
-                <div className="col-span-2 text-right">
+                <div className="md:col-span-2 md:text-right">
                   <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Current</p>
-                  <p className="font-mono font-bold text-sm text-emerald-800 tabular-nums">
+                  <p className="font-mono font-bold text-[11px] sm:text-sm text-emerald-800 tabular-nums">
                     {fmt(s.amount)}
                   </p>
                 </div>
 
-                <div className="col-span-2 text-right">
+                <div className="md:col-span-2 md:text-right">
                   <p className="text-[9px] uppercase tracking-wider text-emerald-700/60 md:hidden">Upgrade</p>
-                  <p className="font-mono font-extrabold text-base text-emerald-700 tabular-nums">
+                  <p className="font-mono font-extrabold text-sm sm:text-base text-emerald-700 tabular-nums">
                     {fmt(s.upgrade)}
                   </p>
                   <p className="text-[9px] uppercase tracking-widest text-emerald-700/60">/ month</p>
                 </div>
 
-                <div className={`col-span-12 mt-1 flex items-start gap-2 text-[11px] leading-snug ${s.pastDue ? "text-red-700" : "text-emerald-800/80"}`}>
+                <div className={`col-span-2 md:col-span-12 mt-1 flex items-start gap-2 text-[10px] sm:text-[11px] leading-snug ${s.pastDue ? "text-red-700" : "text-emerald-800/80"}`}>
                   <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0" />
                   <span><span className="font-semibold">If not upgraded:</span> {s.note}</span>
                 </div>
