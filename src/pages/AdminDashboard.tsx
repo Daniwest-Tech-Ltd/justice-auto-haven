@@ -579,7 +579,7 @@ const AdminDashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Table>
+                  <div className="overflow-x-auto"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Stock ID</TableHead>
@@ -606,7 +606,7 @@ const AdminDashboard = () => {
                         </TableRow>
                       )}
                     </TableBody>
-                  </Table>
+                  </Table></div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -617,7 +617,7 @@ const AdminDashboard = () => {
                   <CardTitle>Customer Management</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Table>
+                  <div className="overflow-x-auto"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Name</TableHead>
@@ -664,7 +664,7 @@ const AdminDashboard = () => {
                         </TableRow>
                       )))}
                     </TableBody>
-                  </Table>
+                  </Table></div>
                 </CardContent>
               </Card>
             </TabsContent>
