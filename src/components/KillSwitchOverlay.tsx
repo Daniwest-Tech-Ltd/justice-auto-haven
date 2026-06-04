@@ -317,10 +317,10 @@ const KillSwitchOverlay = () => {
       />
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,.6)_100%)]" />
 
-      <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-5xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-950 rounded-2xl shadow-[0_30px_90px_-20px_rgba(16,185,129,0.5)] overflow-hidden border-4 border-double border-emerald-700">
+      <div className="relative min-h-screen flex items-center justify-center p-2 sm:p-4 md:p-8">
+        <div className="w-full max-w-5xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-950 rounded-xl sm:rounded-2xl shadow-[0_30px_90px_-20px_rgba(16,185,129,0.5)] overflow-hidden border-2 sm:border-4 border-double border-emerald-700">
           {/* Header */}
-          <div className="relative bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 text-emerald-50 px-6 sm:px-10 py-6 border-b-4 border-amber-400">
+          <div className="relative bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 text-emerald-50 px-3 sm:px-6 md:px-10 py-4 sm:py-6 border-b-2 sm:border-b-4 border-amber-400">
             <div
               className="absolute inset-0 opacity-20 pointer-events-none"
               style={{
@@ -328,24 +328,24 @@ const KillSwitchOverlay = () => {
                   "repeating-linear-gradient(90deg, transparent 0 18px, rgba(255,255,255,.25) 18px 19px)",
               }}
             />
-            <div className="relative flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-amber-300 font-semibold">
+            <div className="relative flex items-start justify-between gap-2 sm:gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em] text-amber-300 font-semibold">
                   Service Infrastructure Invoice
                 </p>
-                <h1 className="text-2xl sm:text-3xl font-extrabold mt-1 tracking-tight">
+                <h1 className="text-base sm:text-2xl md:text-3xl font-extrabold mt-1 tracking-tight leading-tight">
                   JUSTICE ULTIMATE AUTOMOBILES
                 </h1>
-                <p className="text-xs text-emerald-100/80 mt-1">
+                <p className="text-[10px] sm:text-xs text-emerald-100/80 mt-1 truncate">
                   Westlands, Nairobi • support@justiceultimateautomobiles.com
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-500/20 border border-red-300/40 text-red-100 text-[10px] uppercase tracking-widest font-bold">
+                <div className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full bg-red-500/20 border border-red-300/40 text-red-100 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">
                   <AlertTriangle className="h-3 w-3" /> Past Due
                 </div>
-                <p className="text-[10px] mt-2 text-emerald-100/70">Invoice #</p>
-                <p className="text-sm font-mono font-bold">{invoiceNo}</p>
+                <p className="text-[9px] sm:text-[10px] mt-2 text-emerald-100/70">Invoice #</p>
+                <p className="text-[11px] sm:text-sm font-mono font-bold">{invoiceNo}</p>
               </div>
             </div>
           </div>
