@@ -156,13 +156,13 @@ const Countdown = ({ until }: { until: string }) => {
   const m = Math.floor((ms % 3600000) / 60000);
   const sec = Math.floor((ms % 60000) / 1000);
   const Cell = ({ v, l }: { v: number; l: string }) => (
-    <div className="flex flex-col items-center px-3 py-2 rounded-lg bg-white/5 border border-white/10 min-w-[64px]">
-      <span className="text-2xl font-bold tabular-nums">{String(v).padStart(2, "0")}</span>
-      <span className="text-[10px] uppercase tracking-wider text-white/60">{l}</span>
+    <div className="flex flex-col items-center px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-white/5 border border-white/10 min-w-[48px] sm:min-w-[64px]">
+      <span className="text-lg sm:text-2xl font-bold tabular-nums">{String(v).padStart(2, "0")}</span>
+      <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/60">{l}</span>
     </div>
   );
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
       <Cell v={d} l="Days" /><Cell v={h} l="Hours" /><Cell v={m} l="Mins" /><Cell v={sec} l="Secs" />
     </div>
   );
