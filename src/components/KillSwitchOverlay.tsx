@@ -351,18 +351,18 @@ const KillSwitchOverlay = () => {
           </div>
 
           {/* Meta row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 px-6 sm:px-10 py-5 border-b border-emerald-200 bg-emerald-50/50 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 px-3 sm:px-6 md:px-10 py-3 sm:py-5 border-b border-emerald-200 bg-emerald-50/50 text-[11px] sm:text-xs">
             <div>
               <p className="uppercase tracking-wider text-emerald-700/70 font-semibold">Issued</p>
-              <p className="font-bold text-sm">{today}</p>
+              <p className="font-bold text-xs sm:text-sm">{today}</p>
             </div>
             <div>
               <p className="uppercase tracking-wider text-emerald-700/70 font-semibold">Due Date</p>
-              <p className="font-bold text-sm text-red-700">{due}</p>
+              <p className="font-bold text-xs sm:text-sm text-red-700">{due}</p>
             </div>
             <div className="col-span-2 sm:col-span-1">
               <p className="uppercase tracking-wider text-emerald-700/70 font-semibold">Status</p>
-              <p className="font-bold text-sm text-red-700">Usage Limit Exceeded</p>
+              <p className="font-bold text-xs sm:text-sm text-red-700">Usage Limit Exceeded</p>
             </div>
           </div>
 
