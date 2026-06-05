@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search, Clock, X } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search, Clock, X, Headphones, Smartphone } from "lucide-react";
 import BrandMarquee from "./BrandMarquee";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import MobileAppDownload from "./MobileAppDownload";
 import {
   Tooltip,
   TooltipContent,
@@ -355,7 +356,32 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+        {/* Mobile App + 24/7 Support strip */}
+        <div className="mt-10 pt-8 border-t border-border grid md:grid-cols-2 gap-6 items-center">
+          <div>
+            <h4 className="text-lg font-bold mb-3 inline-flex items-center gap-2 text-foreground">
+              <Smartphone className="h-5 w-5 text-primary" /> Get the Justice Ultimate App
+            </h4>
+            <p className="text-xs text-muted-foreground mb-3">
+              Download the Android APK now. Google Play release coming soon.
+            </p>
+            <div className="max-w-sm">
+              <MobileAppDownload variant="compact" />
+            </div>
+          </div>
+          <div className="md:text-right">
+            <div className="inline-flex items-center gap-3 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/30">
+              <Headphones className="h-6 w-6 text-green-600 flex-shrink-0" />
+              <div className="text-left">
+                <div className="font-bold text-sm text-foreground">24/7 Customer Support</div>
+                <div className="text-xs text-muted-foreground">International · Always available · +254 722 827 458</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
 
       {/* Bottom Bar */}
       <div className="border-t border-border">

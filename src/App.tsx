@@ -19,6 +19,7 @@ import CookieConsentBanner from "./components/CookieConsentBanner";
 // NATIVE MOBILE IMPORTS
 import { App as CapacitorApp } from "@capacitor/app";
 import { PushNotifications } from "@capacitor/push-notifications";
+import { Browser } from "@capacitor/browser";
 import { Capacitor } from "@capacitor/core";
 
 // Lazy load pages with retry logic for chunk loading failures
@@ -207,6 +208,27 @@ const AppContent = () => {
     initializePushNotifications();
   }, []);
 
+  // 🔄 AUTO-UPDATE CHECK
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const checkAppUpdate = async () => {
+      try {
+        const response = await fetch('https://[ccsfhblxkmyqdqqcgitt].supabase.co/storage/v1/object/public/mobile-app/version.json');
+        const data = await response.json();
+        
+        const info = await CapacitorApp.getInfo();
+        
+        if (data.version > info.version) {
+           await Browser.open({ url: data.url });
+        }
+      } catch (err) {
+        console.error("Update check failed:", err);
+      }
+    };
+
+    checkAppUpdate();
+  }, []);
   useEffect(() => {
     if (isAuthPage) {
       const savedTheme = localStorage.getItem("theme") as Theme | null;

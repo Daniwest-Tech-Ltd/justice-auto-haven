@@ -1,8 +1,9 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.justice.ultimateautomobiles"
-    compileSdk = rootProject.ext.compileSdkVersion
+    namespace "com.justice.ultimateautomobiles"
+    compileSdk rootProject.ext.compileSdkVersion
+
     defaultConfig {
         applicationId "com.justice.ultimateautomobiles"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -11,23 +12,20 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
-             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
-             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
-            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // This enables the security obfuscation (ProGuard)
+            minifyEnabled true
+            // This uses the optimized rules for better performance and security
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-}
-
-task deleteDuplicatePngs(type: Delete) {
-    delete fileTree('src/main/res') {
-        include '**/ic_launcher.png'
-        include '**/ic_launcher_round.png'
+        debug {
+            minifyEnabled false
+        }
     }
 }
 

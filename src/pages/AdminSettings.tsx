@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import { toast as sonnerToast } from "sonner";
+import MobileAppManager from "@/components/admin/MobileAppManager";
 
 interface BackupSettings {
   id: string;
@@ -682,17 +683,19 @@ const AdminSettings = () => {
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Desktop Tabs - Hidden on Mobile */}
-            <TabsList className="hidden md:grid w-full grid-cols-9 overflow-x-auto">
+            <TabsList className="hidden md:grid w-full grid-cols-10 overflow-x-auto">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
               <TabsTrigger value="preferences">Preferences</TabsTrigger>
               <TabsTrigger value="notifications">Notifications</TabsTrigger>
               <TabsTrigger value="privacy">Privacy</TabsTrigger>
               <TabsTrigger value="company">Company</TabsTrigger>
+              <TabsTrigger value="mobile-app">Mobile App</TabsTrigger>
               <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
               <TabsTrigger value="backup">Backup</TabsTrigger>
               <TabsTrigger value="danger">Danger Zone</TabsTrigger>
             </TabsList>
+
 
             <TabsContent value="profile" className="space-y-6 pt-6">
               <div className="flex justify-center pb-6 border-b">
@@ -1081,6 +1084,12 @@ const AdminSettings = () => {
                 </Button>
               </div>
             </TabsContent>
+
+            <TabsContent value="mobile-app" className="space-y-6 pt-6">
+              <MobileAppManager />
+            </TabsContent>
+
+
 
             <TabsContent value="system" className="space-y-6 pt-6">
               <div className="space-y-4">
