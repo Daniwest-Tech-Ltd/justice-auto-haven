@@ -2657,6 +2657,45 @@ export type Database = {
         }
         Relationships: []
       }
+      mobile_app_releases: {
+        Row: {
+          created_at: string
+          file_path: string
+          file_size_bytes: number | null
+          file_url: string
+          id: string
+          is_active: boolean
+          release_notes: string | null
+          updated_at: string
+          uploaded_by: string | null
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          file_path: string
+          file_size_bytes?: number | null
+          file_url: string
+          id?: string
+          is_active?: boolean
+          release_notes?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          version: string
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          file_size_bytes?: number | null
+          file_url?: string
+          id?: string
+          is_active?: boolean
+          release_notes?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          version?: string
+        }
+        Relationships: []
+      }
       motorbikes: {
         Row: {
           color: string | null
