@@ -5,10 +5,11 @@ import danielImage from "@/assets/daniel-maina.jpg";
 import { useState, useEffect } from "react";
 import { getCurrentSale } from "@/lib/currentSale";
 import CertificateModal from "@/components/CertificateModal";
+import MobileAppDownload from "@/components/MobileAppDownload";
 import {
   Award, FileText, Target, Eye, Globe, Handshake, Car, Package, Sparkles, Cpu,
   BookOpen, Clock, Users, MapPin, Phone, MessageCircle, ShieldCheck, BadgeDollarSign,
-  Lock, Search, Building2, FileCheck, Briefcase, Truck, Rocket, User, ChevronRight
+  Lock, Search, Building2, FileCheck, Briefcase, Truck, Rocket, User, ChevronRight, Headphones
 } from "lucide-react";
 
 const About = () => {
@@ -235,6 +236,43 @@ const About = () => {
             </div>
 
             {/* Generic team cards removed per request */}
+          </div>
+        </section>
+
+
+        {/* Mobile App + 24/7 Support */}
+        <section className="space-y-8">
+          <div className="text-center">
+            <SectionTag>Now Available // International</SectionTag>
+            <h2 className="text-4xl font-bold inline-flex items-center gap-3">
+              <Globe className="h-8 w-8 text-primary" /> Going Global — On Web & On Your Phone
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto mt-3">
+              Our Android app is here. iOS &amp; Google Play store release coming soon.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <MobileAppDownload variant="full" />
+            </div>
+            <div className="glass-strong rounded-2xl p-6 border border-primary/15 flex flex-col justify-center text-center">
+              <div className="inline-flex mx-auto p-4 rounded-full bg-green-500/15 border border-green-500/30 mb-4">
+                <Headphones className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">24/7 Customer Support</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Talk to a real human anytime — across Africa, the Middle East, Europe and beyond.
+              </p>
+              <div className="space-y-2 text-sm">
+                <a href="tel:+254722827458" className="block hover:text-primary transition-colors">
+                  <Phone className="inline h-4 w-4 mr-2" />+254 722 827 458
+                </a>
+                <a href="https://wa.me/254751555544" className="block hover:text-primary transition-colors">
+                  <MessageCircle className="inline h-4 w-4 mr-2" />WhatsApp: 0751 555 544
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 
