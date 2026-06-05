@@ -234,36 +234,10 @@ const About = () => {
               </div>
             </div>
 
-            {/* Generic team cards */}
-            {[
-              { id: 'exports', title: 'Head of Exports – Japan Division', loc: 'Japan', body: "Oversees sourcing, inspection, and vehicle verification across Japan's largest auction networks." },
-              { id: 'logistics', title: 'Global Logistics Lead', loc: 'Global', body: 'Coordinates international shipping, port operations, customs procedures, and delivery timelines.' },
-              { id: 'sales', title: 'Regional Sales Representative', loc: 'Kenya', body: 'Supports customers across Kenya with vehicle sales, showroom assistance, documentation, and after-sales services.' },
-            ].map((m) => (
-              <div key={m.id} className="relative h-80 perspective-1000">
-                <div
-                  className={`relative w-full h-full duration-700 transform-style-preserve-3d cursor-pointer ${flippedCards[m.id] ? 'rotate-y-180' : ''}`}
-                  onClick={() => toggleCard(m.id)}
-                >
-                  <div className="absolute inset-0 backface-hidden glass-strong rounded-2xl p-6 border border-primary/20 flex flex-col items-center justify-center">
-                    <div className="w-32 h-32 rounded-full bg-primary/10 border-4 border-primary mb-4 flex items-center justify-center shadow-[0_0_30px_-5px_hsl(var(--primary))]">
-                      <User className="h-14 w-14 text-primary/70" />
-                    </div>
-                    <h3 className="text-xl font-bold">Name Hidden</h3>
-                    <p className="text-sm text-primary font-semibold mb-2 text-center">{m.title}</p>
-                    <p className="text-xs text-muted-foreground inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {m.loc}</p>
-                    <div className="absolute bottom-4 text-[10px] text-muted-foreground font-mono uppercase tracking-widest inline-flex items-center gap-1">Tap <ChevronRight className="h-3 w-3" /></div>
-                  </div>
-                  <div className="absolute inset-0 backface-hidden rotate-y-180 glass-strong rounded-2xl p-6 border border-primary/30 flex flex-col justify-center">
-                    <h3 className="text-lg font-bold mb-3">{m.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{m.body}</p>
-                    <p className="text-xs text-primary font-semibold inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {m.loc}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+            {/* Generic team cards removed per request */}
           </div>
         </section>
+
 
         {/* Trust */}
         <section className="space-y-10">
