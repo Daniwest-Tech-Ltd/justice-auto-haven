@@ -225,27 +225,9 @@ const EditCar = () => {
 
       if (updateError) throw updateError;
 
-      // Send update notifications (email, WhatsApp, in-app) in background - non-blocking
-      supabase.functions.invoke("send-new-car-notification", {
-        body: {
-          carId: id,
-          make: formData.make,
-          model: formData.model,
-          year: formData.year,
-          price: formData.price,
-          stockId: currentCar?.stock_id || "N/A",
-          imageUrl: allMainImageUrls[0] || null,
-          color: formData.color,
-          fuelType: formData.fuel_type,
-          transmission: formData.transmission,
-          mileage: formData.mileage,
-          isUpdate: true,
-        },
-      }).then(() => {
-        console.log("Update notifications sent (email, WhatsApp, in-app)");
-      }).catch(() => {
-        // Silent fail - don't affect user experience
-      });
+      // NOTE: Do NOT send notifications on car updates.
+      // Customer/admin notifications are only sent when a NEW car is added.
+
 
       setUploadComplete(true);
       toast({

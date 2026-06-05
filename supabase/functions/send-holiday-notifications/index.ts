@@ -47,6 +47,38 @@ serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // ✅ SERVER-SIDE DEDUPLICATION: Only send ONCE per holiday per day.
+    // Check audit_logs for an existing send today for this holiday.
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const { data: existingLog } = await supabase
+      .from("audit_logs")
+      .select("id")
+      .eq("action", "holiday_notifications_sent")
+      .gte("created_at", todayStart.toISOString())
+      .contains("metadata", { holiday_name: holiday.name })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingLog) {
+      console.log(`Holiday notifications for "${holiday.name}" already sent today. Skipping.`);
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: "already_sent_today" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Insert the audit log FIRST as a lock to prevent concurrent duplicate sends
+    await supabase.from("audit_logs").insert({
+      action: "holiday_notifications_sent",
+      metadata: {
+        holiday_name: holiday.name,
+        date: holiday.formattedDate,
+        status: "in_progress",
+      },
+    });
+
     // Fetch all active customers with phone and email
     const { data: customers, error: customersError } = await supabase
       .from("profiles")
@@ -59,6 +91,7 @@ serve(async (req: Request) => {
     }
 
     console.log(`Found ${customers?.length || 0} customers to notify`);
+
 
     let emailsSent = 0;
     let smsSent = 0;
