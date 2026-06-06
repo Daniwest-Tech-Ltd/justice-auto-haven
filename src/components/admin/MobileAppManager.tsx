@@ -38,6 +38,12 @@ const MobileAppManager = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  // Store links state
+  const [linksId, setLinksId] = useState<string | null>(null);
+  const [googlePlayUrl, setGooglePlayUrl] = useState("");
+  const [appCenterUrl, setAppCenterUrl] = useState("");
+  const [savingLinks, setSavingLinks] = useState(false);
+
   const load = async () => {
     const { data } = await supabase
       .from("mobile_app_releases")
