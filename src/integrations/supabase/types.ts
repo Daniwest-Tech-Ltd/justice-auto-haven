@@ -2699,6 +2699,7 @@ export type Database = {
       mobile_app_store_links: {
         Row: {
           app_center_url: string | null
+          app_store_url: string | null
           google_play_url: string | null
           id: string
           updated_at: string
@@ -2706,6 +2707,7 @@ export type Database = {
         }
         Insert: {
           app_center_url?: string | null
+          app_store_url?: string | null
           google_play_url?: string | null
           id?: string
           updated_at?: string
@@ -2713,6 +2715,7 @@ export type Database = {
         }
         Update: {
           app_center_url?: string | null
+          app_store_url?: string | null
           google_play_url?: string | null
           id?: string
           updated_at?: string
