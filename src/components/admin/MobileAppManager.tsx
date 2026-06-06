@@ -168,6 +168,36 @@ const MobileAppManager = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
+            <Link2 className="h-5 w-5 text-primary" /> Store & Install Links
+          </CardTitle>
+          <CardDescription>
+            Set the public download links shown on the website. Leave the Google Play URL empty to display a "Soon" badge.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="gp">Google Play Store URL</Label>
+            <Input id="gp" value={googlePlayUrl} onChange={(e) => setGooglePlayUrl(e.target.value)} placeholder="https://play.google.com/store/apps/details?id=..." />
+            <p className="text-xs text-muted-foreground mt-1">
+              Status: {googlePlayUrl.trim() ? <span className="text-green-600 font-medium">LIVE</span> : <span className="text-amber-600 font-medium">SOON (pending link)</span>}
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="ac">App Center URL (Loadly)</Label>
+            <Input id="ac" value={appCenterUrl} onChange={(e) => setAppCenterUrl(e.target.value)} placeholder="https://loadly.io/justice-auto-app" />
+            <p className="text-xs text-muted-foreground mt-1">
+              Status: {appCenterUrl.trim() ? <span className="text-green-600 font-medium">LIVE</span> : <span className="text-amber-600 font-medium">SOON (pending link)</span>}
+            </p>
+          </div>
+          <Button onClick={saveLinks} disabled={savingLinks}>
+            {savingLinks ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving…</> : <><Save className="h-4 w-4 mr-2" /> Save Links</>}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <Smartphone className="h-5 w-5 text-primary" /> Mobile App Releases
           </CardTitle>
           <CardDescription>
