@@ -64,6 +64,7 @@ const MobileAppManager = () => {
       setLinksId(data.id);
       setGooglePlayUrl(data.google_play_url || "");
       setAppCenterUrl(data.app_center_url || "");
+      setAppStoreUrl((data as any).app_store_url || "");
     }
   };
 
