@@ -191,6 +191,7 @@ const MobileAppManager = () => {
             <p className="text-xs text-muted-foreground mt-1">
               Status: {appStoreUrl.trim() ? <span className="text-green-600 font-medium">LIVE</span> : <span className="text-amber-600 font-medium">SOON (pending link)</span>}
             </p>
+          </div>
           <div>
             <Label htmlFor="ac">App Center URL (Loadly)</Label>
             <Input id="ac" value={appCenterUrl} onChange={(e) => setAppCenterUrl(e.target.value)} placeholder="https://loadly.io/justice-auto-app" />
