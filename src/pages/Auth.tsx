@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react"; /* eslint-disable react/no-unknown-property, react-native/no-inline-styles */
 import type { Session } from "@supabase/supabase-js";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -231,17 +231,22 @@ const Auth = () => {
   }, [isSignUp]);
 
   // Google OAuth login - redirects to dashboard after success
-  const handleGoogleLogin = async () => {
-    try {
-      setLoading(true);
-      const redirectUrl = `${window.location.origin}/auth`;
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl
-        }
-      });
+  // Google OAuth login - redirects dynamically based on platform
+const handleGoogleLogin = async () => {
+  try {
+    setLoading(true);
+
+    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
+    const redirectUrl = isNativeMobile 
+      ? 'com.justice.ultimateautomobiles://auth' 
+      : `${window.location.origin}/auth`;
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl
+      }
+    });
 
       if (error) {
         toast({
@@ -262,10 +267,15 @@ const Auth = () => {
   };
 
   // GitHub OAuth login - redirects to dashboard after success
-  const handleGitHubLogin = async () => {
-    try {
-      setLoading(true);
-      const redirectUrl = `${window.location.origin}/auth`;
+  // GitHub OAuth login - redirects to dashboard after success
+const handleGitHubLogin = async () => {
+  try {
+    setLoading(true);
+
+    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
+    const redirectUrl = isNativeMobile 
+      ? 'com.justice.ultimateautomobiles://auth' 
+      : `${window.location.origin}/auth`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
@@ -293,10 +303,15 @@ const Auth = () => {
   };
 
   // Facebook OAuth login - redirects to dashboard after success
-  const handleFacebookLogin = async () => {
-    try {
-      setLoading(true);
-      const redirectUrl = `${window.location.origin}/auth`;
+  // Facebook OAuth login - redirects to dashboard after success
+const handleFacebookLogin = async () => {
+  try {
+    setLoading(true);
+
+    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
+    const redirectUrl = isNativeMobile 
+      ? 'com.justice.ultimateautomobiles://auth' 
+      : `${window.location.origin}/auth`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
@@ -773,9 +788,11 @@ const Auth = () => {
     e.preventDefault();
     
     // Get Turnstile CAPTCHA token (only enforce when widget is healthy)
+    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
     const captchaToken = loginTurnstile.getToken();
 
-    if (loginTurnstile.isReady && !captchaToken) {
+    // Only enforce Turnstile if we are on the web, NOT on native mobile app
+    if (!isNativeMobile && loginTurnstile.isReady && !captchaToken) {
       toast({
         title: "CAPTCHA Required",
         description: "Please complete the CAPTCHA verification",
@@ -877,7 +894,7 @@ const Auth = () => {
             
             console.log('Generated activation code on failed login:', activationCode);
             
-            let updateData: any = {
+            const updateData: any = {
               login_attempts: newAttempts,
               last_login_attempt: now,
               suspended_at: now,
@@ -1051,10 +1068,13 @@ const Auth = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
+    
     // Get Turnstile CAPTCHA token (only enforce when widget is healthy)
     const captchaToken = signupTurnstile.getToken();
 
-    if (signupTurnstile.isReady && !captchaToken) {
+    // Only enforce Turnstile if we are on the web, NOT on native mobile app
+    if (!isNativeMobile && signupTurnstile.isReady && !captchaToken) {
       toast({
         title: "CAPTCHA Required",
         description: "Please complete the CAPTCHA verification",
@@ -1093,7 +1113,10 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/auth`;
+      const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
+      const redirectUrl = isNativeMobile 
+        ? 'com.justice.ultimateautomobiles://auth' 
+        : `${window.location.origin}/auth`;
       
       // Format full phone number with country code
       const fullPhone = `${countryCode}${regPhone}`;

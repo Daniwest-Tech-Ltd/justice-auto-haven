@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "660353657905",
+    "project_id": "karatina-driving-school",
+    "storage_bucket": "karatina-driving-school.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:660353657905:android:15c5b9567af4b1dbfef910",
+        "android_client_info": {
+          "package_name": "com.justice.ultimateautomobiles"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2022AMtZoAMIpwuExc7dYpir3Fg8ISIY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

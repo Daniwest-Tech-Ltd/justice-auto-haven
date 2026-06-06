@@ -1,3 +1,5 @@
+
+/* eslint-disable react/no-unknown-property, react-native/no-inline-styles */
 import * as React from "react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import { Check } from "lucide-react";

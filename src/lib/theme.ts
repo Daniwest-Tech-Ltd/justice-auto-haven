@@ -40,7 +40,7 @@ export async function setTheme(theme: Theme, userId?: string) {
 
 export function initTheme() {
   // Check localStorage first
-  let theme = localStorage.getItem("theme") as Theme | null;
+  const theme = localStorage.getItem("theme") as Theme | null;
   
   // If no saved theme or system, detect device theme
   if (!theme || theme === "system") {

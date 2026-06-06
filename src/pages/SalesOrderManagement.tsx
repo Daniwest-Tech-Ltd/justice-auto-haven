@@ -55,7 +55,7 @@ const SalesOrderManagement = () => {
 
       // Fetch profile info for each unique customer_id
       const customerIds = [...new Set((ordersData || []).map(o => o.customer_id).filter(Boolean))];
-      let profilesMap: Record<string, any> = {};
+      const profilesMap: Record<string, any> = {};
       if (customerIds.length > 0) {
         const { data: profiles } = await supabase
           .from("profiles")
