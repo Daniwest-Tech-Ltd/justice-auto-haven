@@ -52,7 +52,48 @@ const MobileAppManager = () => {
     if (data) setReleases(data as Release[]);
   };
 
-  useEffect(() => { load(); }, []);
+  const loadLinks = async () => {
+    const { data } = await supabase
+      .from("mobile_app_store_links")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) {
+      setLinksId(data.id);
+      setGooglePlayUrl(data.google_play_url || "");
+      setAppCenterUrl(data.app_center_url || "");
+    }
+  };
+
+  useEffect(() => { load(); loadLinks(); }, []);
+
+  const saveLinks = async () => {
+    setSavingLinks(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const payload = {
+        google_play_url: googlePlayUrl.trim() || null,
+        app_center_url: appCenterUrl.trim() || null,
+        updated_by: user?.id,
+        updated_at: new Date().toISOString(),
+      };
+      if (linksId) {
+        const { error } = await supabase.from("mobile_app_store_links").update(payload).eq("id", linksId);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from("mobile_app_store_links").insert(payload).select().single();
+        if (error) throw error;
+        if (data) setLinksId(data.id);
+      }
+      toast({ title: "Store links saved", description: "Public buttons updated immediately." });
+    } catch (e: any) {
+      toast({ title: "Failed to save", description: e.message, variant: "destructive" });
+    } finally {
+      setSavingLinks(false);
+    }
+  };
+
 
   const handleUpload = async () => {
     if (!file || !version.trim()) {
