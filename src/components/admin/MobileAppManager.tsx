@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Smartphone, Trash2, CheckCircle2, Loader2 } from "lucide-react";
+import { Upload, Smartphone, Trash2, CheckCircle2, Loader2, Link2, Save } from "lucide-react";
 
 interface Release {
   id: string;
@@ -38,6 +38,12 @@ const MobileAppManager = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  // Store links state
+  const [linksId, setLinksId] = useState<string | null>(null);
+  const [googlePlayUrl, setGooglePlayUrl] = useState("");
+  const [appCenterUrl, setAppCenterUrl] = useState("");
+  const [savingLinks, setSavingLinks] = useState(false);
+
   const load = async () => {
     const { data } = await supabase
       .from("mobile_app_releases")
@@ -46,7 +52,48 @@ const MobileAppManager = () => {
     if (data) setReleases(data as Release[]);
   };
 
-  useEffect(() => { load(); }, []);
+  const loadLinks = async () => {
+    const { data } = await supabase
+      .from("mobile_app_store_links")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) {
+      setLinksId(data.id);
+      setGooglePlayUrl(data.google_play_url || "");
+      setAppCenterUrl(data.app_center_url || "");
+    }
+  };
+
+  useEffect(() => { load(); loadLinks(); }, []);
+
+  const saveLinks = async () => {
+    setSavingLinks(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const payload = {
+        google_play_url: googlePlayUrl.trim() || null,
+        app_center_url: appCenterUrl.trim() || null,
+        updated_by: user?.id,
+        updated_at: new Date().toISOString(),
+      };
+      if (linksId) {
+        const { error } = await supabase.from("mobile_app_store_links").update(payload).eq("id", linksId);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from("mobile_app_store_links").insert(payload).select().single();
+        if (error) throw error;
+        if (data) setLinksId(data.id);
+      }
+      toast({ title: "Store links saved", description: "Public buttons updated immediately." });
+    } catch (e: any) {
+      toast({ title: "Failed to save", description: e.message, variant: "destructive" });
+    } finally {
+      setSavingLinks(false);
+    }
+  };
+
 
   const handleUpload = async () => {
     if (!file || !version.trim()) {
@@ -118,6 +165,36 @@ const MobileAppManager = () => {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Link2 className="h-5 w-5 text-primary" /> Store & Install Links
+          </CardTitle>
+          <CardDescription>
+            Set the public download links shown on the website. Leave the Google Play URL empty to display a "Soon" badge.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="gp">Google Play Store URL</Label>
+            <Input id="gp" value={googlePlayUrl} onChange={(e) => setGooglePlayUrl(e.target.value)} placeholder="https://play.google.com/store/apps/details?id=..." />
+            <p className="text-xs text-muted-foreground mt-1">
+              Status: {googlePlayUrl.trim() ? <span className="text-green-600 font-medium">LIVE</span> : <span className="text-amber-600 font-medium">SOON (pending link)</span>}
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="ac">App Center URL (Loadly)</Label>
+            <Input id="ac" value={appCenterUrl} onChange={(e) => setAppCenterUrl(e.target.value)} placeholder="https://loadly.io/justice-auto-app" />
+            <p className="text-xs text-muted-foreground mt-1">
+              Status: {appCenterUrl.trim() ? <span className="text-green-600 font-medium">LIVE</span> : <span className="text-amber-600 font-medium">SOON (pending link)</span>}
+            </p>
+          </div>
+          <Button onClick={saveLinks} disabled={savingLinks}>
+            {savingLinks ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving…</> : <><Save className="h-4 w-4 mr-2" /> Save Links</>}
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

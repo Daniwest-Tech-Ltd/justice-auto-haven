@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Smartphone, CheckCircle2, Download, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import appCenterIcon from "@/assets/appcenter-icon.webp.asset.json";
 
 interface Release {
   version: string;
@@ -11,14 +12,22 @@ interface Release {
   release_notes: string | null;
 }
 
+interface StoreLinks {
+  google_play_url: string | null;
+  app_center_url: string | null;
+}
+
 interface Props {
   variant?: "full" | "compact";
 }
 
-const GooglePlayBadge = ({ size = "default" }: { size?: "default" | "sm" }) => {
+const GooglePlayButton = ({ url, size = "default" }: { url: string | null; size?: "default" | "sm" }) => {
   const isSm = size === "sm";
-  return (
-    <div className={`relative group inline-flex items-center gap-2 ${isSm ? "px-3 py-1.5" : "px-4 py-2.5"} bg-black text-white rounded-lg border border-white/10 cursor-not-allowed select-none transition-transform hover:scale-105`}>
+  const isLive = !!url;
+  const content = (
+    <div
+      className={`rainbow-border relative inline-flex items-center gap-2 ${isSm ? "px-3 py-1.5" : "px-4 py-2.5"} bg-black text-white rounded-lg select-none transition-transform hover:scale-105 ${!isLive ? "opacity-90 cursor-not-allowed" : "cursor-pointer"}`}
+    >
       <svg viewBox="0 0 512 512" className={isSm ? "h-5 w-5" : "h-7 w-7"} aria-hidden="true">
         <path fill="#00C1FF" d="M325.3 234.3 104.3 12.3l257.5 148.9z" />
         <path fill="#00D27A" d="M104.3 12.3v487.4L257.7 256z" />
@@ -29,8 +38,39 @@ const GooglePlayBadge = ({ size = "default" }: { size?: "default" | "sm" }) => {
         <div className="text-[8px] uppercase tracking-wider opacity-80">Get it on</div>
         <div className={`font-semibold ${isSm ? "text-xs" : "text-sm"}`}>Google Play</div>
       </div>
-      <span className="absolute -top-1.5 -right-1.5 bg-accent text-accent-foreground text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">SOON</span>
+      <span className={`absolute -top-1.5 -right-1.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow ${isLive ? "bg-green-500 text-white" : "bg-accent text-accent-foreground"}`}>
+        {isLive ? "LIVE" : "SOON"}
+      </span>
     </div>
+  );
+  return isLive ? (
+    <a href={url!} target="_blank" rel="noopener noreferrer">{content}</a>
+  ) : (
+    <button type="button" disabled aria-label="Google Play coming soon">{content}</button>
+  );
+};
+
+const AppCenterButton = ({ url, size = "default" }: { url: string | null; size?: "default" | "sm" }) => {
+  const isSm = size === "sm";
+  const isLive = !!url;
+  const inner = (
+    <div
+      className={`rainbow-border relative inline-flex items-center gap-2 ${isSm ? "px-3 py-1.5" : "px-4 py-2.5"} bg-white text-black rounded-lg select-none transition-transform hover:scale-105 ${!isLive ? "opacity-90 cursor-not-allowed" : "cursor-pointer"}`}
+    >
+      <img src={appCenterIcon.url} alt="App Center" className={isSm ? "h-5" : "h-7"} />
+      <div className="leading-tight text-left">
+        <div className="text-[8px] uppercase tracking-wider opacity-70">Install via</div>
+        <div className={`font-semibold ${isSm ? "text-xs" : "text-sm"}`}>App Center</div>
+      </div>
+      <span className={`absolute -top-1.5 -right-1.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow ${isLive ? "bg-green-500 text-white" : "bg-accent text-accent-foreground"}`}>
+        {isLive ? "LIVE" : "SOON"}
+      </span>
+    </div>
+  );
+  return isLive ? (
+    <a href={url!} target="_blank" rel="noopener noreferrer">{inner}</a>
+  ) : (
+    <button type="button" disabled>{inner}</button>
   );
 };
 
@@ -42,20 +82,19 @@ const formatBytes = (b: number | null) => {
 
 const MobileAppDownload = ({ variant = "full" }: Props) => {
   const [release, setRelease] = useState<Release | null>(null);
+  const [links, setLinks] = useState<StoreLinks>({ google_play_url: null, app_center_url: "https://loadly.io/justice-auto-app" });
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState<"idle" | "downloading" | "complete">("idle");
   const { toast } = useToast();
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("mobile_app_releases")
-        .select("version,file_url,file_size_bytes,release_notes")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (data) setRelease(data as Release);
+      const [{ data: rel }, { data: lk }] = await Promise.all([
+        supabase.from("mobile_app_releases").select("version,file_url,file_size_bytes,release_notes").eq("is_active", true).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+        supabase.from("mobile_app_store_links").select("google_play_url,app_center_url").order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+      ]);
+      if (rel) setRelease(rel as Release);
+      if (lk) setLinks(lk as StoreLinks);
     })();
   }, []);
 
@@ -135,10 +174,16 @@ const MobileAppDownload = ({ variant = "full" }: Props) => {
             </TooltipTrigger>
             <TooltipContent><p>Download the official Android APK</p></TooltipContent>
           </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild><div><GooglePlayBadge size="sm" /></div></TooltipTrigger>
-            <TooltipContent><p>Coming soon to Google Play Store</p></TooltipContent>
-          </Tooltip>
+          <div className="flex flex-wrap gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild><div><GooglePlayButton url={links.google_play_url} size="sm" /></div></TooltipTrigger>
+              <TooltipContent><p>{links.google_play_url ? "Open on Google Play" : "Coming soon to Google Play"}</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild><div><AppCenterButton url={links.app_center_url} size="sm" /></div></TooltipTrigger>
+              <TooltipContent><p>Install via App Center</p></TooltipContent>
+            </Tooltip>
+          </div>
         </div>
       </TooltipProvider>
     );
@@ -147,7 +192,7 @@ const MobileAppDownload = ({ variant = "full" }: Props) => {
   return (
     <TooltipProvider>
       <div className="relative bg-gradient-to-br from-primary/5 via-background to-accent/5 border border-primary/20 rounded-2xl p-6 md:p-8">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
           <Smartphone className="h-6 w-6 text-primary" />
           <h3 className="text-2xl font-bold">Get Our Mobile App</h3>
           <span className="ml-auto inline-flex items-center gap-1 text-xs bg-green-500/15 text-green-700 dark:text-green-400 px-2 py-1 rounded-full">
@@ -159,8 +204,7 @@ const MobileAppDownload = ({ variant = "full" }: Props) => {
           {release && <span className="block mt-1 text-xs">Current version: <strong>v{release.version}</strong> · {formatBytes(release.file_size_bytes)}</span>}
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          {/* APK Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-wrap">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
@@ -181,7 +225,6 @@ const MobileAppDownload = ({ variant = "full" }: Props) => {
                   </span>
                 ) : (
                   <>
-                    {/* Android robot icon */}
                     <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden="true">
                       <path d="M17.523 15.341c-.355 0-.645-.29-.645-.645s.29-.646.645-.646.646.291.646.646-.291.645-.646.645zm-11.046 0c-.355 0-.646-.29-.646-.645s.291-.646.646-.646c.355 0 .645.291.645.646s-.29.645-.645.645zm11.277-6.155 1.286-2.228a.267.267 0 0 0-.464-.267l-1.302 2.255A8.32 8.32 0 0 0 12 7.728a8.32 8.32 0 0 0-3.274.218L7.424 5.691a.267.267 0 0 0-.464.267L8.246 8.186C5.998 9.405 4.5 11.578 4.5 14.062h15c0-2.484-1.498-4.657-3.746-5.876z"/>
                     </svg>
@@ -194,10 +237,14 @@ const MobileAppDownload = ({ variant = "full" }: Props) => {
             <TooltipContent><p>Download the official Android APK (.apk)</p></TooltipContent>
           </Tooltip>
 
-          {/* Google Play coming soon */}
           <Tooltip>
-            <TooltipTrigger asChild><div><GooglePlayBadge /></div></TooltipTrigger>
-            <TooltipContent><p>Coming soon to Google Play Store</p></TooltipContent>
+            <TooltipTrigger asChild><div><GooglePlayButton url={links.google_play_url} /></div></TooltipTrigger>
+            <TooltipContent><p>{links.google_play_url ? "Open on Google Play" : "Coming soon to Google Play Store"}</p></TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild><div><AppCenterButton url={links.app_center_url} /></div></TooltipTrigger>
+            <TooltipContent><p>Install via App Center (Loadly)</p></TooltipContent>
           </Tooltip>
         </div>
 

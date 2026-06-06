@@ -2696,6 +2696,30 @@ export type Database = {
         }
         Relationships: []
       }
+      mobile_app_store_links: {
+        Row: {
+          app_center_url: string | null
+          google_play_url: string | null
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          app_center_url?: string | null
+          google_play_url?: string | null
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          app_center_url?: string | null
+          google_play_url?: string | null
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       motorbikes: {
         Row: {
           color: string | null
