@@ -289,7 +289,7 @@ const SalesOrderManagement = () => {
                   </TabsContent>
 
                   <TabsContent value="docs" className="space-y-3">
-                    <input ref={fileRef} type="file" className="hidden" onChange={uploadDoc} />
+                    <input ref={fileRef} type="file" className="hidden" onChange={uploadDoc} title="Upload document" />
                     <Button variant="outline" className="w-full gap-2" disabled={uploading} onClick={() => fileRef.current?.click()}>
                       <Upload className="w-4 h-4" /> {uploading ? "Uploading..." : "Upload Document"}
                     </Button>
