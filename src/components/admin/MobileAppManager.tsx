@@ -74,8 +74,9 @@ const MobileAppManager = () => {
     setSavingLinks(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const payload = {
+      const payload: any = {
         google_play_url: googlePlayUrl.trim() || null,
+        app_store_url: appStoreUrl.trim() || null,
         app_center_url: appCenterUrl.trim() || null,
         updated_by: user?.id,
         updated_at: new Date().toISOString(),
