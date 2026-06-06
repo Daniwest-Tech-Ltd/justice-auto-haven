@@ -41,6 +41,7 @@ const MobileAppManager = () => {
   // Store links state
   const [linksId, setLinksId] = useState<string | null>(null);
   const [googlePlayUrl, setGooglePlayUrl] = useState("");
+  const [appStoreUrl, setAppStoreUrl] = useState("");
   const [appCenterUrl, setAppCenterUrl] = useState("");
   const [savingLinks, setSavingLinks] = useState(false);
 
