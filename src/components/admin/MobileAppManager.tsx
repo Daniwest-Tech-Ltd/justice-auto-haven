@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Smartphone, Trash2, CheckCircle2, Loader2 } from "lucide-react";
+import { Upload, Smartphone, Trash2, CheckCircle2, Loader2, Link2, Save } from "lucide-react";
 
 interface Release {
   id: string;
