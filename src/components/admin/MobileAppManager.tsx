@@ -41,6 +41,7 @@ const MobileAppManager = () => {
   // Store links state
   const [linksId, setLinksId] = useState<string | null>(null);
   const [googlePlayUrl, setGooglePlayUrl] = useState("");
+  const [appStoreUrl, setAppStoreUrl] = useState("");
   const [appCenterUrl, setAppCenterUrl] = useState("");
   const [savingLinks, setSavingLinks] = useState(false);
 
@@ -63,6 +64,7 @@ const MobileAppManager = () => {
       setLinksId(data.id);
       setGooglePlayUrl(data.google_play_url || "");
       setAppCenterUrl(data.app_center_url || "");
+      setAppStoreUrl((data as any).app_store_url || "");
     }
   };
 
@@ -72,8 +74,9 @@ const MobileAppManager = () => {
     setSavingLinks(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const payload = {
+      const payload: any = {
         google_play_url: googlePlayUrl.trim() || null,
+        app_store_url: appStoreUrl.trim() || null,
         app_center_url: appCenterUrl.trim() || null,
         updated_by: user?.id,
         updated_at: new Date().toISOString(),
@@ -180,6 +183,13 @@ const MobileAppManager = () => {
             <Input id="gp" value={googlePlayUrl} onChange={(e) => setGooglePlayUrl(e.target.value)} placeholder="https://play.google.com/store/apps/details?id=..." />
             <p className="text-xs text-muted-foreground mt-1">
               Status: {googlePlayUrl.trim() ? <span className="text-green-600 font-medium">LIVE</span> : <span className="text-amber-600 font-medium">SOON (pending link)</span>}
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="as">Apple App Store URL</Label>
+            <Input id="as" value={appStoreUrl} onChange={(e) => setAppStoreUrl(e.target.value)} placeholder="https://apps.apple.com/app/id..." />
+            <p className="text-xs text-muted-foreground mt-1">
+              Status: {appStoreUrl.trim() ? <span className="text-green-600 font-medium">LIVE</span> : <span className="text-amber-600 font-medium">SOON (pending link)</span>}
             </p>
           </div>
           <div>

@@ -1,0 +1,1 @@
+ALTER TABLE public.mobile_app_store_links ADD COLUMN IF NOT EXISTS app_store_url text;
