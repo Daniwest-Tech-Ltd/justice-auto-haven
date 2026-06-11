@@ -33,10 +33,13 @@ const Home = () => {
   useEffect(() => {
     fetchAllData();
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 4);
+      setCurrentSlide((prev) => {
+        const totalSlides = heroCars.length > 0 ? heroCars.length : 4;
+        return (prev + 1) % totalSlides;
+      });
     }, 7000);
     return () => clearInterval(interval);
-  }, []);
+  }, [heroCars.length]);
 
   const fetchAllData = async () => {
     const { data: featuredData } = await supabase
@@ -54,7 +57,25 @@ const Home = () => {
       .eq("status", "available")
       .order("created_at", { ascending: false })
       .limit(4);
-    if (heroData) setHeroCars(heroData);
+
+    // Additional images provided by the user from public/home
+    const additionalSlides = [
+      { id: 'static-1', images: ['/home/b1.webp'], make: 'Executive Inventory' },
+      { id: 'static-2', images: ['/home/b2.jpg'], make: 'Audi Collection' },
+      { id: 'static-3', images: ['/home/b3.jpeg'], make: 'Mercedes-Benz Fleet' },
+      { id: 'static-4', images: ['/home/b4.jpg'], make: 'Premium Showroom' },
+      { id: 'static-5', images: ['/home/b5.jpg'], make: 'Performance Units' },
+      { id: 'static-6', images: ['/home/b6.jpg'], make: 'Executive Audi' },
+      { id: 'static-7', images: ['/home/b7.jpg'], make: 'Range Rover Sport' },
+      { id: 'static-8', images: ['/home/b8.jpg'], make: 'Lexus Executive' },
+      { id: 'static-9', images: ['/home/b9.jpg'], make: 'Luxury Fleet' },
+    ];
+
+    if (heroData) {
+      setHeroCars([...additionalSlides, ...heroData]);
+    } else {
+      setHeroCars(additionalSlides);
+    }
 
     const { data: brandsData } = await supabase
       .from("brands")
