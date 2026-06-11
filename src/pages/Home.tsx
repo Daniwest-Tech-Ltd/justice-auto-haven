@@ -11,35 +11,27 @@ import {
   Clock, DollarSign, Settings, Phone, Gauge, Mail,
   Activity, ShieldCheck, Briefcase,
   Navigation, Calendar, ChevronRight, Headphones, Star,
-  Trophy,
+  Trophy, Shield,
   ArrowUpRight
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentSale } from "@/lib/currentSale";
+import HeroSlider from "@/components/HeroSlider";
 import specialOffer from "@/assets/special-offer.png";
 
 const Home = () => {
   const sale = getCurrentSale();
   const [featuredCars, setFeaturedCars] = useState<any[]>([]);
-  const [heroCars, setHeroCars] = useState<any[]>([]);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [brands, setBrands] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
-  const [brands, setBrands] = useState<any[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchAllData();
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => {
-        const totalSlides = heroCars.length > 0 ? heroCars.length : 4;
-        return (prev + 1) % totalSlides;
-      });
-    }, 7000);
-    return () => clearInterval(interval);
-  }, [heroCars.length]);
+  }, []);
 
   const fetchAllData = async () => {
     const { data: featuredData } = await supabase
@@ -50,32 +42,6 @@ const Home = () => {
       .order("created_at", { ascending: false })
       .limit(12);
     if (featuredData) setFeaturedCars(featuredData);
-
-    const { data: heroData } = await supabase
-      .from("cars")
-      .select("*")
-      .eq("status", "available")
-      .order("created_at", { ascending: false })
-      .limit(4);
-
-    // Additional images provided by the user from public/home
-    const additionalSlides = [
-      { id: 'static-1', images: ['/home/b1.webp'], make: 'Executive Inventory' },
-      { id: 'static-2', images: ['/home/b2.jpg'], make: 'Audi Collection' },
-      { id: 'static-3', images: ['/home/b3.jpeg'], make: 'Mercedes-Benz Fleet' },
-      { id: 'static-4', images: ['/home/b4.jpg'], make: 'Premium Showroom' },
-      { id: 'static-5', images: ['/home/b5.jpg'], make: 'Performance Units' },
-      { id: 'static-6', images: ['/home/b6.jpg'], make: 'Executive Audi' },
-      { id: 'static-7', images: ['/home/b7.jpg'], make: 'Range Rover Sport' },
-      { id: 'static-8', images: ['/home/b8.jpg'], make: 'Lexus Executive' },
-      { id: 'static-9', images: ['/home/b9.jpg'], make: 'Luxury Fleet' },
-    ];
-
-    if (heroData) {
-      setHeroCars([...additionalSlides, ...heroData]);
-    } else {
-      setHeroCars(additionalSlides);
-    }
 
     const { data: brandsData } = await supabase
       .from("brands")
@@ -110,41 +76,45 @@ const Home = () => {
         <div className="absolute inset-0 opacity-[0.015] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
       </div>
 
-      {/* Dynamic Trust Bar */}
-      <div className="bg-primary/95 text-[9px] sm:text-[10px] font-black tracking-[0.4em] uppercase py-2 relative z-30 border-b border-white/5 shadow-2xl overflow-hidden">
-        <div className="container mx-auto px-4 flex justify-center items-center gap-12 whitespace-nowrap animate-in fade-in duration-1000">
-          <span className="flex items-center gap-2 text-white/80 group cursor-default">
-            <ShieldCheck className="h-3 w-3 text-brand-red" />
-            <span className="group-hover:text-white transition-colors uppercase">NTSA TIMS Verification</span>
-          </span>
-          <span className="flex items-center gap-2 text-white/80 group cursor-default">
-            <Globe className="h-3 w-3 text-brand-red" />
-            <span className="group-hover:text-white transition-colors uppercase">Direct Japanese Logistics</span>
-          </span>
-          <span className="hidden md:flex items-center gap-2 text-white/80 group cursor-default">
-            <Trophy className="h-3 w-3 text-brand-red" />
-            <span className="group-hover:text-white transition-colors uppercase">Certified Asset Scaling</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Hero Showcase - Executive Minimalist */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-white/5 py-20">
-        <div className="absolute inset-0 z-0">
-          {heroCars.map((car, index) => (
-            <div
-              key={car.id}
-              className={`absolute inset-0 transition-all duration-[3000ms] ease-in-out ${
-                index === currentSlide ? "opacity-100 visible scale-100" : "opacity-0 invisible scale-105"
-              }`}
-            >
-              {getImageUrl(car.images) && (
-                <img src={getImageUrl(car.images)} alt={car.make} className="w-full h-full object-cover object-center grayscale-[20%] contrast-[1.1] brightness-[0.45]" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
+      {/* Professional Marquee - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                NTSA Verification
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Direct Logistics
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                Asset Scaling
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="h-3 w-3 text-brand-red" />
+                Unit Validation
+              </span>
             </div>
           ))}
         </div>
+      </div>
+
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+      `}</style>
+
+      {/* Hero Showcase - Executive Minimalist */}
+      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-white/5 py-20">
+        <HeroSlider />
 
         <div className="container mx-auto px-4 relative z-10 text-center">
           <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-8 fade-in duration-1000">

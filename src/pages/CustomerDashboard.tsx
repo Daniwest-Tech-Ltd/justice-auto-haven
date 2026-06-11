@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingCart, MessageSquare, Sun, Moon, Eye, EyeOff, RefreshCw } from "lucide-react";
+import { Heart, Car, Calendar, User, Settings, LogOut, Award, Home, Search, ShoppingCart, MessageSquare, Sun, Moon, Eye, EyeOff, RefreshCw, ShieldCheck, Globe, Trophy } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import { CustomerLoyaltyBadge } from "@/components/CustomerLoyaltyBadge";
 import { LiveChatWidget } from "@/components/LiveChatWidget";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import logo from "@/assets/logo.png";
 import { setTheme, Theme } from "@/lib/theme";
 import DashboardHolidayBanner, { DashboardSnowfall } from "@/components/DashboardHolidayBanner";
@@ -156,8 +157,9 @@ const CustomerDashboard = () => {
         </Sidebar>
 
         <main className="flex-1 w-full">
-          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-3">
-            <div className="flex items-center justify-between mb-3">
+          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="px-6 py-3">
+              <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 <img src={logo} alt="Justice Ultimate Automobiles" className="h-10 w-auto" />
@@ -437,7 +439,7 @@ const CustomerDashboard = () => {
         onCancel={() => setShowLogoutModal(false)}
       />
       
-      <LiveChatWidget />
+      <WhatsAppFloat />
     </SidebarProvider>
   );
 };

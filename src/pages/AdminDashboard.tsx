@@ -20,7 +20,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone, Eye, EyeOff, RefreshCw, CreditCard, ThumbsUp, Briefcase } from "lucide-react";
+import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone, Eye, EyeOff, RefreshCw, CreditCard, ThumbsUp, Briefcase, ShieldCheck, Globe, Trophy } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +30,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";
 import { setTheme, Theme } from "@/lib/theme";
 import DashboardHolidayBanner, { DashboardSnowfall } from "@/components/DashboardHolidayBanner";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 const AdminDashboard = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -331,8 +332,9 @@ const AdminDashboard = () => {
         </Sidebar>
 
         <main className="flex-1 w-full min-w-0">
-          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-6 py-3">
-            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+          <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="px-3 sm:px-6 py-3">
+              <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
               <div className="flex items-center gap-2 sm:gap-4 min-w-0">
                 <SidebarTrigger />
                 <img src={logo} alt="Justice Ultimate Automobiles" className="h-8 sm:h-10 w-auto shrink-0" />
@@ -704,6 +706,7 @@ const AdminDashboard = () => {
         onConfirm={handleSignOut}
         onCancel={() => setShowLogoutModal(false)}
       />
+      <WhatsAppFloat />
     </SidebarProvider>
   );
 };

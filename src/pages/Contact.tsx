@@ -27,6 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentSale } from "@/lib/currentSale";
+import HeroSlider from "@/components/HeroSlider";
 
 const Contact = () => {
   const sale = getCurrentSale();
@@ -106,7 +107,8 @@ const Contact = () => {
       </div>
 
       {/* Hero - Professional & Formal */}
-      <section className="relative flex items-center justify-center border-b border-border bg-secondary/5 py-12">
+      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
+        <HeroSlider />
         <div className="container mx-auto px-4 relative z-10 text-center">
           <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Operational Desk: {sale.year}</p>
@@ -254,7 +256,7 @@ const Contact = () => {
                  <Button
                    variant="outline"
                    className="w-full h-10 text-[9px] font-black uppercase tracking-[0.2em] rounded-sm group-hover:bg-primary group-hover:text-white transition-all"
-                   onClick={() => window.open("https://maps.app.goo.gl/spVusF8WkEfe7pZx5")}
+                   onClick={() => window.open("https://maps.app.goo.gl/7x51yn7VHwHfpEpV8")}
                  >
                    View Strategic Hub
                  </Button>

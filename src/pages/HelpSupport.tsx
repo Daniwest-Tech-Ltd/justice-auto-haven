@@ -1,23 +1,75 @@
-import { Phone, Mail, MapPin, MessageCircle, Shield, FileText, AlertCircle, ExternalLink } from "lucide-react";
+import { Phone, Mail, MapPin, MessageCircle, Shield, FileText, AlertCircle, ExternalLink, ShieldCheck, Globe, Trophy, Headphones } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import CertificateModal from "@/components/CertificateModal";
+import HeroSlider from "@/components/HeroSlider";
 
 const HelpSupport = () => {
   const [showCertificate, setShowCertificate] = useState(false);
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-accent bg-clip-text text-transparent">
-            🆘 Help & Support Center
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            We're here to assist you every step of the way
-          </p>
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
+      {/* Background Overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+      </div>
+
+      {/* Professional Marquee - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                NTSA Verification
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Direct Logistics
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                Asset Scaling
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="h-3 w-3 text-brand-red" />
+                Unit Validation
+              </span>
+            </div>
+          ))}
         </div>
+      </div>
+
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+      `}</style>
+
+      {/* Hero Header */}
+      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
+        <HeroSlider />
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red italic">Institutional Support Desk</p>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase italic">
+              Help & <span className="text-brand-red">Support.</span>
+            </h1>
+            <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed uppercase tracking-widest">
+              Direct terminal assistance for technical, legal, and operational automotive requirements.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="max-w-6xl mx-auto space-y-12">
 
         {/* Contact Channels */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">

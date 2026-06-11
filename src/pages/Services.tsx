@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Car, Wrench, Package, Search, Calendar, Globe } from "lucide-react";
+import { Car, Wrench, Package, Search, Calendar, Globe, ShieldCheck, Trophy, Shield } from "lucide-react";
 import { useState } from "react";
 import { getCurrentSale } from "@/lib/currentSale";
+import HeroSlider from "@/components/HeroSlider";
 
 const Services = () => {
   const sale = getCurrentSale();
@@ -14,7 +15,7 @@ const Services = () => {
       title: "Global Car Rentals",
       description: "Affordable, luxury, business-class, and electric vehicle rentals available internationally.",
       extendedDescription: "Fast online booking with local pickup or door-to-door delivery. Available across major cities worldwide with 24/7 support.",
-      link: "/catalogue",
+      link: "/rentals",
     },
     {
       emoji: "🏎️",
@@ -75,7 +76,66 @@ const Services = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-12">
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
+      {/* Background Overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+      </div>
+
+      {/* Professional Marquee - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                NTSA Verification
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Direct Logistics
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                Asset Scaling
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="h-3 w-3 text-brand-red" />
+                Unit Validation
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+      `}</style>
+
+      {/* Hero Header */}
+      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
+        <HeroSlider />
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red italic">Global Service Terminal</p>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase italic">
+              Our Premium <span className="text-brand-red">Services.</span>
+            </h1>
+            <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed uppercase tracking-widest">
+              Comprehensive automotive solutions from Nairobi to the global market. Asset financing, international sourcing, and executive logistics.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-12 space-y-12 relative z-10">
       {/* Hero */}
       <section className="text-center glass-strong rounded-3xl p-12 max-w-4xl mx-auto">
         <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-lg px-6 py-2 rounded-full mb-4 animate-pulse">

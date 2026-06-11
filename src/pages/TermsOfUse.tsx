@@ -1,227 +1,237 @@
-import { ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { ShieldCheck, Globe, Trophy, Shield, Scale, UserCheck, CreditCard, Info, Clock, Phone, Mail, MapPin } from "lucide-react";
+import HeroSlider from "@/components/HeroSlider";
 import { Button } from "@/components/ui/button";
-import CertificateModal from "@/components/CertificateModal";
 
 const TermsOfUse = () => {
-  const [showCertificate, setShowCertificate] = useState(false);
-
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-4xl mx-auto glass-strong rounded-3xl p-8 md:p-12">
-        <h1 className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-accent bg-clip-text text-transparent">
-          📜 Terms of Use
-        </h1>
-        
-        <div className="space-y-6 text-foreground/90">
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">1. Introduction</h2>
-            <p className="leading-relaxed mb-3">
-              Welcome to Justice Ultimate Automobiles, a certified automotive dealership operating in Kenya. By accessing and using our platform (website, services, and applications), you accept and agree to be bound by the terms and provisions of this agreement.
-            </p>
-            <p className="leading-relaxed">
-              If you do not agree to these terms, please discontinue use of our services immediately. These Terms of Use constitute a legally binding agreement between you and Justice Ultimate Automobiles.
-            </p>
-          </section>
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden">
+      {/* Background Overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+      </div>
 
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">2. Company Certification & Regulatory Compliance</h2>
-            <p className="leading-relaxed mb-3">
-              <strong>Justice Ultimate Automobiles is a certified automotive dealer in Kenya</strong>, operating with officially recognized business credentials. We are fully registered and compliant with all regulatory requirements including:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4 mb-4">
-              <li>Business Registration Certificate</li>
-              <li>KRA PIN and Tax Compliance</li>
-              <li>NTSA Motor Dealer License</li>
-              <li>Valid Business Permits</li>
-            </ul>
-            <p className="leading-relaxed mb-3 font-semibold">
-              Our operations are certified and verified by the following Kenya authorities:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4 mb-4">
-              <li><strong>National Transport and Safety Authority (NTSA)</strong> - Vehicle registration and transfer compliance</li>
-              <li><strong>Kenya Bureau of Standards (KEBS)</strong> - Quality and safety standards</li>
-              <li><strong>Kenya Revenue Authority (KRA)</strong> - Tax compliance and documentation</li>
-              <li><strong>Kenya Roads Board (KRB)</strong> - Road transport regulations</li>
-              <li><strong>Kenya National Highways Authority (KeNHA)</strong> - Highway transport compliance</li>
-              <li><strong>Kenya Urban Roads Authority (KURA)</strong> - Urban transport standards</li>
-              <li><strong>Competition Authority of Kenya</strong> - Consumer protection compliance</li>
-              <li><strong>Local County Business Permit Authority</strong> - Business operations permit</li>
-            </ul>
-            <Button
-              onClick={() => setShowCertificate(true)}
-              variant="link"
-              className="p-0 h-auto text-primary hover:underline font-semibold inline-flex items-center gap-2"
-            >
-              View Our Company Certificate <ExternalLink className="w-4 h-4" />
-            </Button>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">3. Service Description</h2>
-            <p className="leading-relaxed mb-3">
-              Justice Ultimate Automobiles provides the following services:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>New and pre-owned vehicle sales</li>
-              <li>Vehicle rental services (short-term and long-term)</li>
-              <li>Trade-in valuation and processing</li>
-              <li>Vehicle financing assistance through partner institutions</li>
-              <li>Vehicle inspection and verification services</li>
-              <li>Vehicle delivery and logistics coordination</li>
-              <li>After-sales support and warranty services</li>
-              <li>Automotive information, resources, and consultation</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">4. User Responsibilities</h2>
-            <p className="leading-relaxed mb-3">
-              As a user of our platform, you agree to:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Provide accurate, current, and complete information during registration and transactions</li>
-              <li>Maintain the confidentiality and security of your account credentials</li>
-              <li>Use our services in compliance with all applicable Kenyan laws and regulations</li>
-              <li>Not engage in any fraudulent, illegal, or harmful activities</li>
-              <li>Not impersonate others or misrepresent your identity</li>
-              <li>Respect intellectual property rights</li>
-              <li>Not interfere with or disrupt the platform's functionality</li>
-              <li>Notify us immediately of any unauthorized account access</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">5. Vehicle Purchase Terms</h2>
-            <p className="leading-relaxed mb-3">
-              All vehicle purchases, rentals, and trade-ins are governed by the following terms:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong>Availability:</strong> All vehicles are subject to prior sale and availability</li>
-              <li><strong>Pricing:</strong> Prices are subject to change without notice. The price at time of order confirmation is final</li>
-              <li><strong>Vehicle Condition:</strong> All descriptions are provided in good faith. We strongly recommend physical inspection before purchase</li>
-              <li><strong>Inspection Rights:</strong> Customers have the right to inspect vehicles before final payment</li>
-              <li><strong>Documentation:</strong> All vehicles come with proper transfer documentation and verified history</li>
-              <li><strong>Delivery:</strong> Delivery timelines and costs vary by location and are confirmed at time of purchase</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">6. Payment Terms & Secure Payment Methods</h2>
-            <p className="leading-relaxed mb-3">
-              Payment terms and conditions:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong>Approved Payment Methods:</strong> M-Pesa, bank transfer, cash (in-office), Pesapal secure gateway, and approved financing partners</li>
-              <li><strong>Security:</strong> All transactions are processed through secure, encrypted channels certified by Kenya authorities</li>
-              <li><strong>Deposits:</strong> Non-refundable deposits may be required to reserve vehicles</li>
-              <li><strong>Full Payment:</strong> Required before vehicle delivery or transfer of ownership</li>
-              <li><strong>Receipts:</strong> Official receipts are issued for all payments</li>
-              <li><strong>Refunds:</strong> Subject to specific refund policy (detailed below)</li>
-              <li><strong>Currency:</strong> All prices are in Kenyan Shillings (KES) unless otherwise stated</li>
-            </ul>
-            <p className="leading-relaxed mt-3 mb-3">
-              <strong>Refund Policy:</strong> Refunds are processed based on transaction stage: Full refund (minus processing fee) before inspection; 10% cancellation fee after inspection but before delivery; No refunds after delivery (after-sales support available). Refunds are processed within 7-14 business days.
-            </p>
-            <p className="leading-relaxed mb-3 font-semibold">
-              Our secure payment methods are certified and verified by:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong>Kenya Revenue Authority (KRA)</strong> - Tax compliance</li>
-              <li><strong>Kenya Bureau of Standards (KEBS)</strong> - Quality standards</li>
-              <li><strong>National Transport and Safety Authority (NTSA)</strong> - Vehicle transaction compliance</li>
-              <li><strong>Competition Authority of Kenya</strong> - Consumer protection</li>
-              <li><strong>Central Bank of Kenya</strong> - Payment systems regulation</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">7. Intellectual Property</h2>
-            <p className="leading-relaxed">
-              All content on this platform, including but not limited to text, graphics, logos, images, videos, software, design elements, and trademarks, is the exclusive property of Justice Ultimate Automobiles and is protected by Kenyan and international intellectual property laws. Unauthorized use, reproduction, distribution, or modification is strictly prohibited and may result in legal action.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">8. Limitation of Liability</h2>
-            <p className="leading-relaxed mb-3">
-              To the fullest extent permitted by law, Justice Ultimate Automobiles shall not be liable for:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Indirect, incidental, special, consequential, or punitive damages</li>
-              <li>Loss of profits, revenue, data, or business opportunities</li>
-              <li>Third-party financing decisions or terms</li>
-              <li>Delays caused by circumstances beyond our reasonable control</li>
-              <li>Typographical errors or inaccuracies in listings</li>
-              <li>Vehicle performance issues arising after delivery (warranty terms apply)</li>
-            </ul>
-            <p className="leading-relaxed mt-3">
-              Our total liability for any claim shall not exceed the amount paid for the specific service or product in question.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">9. Account Terms & User Conduct</h2>
-            <p className="leading-relaxed mb-3">
-              If you create an account on our platform:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>You are responsible for all activities under your account</li>
-              <li>You must keep your login credentials secure</li>
-              <li>You must immediately notify us of unauthorized access</li>
-              <li>We reserve the right to suspend or terminate accounts for violations</li>
-              <li>One person or entity per account (no account sharing)</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">10. Governing Law & Dispute Resolution</h2>
-            <p className="leading-relaxed">
-              These Terms of Use are governed by and construed in accordance with the laws of the Republic of Kenya. Any disputes arising from these terms or your use of our services shall be subject to the exclusive jurisdiction of the courts of Kenya. We encourage good-faith resolution of disputes through direct communication before legal action.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">11. Modification of Terms</h2>
-            <p className="leading-relaxed">
-              We reserve the right to modify, update, or change these Terms of Use at any time without prior notice. Continued use of our services after changes constitutes acceptance of the modified terms. We will notify users of significant changes via email, platform notifications, or prominent website announcements. It is your responsibility to review these terms periodically.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold mb-4 text-foreground">12. Contact Information</h2>
-            <p className="leading-relaxed mb-4">
-              For questions, concerns, or clarifications regarding these Terms of Use, please contact us:
-            </p>
-            <div className="bg-background/50 p-4 rounded-lg border border-border">
-              <p className="font-semibold mb-2">Justice Ultimate Automobiles</p>
-              <p><strong>CEO:</strong> Justice Vincent</p>
-              <p><strong>Email:</strong> <a href="mailto:support@justiceultimateautomobiles.com" className="text-primary hover:underline">support@justiceultimateautomobiles.com</a></p>
-              <p><strong>Phone:</strong> <a href="tel:+254722827458" className="text-primary hover:underline">+254 722 827 458</a></p>
-              <p><strong>Address:</strong> Mpesi Lane 11, Westlands, Nairobi, Kenya</p>
-              <p className="mt-3">
-                <Button
-                  onClick={() => setShowCertificate(true)}
-                  variant="link"
-                  className="p-0 h-auto text-primary hover:underline font-semibold inline-flex items-center gap-2"
-                >
-                  View Company Certificate <ExternalLink className="w-4 h-4" />
-                </Button>
-              </p>
+      {/* Professional Marquee - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                NTSA Verification
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Direct Logistics
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                Asset Scaling
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="h-3 w-3 text-brand-red" />
+                Unit Validation
+              </span>
             </div>
-          </section>
+          ))}
+        </div>
+      </div>
 
-          <div className="mt-8 pt-8 border-t border-border">
-            <p className="text-sm text-muted-foreground">
-              Last Updated: January 2025<br />
-              © 2025 Justice Ultimate Automobiles. All rights reserved.
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+      `}</style>
+
+      {/* Hero Header */}
+      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
+        <HeroSlider />
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red italic">Legal Framework Terminal</p>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase italic">
+              Terms of <span className="text-brand-red">Engagement.</span>
+            </h1>
+            <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed uppercase tracking-widest">
+              Institutional protocols governing automotive transactions and service delivery across the Ultimate platform.
             </p>
           </div>
         </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="max-w-4xl mx-auto glass-strong rounded-md border border-border p-6 md:p-12 shadow-2xl">
+          <div className="flex items-center gap-3 mb-10 border-b border-border pb-6">
+            <Scale className="h-8 w-8 text-brand-red" />
+            <h2 className="text-xl md:text-2xl font-black uppercase tracking-widest italic text-foreground">Operational Protocol Ledger</h2>
+          </div>
+
+          <div className="space-y-12 text-foreground/80">
+            <section className="space-y-4">
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                <div className="h-1.5 w-1.5 bg-brand-red rounded-full" />
+                1. Framework Introduction
+              </h3>
+              <div className="pl-4 border-l border-primary/20 space-y-4">
+                <p className="text-[11px] font-bold uppercase tracking-wider leading-relaxed">
+                  Welcome to Justice Ultimate Automobiles, a certified automotive dealership operating in Kenya. By accessing and using our platform (website, services, and applications), you accept and agree to be bound by the terms and provisions of this agreement.
+                </p>
+                <p className="text-[11px] font-bold uppercase tracking-wider leading-relaxed opacity-60">
+                  If you do not agree to these terms, please discontinue use of our services immediately. These Terms of Use constitute a legally binding agreement between you and Justice Ultimate Automobiles.
+                </p>
+              </div>
+            </section>
+
+            <section className="space-y-6">
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                <div className="h-1.5 w-1.5 bg-brand-red rounded-full" />
+                2. Certification & Regulatory Compliance
+              </h3>
+              <div className="pl-4 border-l border-primary/20 space-y-6">
+                <p className="text-[11px] font-bold uppercase tracking-wider leading-relaxed bg-brand-red/5 p-4 rounded border border-brand-red/10">
+                  <strong>Justice Ultimate Automobiles is a certified automotive dealer in Kenya</strong>, operating with officially recognized business credentials. We are fully registered and compliant with all regulatory requirements.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div className="bg-secondary/10 p-4 rounded border border-border">
+                      <p className="text-[10px] font-black uppercase tracking-widest mb-3 text-primary">Core Credentials</p>
+                      <ul className="text-[10px] font-bold uppercase tracking-widest space-y-2">
+                        <li>• Business Registration</li>
+                        <li>• KRA Tax Compliance</li>
+                        <li>• NTSA Dealer License</li>
+                        <li>• County Business Permits</li>
+                      </ul>
+                   </div>
+                   <div className="bg-secondary/10 p-4 rounded border border-border">
+                      <p className="text-[10px] font-black uppercase tracking-widest mb-3 text-primary">Verified Authorities</p>
+                      <ul className="text-[10px] font-bold uppercase tracking-widest space-y-2">
+                        <li>• NTSA / KEBS Audit</li>
+                        <li>• KRA / KRB Compliance</li>
+                        <li>• KeNHA / KURA Standards</li>
+                        <li>• CAK Protection Audit</li>
+                      </ul>
+                   </div>
+                </div>
+
+                <div className="bg-brand-red/5 border border-brand-red/20 p-4 rounded-md">
+                   <p className="text-[10px] font-black uppercase text-brand-red tracking-widest flex items-center gap-2">
+                     <Clock className="h-4 w-4" /> Professional Certificate Coming Soon
+                   </p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-4">
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                <div className="h-1.5 w-1.5 bg-brand-red rounded-full" />
+                3. Service Inventory Audit
+              </h3>
+              <div className="pl-4 border-l border-primary/20 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+                {[
+                  "Asset Acquisition (Sales)",
+                  "Fleet Rentals (Logistics)",
+                  "Trade-In Valuations",
+                  "Asset Financing Facilitation",
+                  "Unit Inspection & Audit",
+                  "Global Logistics Coordination",
+                  "Post-Dispatch Support",
+                  "Executive Consultation"
+                ].map((service, i) => (
+                  <div key={i} className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                    <div className="h-1 w-1 bg-brand-red rounded-full" /> {service}
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-4">
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                <div className="h-1.5 w-1.5 bg-brand-red rounded-full" />
+                4. Operational Responsibilities
+              </h3>
+              <div className="pl-4 border-l border-primary/20 space-y-3">
+                {[
+                  "Maintain accurate credential status during all terminal interactions.",
+                  "Protect and secure institutional access keys (account credentials).",
+                  "Engage in fair, compliant, and non-fraudulent transactional activities.",
+                  "Execute all operations within the framework of Kenyan and International law.",
+                  "Immediate notification of any security breach or unauthorized terminal access."
+                ].map((text, i) => (
+                  <div key={i} className="text-[10px] font-bold uppercase tracking-widest leading-relaxed flex items-start gap-3">
+                    <UserCheck className="h-3 w-3 mt-0.5 text-brand-red shrink-0" />
+                    <span>{text}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-6">
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                <div className="h-1.5 w-1.5 bg-brand-red rounded-full" />
+                5. Transactional & Fiscal Policy
+              </h3>
+              <div className="pl-4 border-l border-primary/20 space-y-6">
+                <div className="bg-secondary/5 border border-border p-6 rounded grid md:grid-cols-2 gap-6">
+                   <div className="space-y-3">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2"><CreditCard className="h-3 w-3" /> Secure Portals</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider leading-relaxed">
+                        M-Pesa, Swift Bank Transfer, Pesapal Secure Gateway, and In-Office Corporate Ledger.
+                      </p>
+                   </div>
+                   <div className="space-y-3">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2"><Info className="h-3 w-3" /> Refund Protocol</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider leading-relaxed">
+                        Audit-based processing: 100% pre-audit, 90% pre-dispatch, final post-dispatch is non-reversible.
+                      </p>
+                   </div>
+                </div>
+                <div className="p-4 bg-primary text-white rounded-sm text-center">
+                   <p className="text-[9px] font-black uppercase tracking-[0.3em]">Institutional Currency: Kenyan Shilling (KES)</p>
+                </div>
+              </div>
+            </section>
+
+            <div className="mt-16 pt-10 border-t border-border flex flex-col md:flex-row justify-between gap-8 items-start">
+              <div className="space-y-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Framework Meta-Data</p>
+                <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 space-y-1">
+                  <p>Status: Active Protocol</p>
+                  <p>Revision: 2025.1.0-KE</p>
+                  <p>Audit Date: January 15, 2025</p>
+                  <p>© 2025 Justice Ultimate Automobiles</p>
+                </div>
+              </div>
+              <div className="bg-secondary/10 p-6 rounded border border-border max-w-sm w-full">
+                 <p className="text-[10px] font-black uppercase tracking-widest mb-4">Executive Inquiries</p>
+                 <div className="flex flex-col gap-3">
+                    <Button variant="outline" className="justify-start gap-2 h-auto py-3 text-[10px] font-bold uppercase tracking-widest border-border/50 hover:bg-brand-red hover:text-white transition-colors" asChild>
+                      <a href="tel:+254722827458">
+                        <Phone className="h-3 w-3" />
+                        Contact: +254 722 827 458
+                      </a>
+                    </Button>
+                    <Button variant="outline" className="justify-start gap-2 h-auto py-3 text-[10px] font-bold uppercase tracking-widest border-border/50 hover:bg-brand-red hover:text-white transition-colors" asChild>
+                      <a href="mailto:support@justiceultimateautos.com">
+                        <Mail className="h-3 w-3" />
+                        Email: support@justiceultimateautos.com
+                      </a>
+                    </Button>
+                    <Button variant="outline" className="justify-start gap-2 h-auto py-3 text-[10px] font-bold uppercase tracking-widest border-border/50 hover:bg-brand-red hover:text-white transition-colors" asChild>
+                      <a href="https://maps.app.goo.gl/7x51yn7VHwHfpEpV8" target="_blank" rel="noopener noreferrer">
+                        <MapPin className="h-3 w-3" />
+                        Location: Westlands, Nairobi Operations
+                      </a>
+                    </Button>
+                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      {/* Certificate Modal */}
-      <CertificateModal open={showCertificate} onOpenChange={setShowCertificate} />
     </div>
   );
 };

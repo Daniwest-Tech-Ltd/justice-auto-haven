@@ -48,6 +48,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import HeroSlider from "@/components/HeroSlider";
 import { SuspendedUserModal } from "@/components/SuspendedUserModal";
 import { TwoFactorDialog } from "@/components/TwoFactorDialog";
 
@@ -592,7 +593,8 @@ const Auth = () => {
         </div>
 
         {/* Hero Header */}
-        <section className="relative flex items-center justify-center border-b border-border bg-secondary/5 py-16">
+        <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
+          <HeroSlider />
           <div className="container mx-auto px-4 relative z-10 text-center">
             <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
               <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Identity Gate: {sale.year}</p>

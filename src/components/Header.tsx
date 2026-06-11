@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, Moon, Sun, User, LogOut, LayoutDashboard, Heart, Bell, Mail, Download } from "lucide-react";
+import { Menu, X, Moon, Sun, User, LogOut, LayoutDashboard, Heart, Bell, Mail, Download, ShieldCheck, Globe, Trophy, Shield } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import logo from "@/assets/logo.png";
@@ -252,6 +252,13 @@ const Header = () => {
               }
               .animate-ping-slow {
                 animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+              }
+              @keyframes marquee-professional {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .animate-marquee-professional {
+                animation: marquee-professional 40s linear infinite;
               }
             `}</style>
 

@@ -141,25 +141,35 @@ const Footer = () => {
               <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Executive Support</h4>
 
               <div className="space-y-6">
-                <div className="flex items-center gap-5">
-                  <div className="h-12 w-12 rounded bg-background border border-border flex items-center justify-center shrink-0 shadow-sm">
+                <a href="tel:+254722827458" className="flex items-center gap-5 group/item cursor-pointer">
+                  <div className="h-12 w-12 rounded bg-background border border-border flex items-center justify-center shrink-0 shadow-sm group-hover/item:border-brand-red/50 group-hover/item:bg-brand-red/5 transition-all">
                     <Phone className="h-5 w-5 text-brand-red" />
                   </div>
                   <div>
                     <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">24/7 Corporate Line</p>
-                    <p className="text-base font-black tracking-tighter">+254 722 827 458</p>
+                    <p className="text-base font-black tracking-tighter group-hover/item:text-brand-red transition-colors">+254 722 827 458</p>
                   </div>
-                </div>
+                </a>
 
-                <div className="flex items-center gap-5">
-                  <div className="h-12 w-12 rounded bg-background border border-border flex items-center justify-center shrink-0 shadow-sm">
+                <a href="mailto:info@justiceultimateautomobiles.com" className="flex items-center gap-5 group/item cursor-pointer">
+                  <div className="h-12 w-12 rounded bg-background border border-border flex items-center justify-center shrink-0 shadow-sm group-hover/item:border-brand-red/50 group-hover/item:bg-brand-red/5 transition-all">
                     <Mail className="h-5 w-5 text-brand-red" />
                   </div>
                   <div>
                     <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Direct Dispatch</p>
-                    <p className="text-[11px] font-black uppercase tracking-tighter truncate max-w-[200px]">info@justiceultimateautomobiles.com</p>
+                    <p className="text-[11px] font-black uppercase tracking-tighter truncate max-w-[200px] group-hover/item:text-brand-red transition-colors">info@justiceultimateautomobiles.com</p>
                   </div>
-                </div>
+                </a>
+
+                <a href="https://maps.app.goo.gl/7x51yn7VHwHfpEpV8" target="_blank" rel="noopener noreferrer" className="flex items-center gap-5 group/item cursor-pointer">
+                  <div className="h-12 w-12 rounded bg-background border border-border flex items-center justify-center shrink-0 shadow-sm group-hover/item:border-brand-red/50 group-hover/item:bg-brand-red/5 transition-all">
+                    <MapPin className="h-5 w-5 text-brand-red" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Institutional Hub</p>
+                    <p className="text-[11px] font-black uppercase tracking-tighter group-hover/item:text-brand-red transition-colors">Westlands, Nairobi, Kenya</p>
+                  </div>
+                </a>
               </div>
 
               <div className="flex gap-4 pt-2">
@@ -184,9 +194,15 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-10">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
             <div className="flex flex-wrap justify-center lg:justify-start gap-x-10 gap-y-6">
-              {["Terms of Engagement", "Data Privacy", "Cookie Policy", "Compliance Hub", "Technical FAQs"].map((item) => (
-                <Link key={item} to={`/${item.toLowerCase().replace(/ /g, '-')}`} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-brand-red transition-colors">
-                  {item}
+              {[
+                { label: "Terms of Engagement", path: "/terms" },
+                { label: "Data Privacy", path: "/privacy" },
+                { label: "Cookie Policy", path: "/cookies" },
+                { label: "Compliance Hub", path: "/compliance-hub" },
+                { label: "Technical FAQs", path: "/faqs" }
+              ].map((item) => (
+                <Link key={item.label} to={item.path} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-brand-red transition-colors">
+                  {item.label}
                 </Link>
               ))}
             </div>

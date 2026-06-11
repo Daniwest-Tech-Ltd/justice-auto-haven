@@ -6,8 +6,10 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import LoadingScreen from "@/components/LoadingScreen";
-import { Bike, Gauge, Fuel, Search, Cpu, Zap } from "lucide-react";
+import { Bike, Gauge, Fuel, Search, Cpu, Zap, ShieldCheck, Globe, Trophy, Shield } from "lucide-react";
 import useDisableRightClick from "@/hooks/useDisableRightClick";
+import HeroSlider from "@/components/HeroSlider";
+import { getCurrentSale } from "@/lib/currentSale";
 
 interface Motorbike {
   id: string;
@@ -78,26 +80,66 @@ const MotorbikeCatalogue = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative">
-      {/* Tech loading bar */}
-      <div className="fixed top-0 left-0 right-0 h-0.5 bg-transparent z-50">
-        <div
-          className="h-full bg-gradient-to-r from-emerald-400 via-primary to-emerald-400 transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.7)]"
-          style={{ width: `${progress}%` }}
-        />
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
+      {/* Background Overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
       </div>
 
-      {/* Grid backdrop */}
-      <div
-        className="absolute inset-0 opacity-[0.05] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground)) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-      />
+      {/* Professional Marquee - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                NTSA Verification
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Direct Logistics
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                Asset Scaling
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="h-3 w-3 text-brand-red" />
+                Unit Validation
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      <div className="container mx-auto px-4 py-8 relative">
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+      `}</style>
+
+      {/* Hero Header */}
+      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
+        <HeroSlider />
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red italic">Two-Wheeled Asset Ledger: {getCurrentSale().year}</p>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase italic">
+              Motorbike <span className="text-brand-red">Catalogue.</span>
+            </h1>
+            <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed uppercase tracking-widest">
+              Premium motorbike fleet — from high-performance sport units to adventure and corporate commuter solutions.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>

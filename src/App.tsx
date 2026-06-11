@@ -103,6 +103,7 @@ const VIPAnalytics = lazyWithRetry(() => import("./pages/VIPAnalytics"));
 const OTPManagement = lazyWithRetry(() => import("./pages/OTPManagement"));
 const TrackOrder = lazyWithRetry(() => import("./pages/TrackOrder"));
 const FAQs = lazyWithRetry(() => import("./pages/FAQs"));
+const ComplianceHub = lazyWithRetry(() => import("./pages/ComplianceHub"));
 const HelpSupport = lazyWithRetry(() => import("./pages/HelpSupport"));
 const SystemHealth = lazyWithRetry(() => import("./pages/SystemHealth"));
 const SystemAuthDetails = lazyWithRetry(() => import("./pages/SystemAuthDetails"));
@@ -183,22 +184,6 @@ const AppContent = () => {
     };
     runUpdateCheck();
   }, []);
-
-  // ... existing code ...
-  {updateInfo && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 rounded-lg max-w-sm w-full shadow-2xl">
-            <h2 className="text-xl font-bold mb-2">Update Available</h2>
-            <p className="text-gray-600">A new version of Justice App is ready. Please update for the latest features.</p>
-            <button 
-              className="mt-6 w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700"
-              onClick={() => Browser.open({ url: updateInfo.apkUrl })}
-            >
-              Download Update
-            </button>
-          </div>
-        </div>
-      )}
 
   // 🔥 FIREBASE PUSH NOTIFICATIONS PERMISSION & REGISTRATION GATEWAY
   useEffect(() => {
@@ -318,6 +303,20 @@ const AppContent = () => {
 
   return (
     <Suspense fallback={<LoadingScreen />}>
+      {updateInfo && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg max-w-sm w-full shadow-2xl">
+            <h2 className="text-xl font-bold mb-2">Update Available</h2>
+            <p className="text-gray-600">A new version of Justice App is ready. Please update for the latest features.</p>
+            <button
+              className="mt-6 w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700"
+              onClick={() => Browser.open({ url: updateInfo.apkUrl })}
+            >
+              Download Update
+            </button>
+          </div>
+        </div>
+      )}
       {!isAuthPage && (
         <SessionTimeoutModal
           isOpen={showWarning}
@@ -345,6 +344,7 @@ const AppContent = () => {
           <Route path="/cookies" element={<Layout><CookiePolicy /></Layout>} />
           <Route path="/cookie-policy" element={<Layout><CookiePolicy /></Layout>} />
           <Route path="/faqs" element={<Layout><FAQs /></Layout>} />
+          <Route path="/compliance-hub" element={<Layout><ComplianceHub /></Layout>} />
           <Route path="/help-support" element={<Layout><HelpSupport /></Layout>} />
           <Route path="/rental-booking" element={<Layout><RentalBooking /></Layout>} />
           <Route path="/rentals" element={<Layout><RentalCatalogue /></Layout>} />

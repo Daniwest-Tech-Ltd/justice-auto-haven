@@ -5,10 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2 } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2, ShieldCheck, Trophy } from "lucide-react";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
+import HeroSlider from "@/components/HeroSlider";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -216,22 +217,45 @@ const Catalogue = () => {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
       </div>
 
-      {/* Official Trust Bar */}
-      <div className="bg-primary py-2 relative z-30 border-b border-white/5">
-        <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <Shield className="h-3 w-3 text-brand-red" />
-            Unit Validation Protocol
-          </span>
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <Globe className="h-3 w-3 text-brand-red" />
-            Certified Logistics Hub
-          </span>
+      {/* Professional Marquee - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                NTSA Verification
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Direct Logistics
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                Asset Scaling
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="h-3 w-3 text-brand-red" />
+                Unit Validation
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+      `}</style>
+
       {/* Catalogue Hero - Professional & Formal */}
-      <section className="relative flex items-center justify-center border-b border-border bg-secondary/5 py-12">
+      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
+        <HeroSlider />
         <div className="container mx-auto px-4 relative z-10 text-center">
           <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Operational Asset Ledger: {sale.year}</p>
@@ -454,9 +478,15 @@ const Catalogue = () => {
                  <h4 className="text-lg font-extrabold uppercase tracking-tight">Technical Support Hub</h4>
                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest max-w-sm">Direct line to technical yard dispatch. Mean response latency: 12 minutes.</p>
               </div>
-              <Button size="sm" variant="outline" className="px-10 h-10 rounded-md border-border text-foreground font-bold text-[10px] uppercase tracking-widest group-hover:bg-brand-red group-hover:text-white group-hover:border-brand-red" onClick={() => navigate("/contact")}>
-                Establish Direct Contact
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2 w-full justify-center">
+                <Button size="sm" variant="outline" className="px-10 h-10 rounded-md border-border text-foreground font-bold text-[10px] uppercase tracking-widest group-hover:bg-brand-red group-hover:text-white group-hover:border-brand-red flex-1 sm:flex-none" onClick={() => navigate("/contact")}>
+                  Establish Direct Contact
+                </Button>
+                <Button size="sm" variant="outline" className="px-10 h-10 rounded-md border-border text-foreground font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white flex-1 sm:flex-none" onClick={() => window.open("https://maps.app.goo.gl/7x51yn7VHwHfpEpV8")}>
+                  <MapPin className="h-3 w-3 mr-2" />
+                  View Strategic Hub
+                </Button>
+              </div>
            </div>
         </div>
       </section>

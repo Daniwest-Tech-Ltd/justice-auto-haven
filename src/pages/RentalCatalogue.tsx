@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LoadingScreen from "@/components/LoadingScreen";
+import HeroSlider from "@/components/HeroSlider";
 import { Car, Clock, ShieldCheck, Globe, Navigation, ChevronRight, Zap, Activity, Gauge } from "lucide-react";
 import { getCurrentSale } from "@/lib/currentSale";
 
@@ -76,7 +77,8 @@ const RentalCatalogue = () => {
       </div>
 
       {/* Hero - Professional & Formal */}
-      <section className="relative flex items-center justify-center border-b border-border bg-secondary/5 py-12">
+      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
+        <HeroSlider />
         <div className="container mx-auto px-4 relative z-10 text-center">
           <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Operational Logistics Hub: {sale.year}</p>
