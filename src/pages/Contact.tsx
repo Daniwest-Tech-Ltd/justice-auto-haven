@@ -1,14 +1,36 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Phone, Mail, MapPin, MessageCircle, Clock, Send, Building2, Headphones, ShoppingBag, User } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Phone,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Clock,
+  Send,
+  Building2,
+  Headphones,
+  ShoppingBag,
+  User,
+  ShieldCheck,
+  Globe,
+  Navigation,
+  ChevronRight,
+  ArrowLeft,
+  CheckCircle,
+  Briefcase
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentSale } from "@/lib/currentSale";
 
 const Contact = () => {
   const sale = getCurrentSale();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -61,231 +83,239 @@ const Contact = () => {
     }
   };
 
-  const contactCards = [
-    {
-      icon: Phone,
-      title: "Main Sales Line",
-      value: "0751 555 544",
-      href: "tel:+254751555544",
-      gradient: "from-blue-500/20 to-cyan-500/20",
-    },
-    {
-      icon: User,
-      title: "Justice Vincent — CEO",
-      value: "0722 827 458",
-      href: "tel:+254722827458",
-      gradient: "from-amber-500/20 to-orange-500/20",
-    },
-    {
-      icon: Headphones,
-      title: "Daniel Maina — System Admin",
-      value: "0701 460 110",
-      href: "tel:+254701460110",
-      gradient: "from-purple-500/20 to-pink-500/20",
-    },
-  ];
-
-  const departments = [
-    { icon: Mail, label: "General Inquiries", email: "info@justiceultimateautomobiles.com", color: "text-blue-500" },
-    { icon: Headphones, label: "Customer Support", email: "support@justiceultimateautomobiles.com", color: "text-green-500" },
-    { icon: ShoppingBag, label: "Sales Department", email: "sales@justiceultimateautomobiles.com", color: "text-amber-500" },
-    
-  ];
-
   return (
-    <div className="contact-page container mx-auto px-4 py-12 space-y-12">
-      {/* Hero Header */}
-      <section className="relative">
-        <div className="glass-strong rounded-3xl p-8 md:p-12 max-w-5xl mx-auto text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
-          <div className="relative">
-            <div className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm md:text-base px-5 py-2 rounded-full mb-4 animate-pulse shadow-lg">
-              {sale.banner}
-            </div>
-            <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-              Get in Touch with Justice Ultimate Automobiles
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
+      {/* Background Overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+      </div>
+
+      {/* Official Trust Bar */}
+      <div className="bg-primary py-2 relative z-30 border-b border-white/5 shadow-2xl">
+        <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
+          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
+            <ShieldCheck className="h-3 w-3 text-brand-red" />
+            Direct Communication Terminal
+          </span>
+          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
+            <Globe className="h-3 w-3 text-brand-red" />
+            Nationwide Support Network
+          </span>
+        </div>
+      </div>
+
+      {/* Hero - Professional & Formal */}
+      <section className="relative flex items-center justify-center border-b border-border bg-secondary/5 py-12">
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Operational Desk: {sale.year}</p>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground uppercase">
+              Corporate <span className="text-brand-red">Contact Room.</span>
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto">
-              Kenya's most trusted car dealership. Up to 90% asset financing with 3-day approvals. Reach our team for sales,
-              rentals, trade-ins, and inquiries — based in Westlands, Nairobi.
+            <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+              Initiate a direct query with our executive desk. We provide authoritative support for car sales, rentals, asset financing, and trade-in audits. <br className="hidden md:block" /> Mean response turnaround: 60 business minutes.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Quick Contact Cards */}
-      <section className="grid md:grid-cols-3 gap-5">
-        {contactCards.map((card) => (
-          <a
-            key={card.title}
-            href={card.href}
-            className={`group relative overflow-hidden glass-strong rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl`}
-          >
-            <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-50 group-hover:opacity-80 transition-opacity`} />
-            <div className="relative flex items-start gap-4">
-              <div className="h-12 w-12 rounded-xl bg-background/60 backdrop-blur-sm flex items-center justify-center shadow-sm">
-                <card.icon className="h-6 w-6 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1">{card.title}</p>
-                <p className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{card.value}</p>
-              </div>
-            </div>
-          </a>
-        ))}
-      </section>
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {/* Main Communication Channel */}
+          <div className="lg:col-span-2">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Card className="rounded-md border-border bg-background shadow-sm overflow-hidden">
+                <CardHeader className="border-b border-border/50 pb-4">
+                  <div className="flex items-center gap-2">
+                    <Send className="h-4 w-4 text-primary" />
+                    <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Dispatch Message</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold uppercase tracking-wider">Full Legal Name</Label>
+                      <Input
+                        className="h-10 rounded-sm text-xs"
+                        placeholder="John Doe"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold uppercase tracking-wider">Professional Email</Label>
+                      <Input
+                        className="h-10 rounded-sm text-xs"
+                        type="email"
+                        placeholder="john@example.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
 
-      {/* Main Grid: Form + Info */}
-      <div className="grid lg:grid-cols-5 gap-8">
-        {/* Contact Form (3 cols) */}
-        <div className="lg:col-span-3">
-          <div className="glass-strong rounded-3xl p-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 h-40 w-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="relative">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Send className="h-5 w-5 text-primary" />
-                </div>
-                <h2 className="text-2xl font-bold">Send us a Message</h2>
-              </div>
-              <p className="text-sm text-muted-foreground mb-6">We typically respond within 1 hour during business hours.</p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold uppercase tracking-wider">Contact Number</Label>
+                      <Input
+                        className="h-10 rounded-sm text-xs"
+                        type="tel"
+                        placeholder="07XX XXX XXX"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold uppercase tracking-wider">Subject Matter</Label>
+                      <Input
+                        className="h-10 rounded-sm text-xs"
+                        placeholder="e.g., Asset Finance Inquiry"
+                        value={formData.subject}
+                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Input
-                    placeholder="Full Name *"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="bg-background/60 backdrop-blur-sm"
-                  />
-                  <Input
-                    type="email"
-                    placeholder="Email Address *"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                    className="bg-background/60 backdrop-blur-sm"
-                  />
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-wider">Detailed Message</Label>
+                    <Textarea
+                      className="rounded-sm text-xs min-h-[150px]"
+                      placeholder="Specify the details of your inquiry..."
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <Button type="submit" disabled={submitting} className="w-full h-12 rounded-md bg-brand-red hover:bg-brand-red/90 text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-xl btn-signal">
+                    {submitting ? "Transmitting..." : "Send Dispatch"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Departments - Marketplace Cards */}
+              <div className="grid sm:grid-cols-3 gap-4">
+                {[
+                  { icon: Mail, label: "General", email: "info@justiceultimateautomobiles.com" },
+                  { icon: Headphones, label: "Support", email: "support@justiceultimateautomobiles.com" },
+                  { icon: ShoppingBag, label: "Sales", email: "sales@justiceultimateautomobiles.com" }
+                ].map((dept, i) => (
+                  <Card key={i} className="border-border bg-secondary/5 group hover:bg-secondary/10 transition-colors">
+                    <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
+                      <dept.icon className="h-4 w-4 text-primary" />
+                      <p className="text-[9px] font-black uppercase tracking-tight">{dept.label}</p>
+                      <a href={`mailto:${dept.email}`} className="text-[8px] font-bold text-muted-foreground hover:text-brand-red break-all uppercase">{dept.email}</a>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </form>
+          </div>
+
+          {/* Business Support Sidebar */}
+          <div className="space-y-6">
+            {/* Executive Contacts */}
+            <Card className="rounded-md border-border bg-secondary/5">
+              <CardHeader className="pb-3 border-b border-border/50">
+                <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Executive Registry</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-6">
+                {[
+                  { icon: Phone, title: "Main Sales Line", val: "0751 555 544", href: "tel:+254751555544" },
+                  { icon: User, title: "Justice Vincent (CEO)", val: "0722 827 458", href: "tel:+254722827458" },
+                  { icon: Headphones, title: "Daniel Maina (Admin)", val: "0701 460 110", href: "tel:+254701460110" }
+                ].map((contact, i) => (
+                  <div key={i} className="flex gap-3 group">
+                    <div className="h-8 w-8 rounded bg-background border border-border flex items-center justify-center shrink-0">
+                      <contact.icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-[9px] font-black uppercase tracking-tight text-muted-foreground">{contact.title}</p>
+                      <a href={contact.href} className="text-[11px] font-black uppercase tracking-tighter hover:text-brand-red transition-colors">{contact.val}</a>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Strategic Location */}
+            <Card className="rounded-md border-border bg-background shadow-sm overflow-hidden group">
+              <div className="h-32 bg-secondary/20 relative flex items-center justify-center overflow-hidden">
+                 <MapPin className="h-10 w-10 text-brand-red opacity-20 absolute" />
+                 <Navigation className="h-5 w-5 text-primary animate-pulse relative z-10" />
+              </div>
+              <CardContent className="p-5 space-y-3">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-primary">Headquarters</p>
+                 <p className="text-[11px] font-bold uppercase leading-relaxed">Muthithi Road, Westlands<br />Nairobi, Kenya</p>
+                 <Button
+                   variant="outline"
+                   className="w-full h-10 text-[9px] font-black uppercase tracking-[0.2em] rounded-sm group-hover:bg-primary group-hover:text-white transition-all"
+                   onClick={() => window.open("https://maps.app.goo.gl/spVusF8WkEfe7pZx5")}
+                 >
+                   View Strategic Hub
+                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Operational Hours */}
+            <Card className="rounded-md border-border bg-secondary/5">
+               <CardHeader className="pb-3 border-b border-border/50">
+                  <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Operational Cycle</CardTitle>
+               </CardHeader>
+               <CardContent className="pt-5 space-y-3">
+                  <div className="flex items-center gap-3">
+                     <Clock className="h-4 w-4 text-primary" />
+                     <div className="space-y-1">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Nairobi (EAT)</p>
+                        <p className="text-[10px] font-black uppercase">8AM – 6PM, MON–SAT</p>
+                     </div>
+                  </div>
+                  <div className="flex items-center gap-3 opacity-60">
+                     <Clock className="h-4 w-4 text-muted-foreground" />
+                     <div className="space-y-1">
+                        <p className="text-[9px] font-black uppercase tracking-widest">London (GMT)</p>
+                        <p className="text-[10px] font-black uppercase">7AM – 5PM, MON–FRI</p>
+                     </div>
+                  </div>
+               </CardContent>
+            </Card>
+
+            {/* Quick WhatsApp Audit */}
+            <Card className="rounded-md border-border bg-primary text-white overflow-hidden relative">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--accent)/0.2),transparent_50%)]" />
+              <CardContent className="pt-8 pb-6 text-center space-y-4 relative z-10">
+                <div className="h-10 w-10 bg-white/10 rounded-full mx-auto flex items-center justify-center">
+                  <MessageCircle className="h-6 w-6 text-brand-red" />
                 </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Input
-                    type="tel"
-                    placeholder="Phone Number"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="bg-background/60 backdrop-blur-sm"
-                  />
-                  <Input
-                    placeholder="Subject *"
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    required
-                    className="bg-background/60 backdrop-blur-sm"
-                  />
+                <div className="space-y-1">
+                   <h3 className="text-sm font-black uppercase tracking-widest">Support Desk</h3>
+                   <p className="text-[9px] font-bold uppercase opacity-70">Direct expert consultation</p>
                 </div>
-                <Textarea
-                  placeholder="Your Message *"
-                  rows={6}
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  required
-                  className="bg-background/60 backdrop-blur-sm resize-none"
-                />
-                <Button className="w-full gap-2" size="lg" type="submit" disabled={submitting}>
-                  {submitting ? "Sending..." : <>Send Message <Send className="h-4 w-4" /></>}
+                <p className="text-xl font-black font-mono tracking-tighter">+254 722 827 458</p>
+                <Button
+                  variant="outline"
+                  className="w-full bg-white/5 border-white/20 text-[10px] font-black uppercase tracking-widest h-10 rounded-sm hover:bg-white hover:text-primary transition-all"
+                  onClick={() => window.open("https://wa.me/254722827458")}
+                >
+                  Initiate WhatsApp Query
                 </Button>
-              </form>
-            </div>
-          </div>
-        </div>
+              </CardContent>
+            </Card>
 
-        {/* Right Column (2 cols) */}
-        <div className="lg:col-span-2 space-y-5">
-          {/* Location */}
-          <a
-            href="https://maps.app.goo.gl/spVusF8WkEfe7pZx5"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block glass-strong rounded-2xl p-6 hover:scale-[1.02] transition-all duration-300 group"
-          >
-            <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
-                <MapPin className="h-6 w-6 text-red-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold mb-1">Headquarters</h3>
-                <p className="text-sm text-muted-foreground">Muthithi Road, Westlands<br />Nairobi, Kenya</p>
-                <p className="text-xs text-primary mt-2 group-hover:underline">View on Google Maps →</p>
-              </div>
-            </div>
-          </a>
-
-          {/* Quick Reach */}
-          <div className="glass-strong rounded-2xl p-6 space-y-4">
-            <h3 className="text-lg font-bold flex items-center gap-2">
-              <MessageCircle className="h-5 w-5 text-primary" /> Quick Reach
-            </h3>
-            <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition-colors">
-              <MessageCircle className="h-5 w-5 text-green-600" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">WhatsApp</p>
-                <p className="font-semibold">+254 722 827 458</p>
-              </div>
-            </a>
-            <a href="tel:+254722827458" className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition-colors">
-              <Phone className="h-5 w-5 text-blue-600" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">Phone / SMS</p>
-                <p className="font-semibold">+254 722 827 458</p>
-              </div>
-            </a>
-          </div>
-
-          {/* Office Hours */}
-          <div className="glass-strong rounded-2xl p-6">
-            <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center flex-shrink-0">
-                <Clock className="h-6 w-6 text-purple-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold mb-2">Office Hours</h3>
-                <p className="text-sm text-muted-foreground">⏰ Nairobi (EAT): 8AM – 6PM, Mon–Sat</p>
-                <p className="text-sm text-muted-foreground">⏰ London (GMT): 7AM – 5PM, Mon–Fri</p>
-              </div>
-            </div>
+            <Button
+              variant="outline"
+              className="w-full h-12 rounded-md border-border text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-secondary"
+              onClick={() => navigate("/")}
+            >
+              <ArrowLeft className="h-3 w-3" /> Return to Terminal
+            </Button>
           </div>
         </div>
       </div>
-
-      {/* Departments Section */}
-      <section className="glass-strong rounded-3xl p-8 md:p-12">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-2">
-            <Building2 className="h-7 w-7 text-primary" />
-            <h2 className="text-3xl font-bold">Departments</h2>
-          </div>
-          <p className="text-muted-foreground">Reach the right team directly via email</p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
-          {departments.map((dept) => (
-            <a
-              key={dept.email}
-              href={`mailto:${dept.email}`}
-              className="group glass rounded-xl p-5 flex items-center gap-4 hover:scale-[1.02] transition-all duration-300 hover:shadow-lg"
-            >
-              <div className="h-12 w-12 rounded-xl bg-background/60 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                <dept.icon className={`h-6 w-6 ${dept.color}`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold mb-0.5">{dept.label}</p>
-                <p className="text-sm text-muted-foreground break-all group-hover:text-primary transition-colors">{dept.email}</p>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
     </div>
   );
 };

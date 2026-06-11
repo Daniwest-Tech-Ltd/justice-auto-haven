@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +15,8 @@ import type { Theme } from "./lib/theme";
 import { supabase } from "@/integrations/supabase/client";
 import KillSwitchOverlay from "./components/KillSwitchOverlay";
 import CookieConsentBanner from "./components/CookieConsentBanner";
+import { checkAppUpdate, AppVersion } from './services/UpdateService';
+
 
 // NATIVE MOBILE IMPORTS
 import { App as CapacitorApp } from "@capacitor/app";
@@ -35,7 +37,6 @@ const lazyWithRetry = (componentImport: () => Promise<any>) =>
   });
 
 const Home = lazyWithRetry(() => import("./pages/Home"));
-const About = lazyWithRetry(() => import("./pages/About"));
 const Contact = lazyWithRetry(() => import("./pages/Contact"));
 const Services = lazyWithRetry(() => import("./pages/Services"));
 const Catalogue = lazyWithRetry(() => import("./pages/Catalogue"));
@@ -170,6 +171,35 @@ const AppContent = () => {
     };
   }, [navigate]);
 
+  const [updateInfo, setUpdateInfo] = useState<AppVersion | null>(null);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const runUpdateCheck = async () => {
+      const result = await checkAppUpdate();
+      if (result.updateAvailable) {
+        setUpdateInfo(result.data || null);
+      }
+    };
+    runUpdateCheck();
+  }, []);
+
+  // ... existing code ...
+  {updateInfo && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg max-w-sm w-full shadow-2xl">
+            <h2 className="text-xl font-bold mb-2">Update Available</h2>
+            <p className="text-gray-600">A new version of Justice App is ready. Please update for the latest features.</p>
+            <button 
+              className="mt-6 w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700"
+              onClick={() => Browser.open({ url: updateInfo.apkUrl })}
+            >
+              Download Update
+            </button>
+          </div>
+        </div>
+      )}
+
   // 🔥 FIREBASE PUSH NOTIFICATIONS PERMISSION & REGISTRATION GATEWAY
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -300,7 +330,6 @@ const AppContent = () => {
       <Routes>
           {/* Public Routes with Layout */}
           <Route path="/" element={<Layout><Home /></Layout>} />
-          <Route path="/about" element={<Layout><About /></Layout>} />
           <Route path="/contact" element={<Layout><Contact /></Layout>} />
           <Route path="/services" element={<Layout><Services /></Layout>} />
           <Route path="/catalogue" element={<Layout><Catalogue /></Layout>} />

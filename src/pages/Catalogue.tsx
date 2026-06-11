@@ -1,30 +1,23 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2 } from "lucide-react";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { ColorBall } from "@/components/ColorSelector";
-import christmasGarland from "@/assets/christmas-garland.png";
-import specialOffer from "@/assets/special-offer.png";
-import CarLikeButton from "@/components/CarLikeButton";
-import CarCommentSection from "@/components/CarCommentSection";
-import CarRating from "@/components/CarRating";
 import { getCurrentSale } from "@/lib/currentSale";
 import { getRecentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } from "@/lib/recentSearches";
 import { X as XIcon, Clock as ClockIcon } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import useDisableRightClick from "@/hooks/useDisableRightClick";
 import FullscreenImageViewer from "@/components/FullscreenImageViewer";
-import { Maximize2 } from "lucide-react";
 
 interface Car {
   id: string;
@@ -43,12 +36,6 @@ interface Car {
   is_featured: boolean | null;
   created_at: string | null;
   yard_location: string | null;
-}
-
-interface Brand {
-  id: string;
-  name: string;
-  logo_url: string | null;
 }
 
 const Catalogue = () => {
@@ -70,12 +57,11 @@ const Catalogue = () => {
   const [wishlist, setWishlist] = useState<string[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
-  const itemsPerPage = 12;
+  const itemsPerPage = 64;
   const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches("catalogue"));
   const [showRecent, setShowRecent] = useState(false);
   const [fullscreen, setFullscreen] = useState<{ images: string[]; title: string } | null>(null);
 
-  // Persist search after the user pauses typing (debounced)
   useEffect(() => {
     const q = searchQuery.trim();
     if (!q) return;
@@ -86,28 +72,20 @@ const Catalogue = () => {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  // Fetch brands with React Query
   const { data: brands = [] } = useQuery({
     queryKey: ['brands'],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("brands")
-        .select("*")
-        .order("name");
+      const { data } = await supabase.from("brands").select("*").order("name");
       return data || [];
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch wishlist with React Query
   const { data: wishlistData } = useQuery({
     queryKey: ['wishlist', user?.id],
     queryFn: async () => {
       if (user) {
-        const { data } = await supabase
-          .from("wishlist")
-          .select("car_id")
-          .eq("user_id", user.id);
+        const { data } = await supabase.from("wishlist").select("car_id").eq("user_id", user.id);
         return data?.map(w => w.car_id) || [];
       }
       return JSON.parse(localStorage.getItem("wishlist") || "[]");
@@ -116,143 +94,72 @@ const Catalogue = () => {
   });
 
   useEffect(() => {
-    if (wishlistData) {
-      setWishlist(wishlistData);
-    }
+    if (wishlistData) setWishlist(wishlistData);
   }, [wishlistData]);
 
-  // Build optimized query
   const buildCarsQuery = () => {
-    let query = supabase
-      .from("cars")
-      .select("*", { count: 'exact' });
-
-    // Apply filters at database level
+    let query = supabase.from("cars").select("*", { count: 'exact' });
     if (searchQuery) {
       const q = searchQuery.trim();
       const safe = q.replace(/[,()]/g, " ");
       const conditions = [
-        `make.ilike.%${safe}%`,
-        `model.ilike.%${safe}%`,
-        `color.ilike.%${safe}%`,
-        `fuel_type.ilike.%${safe}%`,
-        `transmission.ilike.%${safe}%`,
-        `drive_type.ilike.%${safe}%`,
-        `engine.ilike.%${safe}%`,
-        `mileage.ilike.%${safe}%`,
-        `stock_id.ilike.%${safe}%`,
-        `vin.ilike.%${safe}%`,
-        `description.ilike.%${safe}%`,
-        `notes.ilike.%${safe}%`,
-        `status.ilike.%${safe}%`,
+        `make.ilike.%${safe}%`, `model.ilike.%${safe}%`, `color.ilike.%${safe}%`,
+        `fuel_type.ilike.%${safe}%`, `transmission.ilike.%${safe}%`, `drive_type.ilike.%${safe}%`,
+        `engine.ilike.%${safe}%`, `mileage.ilike.%${safe}%`, `stock_id.ilike.%${safe}%`,
+        `vin.ilike.%${safe}%`, `description.ilike.%${safe}%`, `notes.ilike.%${safe}%`, `status.ilike.%${safe}%`,
       ];
-      // Only add year.eq if numeric
       if (/^\d{4}$/.test(q)) conditions.push(`year.eq.${q}`);
       query = query.or(conditions.join(","));
     }
-
-    if (filters.brand !== "all") {
-      query = query.eq("make", filters.brand);
-    }
-
+    if (filters.brand !== "all") query = query.eq("make", filters.brand);
     const locationParam = searchParams.get("location");
-    if (locationParam) {
-      query = query.ilike("yard_location", `%${locationParam}%`);
-    }
-
-    if (filters.year !== "all") {
-      query = query.eq("year", parseInt(filters.year));
-    }
-
-    if (filters.availability !== "all") {
-      query = query.eq("status", filters.availability);
-    }
-
-    if (filters.fuelType !== "all") {
-      query = query.eq("fuel_type", filters.fuelType);
-    }
-
+    if (locationParam) query = query.ilike("yard_location", `%${locationParam}%`);
+    if (filters.year !== "all") query = query.eq("year", parseInt(filters.year));
+    if (filters.availability !== "all") query = query.eq("status", filters.availability);
+    if (filters.fuelType !== "all") query = query.eq("fuel_type", filters.fuelType);
     if (filters.priceRange !== "all") {
       const [min, max] = filters.priceRange.split("-").map(Number);
-      if (max) {
-        query = query.gte("price", min).lte("price", max);
-      } else {
-        query = query.gte("price", min);
-      }
+      if (max) query = query.gte("price", min).lte("price", max);
+      else query = query.gte("price", min);
     }
-
-    if (stockFilter === "in-stock") {
-      query = query.neq("status", "sold");
-    } else if (stockFilter === "sold-out") {
-      query = query.eq("status", "sold");
-    }
-
+    if (stockFilter === "in-stock") query = query.neq("status", "sold");
+    else if (stockFilter === "sold-out") query = query.eq("status", "sold");
     return query;
   };
 
-  // Fetch cars with React Query and server-side pagination
   const { data: carsData, isLoading } = useQuery({
     queryKey: ['cars', searchQuery, filters, stockFilter, currentPage],
     queryFn: async () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
-
-      const { data, error, count } = await buildCarsQuery()
-        .range(from, to)
-        .order("created_at", { ascending: false });
-
+      const { data, error, count } = await buildCarsQuery().range(from, to).order("created_at", { ascending: false });
       if (error) throw error;
-
-      return {
-        cars: data || [],
-        total: count || 0,
-      };
+      return { cars: data || [], total: count || 0 };
     },
-    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
-    placeholderData: (previousData) => previousData, // Keep previous data while loading
+    staleTime: 2 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
   });
 
   const cars = carsData?.cars || [];
   const totalPages = Math.ceil((carsData?.total || 0) / itemsPerPage);
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, filters, stockFilter]);
-
-  // Check for brand filter from URL
-  useEffect(() => {
-    const brandParam = searchParams.get("brand");
-    if (brandParam) {
-      setFilters(prev => ({ ...prev, brand: brandParam }));
-    }
-  }, [searchParams]);
-
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, filters, stockFilter]);
 
   const toggleWishlist = async (e: React.MouseEvent, carId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    
     try {
       if (wishlist.includes(carId)) {
-        if (user) {
-          await supabase
-            .from("wishlist")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("car_id", carId);
-        } else {
+        if (user) await supabase.from("wishlist").delete().eq("user_id", user.id).eq("car_id", carId);
+        else {
           const local = JSON.parse(localStorage.getItem("wishlist") || "[]");
           localStorage.setItem("wishlist", JSON.stringify(local.filter((id: string) => id !== carId)));
         }
         setWishlist(wishlist.filter(id => id !== carId));
         toast({ title: "Removed from whitelist" });
       } else {
-        if (user) {
-          await supabase
-            .from("wishlist")
-            .insert({ user_id: user.id, car_id: carId });
-        } else {
+        if (user) await supabase.from("wishlist").insert({ user_id: user.id, car_id: carId });
+        else {
           const local = JSON.parse(localStorage.getItem("wishlist") || "[]");
           localStorage.setItem("wishlist", JSON.stringify([...local, carId]));
         }
@@ -264,749 +171,296 @@ const Catalogue = () => {
     }
   };
 
-
   const clearFilters = () => {
     setSearchQuery("");
-    setFilters({
-      brand: "all",
-      year: "all",
-      availability: "all",
-      fuelType: "all",
-      priceRange: "all",
-    });
+    setFilters({ brand: "all", year: "all", availability: "all", fuelType: "all", priceRange: "all" });
     setStockFilter("all");
     setCurrentPage(1);
   };
 
   const getImages = (car: any): string[] => {
-    // Try new image structure first (main_images)
     if (car.main_images) {
-      if (Array.isArray(car.main_images) && car.main_images.length > 0) {
-        return car.main_images;
-      }
-      if (typeof car.main_images === 'string') {
-        try {
-          const parsed = JSON.parse(car.main_images);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        } catch {}
-      }
+      const parsed = typeof car.main_images === 'string' ? JSON.parse(car.main_images) : car.main_images;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
-
-    // Fallback to old images field
     if (car.images) {
-      if (Array.isArray(car.images)) return car.images;
-      if (typeof car.images === 'string') {
-        try {
-          const parsed = JSON.parse(car.images);
-          return Array.isArray(parsed) ? parsed : [parsed];
-        } catch {
-          return [car.images];
-        }
-      }
+      const parsed = typeof car.images === 'string' ? JSON.parse(car.images) : car.images;
+      return Array.isArray(parsed) ? parsed : [parsed];
     }
-    
     return [];
   };
 
-  const getBrandLogo = (make: string) => {
-    const brand = brands.find(b => b.name.toLowerCase() === make.toLowerCase());
-    return brand?.logo_url;
-  };
-
-  // Fetch filter options separately (cached)
   const { data: filterOptions } = useQuery({
     queryKey: ['car-filter-options'],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("cars")
-        .select("year, make, fuel_type");
-      
-      const uniqueYears = Array.from(new Set(data?.map((car) => car.year) || []))
-        .filter(Boolean)
-        .sort((a, b) => b - a);
-      
-      const uniqueMakes = Array.from(new Set(data?.map((car) => car.make).filter(make => make && make.trim() !== '') || []))
-        .sort();
-      
-      const uniqueFuelTypes = Array.from(new Set(data?.map((car) => car.fuel_type).filter(type => type && type.trim() !== '') || []))
-        .sort();
-
+      const { data } = await supabase.from("cars").select("year, make, fuel_type");
+      const uniqueYears = Array.from(new Set(data?.map((car) => car.year) || [])).filter(Boolean).sort((a, b) => b - a);
+      const uniqueMakes = Array.from(new Set(data?.map((car) => car.make).filter(make => make && make.trim() !== '') || [])).sort();
+      const uniqueFuelTypes = Array.from(new Set(data?.map((car) => car.fuel_type).filter(type => type && type.trim() !== '') || [])).sort();
       return { uniqueYears, uniqueMakes, uniqueFuelTypes };
     },
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 10 * 60 * 1000,
   });
 
   const uniqueYears = filterOptions?.uniqueYears || [];
   const uniqueMakes = filterOptions?.uniqueMakes || [];
   const uniqueFuelTypes = filterOptions?.uniqueFuelTypes || [];
 
-  if (isLoading && !carsData) {
-    return <LoadingScreen />;
-  }
+  if (isLoading && !carsData) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen">
-      {/* SEO Meta Section - Hidden but crawlable */}
-      <div className="sr-only" aria-hidden="true">
-        <h2>Popular Cars in Kenya 2026</h2>
-        <p>Toyota Land Cruiser Prado, Toyota Land Cruiser V8, Toyota Harrier, Toyota RAV4, Toyota Vanguard, Toyota Hilux, Toyota Fortuner, Toyota Premio, Toyota Allion, Toyota Axio, Mazda CX-5, Mazda CX-8, Nissan X-Trail, Nissan Note, Nissan Juke, Subaru Forester, Subaru Outback, Subaru XV, Mercedes-Benz C-Class, Mercedes-Benz E-Class, BMW X3, BMW X5, Lexus RX 350, Lexus NX, Honda CR-V, Mitsubishi Outlander</p>
-        <p>Car dealers in Nairobi, best car dealership in Kenya, asset financing Kenya, buy car on loan Kenya, car financing Nairobi, Westlands car yard, used cars for sale Kenya, import cars Kenya, Toyota cars for sale Nairobi, Mazda CX-5 Kenya, Nissan X-Trail Kenya, Subaru Forester Kenya, Lexus RX 350 Kenya, BMW X5 Kenya, Mercedes Benz cars Kenya, buy SUV in Kenya, affordable cars Kenya, Japanese cars Kenya, bank car financing Kenya, hire purchase cars Kenya, car loan Kenya 2026, Nairobi motor dealers, top car dealers Westlands, Justice Ultimate Automobiles, used SUVs Nairobi, family cars Kenya, luxury cars Kenya, car yard Westlands Nairobi, fast car financing Kenya, trusted car dealers Kenya</p>
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
+      {/* Background Overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
       </div>
 
-      {/* Hero Banner Section */}
-      <div className="relative bg-gradient-to-br from-primary/20 via-background to-secondary/20 py-3 mb-4">
-        {/* Dynamic Monthly Sale Badge - Top Center */}
-        <div className="flex justify-center mb-2 pt-1">
-          <div className="bg-gradient-to-r from-primary via-yellow-500 to-primary px-6 py-2 rounded-full shadow-lg animate-pulse">
-            <span className="text-white font-bold text-lg">🎉 {sale.short} - Up to 90% Asset Financing</span>
-          </div>
+      {/* Official Trust Bar */}
+      <div className="bg-primary py-2 relative z-30 border-b border-white/5">
+        <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
+          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
+            <Shield className="h-3 w-3 text-brand-red" />
+            Unit Validation Protocol
+          </span>
+          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
+            <Globe className="h-3 w-3 text-brand-red" />
+            Certified Logistics Hub
+          </span>
         </div>
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex justify-end gap-3 mb-4">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/asset-finance')}
-              className="font-semibold bg-primary/10 border-primary"
-            >
-              Apply for Asset Finance
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/trade-in-submission')}
-              className="font-semibold"
-            >
-              TRADE IN
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/rental-catalogue')}
-              className="font-semibold"
-            >
-              RENT
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/motorbikes')}
-              className="font-semibold"
-            >
-              MOTORBIKES
-            </Button>
-          </div>
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-5xl font-bold mb-2 bg-gradient-accent bg-clip-text text-transparent">
-              {sale.tagline}
+      </div>
+
+      {/* Catalogue Hero - Professional & Formal */}
+      <section className="relative flex items-center justify-center border-b border-border bg-secondary/5 py-12">
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Operational Asset Ledger: {sale.year}</p>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground uppercase">
+              Automotive <span className="text-brand-red">Catalogue.</span>
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground mb-2">
-              Buy Quality Vehicles with Up to 90% Asset Financing • Fast 3-Day Approval • Nairobi Westlands
+            <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+              Browse our institutional collection of verified Japanese and European automotive assets. <br className="hidden md:block" /> Every unit is subjected to a rigorous 150-point mechanical and legal audit before listing.
             </p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Toyota • Mazda • Nissan • Subaru • BMW • Mercedes • Lexus • Honda & More
-            </p>
-            
-            {/* Contact Buttons */}
-            <div className="flex flex-wrap justify-center gap-3 mb-4">
-              <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
-                <Button size="default" className="gap-2 bg-green-600 hover:bg-green-700">
-                  <MessageCircle className="h-4 w-4" />
-                  WhatsApp: 0722 827 458
-                </Button>
-              </a>
-              <a href="tel:+254722827458">
-                <Button size="default" variant="outline" className="gap-2">
-                  <Phone className="h-4 w-4" />
-                  Call Now
-                </Button>
-              </a>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 max-w-4xl mx-auto">
-              <div className="glass-strong rounded-lg p-2 flex items-center gap-2">
-                <Shield className="h-6 w-6 text-primary flex-shrink-0" />
-                <div className="text-left">
-                  <p className="font-semibold text-xs">Verified Vehicles</p>
-                  <p className="text-xs text-muted-foreground">100% Quality Assured</p>
-                </div>
-              </div>
-              <a href="https://maps.app.goo.gl/92DgyWn62UNSR26p8" target="_blank" rel="noopener noreferrer" className="block">
-                <div className="glass-strong rounded-lg p-2 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer">
-                  <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
-                  <div className="text-left">
-                    <p className="font-semibold text-xs">Visit Our Yard</p>
-                    <p className="text-xs text-muted-foreground">Mpesi Lane, Westlands</p>
-                  </div>
-                </div>
-              </a>
-              <div className="glass-strong rounded-lg p-2 flex items-center gap-2">
-                <Clock className="h-6 w-6 text-primary flex-shrink-0" />
-                <div className="text-left">
-                  <p className="font-semibold text-xs">Quick Processing</p>
-                  <p className="text-xs text-muted-foreground">7-21 Days Logbook</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setPaymentModalOpen(true)}
-                className="glass-strong rounded-lg p-2 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer w-full"
-              >
-                <CreditCard className="h-6 w-6 text-primary flex-shrink-0" />
-                <div className="text-left">
-                  <p className="font-semibold text-xs">Lipa Mdogo Mdogo</p>
-                  <p className="text-xs text-muted-foreground">Flexible Payment Plans</p>
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 pb-8">
-
-        {/* Search and Filters */}
-        <div className="glass-strong rounded-lg p-4 mb-6">
-          {/* Stock Status Filter Buttons */}
-          <div className="flex gap-3 mb-6">
-            <Button
-              variant={stockFilter === "all" ? "default" : "outline"}
-              onClick={() => setStockFilter("all")}
-              className="flex-1"
-            >
-              All Vehicles
-            </Button>
-            <Button
-              variant={stockFilter === "in-stock" ? "default" : "outline"}
-              onClick={() => setStockFilter("in-stock")}
-              className={`flex-1 ${
-                stockFilter === "in-stock"
-                  ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
-                  : "border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-950"
-              }`}
-            >
-              In Stock
-            </Button>
-            <Button
-              variant={stockFilter === "sold-out" ? "default" : "outline"}
-              onClick={() => setStockFilter("sold-out")}
-              className={`flex-1 ${
-                stockFilter === "sold-out"
-                  ? "bg-red-600 hover:bg-red-700 text-white border-red-600"
-                  : "border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
-              }`}
-            >
-              Sold Out
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-            <div className="lg:col-span-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                <Input
-                  placeholder="Search any car — make, model, year, colour, fuel, transmission or stock ID..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setShowRecent(true)}
-                  onBlur={() => setTimeout(() => setShowRecent(false), 150)}
-                  className="pl-10"
-                />
-                {showRecent && recentSearches.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-72 overflow-y-auto">
-                    <div className="flex items-center justify-between px-3 py-2 border-b border-border text-xs text-muted-foreground">
-                      <span>Recent searches on this device</span>
-                      <button
-                        type="button"
-                        className="hover:text-foreground"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          clearRecentSearches("catalogue");
-                          setRecentSearches([]);
-                        }}
-                      >
-                        Clear all
-                      </button>
-                    </div>
-                    {recentSearches.map((term) => (
-                      <div
-                        key={term}
-                        className="flex items-center justify-between px-3 py-2 hover:bg-accent/40 cursor-pointer text-sm"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          setSearchQuery(term);
-                          setShowRecent(false);
-                        }}
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <ClockIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                          <span className="truncate">{term}</span>
-                        </div>
-                        <button
-                          type="button"
-                          aria-label={`Remove ${term}`}
-                          className="text-muted-foreground hover:text-destructive ml-2"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            removeRecentSearch(term, "catalogue");
-                            setRecentSearches(getRecentSearches("catalogue"));
-                          }}
-                        >
-                          <XIcon className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Select value={filters.brand} onValueChange={(value) => setFilters({ ...filters, brand: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Brands" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Brands</SelectItem>
-                {uniqueMakes.map((make) => (
-                  <SelectItem key={make} value={make}>
-                    {make}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.year} onValueChange={(value) => setFilters({ ...filters, year: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Years" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Years</SelectItem>
-                {uniqueYears.map((year) => (
-                  <SelectItem key={year} value={year.toString()}>
-                    {year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Fuel Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Fuel Types</SelectItem>
-                {uniqueFuelTypes.map((type) => (
-                  <SelectItem key={type} value={type!}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.priceRange} onValueChange={(value) => setFilters({ ...filters, priceRange: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Price Range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Prices</SelectItem>
-                <SelectItem value="0-1000000">Under 1M</SelectItem>
-                <SelectItem value="1000000-3000000">1M - 3M</SelectItem>
-                <SelectItem value="3000000-5000000">3M - 5M</SelectItem>
-                <SelectItem value="5000000-10000000">5M - 10M</SelectItem>
-                <SelectItem value="10000000">10M+</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {(searchQuery || filters.brand !== "all" || filters.year !== "all" || filters.fuelType !== "all" || filters.priceRange !== "all" || stockFilter !== "all") && (
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Showing {carsData?.total || 0} vehicles
-              </p>
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
-                Clear Filters
+            <div className="flex justify-center gap-3 pt-2">
+              <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider" onClick={() => navigate("/asset-finance")}>
+                Financing Deck
+              </Button>
+              <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider" onClick={() => navigate("/trade-in")}>
+                Trade-In Portal
               </Button>
             </div>
-          )}
-        </div>
-
-        {/* Cars Grid */}
-        {cars.length === 0 ? (
-          <div className="glass-strong rounded-lg p-12 text-center">
-            <Car className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-xl font-semibold mb-2">We couldn't find a match{searchQuery ? ` for "${searchQuery}"` : ""}</h3>
-            <p className="text-muted-foreground mb-2">
-              Sorry, that vehicle isn't in our current stock. Our inventory updates daily — please try a different make, model, year, colour or stock ID.
-            </p>
-            <p className="text-muted-foreground mb-6">
-              Need help finding the perfect car? Call us on <a href="tel:+254722827458" className="text-primary font-semibold">0722 827 458</a> and our team will source it for you.
-            </p>
-            <Button onClick={clearFilters}>Clear All Filters</Button>
           </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {cars.map((car) => {
-                const images = getImages(car);
-                const brandLogo = getBrandLogo(car.make);
-                
-                return (
-                  <div
-                    key={car.id}
-                    className="group glass-strong rounded-xl overflow-hidden flex flex-col border border-primary/20 hover:border-primary/60 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-1 christmas-card relative"
+        </div>
+      </section>
+
+      {/* Asset Filtering Hub - Opaque & Professional */}
+      <section className="relative z-20 -mt-6">
+        <div className="container mx-auto px-4">
+          <div className="bg-background border border-border p-3 shadow-lg flex flex-col gap-3 rounded-lg max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="flex-1 relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Asset Search: VIN, Make, Model..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-10 pl-10 rounded-md border-input focus:ring-1 focus:ring-brand-red/50 text-[11px] font-bold uppercase tracking-tight"
+                />
+              </div>
+              <div className="flex gap-1 border border-border p-1 rounded-md">
+                {["all", "in-stock", "sold-out"].map((s) => (
+                  <Button
+                    key={s}
+                    variant={stockFilter === s ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setStockFilter(s)}
+                    className={`rounded-sm text-[9px] font-bold uppercase tracking-widest px-4 h-8 ${stockFilter === s ? "bg-primary text-white" : "text-muted-foreground hover:bg-secondary"}`}
                   >
-                    {/* Tech corner accents */}
-                    <span className="pointer-events-none absolute top-0 left-0 h-8 w-px bg-gradient-to-b from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="pointer-events-none absolute top-0 left-0 h-px w-8 bg-gradient-to-r from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="pointer-events-none absolute bottom-0 right-0 h-8 w-px bg-gradient-to-t from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="pointer-events-none absolute bottom-0 right-0 h-px w-8 bg-gradient-to-l from-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                    <Link to={`/car/${car.id}`} className="block">
-                      <div className="relative aspect-[4/3] overflow-hidden">
-                        {/* Christmas Offer Badge - Top Left */}
-                        <div className="absolute top-3 left-3 z-20 flex items-center">
-                          <img src={specialOffer} alt="Special Offer" className="w-16 h-auto offer-badge" />
-                        </div>
-                        
-                        <img
-                          src={images[0] || "/placeholder.svg"}
-                          alt={`${car.make} ${car.model}`}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        
-                        {/* Year Badge - Center */}
-                        <Badge className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary/90 shadow-2xl text-xl px-6 py-2 font-bold">
-                          {car.year}
-                        </Badge>
-                        
-                        {/* Stock Status Badge - Top Right */}
-                        <div className="absolute top-3 right-3 z-10">
-                          {car.status === "sold" ? (
-                            <Badge className="bg-red-600 hover:bg-red-600 text-white px-3 py-1 shadow-lg">
-                              SOLD OUT
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-green-600 hover:bg-green-600 text-white px-3 py-1 shadow-lg">
-                              ✓ IN STOCK
-                            </Badge>
-                          )}
-                        </div>
-
-                        {/* Fullscreen button */}
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          title="View fullscreen"
-                          className="absolute bottom-3 right-14 z-10 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const imgs = images.length ? images : ["/placeholder.svg"];
-                            setFullscreen({ images: imgs, title: `${car.make} ${car.model} ${car.year}` });
-                          }}
-                        >
-                          <Maximize2 className="h-4 w-4" />
-                        </Button>
-
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="absolute bottom-3 right-3 z-10 shadow-lg"
-                          onClick={(e) => toggleWishlist(e, car.id)}
-                        >
-                          <Heart
-                            className={`h-4 w-4 ${
-                              wishlist.includes(car.id) ? "fill-red-500 text-red-500" : ""
-                            }`}
-                          />
-                        </Button>
-                        {brandLogo && (
-                          <div className="absolute bottom-3 left-3 bg-white/90 rounded p-1.5 shadow-lg">
-                            <img src={brandLogo} alt={car.make} className="h-6 w-auto object-contain" />
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-                    
-                    
-                    <div className="p-5 flex-1 flex flex-col">
-                      <Link to={`/car/${car.id}`}>
-                        <h3 className="font-bold text-xl mb-2 line-clamp-1 hover:text-primary transition-colors">
-                          {car.make} {car.model}
-                        </h3>
-                      </Link>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Stock ID: <span className="font-mono font-semibold">{car.stock_id || "N/A"}</span>
-                      </p>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2 cursor-help w-fit">
-                              <MapPin className="h-3.5 w-3.5 text-primary" />
-                              <span className="truncate max-w-[180px]">{car.yard_location || "Westlands, Nairobi"}</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent side="top">
-                            <p className="text-xs">Yard location: {car.yard_location || "Westlands, Nairobi"}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      {car.created_at && (
-                        <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
-                          <Clock className="h-3 w-3 text-primary" />
-                          Added: {new Date(car.created_at).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })} at {new Date(car.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
-                        </p>
-                      )}
-                      
-                      <div className="grid grid-cols-2 gap-2 text-sm mb-4">
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <Gauge className="h-4 w-4 text-primary" />
-                          <span>{car.mileage || "N/A"}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <SettingsIcon className="h-4 w-4 text-primary" />
-                          <span>{car.transmission || "N/A"}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <Fuel className="h-4 w-4 text-primary" />
-                          <span className="uppercase font-medium">{car.fuel_type || "N/A"}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
-                          <ColorBall colorName={car.color} size="md" />
-                        </div>
-                      </div>
-                      
-                      <div className="border-t border-primary/10 pt-3 mb-4">
-                        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1.5">Price</p>
-                        <div className="relative inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500/15 via-green-500/20 to-emerald-500/15 border border-emerald-400/40 shadow-[0_0_20px_-5px_rgba(16,185,129,0.6)] backdrop-blur-sm overflow-hidden">
-                          <span className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-emerald-400 to-green-600 animate-pulse" />
-                          <span className="text-emerald-400 font-mono text-sm font-bold">KSh</span>
-                          <span className="text-2xl font-extrabold font-mono tabular-nums text-emerald-300 drop-shadow-[0_0_8px_rgba(16,185,129,0.7)]">
-                            {car.price.toLocaleString()}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-2">Negotiable • Payment Plans Available</p>
-                      </div>
-                      
-                      {/* Rating */}
-                      <div className="border-t border-border pt-2 mb-1">
-                        <CarRating carId={car.id} />
-                      </div>
-                      
-                      {/* Like/Dislike */}
-                      <div className="flex items-center justify-between pt-1 mb-2">
-                        <CarLikeButton carId={car.id} />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 mt-auto">
-                        <Link to={`/car/${car.id}`} className="block">
-                          <Button variant="outline" className="w-full text-xs h-9">
-                            View Details
-                          </Button>
-                        </Link>
-                        <a 
-                          href={`https://wa.me/254722827458?text=Hi, I'm interested in ${car.year} ${car.make} ${car.model} (Stock ID: ${car.stock_id || car.id})`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Button className="w-full gap-1.5 bg-green-600 hover:bg-green-700 text-xs h-9">
-                            <MessageCircle className="h-3.5 w-3.5" />
-                            WhatsApp
-                          </Button>
-                        </a>
-                      </div>
-
-                      {/* Comments */}
-                      <CarCommentSection carId={car.id} />
-                    </div>
-                  </div>
-                );
-              })}
+                    {s.replace('-', ' ')}
+                  </Button>
+                ))}
+              </div>
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <Pagination className="mt-12">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let page;
-                    if (totalPages <= 5) {
-                      page = i + 1;
-                    } else if (currentPage <= 3) {
-                      page = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      page = totalPages - 4 + i;
-                    } else {
-                      page = currentPage - 2 + i;
-                    }
-                    return (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {[
+                { key: 'brand', label: 'Manufacturer', options: uniqueMakes },
+                { key: 'year', label: 'Model Year', options: uniqueYears },
+                { key: 'fuelType', label: 'Propulsion', options: uniqueFuelTypes },
+                { key: 'priceRange', label: 'Capital Class', options: ['Under 1M', '1M - 3M', '3M - 5M', '5M - 10M', '10M+'] }
+              ].map((f) => (
+                <Select key={f.key} value={(filters as any)[f.key]} onValueChange={(val) => setFilters({ ...filters, [f.key]: val })}>
+                  <SelectTrigger className="h-10 rounded-md bg-secondary/20 border-border text-[10px] font-bold uppercase tracking-wider">
+                    <SelectValue placeholder={f.label} />
+                  </SelectTrigger>
+                  <SelectContent className="border-border">
+                    <SelectItem value="all" className="text-[11px] font-bold uppercase">All {f.label}s</SelectItem>
+                    {f.options.map((opt: any) => (
+                      <SelectItem key={opt} value={opt.toString().includes('M') ? opt.toString().replace(/ /g, '').toLowerCase() : opt.toString()} className="text-[11px] font-bold uppercase">{opt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ))}
+            </div>
+
+            <div className="flex justify-between items-center px-1 border-t border-border pt-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Showing {carsData?.total || 0} Professional Assets</p>
+              <Button variant="link" size="sm" onClick={clearFilters} className="h-auto p-0 text-[10px] font-bold uppercase tracking-widest text-brand-red hover:no-underline">Purge Filters</Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Asset Ledger Grid */}
+      <section className="py-16 relative z-10">
+        <div className="container mx-auto px-4">
+          {cars.length === 0 ? (
+            <div className="bg-secondary/5 border border-dashed border-border rounded-xl p-20 text-center max-w-4xl mx-auto">
+              <Car className="h-10 w-10 mx-auto mb-6 text-brand-red opacity-30" />
+              <h3 className="text-xl font-bold tracking-tight uppercase mb-4 text-foreground">Query Buffer Empty</h3>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-relaxed mb-8 max-w-md mx-auto">
+                No verified units currently match your selection criteria. <br /> Our logistics team can facilitate a direct procurement from Japan for your specific configuration.
+              </p>
+              <Button onClick={clearFilters} className="bg-primary font-bold text-[10px] uppercase tracking-widest px-8 h-10 rounded-md">
+                Reset Audit Hub
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 sm:gap-4">
+                {cars.map((car) => {
+                  const images = getImages(car);
+                  const isWhitelisted = wishlist.includes(car.id);
+                  return (
+                    <div
+                      key={car.id}
+                      className="group relative bg-background border border-border hover:border-brand-red/40 transition-all duration-300 cursor-pointer flex flex-col h-full hover:shadow-xl rounded-lg overflow-hidden"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden relative border-b border-border" onClick={() => navigate(`/car/${car.id}`)}>
+                        <img src={images[0] || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-[1s] group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        
+                        <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+                          <Badge className="bg-primary text-white text-[7px] font-bold uppercase rounded-sm py-0.5 px-1.5 tracking-wider">
+                             #{car.stock_id || 'UNIT'}
+                          </Badge>
+                        </div>
+                        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                           <Badge className={`text-white text-[7px] font-bold uppercase rounded-sm py-0.5 px-1.5 tracking-wider border-none ${car.status === 'sold' ? 'bg-red-600' : 'bg-green-600'}`}>
+                              {car.status === 'sold' ? 'SOLD' : 'AVAILABLE'}
+                           </Badge>
+                        </div>
+
+                        <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                           <Button size="icon" variant="secondary" className="h-7 w-7 rounded-md bg-white/90 text-black hover:bg-brand-red hover:text-white border-none shadow-md"
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFullscreen({ images: images.length ? images : ["/placeholder.svg"], title: `${car.make} ${car.model}` }); }}
+                           >
+                              <Maximize2 className="h-3.5 w-3.5" />
+                           </Button>
+                           <Button size="icon" variant="secondary" className={`h-7 w-7 rounded-md border-none shadow-md transition-all ${isWhitelisted ? "bg-brand-red text-white" : "bg-white/90 text-black hover:bg-brand-red hover:text-white"}`}
+                              onClick={(e) => toggleWishlist(e, car.id)}
+                           >
+                              <Heart className={`h-3.5 w-3.5 ${isWhitelisted ? "fill-white" : ""}`} />
+                           </Button>
+                        </div>
+                      </div>
+
+                      <div className="p-3 space-y-3 flex-1 flex flex-col justify-between" onClick={() => navigate(`/car/${car.id}`)}>
+                        <div className="space-y-1">
+                          <h3 className="text-[11px] font-extrabold uppercase tracking-tight truncate text-foreground/90 group-hover:text-brand-red transition-colors">{car.make} {car.model}</h3>
+                          <div className="flex justify-between items-center border-b border-border/50 pb-1.5 mb-1.5">
+                            <p className="text-sm font-black text-foreground tracking-tighter">KSh {car.price?.toLocaleString()}</p>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase">{car.year}</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <Gauge className="h-3 w-3 text-primary" />
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase truncate">{car.mileage || '0 KM'}</p>
+                          </div>
+                          <div className="flex items-center gap-1.5 justify-end">
+                            <SettingsIcon className="h-3 w-3 text-primary" />
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase truncate">{car.transmission || 'MT'}</p>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-border/50 mt-auto">
+                          <div className="flex items-center justify-between text-[8px] font-black uppercase text-muted-foreground tracking-widest">
+                            <span className="flex items-center gap-1"><Fuel className="h-2.5 w-2.5" /> {car.fuel_type || 'PET'}</span>
+                            <span className="text-brand-red">Details <ChevronRight className="h-2 w-2 inline" /></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {totalPages > 1 && (
+                <Pagination className="mt-16">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        className={`text-[10px] font-bold uppercase tracking-widest ${currentPage === 1 ? "pointer-events-none opacity-20" : "cursor-pointer"}`}
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                       <PaginationItem key={page}>
                         <PaginationLink
                           onClick={() => setCurrentPage(page)}
                           isActive={currentPage === page}
-                          className="cursor-pointer"
+                          className={`text-[11px] font-bold rounded-md h-9 w-9 transition-all ${currentPage === page ? "bg-primary text-white" : "border border-border hover:bg-secondary"}`}
                         >
                           {page}
                         </PaginationLink>
                       </PaginationItem>
-                    );
-                  })}
-                  <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            )}
-          </>
-        )}
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        className={`text-[10px] font-bold uppercase tracking-widest ${currentPage === totalPages ? "pointer-events-none opacity-20" : "cursor-pointer"}`}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+            </>
+          )}
+        </div>
+      </section>
 
-        {/* Popular Car Categories SEO Section */}
-        <div className="glass-strong rounded-xl p-8 mt-12 border border-primary/20">
-          <h2 className="text-2xl font-bold mb-6 text-center">Popular Cars in Kenya 2026</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {[
-              "Toyota Land Cruiser Prado", "Toyota Land Cruiser V8", "Toyota Harrier", 
-              "Toyota RAV4", "Toyota Hilux", "Toyota Fortuner",
-              "Toyota Premio", "Toyota Allion", "Toyota Axio",
-              "Mazda CX-5", "Mazda CX-8", "Nissan X-Trail",
-              "Nissan Note", "Nissan Juke", "Subaru Forester",
-              "Subaru Outback", "Subaru XV", "BMW X3",
-              "BMW X5", "Mercedes C-Class", "Mercedes E-Class",
-              "Lexus RX 350", "Lexus NX", "Honda CR-V"
-            ].map((car) => (
-              <Button
-                key={car}
-                variant="outline"
-                size="sm"
-                className="text-xs h-auto py-2 px-3 whitespace-normal text-center"
-                onClick={() => setSearchQuery(car.split(" ").slice(0, 2).join(" "))}
-              >
-                {car}
+      {/* Formal Business Leads */}
+      <section className="container mx-auto px-4 pb-20">
+        <div className="grid md:grid-cols-2 gap-4">
+           <div className="bg-background border border-border p-8 rounded-xl flex flex-col items-center text-center space-y-4 shadow-sm hover:border-primary/30 transition-all group">
+              <div className="h-12 w-12 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                 <CreditCard className="h-6 w-6" />
+              </div>
+              <div className="space-y-1">
+                 <h4 className="text-lg font-extrabold uppercase tracking-tight">Institutional Financing</h4>
+                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest max-w-sm">Aggressive 90% capital backing via tier-1 partners. 48h dispatch audit cycle.</p>
+              </div>
+              <Button size="sm" className="px-10 h-10 rounded-md bg-primary hover:bg-primary/90 text-white font-bold text-[10px] uppercase tracking-widest" onClick={() => navigate("/asset-finance")}>
+                Initialize Finance Application
               </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Asset Finance CTA Section */}
-        <div className="glass-strong rounded-xl p-8 mt-8 border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5">
-          <div className="max-w-3xl mx-auto text-center">
-            <CreditCard className="h-12 w-12 mx-auto mb-4 text-primary" />
-            <h2 className="text-3xl font-bold mb-3">Car Asset Financing in Kenya – 2026</h2>
-            <p className="text-muted-foreground mb-6 text-lg">
-              Up to 90% financing for salaried individuals • Up to 80% for business owners
-            </p>
-            
-            <div className="grid md:grid-cols-2 gap-6 mb-8 text-left">
-              <div className="bg-background/50 rounded-lg p-4">
-                <h3 className="font-semibold mb-3 text-primary">Salaried Individuals</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>✓ 6 months bank statements</li>
-                  <li>✓ 3 recent payslips</li>
-                  <li>✓ National ID copy</li>
-                  <li>✓ KRA PIN certificate</li>
-                </ul>
+           </div>
+           <div className="bg-background border border-border p-8 rounded-xl flex flex-col items-center text-center space-y-4 shadow-sm hover:border-brand-red/30 transition-all group">
+              <div className="h-12 w-12 rounded-full bg-brand-red/5 flex items-center justify-center text-brand-red group-hover:bg-brand-red group-hover:text-white transition-all duration-300">
+                 <Headphones className="h-6 w-6" />
               </div>
-              <div className="bg-background/50 rounded-lg p-4">
-                <h3 className="font-semibold mb-3 text-primary">Business Owners</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>✓ 1 year bank statements</li>
-                  <li>✓ 1 year M-Pesa statements</li>
-                  <li>✓ National ID copy</li>
-                  <li>✓ KRA PIN certificate</li>
-                </ul>
+              <div className="space-y-1">
+                 <h4 className="text-lg font-extrabold uppercase tracking-tight">Technical Support Hub</h4>
+                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest max-w-sm">Direct line to technical yard dispatch. Mean response latency: 12 minutes.</p>
               </div>
-            </div>
-            
-            <p className="text-sm text-green-600 font-semibold mb-6">
-              ⏱️ Processing Time: Maximum 3 Working Days
-            </p>
-            
-            <Button 
-              size="lg" 
-              className="gap-2"
-              onClick={() => navigate('/asset-finance')}
-            >
-              <CreditCard className="h-5 w-5" />
-              Apply for Asset Finance Now
-            </Button>
-          </div>
+              <Button size="sm" variant="outline" className="px-10 h-10 rounded-md border-border text-foreground font-bold text-[10px] uppercase tracking-widest group-hover:bg-brand-red group-hover:text-white group-hover:border-brand-red" onClick={() => navigate("/contact")}>
+                Establish Direct Contact
+              </Button>
+           </div>
         </div>
+      </section>
 
-        {/* Contact CTA */}
-        <div className="glass-strong rounded-xl p-10 mt-8 border-2 border-primary/30">
-          <div className="max-w-2xl mx-auto text-center">
-            <Shield className="h-12 w-12 mx-auto mb-4 text-primary" />
-            <h2 className="text-3xl font-bold mb-3">Can't Find What You're Looking For?</h2>
-            <p className="text-muted-foreground mb-2 text-lg">
-              Visit our showroom or call us today for professional car buying and financing assistance
-            </p>
-            <p className="text-sm text-muted-foreground mb-8">
-              ⚠️ <strong>IMPORTANT:</strong> We DO NOT accept online payments. All customers MUST visit our yard physically at <strong>Mpesi Lane 11, Westlands, Nairobi</strong>
-            </p>
-            
-            <div className="flex flex-wrap justify-center gap-4 mb-6">
-              <a href="https://wa.me/254722827458" target="_blank" rel="noopener noreferrer">
-                <Button size="lg" className="gap-2 bg-green-600 hover:bg-green-700">
-                  <MessageCircle className="h-5 w-5" />
-                  WhatsApp: 0722 827 458
-                </Button>
-              </a>
-              <a href="tel:+254751555544">
-                <Button size="lg" variant="outline" className="gap-2">
-                  <Phone className="h-5 w-5" />
-                  Call: 0751 555 544
-                </Button>
-              </a>
-              <a href="mailto:sales@justiceultimateautomobiles.com">
-                <Button size="lg" variant="outline" className="gap-2">
-                  <Mail className="h-5 w-5" />
-                  sales@justiceultimateautomobiles.com
-                </Button>
-              </a>
-            </div>
-
-            {/* Department Emails */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm">
-              <a href="mailto:info@justiceultimateautomobiles.com" className="flex items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-colors">
-                <Mail className="h-4 w-4" />
-                info@justiceultimateautomobiles.com
-              </a>
-              <a href="mailto:support@justiceultimateautomobiles.com" className="flex items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-colors">
-                <Mail className="h-4 w-4" />
-                support@justiceultimateautomobiles.com
-              </a>
-              <a href="mailto:sales@justiceultimateautomobiles.com" className="flex items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-colors">
-                <Mail className="h-4 w-4" />
-                sales@justiceultimateautomobiles.com
-              </a>
-            </div>
-
-            <div className="pt-6 border-t border-primary/20">
-              <p className="text-xs text-muted-foreground">
-                📍 Muthithi Road, Westlands, Nairobi • 🗺️ <a href="https://maps.app.goo.gl/92DgyWn62UNSR26p8" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View on Map</a>
-              </p>
-              <p className="text-xs text-muted-foreground mt-2">
-                © 2026 Justice Ultimate Automobiles. All Rights Reserved. • <a href="https://www.justiceultimateautomobiles.com" className="text-primary hover:underline">www.justiceultimateautomobiles.com</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Methods Modal */}
-      <PaymentMethodsModal open={paymentModalOpen} onOpenChange={setPaymentModalOpen} />
-
-      {/* Fullscreen image viewer */}
       <FullscreenImageViewer
         open={!!fullscreen}
         onOpenChange={(o) => !o && setFullscreen(null)}

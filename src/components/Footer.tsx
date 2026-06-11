@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search, Clock, X, Headphones, Smartphone } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search, Clock, X, Headphones, Smartphone, Mail, Globe, ArrowRight, Shield, Download, Trophy, Activity } from "lucide-react";
 import BrandMarquee from "./BrandMarquee";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import MobileAppDownload from "./MobileAppDownload";
+import { Badge } from "./ui/badge";
+import logo from "@/assets/logo.png";
 import {
   Tooltip,
   TooltipContent,
@@ -14,24 +15,19 @@ import {
 import {
   getRecentSearches,
   addRecentSearch,
-  removeRecentSearch,
-  clearRecentSearches,
 } from "@/lib/recentSearches";
 
 const Footer = () => {
   const navigate = useNavigate();
   const [footerSearch, setFooterSearch] = useState("");
   const [recent, setRecent] = useState<string[]>(() => getRecentSearches("catalogue"));
-  const [showRecent, setShowRecent] = useState(false);
 
   const submitSearch = (term: string) => {
     const q = term.trim();
     if (q) {
       addRecentSearch(q, "catalogue");
-      setRecent(getRecentSearches("catalogue"));
     }
     navigate(q ? `/catalogue?search=${encodeURIComponent(q)}` : "/catalogue");
-    setShowRecent(false);
   };
 
   const handleFooterSearch = (e: React.FormEvent) => {
@@ -41,370 +37,223 @@ const Footer = () => {
 
   return (
     <TooltipProvider>
-    <footer className="bg-secondary/50 backdrop-blur-sm border-t border-border">
-      {/* Quick Search */}
-      <div className="container mx-auto px-4 pt-8">
-        <form onSubmit={handleFooterSearch} className="max-w-2xl mx-auto flex gap-2 relative">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-            <Input
-              type="search"
-              placeholder="Search any car — make, model, year, colour, fuel, stock ID..."
-              value={footerSearch}
-              onChange={(e) => setFooterSearch(e.target.value)}
-              onFocus={() => setShowRecent(true)}
-              onBlur={() => setTimeout(() => setShowRecent(false), 150)}
-              className="pl-9"
-              aria-label="Search vehicles"
-            />
-            {showRecent && recent.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-72 overflow-y-auto text-left">
-                <div className="flex items-center justify-between px-3 py-2 border-b border-border text-xs text-muted-foreground">
-                  <span>Recent searches on this device</span>
-                  <button
-                    type="button"
-                    className="hover:text-foreground"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      clearRecentSearches("catalogue");
-                      setRecent([]);
-                    }}
-                  >
-                    Clear all
-                  </button>
+    <footer className="bg-background border-t border-border relative z-10 overflow-hidden">
+      {/* Background patterns */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, hsl(var(--foreground)) 1px, transparent 0)', backgroundSize: '40px 40px' }}
+      />
+
+      {/* Brand & Market Partners Strip */}
+      <div className="border-b border-border bg-secondary/20">
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
+            <div className="space-y-2 text-center md:text-left">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Market Dominance</h3>
+              <p className="text-2xl font-black tracking-tighter uppercase">Strategic Corporate Alliances</p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Badge variant="outline" className="px-5 py-2 border-brand-red/30 bg-brand-red/5 text-brand-red text-[10px] font-black uppercase tracking-widest">NTSA Verified</Badge>
+              <Badge variant="outline" className="px-5 py-2 border-primary/30 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest">KRA Compliant</Badge>
+              <Badge variant="outline" className="px-5 py-2 border-emerald-500/30 bg-emerald-500/5 text-emerald-600 text-[10px] font-black uppercase tracking-widest">KEBS Certified</Badge>
+            </div>
+          </div>
+          <BrandMarquee />
+        </div>
+      </div>
+
+      {/* Main Professional Grid */}
+      <div className="container mx-auto px-4 py-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16">
+
+          {/* Brand Identity & Newsletter */}
+          <div className="lg:col-span-4 space-y-10">
+            <div className="space-y-4">
+              <Link to="/" className="flex items-center gap-3 group">
+                <img src={logo} alt="Justice Ultimate" className="h-14 w-14 object-contain transition-transform duration-500 group-hover:scale-110" />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black tracking-tighter leading-none">JUSTICE ULTIMATE</span>
+                  <span className="text-[10px] font-black tracking-[0.5em] uppercase text-brand-red">Automobiles</span>
                 </div>
-                {recent.map((term) => (
-                  <div
-                    key={term}
-                    className="flex items-center justify-between px-3 py-2 hover:bg-accent/40 cursor-pointer text-sm"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      submitSearch(term);
-                    }}
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <Clock className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                      <span className="truncate">{term}</span>
-                    </div>
-                    <button
-                      type="button"
-                      aria-label={`Remove ${term}`}
-                      className="text-muted-foreground hover:text-destructive ml-2"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        removeRecentSearch(term, "catalogue");
-                        setRecent(getRecentSearches("catalogue"));
-                      }}
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+              </Link>
+              <p className="text-[11px] text-muted-foreground leading-loose font-bold uppercase tracking-wider max-w-sm">
+                Africa's premier automotive transactional terminal. specializing in high-fidelity Japanese imports, corporate fleet scaling, and encrypted logistics management.
+              </p>
+            </div>
+
+            <form onSubmit={handleFooterSearch} className="space-y-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Inventory Audit Search</p>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-red" />
+                  <Input
+                    type="search"
+                    placeholder="VIN, MAKE OR MODEL..."
+                    className="h-12 pl-12 rounded-sm bg-secondary/30 border-border focus:border-brand-red/50 text-[10px] font-black uppercase tracking-widest"
+                    value={footerSearch}
+                    onChange={(e) => setFooterSearch(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" className="h-12 px-8 rounded-sm font-black text-[10px] uppercase tracking-[0.3em] bg-brand-red hover:bg-brand-red/90 shadow-xl transition-all">Query</Button>
+              </div>
+            </form>
+          </div>
+
+          {/* Business Units */}
+          <div className="lg:col-span-2 space-y-8">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Business Units</h4>
+            <ul className="space-y-4">
+              {[
+                { to: "/catalogue", label: "Asset Inventory" },
+                { to: "/asset-finance", label: "Financing Desk" },
+                { to: "/trade-in", label: "Trade-In Portal" },
+                { to: "/motorbikes", label: "Motorbike Fleet" },
+                { to: "/videos", label: "Visual Yard Audit" }
+              ].map((link) => (
+                <li key={link.label}>
+                  <Link to={link.to} className="text-[11px] font-black text-muted-foreground hover:text-brand-red transition-all flex items-center group uppercase tracking-widest">
+                    <ArrowRight className="h-3 w-3 mr-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-brand-red" />
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Regional Hubs */}
+          <div className="lg:col-span-2 space-y-8">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Regional Hubs</h4>
+            <ul className="space-y-4">
+              {["Nairobi", "Mombasa", "Kisumu", "Eldoret", "Nyeri", "Kisii"].map((loc) => (
+                <li key={loc}>
+                  <Link to={`/catalogue?location=${loc}`} className="text-[11px] font-black text-muted-foreground hover:text-brand-red transition-all flex items-center group uppercase tracking-widest">
+                    <MapPin className="h-3 w-3 mr-2 text-muted-foreground/30 group-hover:text-brand-red transition-colors" />
+                    {loc} Operations
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Governance & Support */}
+          <div className="lg:col-span-4 space-y-10">
+            <div className="bg-secondary/10 p-8 rounded-md border border-border space-y-8 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 h-32 w-32 bg-brand-red/5 rounded-full blur-3xl pointer-events-none group-hover:bg-brand-red/10 transition-colors" />
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Executive Support</h4>
+
+              <div className="space-y-6">
+                <div className="flex items-center gap-5">
+                  <div className="h-12 w-12 rounded bg-background border border-border flex items-center justify-center shrink-0 shadow-sm">
+                    <Phone className="h-5 w-5 text-brand-red" />
                   </div>
+                  <div>
+                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">24/7 Corporate Line</p>
+                    <p className="text-base font-black tracking-tighter">+254 722 827 458</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-5">
+                  <div className="h-12 w-12 rounded bg-background border border-border flex items-center justify-center shrink-0 shadow-sm">
+                    <Mail className="h-5 w-5 text-brand-red" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Direct Dispatch</p>
+                    <p className="text-[11px] font-black uppercase tracking-tighter truncate max-w-[200px]">info@justiceultimateautomobiles.com</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-4 pt-2">
+                {[
+                  { icon: Facebook, href: "https://facebook.com" },
+                  { icon: Instagram, href: "https://instagram.com" },
+                  { icon: Twitter, href: "https://twitter.com" },
+                  { icon: Youtube, href: "https://youtube.com" }
+                ].map((social, i) => (
+                  <a key={i} href={social.href} target="_blank" rel="noreferrer" className="h-11 w-11 rounded bg-background hover:bg-brand-red hover:text-white transition-all flex items-center justify-center border border-border shadow-sm group/social">
+                    <social.icon className="h-4 w-4 transition-transform group-hover/social:scale-110" />
+                  </a>
                 ))}
               </div>
-            )}
-          </div>
-          <Button type="submit">Search</Button>
-        </form>
-      </div>
-
-      {/* Brand Marquee */}
-      <div className="container mx-auto px-4 py-8">
-        <h3 className="text-xl font-semibold text-center mb-4 text-foreground">Our Trusted Partners</h3>
-        <BrandMarquee />
-      </div>
-
-      {/* Main Footer Content */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* About Company */}
-          <div>
-            <h4 className="text-lg font-bold mb-4 text-foreground">About Company</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/about" className="text-muted-foreground hover:text-accent transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-muted-foreground hover:text-accent transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/videos" className="text-muted-foreground hover:text-accent transition-colors">
-                  Videos
-                </Link>
-              </li>
-              <li>
-                <Link to="/motorbikes" className="text-muted-foreground hover:text-accent transition-colors">
-                  Motorbikes
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Car By Brands */}
-          <div>
-            <h4 className="text-lg font-bold mb-4 text-foreground">Car By Brands</h4>
-            <ul className="space-y-2">
-              {["Toyota", "BMW", "Mercedes", "Land Rover", "Nissan"].map((b) => (
-                <li key={b}>
-                  <Link
-                    to={`/catalogue?brand=${encodeURIComponent(b)}`}
-                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                    className="text-muted-foreground hover:text-accent transition-colors"
-                  >
-                    {b}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Car By Location - County SEO */}
-          <div>
-            <h4 className="text-lg font-bold mb-4 text-foreground">Car By Location</h4>
-            <ul className="space-y-2">
-              {["Nairobi", "Nyeri", "Kisii", "Kiambu", "Mombasa", "Eldoret"].map((loc) => (
-                <li key={loc}>
-                  <Link
-                    to={`/catalogue?location=${encodeURIComponent(loc)}`}
-                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                    className="text-muted-foreground hover:text-accent transition-colors"
-                  >
-                    {loc} Cars
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Customer Support */}
-          <div>
-            <h4 className="text-lg font-bold mb-4 text-foreground">Customer Support</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link 
-                  to="/faqs" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  FAQs
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/help-support" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Help & Support
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/terms-of-use" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Terms of Use
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/privacy-policy" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/cookie-policy" 
-                  className="text-muted-foreground hover:text-accent transition-colors"
-                >
-                  Cookie Policy
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Connect With Us */}
-          <div>
-            <h4 className="text-lg font-bold mb-4 text-foreground">Connect With Us</h4>
-            <div className="flex gap-4 mb-6">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href="https://www.facebook.com/justiceultimatemotors"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-accent transition-colors"
-                    aria-label="Facebook"
-                  >
-                    <Facebook className="h-6 w-6" />
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Follow us on Facebook</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href="https://twitter.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-accent transition-colors"
-                    aria-label="Twitter"
-                  >
-                    <Twitter className="h-6 w-6" />
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Follow us on Twitter</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-accent transition-colors"
-                    aria-label="Instagram"
-                  >
-                    <Instagram className="h-6 w-6" />
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Follow us on Instagram</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href="https://youtube.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-accent transition-colors"
-                    aria-label="YouTube"
-                  >
-                    <Youtube className="h-6 w-6" />
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Subscribe on YouTube</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start"
-                onClick={() => window.open("https://maps.app.goo.gl/sruXcwwRpCAZrg6i8", "_blank")}
-              >
-                <MapPin className="h-4 w-4 mr-2" />
-                <div className="text-left text-xs">
-                  <div>Mpesi Lane 11, Westlands</div>
-                  <div>Nairobi, Kenya</div>
-                </div>
-              </Button>
-              
-              {/* Personal Brand SEO - Justice Vincent */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start"
-                    onClick={() => window.open("tel:+254722827458")}
-                  >
-                    <Phone className="h-4 w-4 mr-2" />
-                    <div className="text-left text-xs">
-                      <div className="font-semibold">Justice Vincent - CEO</div>
-                      <div>0722 827 458</div>
-                    </div>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>CEO - Luxury Car Imports Kenya</p>
-                </TooltipContent>
-              </Tooltip>
-
-              {/* Personal Brand SEO - Daniel Maina W. */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start"
-                    onClick={() => window.open("tel:+254701460110")}
-                  >
-                    <Phone className="h-4 w-4 mr-2" />
-                    <div className="text-left text-xs">
-                      <div className="font-semibold">Daniel Maina W. - DevOps</div>
-                      <div>0701 460 110</div>
-                    </div>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>DevOps Engineer - Systems & Infrastructure</p>
-                </TooltipContent>
-              </Tooltip>
-              
-              <p className="text-xs italic mt-3 opacity-70">Powered By Daniwest Tech Sol</p>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Mobile App + 24/7 Support strip */}
-        <div className="mt-10 pt-8 border-t border-border grid md:grid-cols-2 gap-6 items-center">
-          <div>
-            <h4 className="text-lg font-bold mb-3 inline-flex items-center gap-2 text-foreground">
-              <Smartphone className="h-5 w-5 text-primary" /> Get the Justice Ultimate App
-            </h4>
-            <p className="text-xs text-muted-foreground mb-3">
-              Download the Android APK now. Google Play release coming soon.
-            </p>
-            <div className="max-w-sm">
-              <MobileAppDownload variant="compact" />
+      {/* Global Compliance & Mobile Bar */}
+      <div className="border-t border-border bg-secondary/5">
+        <div className="container mx-auto px-4 py-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-x-10 gap-y-6">
+              {["Terms of Engagement", "Data Privacy", "Cookie Policy", "Compliance Hub", "Technical FAQs"].map((item) => (
+                <Link key={item} to={`/${item.toLowerCase().replace(/ /g, '-')}`} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-brand-red transition-colors">
+                  {item}
+                </Link>
+              ))}
             </div>
-          </div>
-          <div className="md:text-right">
-            <div className="inline-flex items-center gap-3 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/30">
-              <Headphones className="h-6 w-6 text-green-600 flex-shrink-0" />
-              <div className="text-left">
-                <div className="font-bold text-sm text-foreground">24/7 Customer Support</div>
-                <div className="text-xs text-muted-foreground">International · Always available · +254 722 827 458</div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-8">
+              <div className="flex flex-col items-center lg:items-end gap-2 relative">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => window.open("https://loadly.io/justice-auto-app", "_blank")}
+                  className="relative h-12 px-8 rounded-md bg-background border-brand-red/50 hover:bg-brand-red hover:text-white transition-all gap-3 shadow-xl animate-vertical-bounce overflow-visible group"
+                >
+                  <Download className="h-5 w-5 text-brand-red group-hover:text-white transition-colors" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em]">v2.1.0 Mobile Download</span>
+
+                  {/* Signal Effects */}
+                  <span className="absolute inset-0 rounded-md animate-ping-slow border border-brand-red/30 pointer-events-none" />
+                  <span className="absolute -inset-1 rounded-md animate-ping border border-brand-red/20 pointer-events-none" />
+                </Button>
+                <div className="flex items-center gap-2">
+                   <p className="text-[9px] font-black text-brand-red italic tracking-[0.3em] uppercase">V 3.1.0 Status: Active</p>
+                   <Trophy className="h-3 w-3 text-brand-red fill-brand-red animate-pulse" />
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center lg:items-end">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">Infrastructural Partner</p>
+                <a href="https://daniwesttechnologies.vercel.app" target="_blank" rel="noopener noreferrer" className="group">
+                   <p className="text-[11px] font-black text-foreground hover:text-brand-red transition-colors uppercase tracking-widest">Daniwest Tech Ltd</p>
+                   <div className="h-0.5 w-0 group-hover:w-full bg-brand-red transition-all duration-500" />
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-
-      {/* Bottom Bar */}
-      <div className="border-t border-border">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p className="text-center md:text-left">
-              © 2026 Justice Ultimate Automobiles | Driving Excellence Across Africa & Beyond{" "}
-              <span className="text-xs italic opacity-70">V. 2.1.0.0</span>
-            </p>
-            <p className="text-center md:text-right">
-              Developed by{" "}
-              <a
-                href="https://github.com/maishdan"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:text-accent/80 font-medium transition-colors"
-              >
-                Daniwest Technologies
-              </a>
-            </p>
+      {/* Corporate Copyright Bar */}
+      <div className="bg-background py-8 border-t border-border">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
+          <div className="flex items-center gap-3">
+             <Shield className="h-4 w-4 text-brand-red" />
+             <p>© 2026 Justice Ultimate Automobiles. Institutional Asset Management Division.</p>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-1.5 bg-secondary/10 rounded-full border border-border">
+            <Activity className="h-3 w-3 text-brand-red animate-pulse" />
+            <span className="text-[8px] tracking-[0.2em]">Encrypted Terminal active</span>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes vertical-bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        .animate-vertical-bounce {
+          animation: vertical-bounce 2s infinite ease-in-out;
+        }
+        @keyframes ping-slow {
+          0% { transform: scale(1); opacity: 1; }
+          70%, 100% { transform: scale(1.3); opacity: 0; }
+        }
+        .animate-ping-slow {
+          animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+      `}</style>
     </footer>
     </TooltipProvider>
   );

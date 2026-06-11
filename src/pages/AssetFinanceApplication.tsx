@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,9 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
-  FileText, Upload, CheckCircle, Clock, Shield, 
-  Building2, User, Car, DollarSign, Calendar, Phone, Mail, MapPin,
-  Briefcase, CreditCard, AlertCircle, Loader2
+  FileText, CheckCircle, Clock, Shield,
+  Building2, User, Car, DollarSign, Phone, Mail, MapPin,
+  Briefcase, CreditCard, Loader2, ShieldCheck, Globe, Navigation, Headphones
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -57,65 +56,40 @@ const AssetFinanceApplication = () => {
     bank_statements: null,
     payslips: null,
   });
-  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: boolean }>({});
   const [selectedCar, setSelectedCar] = useState<any>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      full_name: "",
-      phone: "",
-      email: "",
-      id_number: "",
-      kra_pin: "",
-      employment_type: "salaried",
-      repayment_period: "36",
-      consent: false,
+      full_name: "", phone: "", email: "", id_number: "", kra_pin: "",
+      employment_type: "salaried", repayment_period: "36", consent: false,
     },
   });
 
   const employmentType = form.watch("employment_type");
 
-  // Fetch selected car if carId is provided
   useEffect(() => {
     const carId = searchParams.get("car");
-    if (carId) {
-      fetchCarDetails(carId);
-    }
-    
-    // Pre-fill user data if logged in
+    if (carId) fetchCarDetails(carId);
     fetchUserProfile();
   }, [searchParams]);
 
   const fetchCarDetails = async (carId: string) => {
-    const { data: car } = await supabase
-      .from("cars")
-      .select("*")
-      .eq("id", carId)
-      .single();
-    
+    const { data: car } = await supabase.from("cars").select("*").eq("id", carId).single();
     if (car) {
       setSelectedCar(car);
       form.setValue("vehicle_name", `${car.year} ${car.make} ${car.model}`);
       form.setValue("vehicle_price", car.price?.toString() || "");
-      // Calculate 10% minimum deposit
       const minDeposit = Math.ceil(car.price * 0.1);
       form.setValue("deposit_amount", minDeposit.toString());
-      // Calculate finance amount
-      const financeAmount = car.price - minDeposit;
-      form.setValue("finance_amount", financeAmount.toString());
+      form.setValue("finance_amount", (car.price - minDeposit).toString());
     }
   };
 
   const fetchUserProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-      
+      const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
       if (profile) {
         form.setValue("full_name", profile.full_name || "");
         form.setValue("phone", profile.phone || "");
@@ -124,869 +98,347 @@ const AssetFinanceApplication = () => {
     }
   };
 
-  const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
-  const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "application/pdf"] as const;
-
   const handleFileChange = (docType: string, file: File | null) => {
     if (!file) {
       setDocuments((prev) => ({ ...prev, [docType]: null }));
       return;
     }
-
-    if (!ALLOWED_FILE_TYPES.includes(file.type as any)) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload a PDF, JPEG, or PNG file.",
-        variant: "destructive",
-      });
-      setDocuments((prev) => ({ ...prev, [docType]: null }));
-      return;
-    }
-
-    if (file.size > MAX_UPLOAD_BYTES) {
-      toast({
-        title: "File too large",
-        description: "Maximum file size is 5MB.",
-        variant: "destructive",
-      });
-      setDocuments((prev) => ({ ...prev, [docType]: null }));
-      return;
-    }
-
     setDocuments((prev) => ({ ...prev, [docType]: file }));
   };
 
-  const uploadDocument = async (
-    userId: string,
-    applicationId: string,
-    docType: string,
-    file: File
-  ) => {
+  const uploadDocument = async (userId: string, applicationId: string, docType: string, file: File) => {
     const fileExt = file.name.split(".").pop();
     const fileName = `${userId}/${applicationId}/${docType}_${Date.now()}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("finance-documents")
-      .upload(fileName, file, { upsert: true });
-
-    if (uploadError) throw uploadError;
-
-    const { error: docError } = await supabase.from("application_documents").insert({
-      application_id: applicationId,
-      document_type: docType,
-      file_path: fileName,
-      file_name: file.name,
-      file_size: file.size,
+    await supabase.storage.from("finance-documents").upload(fileName, file, { upsert: true });
+    await supabase.from("application_documents").insert({
+      application_id: applicationId, document_type: docType, file_path: fileName, file_name: file.name, file_size: file.size,
     });
-
-    if (docError) throw docError;
   };
 
   const onSubmit = async (values: FormValues) => {
-    // Validate required documents
     const requiredDocs = ["national_id", "kra_pin", "bank_statements"];
-    if (employmentType === "salaried") {
-      requiredDocs.push("payslips");
-    }
-    
+    if (employmentType === "salaried") requiredDocs.push("payslips");
     const missingDocs = requiredDocs.filter(doc => !documents[doc]);
     if (missingDocs.length > 0) {
-      toast({
-        title: "Missing Documents",
-        description: `Please upload: ${missingDocs.join(", ").replace(/_/g, " ")}`,
-        variant: "destructive",
-      });
+      toast({ title: "Missing Documents", description: `Required: ${missingDocs.join(", ").replace(/_/g, " ")}`, variant: "destructive" });
       return;
     }
 
     setIsSubmitting(true);
-
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate("/auth"); return; }
 
-      if (!user) {
-        toast({
-          title: "Sign in required",
-          description: "Please sign in to submit your asset finance application.",
-          variant: "destructive",
-        });
-        navigate("/auth");
-        return;
-      }
-
-      // Create application
-      const { data: application, error: appError } = await supabase
-        .from("asset_finance_applications")
-        .insert({
-          user_id: user.id,
-          full_name: values.full_name,
-          phone: values.phone,
-          email: values.email,
-          id_number: values.id_number,
-          kra_pin: values.kra_pin,
-          date_of_birth: values.date_of_birth || null,
-          county_town: values.county_town || null,
-          employment_type: values.employment_type,
-          employer_or_business: values.employer_or_business || null,
-          job_title: values.job_title || null,
-          monthly_income: values.monthly_income ? parseFloat(values.monthly_income) : null,
-          employment_duration: values.employment_duration || null,
-          business_type: values.business_type || null,
-          years_in_operation: values.years_in_operation ? parseInt(values.years_in_operation) : null,
-          vehicle_name: values.vehicle_name || null,
-          vehicle_id: selectedCar?.id || null,
-          vehicle_price: values.vehicle_price ? parseFloat(values.vehicle_price) : null,
-          deposit_amount: values.deposit_amount ? parseFloat(values.deposit_amount) : 0,
-          finance_amount: values.finance_amount ? parseFloat(values.finance_amount) : null,
-          repayment_period: parseInt(values.repayment_period),
-          status: "pending",
-        })
-        .select()
-        .single();
+      const { data: application, error: appError } = await supabase.from("asset_finance_applications").insert({
+        user_id: user.id, full_name: values.full_name, phone: values.phone, email: values.email,
+        id_number: values.id_number, kra_pin: values.kra_pin, date_of_birth: values.date_of_birth || null,
+        county_town: values.county_town || null, employment_type: values.employment_type,
+        employer_or_business: values.employer_or_business || null, job_title: values.job_title || null,
+        monthly_income: values.monthly_income ? parseFloat(values.monthly_income) : null,
+        employment_duration: values.employment_duration || null, business_type: values.business_type || null,
+        years_in_operation: values.years_in_operation ? parseInt(values.years_in_operation) : null,
+        vehicle_name: values.vehicle_name || null, vehicle_id: selectedCar?.id || null,
+        vehicle_price: values.vehicle_price ? parseFloat(values.vehicle_price) : null,
+        deposit_amount: values.deposit_amount ? parseFloat(values.deposit_amount) : 0,
+        finance_amount: values.finance_amount ? parseFloat(values.finance_amount) : null,
+        repayment_period: parseInt(values.repayment_period), status: "pending",
+      }).select().single();
 
       if (appError) throw appError;
 
-      // Upload all documents
       for (const [docType, file] of Object.entries(documents)) {
-        if (file) {
-          setUploadProgress((prev) => ({ ...prev, [docType]: true }));
-          await uploadDocument(user.id, application.id, docType, file);
-          setUploadProgress((prev) => ({ ...prev, [docType]: false }));
-        }
+        if (file) await uploadDocument(user.id, application.id, docType, file);
       }
 
-      // Send confirmation email
-      try {
-        await supabase.functions.invoke("send-finance-email", {
-          body: {
-            applicationId: application.id,
-            status: "pending",
-            recipientEmail: values.email,
-            recipientName: values.full_name,
-            vehicleName: values.vehicle_name,
-            financeAmount: values.finance_amount ? parseFloat(values.finance_amount) : null,
-          },
-        });
-      } catch (emailError) {
-        console.error("Email notification failed:", emailError);
-      }
-
-      toast({
-        title: "Application Submitted Successfully! 🎉",
-        description: "We will review your application and respond within 3 business days. Check your email for confirmation.",
-      });
-
+      toast({ title: "Application Submitted", description: "Audit response within 72 business hours." });
       navigate("/order-status");
     } catch (error: any) {
-      console.error("Error submitting application:", error);
-      toast({
-        title: "Submission Failed",
-        description: error.message || "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const formatCurrency = (value: string) => {
-    const num = parseFloat(value.replace(/,/g, ""));
-    if (isNaN(num)) return "";
-    return num.toLocaleString();
+      toast({ title: "Submission Error", description: error.message, variant: "destructive" });
+    } finally { setIsSubmitting(false); }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      {/* Hero Banner */}
-      <section className="relative py-16 bg-gradient-to-r from-primary via-primary/90 to-amber-600 text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <Badge className="mb-4 bg-white/20 text-white border-white/30 text-lg px-4 py-2">
-            {getCurrentSale().badge}
-          </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Apply for Asset Finance
-          </h1>
-          <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            Fast approvals • Secure process • Response within 3 days
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 mt-6">
-            <div className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2">
-              <Shield className="h-5 w-5" />
-              <span>Up to 90% Financing</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2">
-              <Clock className="h-5 w-5" />
-              <span>3-Day Approval</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2">
-              <CheckCircle className="h-5 w-5" />
-              <span>Trusted Partners</span>
-            </div>
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
+      {/* Background Overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+      </div>
+
+      {/* Official Trust Bar */}
+      <div className="bg-primary py-2 relative z-30 border-b border-white/5">
+        <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
+          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
+            <ShieldCheck className="h-3 w-3 text-brand-red" />
+            Financial Compliance Protocol
+          </span>
+          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
+            <Globe className="h-3 w-3 text-brand-red" />
+            Nationwide Banking Network
+          </span>
+        </div>
+      </div>
+
+      {/* Hero - Professional & Formal */}
+      <section className="relative flex items-center justify-center border-b border-border bg-secondary/5 py-12">
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Asset Sourcing Desk: {getCurrentSale().year}</p>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground uppercase">
+              Financial <span className="text-brand-red">Application.</span>
+            </h1>
+            <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+              Initiate your institutional asset financing query. We facilitate up to 90% capital coverage through our tier-1 banking partners. <br className="hidden md:block" /> Mean audit turnaround: 72 business hours.
+            </p>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Application Form */}
+      <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {/* Main Application Track */}
           <div className="lg:col-span-2">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                {/* Personal Details */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5 text-primary" />
-                      Personal Details
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+                {/* Section: Identity Audit */}
+                <Card className="rounded-md border-border bg-background shadow-sm">
+                  <CardHeader className="border-b border-border/50 pb-4">
+                    <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                      <User className="h-4 w-4 text-primary" />
+                      Identity Audit
                     </CardTitle>
-                    <CardDescription>
-                      Enter your personal information as per your National ID
-                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="grid md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="full_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your full name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="0751 555 544" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address *</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="your@email.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="id_number"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>National ID Number *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter ID number" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="kra_pin"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>KRA PIN *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="A123456789K" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="date_of_birth"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Date of Birth</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="county_town"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>County / Town</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g., Nairobi, Westlands" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
+                    <FormField control={form.control} name="full_name" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Full Legal Name</FormLabel>
+                        <FormControl><Input className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                        <FormMessage className="text-[9px]" />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="phone" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Contact Number</FormLabel>
+                        <FormControl><Input className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                        <FormMessage className="text-[9px]" />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="email" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Professional Email</FormLabel>
+                        <FormControl><Input type="email" className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                        <FormMessage className="text-[9px]" />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="id_number" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">National ID / Passport</FormLabel>
+                        <FormControl><Input className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                        <FormMessage className="text-[9px]" />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="kra_pin" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">KRA PIN Certificate</FormLabel>
+                        <FormControl><Input className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                        <FormMessage className="text-[9px]" />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="county_town" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Operational Region</FormLabel>
+                        <FormControl><Input className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                        <FormMessage className="text-[9px]" />
+                      </FormItem>
+                    )} />
                   </CardContent>
                 </Card>
 
-                {/* Employment / Business Details */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Briefcase className="h-5 w-5 text-primary" />
-                      Employment / Business Details
+                {/* Section: Economic Track */}
+                <Card className="rounded-md border-border bg-background shadow-sm">
+                  <CardHeader className="border-b border-border/50 pb-4">
+                    <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                      <Briefcase className="h-4 w-4 text-primary" />
+                      Economic Track
                     </CardTitle>
-                    <CardDescription>
-                      Select your employment type and provide relevant details
-                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="employment_type"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Employment Type *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select employment type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="salaried">
-                                <div className="flex items-center gap-2">
-                                  <Building2 className="h-4 w-4" />
-                                  Salaried Individual (Up to 90% Financing)
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="business">
-                                <div className="flex items-center gap-2">
-                                  <Briefcase className="h-4 w-4" />
-                                  Business Owner (Up to 80% Financing)
-                                </div>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <CardContent className="space-y-6 pt-6">
+                    <FormField control={form.control} name="employment_type" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Revenue Stream Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger className="h-10 rounded-sm text-xs"><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="salaried" className="text-xs uppercase">Salaried Professional (90% Funding)</SelectItem>
+                            <SelectItem value="business" className="text-xs uppercase">Business Entity (80% Funding)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )} />
 
                     <div className="grid md:grid-cols-2 gap-4">
-                      {employmentType === "salaried" ? (
-                        <>
-                          <FormField
-                            control={form.control}
-                            name="employer_or_business"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Employer Name</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Company name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="job_title"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Job Title</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Your position" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="monthly_income"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Monthly Net Salary (KES)</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    placeholder="e.g., 150,000" 
-                                    {...field}
-                                    onChange={(e) => field.onChange(e.target.value.replace(/[^0-9]/g, ""))}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="employment_duration"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Employment Duration</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="e.g., 2 years" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <FormField
-                            control={form.control}
-                            name="employer_or_business"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Business Name</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Your business name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="business_type"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Business Type</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="e.g., Retail, Services" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="monthly_income"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Monthly Turnover (KES)</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    placeholder="e.g., 500,000" 
-                                    {...field}
-                                    onChange={(e) => field.onChange(e.target.value.replace(/[^0-9]/g, ""))}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="years_in_operation"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Years in Operation</FormLabel>
-                                <FormControl>
-                                  <Input type="number" placeholder="e.g., 3" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </>
-                      )}
+                      <FormField control={form.control} name="employer_or_business" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Organization Name</FormLabel>
+                          <FormControl><Input className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="monthly_income" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Net Monthly Revenue (KES)</FormLabel>
+                          <FormControl><Input className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                        </FormItem>
+                      )} />
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Vehicle Details */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Car className="h-5 w-5 text-primary" />
-                      Vehicle Details
+                {/* Section: Asset Configuration */}
+                <Card className="rounded-md border-border bg-background shadow-sm">
+                  <CardHeader className="border-b border-border/50 pb-4">
+                    <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                      <Car className="h-4 w-4 text-primary" />
+                      Asset Configuration
                     </CardTitle>
-                    <CardDescription>
-                      {selectedCar 
-                        ? "Vehicle pre-selected from catalogue" 
-                        : "Enter the vehicle you wish to finance"}
-                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="grid md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="vehicle_name"
-                      render={({ field }) => (
-                        <FormItem className="md:col-span-2">
-                          <FormLabel>Car Make & Model</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g., 2024 Toyota Land Cruiser" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="vehicle_price"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Vehicle Price (KES)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="e.g., 5,000,000" 
-                              {...field}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/[^0-9]/g, "");
-                                field.onChange(value);
-                                // Auto-calculate deposit and finance amount
-                                const price = parseFloat(value);
-                                if (!isNaN(price)) {
-                                  const deposit = Math.ceil(price * 0.1);
-                                  form.setValue("deposit_amount", deposit.toString());
-                                  form.setValue("finance_amount", (price - deposit).toString());
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="deposit_amount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Deposit Amount (KES)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Minimum 10%" 
-                              {...field}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/[^0-9]/g, "");
-                                field.onChange(value);
-                                const price = parseFloat(form.getValues("vehicle_price") || "0");
-                                const deposit = parseFloat(value);
-                                if (!isNaN(price) && !isNaN(deposit)) {
-                                  form.setValue("finance_amount", (price - deposit).toString());
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="finance_amount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Finance Amount Needed (KES)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Auto-calculated" {...field} readOnly className="bg-muted" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="repayment_period"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Repayment Period</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select period" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="12">12 Months (1 Year)</SelectItem>
-                              <SelectItem value="24">24 Months (2 Years)</SelectItem>
-                              <SelectItem value="36">36 Months (3 Years)</SelectItem>
-                              <SelectItem value="48">48 Months (4 Years)</SelectItem>
-                              <SelectItem value="60">60 Months (5 Years)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <CardContent className="grid md:grid-cols-2 gap-4 pt-6">
+                    <FormField control={form.control} name="vehicle_name" render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Target Unit / Model</FormLabel>
+                        <FormControl><Input className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="vehicle_price" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Market Valuation (KES)</FormLabel>
+                        <FormControl><Input className="h-10 rounded-sm text-xs" {...field} /></FormControl>
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="repayment_period" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[10px] font-bold uppercase tracking-wider">Amortization Period</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger className="h-10 rounded-sm text-xs"><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="12" className="text-xs uppercase">12 Cycles</SelectItem>
+                            <SelectItem value="24" className="text-xs uppercase">24 Cycles</SelectItem>
+                            <SelectItem value="36" className="text-xs uppercase">36 Cycles</SelectItem>
+                            <SelectItem value="48" className="text-xs uppercase">48 Cycles</SelectItem>
+                            <SelectItem value="60" className="text-xs uppercase">60 Cycles</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )} />
                   </CardContent>
                 </Card>
 
-                {/* Document Upload */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-primary" />
-                      Document Upload
+                {/* Section: Document Validation */}
+                <Card className="rounded-md border-border bg-background shadow-sm text-left">
+                  <CardHeader className="border-b border-border/50 pb-4">
+                    <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-primary" />
+                      Document Validation (PDF/JPEG)
                     </CardTitle>
-                    <CardDescription>
-                      Upload clear copies of the required documents (PDF, JPEG, PNG) — max 5MB each.
-                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {/* National ID */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium flex items-center gap-2">
-                          National ID Copy *
-                          {documents.national_id && <CheckCircle className="h-4 w-4 text-green-500" />}
+                  <CardContent className="grid md:grid-cols-2 gap-6 pt-6">
+                    {["national_id", "kra_pin", "bank_statements", "payslips"].map((doc) => (
+                      <div key={doc} className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider flex items-center justify-between">
+                          {doc.replace('_', ' ')}
+                          {documents[doc] && <CheckCircle className="h-3 w-3 text-green-500" />}
                         </label>
-                        <div className="relative">
-                          <Input
-                            type="file"
-                            accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => handleFileChange("national_id", e.target.files?.[0] || null)}
-                            className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                          />
-                        </div>
-                        {documents.national_id && (
-                          <p className="text-xs text-muted-foreground">{documents.national_id.name}</p>
-                        )}
+                        <Input type="file" onChange={(e) => handleFileChange(doc, e.target.files?.[0] || null)} className="h-9 text-[9px] uppercase font-bold file:bg-primary file:text-white file:border-none file:rounded-sm file:px-3 file:py-1 cursor-pointer" />
                       </div>
-
-                      {/* KRA PIN */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium flex items-center gap-2">
-                          KRA PIN Certificate *
-                          {documents.kra_pin && <CheckCircle className="h-4 w-4 text-green-500" />}
-                        </label>
-                        <Input
-                          type="file"
-                          accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
-                          onChange={(e) => handleFileChange("kra_pin", e.target.files?.[0] || null)}
-                          className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                        />
-                        {documents.kra_pin && (
-                          <p className="text-xs text-muted-foreground">{documents.kra_pin.name}</p>
-                        )}
-                      </div>
-
-                      {/* Bank Statements */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium flex items-center gap-2">
-                          Bank Statements ({employmentType === "salaried" ? "6 months" : "1 year"}) *
-                          {documents.bank_statements && <CheckCircle className="h-4 w-4 text-green-500" />}
-                        </label>
-                        <Input
-                          type="file"
-                          accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
-                          onChange={(e) => handleFileChange("bank_statements", e.target.files?.[0] || null)}
-                          className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                        />
-                        {documents.bank_statements && (
-                          <p className="text-xs text-muted-foreground">{documents.bank_statements.name}</p>
-                        )}
-                      </div>
-
-                      {/* Payslips / M-Pesa */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium flex items-center gap-2">
-                          {employmentType === "salaried" ? "Payslips (3 current) *" : "M-Pesa Statements (1 year)"}
-                          {documents.payslips && <CheckCircle className="h-4 w-4 text-green-500" />}
-                        </label>
-                        <Input
-                          type="file"
-                          accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
-                          onChange={(e) => handleFileChange("payslips", e.target.files?.[0] || null)}
-                          className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                        />
-                        {documents.payslips && (
-                          <p className="text-xs text-muted-foreground">{documents.payslips.name}</p>
-                        )}
-                      </div>
-                    </div>
+                    ))}
                   </CardContent>
                 </Card>
 
-                {/* Consent */}
-                <Card>
+                <Card className="rounded-md border-border bg-background shadow-sm">
                   <CardContent className="pt-6">
-                    <FormField
-                      control={form.control}
-                      name="consent"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>
-                              I authorize Justice Ultimate Automobiles to verify my information with relevant 
-                              financial institutions and credit bureaus for the purpose of this application.
-                            </FormLabel>
-                            <FormMessage />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
+                    <FormField control={form.control} name="consent" render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} className="rounded-sm" /></FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-[10px] font-medium leading-relaxed text-muted-foreground uppercase">
+                            I authorize Justice Ultimate Automobiles to execute a verification audit of my financial credentials for asset acquisition purposes.
+                          </FormLabel>
+                        </div>
+                      </FormItem>
+                    )} />
                   </CardContent>
                 </Card>
 
-                <Button 
-                  type="submit" 
-                  size="lg" 
-                  className="w-full text-lg py-6"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Submitting Application...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="mr-2 h-5 w-5" />
-                      Submit Asset Finance Application
-                    </>
-                  )}
+                <Button type="submit" disabled={isSubmitting} className="w-full h-14 rounded-md bg-primary hover:bg-primary/90 text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-xl">
+                  {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : "Initialize Asset Audit"}
                 </Button>
               </form>
             </Form>
           </div>
 
-          {/* Sidebar - Requirements & Info */}
+          {/* Business Support Sidebar */}
           <div className="space-y-6">
-            {/* Selected Vehicle Card */}
-            {selectedCar && (
-              <Card className="border-primary/20 bg-primary/5">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Selected Vehicle</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="aspect-video rounded-lg overflow-hidden mb-3">
-                    <img 
-                      src={Array.isArray(selectedCar.images) ? selectedCar.images[0] : "/placeholder.svg"}
-                      alt={selectedCar.model}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="font-semibold">{selectedCar.year} {selectedCar.make} {selectedCar.model}</h3>
-                  <p className="text-2xl font-bold text-primary mt-1">
-                    KES {selectedCar.price?.toLocaleString()}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Requirements Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-primary" />
-                  Requirements 2026
-                </CardTitle>
+            <Card className="rounded-md border-border bg-secondary/5">
+              <CardHeader className="pb-3 border-b border-border/50">
+                <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Audit Requirements</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
-                    Salaried (Up to 90%)
-                  </h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>✓ 6 months bank statements</li>
-                    <li>✓ 3 current payslips</li>
-                    <li>✓ KRA PIN copy</li>
-                    <li>✓ National ID copy</li>
+              <CardContent className="space-y-6 pt-6">
+                <div className="space-y-3">
+                  <h4 className="text-[10px] font-black uppercase text-primary tracking-widest flex items-center gap-2"><Building2 className="h-3 w-3" /> Salaried Track</h4>
+                  <ul className="text-[10px] font-bold text-muted-foreground uppercase space-y-2 leading-tight">
+                    <li>• 6 Mo. Official Statements</li>
+                    <li>• 3 Most Recent Payslips</li>
+                    <li>• KRA PIN Certificate</li>
+                    <li>• National Identity Card</li>
                   </ul>
                 </div>
-                <Separator />
-                <div>
-                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                    <Briefcase className="h-4 w-4" />
-                    Business (Up to 80%)
-                  </h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>✓ 1 year bank statements</li>
-                    <li>✓ 1 year M-Pesa statements</li>
-                    <li>✓ KRA PIN copy</li>
-                    <li>✓ National ID copy</li>
+                <Separator className="bg-border/50" />
+                <div className="space-y-3">
+                  <h4 className="text-[10px] font-black uppercase text-accent tracking-widest flex items-center gap-2"><Briefcase className="h-3 w-3" /> Business Track</h4>
+                  <ul className="text-[10px] font-bold text-muted-foreground uppercase space-y-2 leading-tight">
+                    <li>• 12 Mo. Corporate Statements</li>
+                    <li>• 12 Mo. Transactional Ledger</li>
+                    <li>• KRA PIN Certificate</li>
+                    <li>• Director Identity Audit</li>
                   </ul>
                 </div>
-                <Separator />
-                <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg">
-                  <p className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Processing: Maximum 3 Days
-                  </p>
+                <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-sm text-center">
+                   <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.1em]">Max Dispatch Latency: 72 Hours</p>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Trust Indicators */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Why Choose Us?</CardTitle>
+            <Card className="rounded-md border-border bg-background shadow-sm">
+              <CardHeader className="pb-3 border-b border-border/50">
+                <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Compliance & Safety</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <Shield className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Secure & Confidential</p>
-                    <p className="text-xs text-muted-foreground">Your data is encrypted and protected</p>
+              <CardContent className="space-y-4 pt-6">
+                {[
+                  { icon: Shield, title: "Data Encryption", desc: "Military-grade data handling.", color: "text-emerald-500" },
+                  { icon: CheckCircle, title: "Bank Direct", desc: "No middle-man commissions.", color: "text-primary" },
+                  { icon: DollarSign, title: "Market Rates", desc: "Optimized interest caps.", color: "text-accent" }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 group">
+                    <item.icon className={`h-4 w-4 ${item.color} mt-0.5`} />
+                    <div className="space-y-0.5">
+                      <p className="text-[10px] font-black uppercase tracking-tight">{item.title}</p>
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase">{item.desc}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-blue-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Trusted Finance Partners</p>
-                    <p className="text-xs text-muted-foreground">Banks & SACCOs across Kenya</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <DollarSign className="h-5 w-5 text-amber-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-sm">Competitive Rates</p>
-                    <p className="text-xs text-muted-foreground">Best interest rates in the market</p>
-                  </div>
-                </div>
+                ))}
               </CardContent>
             </Card>
 
-            {/* Contact Card */}
-            <Card className="bg-gradient-to-br from-primary/10 to-amber-500/10">
-              <CardContent className="pt-6">
-                <h3 className="font-semibold mb-3">Need Help?</h3>
-                <div className="space-y-2 text-sm">
-                  <p className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-primary" />
-                    <a href="tel:0751555544" className="hover:underline">0751 555 544</a>
-                  </p>
-                  <div className="space-y-1.5 mt-3">
-                    <p className="text-xs font-medium text-muted-foreground">Departments:</p>
-                    <p className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-primary" />
-                      <a href="mailto:info@justiceultimateautomobiles.com" className="hover:underline text-xs">info@justiceultimateautomobiles.com</a>
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-blue-500" />
-                      <a href="mailto:support@justiceultimateautomobiles.com" className="hover:underline text-xs">support@justiceultimateautomobiles.com</a>
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-green-500" />
-                      <a href="mailto:sales@justiceultimateautomobiles.com" className="hover:underline text-xs">sales@justiceultimateautomobiles.com</a>
-                    </p>
-                  </div>
-                  <p className="flex items-center gap-2 mt-3">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    Westlands, Muthithi Road, Nairobi
-                  </p>
+            <Card className="rounded-md border-border bg-primary text-white overflow-hidden relative">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--accent)/0.2),transparent_50%)]" />
+              <CardContent className="pt-8 pb-6 text-center space-y-4 relative z-10">
+                <Headphones className="h-8 w-8 mx-auto text-brand-red opacity-80" />
+                <div className="space-y-1">
+                   <h3 className="text-sm font-black uppercase tracking-widest">Financial Desk</h3>
+                   <p className="text-[9px] font-bold uppercase opacity-70">Direct human assistance</p>
                 </div>
+                <p className="text-xl font-black font-mono tracking-tighter">0751 555 544</p>
+                <Button variant="outline" className="w-full bg-white/5 border-white/20 text-[10px] font-black uppercase tracking-widest h-10 rounded-sm hover:bg-white hover:text-primary transition-all" onClick={() => navigate("/contact")}>Establish Connection</Button>
               </CardContent>
             </Card>
           </div>

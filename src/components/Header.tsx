@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, Moon, Sun, User, LogOut, Home as HomeIcon, LayoutDashboard, Heart, Bell, Mail } from "lucide-react";
+import { Menu, X, Moon, Sun, User, LogOut, LayoutDashboard, Heart, Bell, Mail, Download } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import logo from "@/assets/logo.png";
@@ -163,9 +163,11 @@ const Header = () => {
 
   const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/catalogue", label: "CATALOGUE" },
+    { to: "/catalogue", label: "Catalogue" },
+    { to: "/asset-finance", label: "Financing" },
+    { to: "/trade-in", label: "Trade In" },
+    { to: "/blogs", label: "News & Reviews" },
     { to: "/videos", label: "Videos" },
-    { to: "/about", label: "About" },
     { to: "/contact", label: "Contact" },
   ];
 
@@ -175,36 +177,38 @@ const Header = () => {
   return (
     <TooltipProvider>
     <>
-    <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border shadow-md">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
-            <div className="relative h-12 w-12">
+          <Link to="/" className="flex items-center gap-3 group shrink-0">
+            <div className="relative h-12 w-12 transition-transform duration-500 group-hover:scale-110">
               <img src={logo} alt="Justice Ultimate Automobiles" className="h-12 w-12 object-contain" />
               <ChristmasHat hatImage={christmasHat} />
             </div>
-            <span className="text-xl font-bold bg-gradient-accent bg-clip-text text-transparent hidden sm:block">
-              JUSTICE ULTIMATE AUTOMOBILES
-            </span>
+            <div className="flex flex-col">
+              <span className="text-base font-black tracking-tighter bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hidden sm:block leading-none">
+                JUSTICE ULTIMATE
+              </span>
+              <span className="text-[8px] font-bold tracking-[0.3em] uppercase text-muted-foreground hidden sm:block">
+                Automobiles
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden xl:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`relative px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 overflow-hidden group shadow-[0_4px_8px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_12px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 ${
+                className={`relative px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight transition-all duration-300 ${
                   location.pathname === link.to
-                    ? "text-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary),0.3)] border border-primary/20"
-                    : "text-foreground/90 hover:bg-white/5 hover:text-primary border border-border/50"
+                    ? "text-primary bg-primary/5 shadow-sm border border-primary/20"
+                    : "text-muted-foreground hover:text-primary hover:bg-secondary/50 border border-transparent hover:border-border"
                 }`}
               >
-                {location.pathname === link.to && (
-                  <span className="absolute inset-0 animate-[pulse_2s_ease-in-out_infinite] bg-primary/20 rounded-md" />
-                )}
-                <span className="relative z-10">{link.label}</span>
+                {link.label}
               </Link>
             ))}
           </nav>
@@ -214,25 +218,42 @@ const Header = () => {
             {/* Business Hours */}
             <BusinessHours />
             
-            {/* Home Icon - Always visible */}
+            {/* Download APK Button - Signal Animation */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  asChild
-                  aria-label="Home"
-                  className="border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.5)] hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
+                  onClick={() => window.open("https://loadly.io/justice-auto-app", "_blank")}
+                  aria-label="Download App"
+                  className="relative border border-brand-red/50 shadow-[0_0_10px_rgba(239,68,68,0.3)] hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-vertical-bounce"
                 >
-                  <Link to="/">
-                    <HomeIcon className="h-5 w-5" />
-                  </Link>
+                  <Download className="h-5 w-5 text-brand-red" />
+                  <span className="absolute inset-0 rounded-full animate-ping-slow border border-brand-red/30 pointer-events-none" />
+                  <span className="absolute -inset-1 rounded-full animate-ping border border-brand-red/20 pointer-events-none" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Home</p>
+                <p>Download Android APK</p>
               </TooltipContent>
             </Tooltip>
+
+            <style>{`
+              @keyframes vertical-bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-4px); }
+              }
+              .animate-vertical-bounce {
+                animation: vertical-bounce 2s infinite ease-in-out;
+              }
+              @keyframes ping-slow {
+                0% { transform: scale(1); opacity: 1; }
+                70%, 100% { transform: scale(1.5); opacity: 0; }
+              }
+              .animate-ping-slow {
+                animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+              }
+            `}</style>
 
             {/* Whitelist Icon - Always visible */}
             <Tooltip>
@@ -418,15 +439,12 @@ const Header = () => {
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`relative block px-4 py-3 rounded-md text-sm font-medium transition-all duration-300 overflow-hidden shadow-[0_4px_8px_rgba(0,0,0,0.15)] hover:shadow-[0_6px_12px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 ${
+                className={`relative block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${
                   location.pathname === link.to
-                    ? "text-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary),0.3)] border border-primary/20"
-                    : "text-foreground/90 hover:bg-accent hover:text-accent-foreground border border-border/50"
+                    ? "text-primary bg-primary/5 border border-primary/20"
+                    : "text-muted-foreground border border-transparent hover:bg-secondary/50"
                 }`}
               >
-                {location.pathname === link.to && (
-                  <span className="absolute inset-0 animate-[pulse_2s_ease-in-out_infinite] bg-primary/20 rounded-md" />
-                )}
                 <span className="relative z-10">{link.label}</span>
               </Link>
             ))}

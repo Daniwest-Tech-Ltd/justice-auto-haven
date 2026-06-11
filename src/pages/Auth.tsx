@@ -2,12 +2,35 @@ import { useState, useEffect, useRef } from "react"; /* eslint-disable react/no-
 import type { Session } from "@supabase/supabase-js";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Facebook, Instagram, Linkedin, ArrowLeft, Mail, Chrome, Eye, EyeOff, Lock, UserPlus } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  ArrowLeft,
+  Mail,
+  Chrome,
+  Eye,
+  EyeOff,
+  Lock,
+  UserPlus,
+  ShieldCheck,
+  Globe,
+  Trophy,
+  Activity,
+  ArrowRight,
+  User,
+  Smartphone,
+  Navigation,
+  Building2,
+  CheckCircle,
+  Clock,
+  MessageCircle
+} from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -30,8 +53,6 @@ import { TwoFactorDialog } from "@/components/TwoFactorDialog";
 
 import { useSecurityLogger } from "@/hooks/useSecurityLogger";
 import { useTurnstile } from "@/hooks/useTurnstile";
-import authBg from "@/assets/auth-bg.jpg";
-import carLotOverlay from "@/assets/car-lot-overlay.jpg";
 import maintenanceGif from "@/assets/maintenance.gif";
 import googleIcon from "@/assets/google-icon.svg";
 import githubIcon from "@/assets/github-icon.svg";
@@ -42,11 +63,15 @@ import { PhoneInputWithCountryCode } from "@/components/PhoneInputWithCountryCod
 import HolidayBanner from "@/components/HolidayBanner";
 import { Snowfall } from "@/components/SeasonalEffects";
 import useDisableRightClick from "@/hooks/useDisableRightClick";
+import { getCurrentSale } from "@/lib/currentSale";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
 
 const Auth = () => {
   useDisableRightClick();
+  const sale = getCurrentSale();
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
@@ -54,12 +79,11 @@ const Auth = () => {
   const [suspensionReason, setSuspensionReason] = useState("");
   const [suspendedUntil, setSuspendedUntil] = useState<string>();
   const [show2FADialog, setShow2FADialog] = useState(false);
-  const [twoFactorCode, setTwoFactorCode] = useState("");
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [pendingUserEmail, setPendingUserEmail] = useState("");
   const [available2FAMethods, setAvailable2FAMethods] = useState({ email: true, totp: false, fingerprint: false, whatsapp: true });
   const [preferred2FAMethod, setPreferred2FAMethod] = useState("email_otp");
-  const [otpTimeLeft, setOtpTimeLeft] = useState(600); // 10 minutes in seconds
+  const [otpTimeLeft, setOtpTimeLeft] = useState(600); // 10 minutes
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const oauthSearch = searchParams.toString();
@@ -68,16 +92,13 @@ const Auth = () => {
   const { logLoginAttempt, logSuspiciousActivity } = useSecurityLogger();
   const userIpRef = useRef<string | null>(null);
   
-  // Turnstile CAPTCHA hooks for login and signup
   const loginTurnstile = useTurnstile(TURNSTILE_SITE_KEY);
   const signupTurnstile = useTurnstile(TURNSTILE_SITE_KEY);
 
-  // Login form
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showLoginPassword, setShowLoginPassword] = useState(false);
 
-  // Registration form
   const [regFullName, setRegFullName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPhone, setRegPhone] = useState("");
@@ -91,7 +112,7 @@ const Auth = () => {
   const [preferredContact, setPreferredContact] = useState("email");
   const [availableTowns, setAvailableTowns] = useState<string[]>([]);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [countryCode, setCountryCode] = useState("+254"); // Default to Kenya
+  const [countryCode, setCountryCode] = useState("+254");
 
   const [maintenanceMode, setMaintenanceMode] = useState<{
     is_active: boolean;
@@ -100,8 +121,6 @@ const Auth = () => {
   } | null>(null);
   const [maintenanceCountdown, setMaintenanceCountdown] = useState("");
 
-
-  // Fetch user's public IP on mount
   useEffect(() => {
     fetch("https://api.ipify.org?format=json")
       .then(res => res.json())
@@ -110,20 +129,15 @@ const Auth = () => {
   }, []);
 
   useEffect(() => {
-    // Check maintenance once on mount, don't check repeatedly
     checkMaintenanceMode();
-    
-    // Check for password reset success
     const resetSuccess = searchParams.get("reset");
     if (resetSuccess === "success") {
       toast({
         title: "Password Reset Successful",
         description: "Your password has been reset. Please login with your new password.",
       });
-      // Clear the URL parameter
       window.history.replaceState({}, document.title, "/auth");
     }
-    
   }, []);
 
   useEffect(() => {
@@ -132,39 +146,33 @@ const Auth = () => {
         const now = new Date().getTime();
         const end = new Date(maintenanceMode.end_time!).getTime();
         const distance = end - now;
-
         if (distance < 0) {
           clearInterval(interval);
           setMaintenanceCountdown("System is back online!");
           checkMaintenanceMode();
           return;
         }
-
         const hours = Math.floor(distance / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
         setMaintenanceCountdown(`${hours}h ${minutes}m ${seconds}s`);
       }, 1000);
-
       return () => clearInterval(interval);
     }
   }, [maintenanceMode]);
 
   const checkMaintenanceMode = async () => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("system_maintenance")
         .select("*")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-
       if (data) {
         const endTime = new Date(data.end_time);
-        const now = new Date();
-        if (endTime > now) {
+        if (endTime > new Date()) {
           setMaintenanceMode({
             is_active: true,
             end_time: data.end_time,
@@ -176,176 +184,74 @@ const Auth = () => {
       } else {
         setMaintenanceMode(null);
       }
-    } catch (error) {
-      setMaintenanceMode(null);
-    }
+    } catch { setMaintenanceMode(null); }
   };
 
   useEffect(() => {
-    // Update available towns when county changes
     if (countyCity) {
       const county = kenyaLocations.counties.find((c: any) => c.name === countyCity);
       setAvailableTowns(county?.towns || []);
-      setExactLocation(""); // Reset town when county changes
+      setExactLocation("");
     }
   }, [countyCity]);
 
-  // OTP countdown timer
   useEffect(() => {
     if (show2FADialog && otpTimeLeft > 0) {
       const timer = setInterval(() => {
         setOtpTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            toast({
-              title: "OTP Expired",
-              description: "Your verification code has expired. Please request a new one.",
-              variant: "destructive",
-            });
+            toast({ title: "OTP Expired", description: "Verification code expired.", variant: "destructive" });
             setShow2FADialog(false);
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-
       return () => clearInterval(timer);
     }
   }, [show2FADialog, otpTimeLeft]);
 
-  // Reset OTP timer when dialog opens
-  useEffect(() => {
-    if (show2FADialog) {
-      setOtpTimeLeft(600); // Reset to 10 minutes
-    }
-  }, [show2FADialog]);
+  useEffect(() => { if (show2FADialog) setOtpTimeLeft(600); }, [show2FADialog]);
 
-  // Scroll register form to top when switching to sign up
-  useEffect(() => {
-    if (isSignUp) {
-      const signUpContainer = document.querySelector('.sign-up-container');
-      if (signUpContainer) {
-        signUpContainer.scrollTop = 0;
-      }
-    }
-  }, [isSignUp]);
-
-  // Google OAuth login - redirects to dashboard after success
-  // Google OAuth login - redirects dynamically based on platform
-const handleGoogleLogin = async () => {
-  try {
-    setLoading(true);
-
-    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
-    const redirectUrl = isNativeMobile 
-      ? 'com.justice.ultimateautomobiles://auth' 
-      : `${window.location.origin}/auth`;
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: redirectUrl
-      }
-    });
-
-      if (error) {
-        toast({
-          title: "Google Login Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      const isNative = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
+      const redirectUrl = isNative ? 'com.justice.ultimateautomobiles://auth' : `${window.location.origin}/auth`;
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirectUrl } });
+      if (error) throw error;
     } catch (error: any) {
-      toast({
-        title: "Google Login Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+      toast({ title: "Google Login Error", description: error.message, variant: "destructive" });
+    } finally { setLoading(false); }
   };
 
-  // GitHub OAuth login - redirects to dashboard after success
-  // GitHub OAuth login - redirects to dashboard after success
-const handleGitHubLogin = async () => {
-  try {
-    setLoading(true);
-
-    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
-    const redirectUrl = isNativeMobile 
-      ? 'com.justice.ultimateautomobiles://auth' 
-      : `${window.location.origin}/auth`;
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: {
-          redirectTo: redirectUrl
-        }
-      });
-
-      if (error) {
-        toast({
-          title: "GitHub Login Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+  const handleGitHubLogin = async () => {
+    try {
+      setLoading(true);
+      const isNative = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
+      const redirectUrl = isNative ? 'com.justice.ultimateautomobiles://auth' : `${window.location.origin}/auth`;
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: redirectUrl } });
+      if (error) throw error;
     } catch (error: any) {
-      toast({
-        title: "GitHub Login Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+      toast({ title: "GitHub Login Error", description: error.message, variant: "destructive" });
+    } finally { setLoading(false); }
   };
 
-  // Facebook OAuth login - redirects to dashboard after success
-  // Facebook OAuth login - redirects to dashboard after success
-const handleFacebookLogin = async () => {
-  try {
-    setLoading(true);
-
-    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
-    const redirectUrl = isNativeMobile 
-      ? 'com.justice.ultimateautomobiles://auth' 
-      : `${window.location.origin}/auth`;
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'facebook',
-        options: {
-          redirectTo: redirectUrl,
-          scopes: 'email'
-        }
-      });
-
-      if (error) {
-        toast({
-          title: "Facebook Login Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+  const handleFacebookLogin = async () => {
+    try {
+      setLoading(true);
+      const isNative = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
+      const redirectUrl = isNative ? 'com.justice.ultimateautomobiles://auth' : `${window.location.origin}/auth`;
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'facebook', options: { redirectTo: redirectUrl, scopes: 'email' } });
+      if (error) throw error;
     } catch (error: any) {
-      toast({
-        title: "Facebook Login Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+      toast({ title: "Facebook Login Error", description: error.message, variant: "destructive" });
+    } finally { setLoading(false); }
   };
 
-  // Admin emails - these users always get admin role
-  const ADMIN_EMAILS = [
-    'daniwesttechnologies@gmail.com',
-    'justicevincentt@gmail.com'
-  ];
+  const ADMIN_EMAILS = ['daniwesttechnologies@gmail.com', 'justicevincentt@gmail.com'];
 
-  // Handle OAuth callback (PKCE + legacy implicit) once per callback URL
   useEffect(() => {
     const currentSearchParams = new URLSearchParams(oauthSearch);
     const isGoogleCallback = currentSearchParams.get("google_callback") === "true";
@@ -355,60 +261,29 @@ const handleFacebookLogin = async () => {
     const hasOAuthError = Boolean(currentSearchParams.get("error") || currentSearchParams.get("error_description"));
     const hasLegacyHashToken = window.location.hash.includes("access_token");
 
-    const isOAuthCallback =
-      isGoogleCallback ||
-      isGitHubCallback ||
-      isFacebookCallback ||
-      hasOAuthCode ||
-      hasLegacyHashToken ||
-      hasOAuthError;
+    const isOAuthCallback = isGoogleCallback || isGitHubCallback || isFacebookCallback || hasOAuthCode || hasLegacyHashToken || hasOAuthError;
 
-    if (!isOAuthCallback) {
-      return;
-    }
+    if (!isOAuthCallback) return;
 
     const callbackKey = `${window.location.pathname}?${oauthSearch}#${window.location.hash}`;
-    if (oauthCallbackHandledRef.current === callbackKey) {
-      return;
-    }
+    if (oauthCallbackHandledRef.current === callbackKey) return;
     oauthCallbackHandledRef.current = callbackKey;
 
-    const callbackProvider = isFacebookCallback
-      ? "facebook"
-      : isGitHubCallback
-      ? "github"
-      : isGoogleCallback
-      ? "google"
-      : null;
-
+    const callbackProvider = isFacebookCallback ? "facebook" : isGitHubCallback ? "github" : isGoogleCallback ? "google" : null;
     let isActive = true;
     let handled = false;
 
-    const cleanupCallbackUrl = () => {
-      if (window.location.pathname === "/auth") {
-        window.history.replaceState({}, document.title, "/auth");
-      }
-    };
+    const cleanupCallbackUrl = () => { if (window.location.pathname === "/auth") window.history.replaceState({}, document.title, "/auth"); };
 
     const processOAuthSession = async (session: Session) => {
       const userEmail = session.user.email?.toLowerCase() || "";
       const isAdmin = ADMIN_EMAILS.includes(userEmail);
       const sessionProvider = session.user.app_metadata?.provider as string | undefined;
       const authProvider = callbackProvider || sessionProvider || "google";
-      const oauthName =
-        session.user.user_metadata?.full_name ||
-        session.user.user_metadata?.name ||
-        session.user.email?.split("@")[0] ||
-        "User";
-      const oauthAvatar =
-        session.user.user_metadata?.avatar_url ||
-        session.user.user_metadata?.picture;
+      const oauthName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split("@")[0] || "User";
+      const oauthAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture;
 
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("id, full_name, password_set, auth_provider")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
+      const { data: existingProfile } = await supabase.from("profiles").select("id, full_name, password_set, auth_provider").eq("user_id", session.user.id).maybeSingle();
 
       if (!existingProfile) {
         await supabase.from("profiles").insert({
@@ -422,60 +297,25 @@ const handleFacebookLogin = async () => {
           password_set: false,
           auth_provider: authProvider,
         });
-
         const assignedRole = isAdmin ? "admin" : "customer";
-        await supabase.from("user_roles").upsert(
-          {
-            user_id: session.user.id,
-            role: assignedRole,
-          },
-          { onConflict: "user_id,role", ignoreDuplicates: true }
-        );
-
-        supabase.functions
-          .invoke("send-welcome-email", {
-            body: { email: session.user.email, name: oauthName, authProvider },
-          })
-          .catch(() => {});
+        await supabase.from("user_roles").upsert({ user_id: session.user.id, role: assignedRole }, { onConflict: "user_id,role", ignoreDuplicates: true });
+        supabase.functions.invoke("send-welcome-email", { body: { email: session.user.email, name: oauthName, authProvider } }).catch(() => {});
       } else {
-        supabase
-          .from("profiles")
-          .update({ is_online: true, last_seen: new Date().toISOString() })
-          .eq("user_id", session.user.id)
-          .then(() => {});
+        supabase.from("profiles").update({ is_online: true, last_seen: new Date().toISOString() }).eq("user_id", session.user.id).then(() => {});
       }
 
-      const loginSound = new Audio("/sounds/notification.mp3");
-      loginSound.volume = 0.5;
-      loginSound.play().catch(() => {});
+      new Audio("/sounds/notification.mp3").play().catch(() => {});
+      const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
+      if (isAdmin) await supabase.from("user_roles").upsert({ user_id: session.user.id, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
 
-      const { data: roleRows } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id);
-
-      if (isAdmin) {
-        await supabase
-          .from("user_roles")
-          .upsert({ user_id: session.user.id, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
-      }
-
-      const isAdminUser =
-        isAdmin ||
-        Boolean(roleRows?.some((row) => row.role === "admin"));
-      
-      // Determine specific staff role for routing
+      const isAdminUser = isAdmin || Boolean(roleRows?.some((row) => row.role === "admin"));
       const staffRole = roleRows?.find((row) => ["hr_manager", "hr_staff", "sales_manager", "sales_rep", "marketing_manager", "marketing_staff", "ceo", "system_administrator"].includes(row.role))?.role;
       const isStaffUser = !isAdminUser && Boolean(roleRows?.some((row) => row.role === "staff") || staffRole);
       const isHRStaff = staffRole && (staffRole.includes("hr") || staffRole === "ceo");
       const isSalesStaff = staffRole && (staffRole.includes("sales") || staffRole.includes("marketing"));
       
       const displayName = existingProfile?.full_name || oauthName || session.user.email;
-      const roleLabel = isAdminUser ? "admin" : isStaffUser ? "staff" : "customer";
-
-      sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-        description: `Logged in as ${roleLabel}`,
-      });
+      sonnerToast.success(`Welcome back, ${displayName}! 🎉`, { description: `Logged in as ${isAdminUser ? "admin" : isStaffUser ? "staff" : "customer"}` });
 
       if (isActive) {
         let dest = "/customer-dashboard";
@@ -490,91 +330,45 @@ const handleFacebookLogin = async () => {
     const handleAuthFailure = async (message: string) => {
       await supabase.auth.signOut({ scope: "local" });
       cleanupCallbackUrl();
-
       if (isActive) {
         setLoading(false);
-        toast({
-          title: "Login Failed",
-          description: message,
-          variant: "destructive",
-        });
+        toast({ title: "Login Failed", description: message, variant: "destructive" });
       }
     };
 
     const tryHandleSession = async (session: Session | null) => {
       if (!isActive || handled || !session?.user) return;
-
       handled = true;
-
-      try {
-        await processOAuthSession(session);
-      } catch (error: any) {
+      try { await processOAuthSession(session); } catch (error: any) {
         console.error("OAuth callback error:", error);
-        await handleAuthFailure(error?.message || "Could not establish session. Please try again.");
-      } finally {
-        cleanupCallbackUrl();
-        if (isActive) {
-          setLoading(false);
-        }
-      }
+        await handleAuthFailure(error?.message || "Could not establish session.");
+      } finally { cleanupCallbackUrl(); if (isActive) setLoading(false); }
     };
 
     setLoading(true);
-
     if (hasOAuthError) {
-      const oauthError =
-        currentSearchParams.get("error_description") ||
-        currentSearchParams.get("error") ||
-        "OAuth provider rejected the login request.";
-      void handleAuthFailure(oauthError);
-      return () => {
-        isActive = false;
-      };
+      handleAuthFailure(currentSearchParams.get("error_description") || currentSearchParams.get("error") || "OAuth error.");
+      return () => { isActive = false; };
     }
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isActive || handled) return;
-      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
-        void tryHandleSession(session);
-      }
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") tryHandleSession(session);
     });
-
     const bootstrapTimer = window.setTimeout(async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
+      const { data: { session } } = await supabase.auth.getSession();
       await tryHandleSession(session);
-
-      if (!handled && isActive) {
-        await handleAuthFailure("Could not establish OAuth session. Please try again.");
-      }
+      if (!handled && isActive) handleAuthFailure("Could not establish OAuth session.");
     }, 300);
-
-    return () => {
-      isActive = false;
-      window.clearTimeout(bootstrapTimer);
-      subscription.unsubscribe();
-    };
+    return () => { isActive = false; window.clearTimeout(bootstrapTimer); subscription.unsubscribe(); };
   }, [navigate, oauthSearch, toast]);
 
-  // Password strength checker
   const checkPasswordStrength = (pwd: string) => {
     const minLength = pwd.length >= 8;
     const hasUpperCase = /[A-Z]/.test(pwd);
     const hasLowerCase = /[a-z]/.test(pwd);
     const hasNumber = /\d/.test(pwd);
     const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
-
-    const score =
-      Number(minLength) +
-      Number(hasUpperCase) +
-      Number(hasLowerCase) +
-      Number(hasNumber) +
-      Number(hasSpecialChar);
-
+    const score = Number(minLength) + Number(hasUpperCase) + Number(hasLowerCase) + Number(hasNumber) + Number(hasSpecialChar);
     if (score < 3) return "weak";
     if (score < 5) return "medium";
     return "strong";
@@ -584,632 +378,181 @@ const handleFacebookLogin = async () => {
 
   const completeLogin = async (userId: string, userName?: string, userEmail?: string) => {
     try {
-      // Log successful login with IP
       logLoginAttempt(userEmail || email, true, userIpRef.current || undefined);
+      new Audio('/sounds/notification.mp3').play().catch(() => {});
+      supabase.from("profiles").update({ is_online: true, last_seen: new Date().toISOString(), login_attempts: 0 }).eq("user_id", userId).then(() => {});
 
-      // Play login success sound
-      const loginSound = new Audio('/sounds/notification.mp3');
-      loginSound.volume = 0.5;
-      loginSound.play().catch(() => {});
-
-      // Update profile (fire-and-forget, don't block login)
-      supabase
-        .from("profiles")
-        .update({
-          is_online: true,
-          last_seen: new Date().toISOString(),
-          login_attempts: 0
-        })
-        .eq("user_id", userId)
-        .then(() => {});
-
-      // Get display name from profile if not provided
       let displayName = userName || "User";
       let actualEmail = (userEmail || '').toLowerCase();
-
       if (!userName || !userEmail) {
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("full_name, email")
-          .eq("user_id", userId)
-          .maybeSingle();
-        
+        const { data: profileData } = await supabase.from("profiles").select("full_name, email").eq("user_id", userId).maybeSingle();
         if (profileData) {
           displayName = userName || profileData.full_name || "User";
           actualEmail = (userEmail || profileData.email || '').toLowerCase();
         }
       }
-
       const isAdminEmail = ADMIN_EMAILS.includes(actualEmail);
-      
-      // If admin email, ensure admin role exists
-      if (isAdminEmail) {
-        await supabase
-          .from("user_roles")
-          .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
-      }
-      
-      // Fetch current roles
-      const { data: roleRows } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
-
-      const isAdmin =
-        isAdminEmail ||
-        Boolean(roleRows?.some((row) => row.role === "admin"));
-      
-      // Determine specific staff role for routing
+      if (isAdminEmail) await supabase.from("user_roles").upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
+      const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+      const isAdmin = isAdminEmail || Boolean(roleRows?.some((row) => row.role === "admin"));
       const staffRole = roleRows?.find((row) => ["hr_manager", "hr_staff", "sales_manager", "sales_rep", "marketing_manager", "marketing_staff", "ceo", "system_administrator"].includes(row.role))?.role;
       const isStaff = !isAdmin && Boolean(roleRows?.some((row) => row.role === "staff") || staffRole);
-      const isHRStaff = staffRole && (staffRole.includes("hr") || staffRole === "ceo");
-      const isSalesStaff = staffRole && (staffRole.includes("sales") || staffRole.includes("marketing"));
+      const isHR = staffRole && (staffRole.includes("hr") || staffRole === "ceo");
+      const isSales = staffRole && (staffRole.includes("sales") || staffRole.includes("marketing"));
       
-      sonnerToast.success(`Welcome back, ${displayName}! 🎉`, {
-        description: `Logged in as ${isAdmin ? "admin" : isStaff ? "staff" : "customer"}`,
-      });
-
+      sonnerToast.success(`Welcome back, ${displayName}! 🎉`, { description: `Logged in as ${isAdmin ? "admin" : isStaff ? "staff" : "customer"}` });
       let dest = "/customer-dashboard";
       if (isAdmin) dest = "/admin-dashboard";
-      else if (isHRStaff) dest = "/hr-dashboard";
-      else if (isSalesStaff) dest = "/sales-dashboard";
+      else if (isHR) dest = "/hr-dashboard";
+      else if (isSales) dest = "/sales-dashboard";
       else if (isStaff) dest = "/staff-dashboard";
       navigate(dest, { replace: true });
-    } catch (error: any) {
-      console.error("completeLogin error:", error);
-      try {
-        const { data: roleRows } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", userId);
-        const isAdmin = Boolean(roleRows?.some((row) => row.role === "admin"));
-        const staffRole = roleRows?.find((row) => ["hr_manager", "hr_staff", "sales_manager", "sales_rep", "marketing_manager", "marketing_staff", "ceo", "system_administrator"].includes(row.role))?.role;
-        const isStaff = !isAdmin && Boolean(roleRows?.some((row) => row.role === "staff") || staffRole);
-        const isHR = staffRole && (staffRole.includes("hr") || staffRole === "ceo");
-        const isSales = staffRole && (staffRole.includes("sales") || staffRole.includes("marketing"));
-        let dest = "/customer-dashboard";
-        if (isAdmin) dest = "/admin-dashboard";
-        else if (isHR) dest = "/hr-dashboard";
-        else if (isSales) dest = "/sales-dashboard";
-        else if (isStaff) dest = "/staff-dashboard";
-        navigate(dest, { replace: true });
-      } catch {
-        navigate("/customer-dashboard", { replace: true });
-      }
-    }
+    } catch { navigate("/customer-dashboard", { replace: true }); }
   };
 
   const verify2FA = async () => {
     if (!pendingUserId || !twoFactorCode) {
-      toast({
-        title: "Error",
-        description: "Please enter the verification code",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Enter verification code", variant: "destructive" });
       return;
     }
-
     setLoading(true);
     try {
-      // Check if user has TOTP enabled
       if (preferred2FAMethod === "totp" && available2FAMethods.totp) {
-        // Verify TOTP code using edge function
-        const { data: totpResult, error: totpError } = await supabase.functions.invoke(
-          'verify-totp-login',
-          {
-            body: {
-              userId: pendingUserId,
-              code: twoFactorCode
-            }
-          }
-        );
-
+        const { data: totpResult, error: totpError } = await supabase.functions.invoke('verify-totp-login', { body: { userId: pendingUserId, code: twoFactorCode } });
         if (totpError || !totpResult?.success) {
-          await logSuspiciousActivity(
-            "Invalid TOTP Code",
-            `Failed TOTP verification for user ${pendingUserId}`,
-            undefined,
-            { code: twoFactorCode }
-          );
-          
-          toast({
-            title: "Invalid Code",
-            description: "The authenticator code is incorrect or expired",
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
+          await logSuspiciousActivity("Invalid TOTP Code", `Failed TOTP for user ${pendingUserId}`, undefined, { code: twoFactorCode });
+          toast({ title: "Invalid Code", description: "Authenticator code incorrect.", variant: "destructive" });
+          setLoading(false); return;
         }
-
-        // TOTP verified successfully
-        setShow2FADialog(false);
-        await completeLogin(pendingUserId, undefined, pendingUserEmail);
-        return;
+        setShow2FADialog(false); await completeLogin(pendingUserId, undefined, pendingUserEmail); return;
       }
-
-      // Email OTP verification (existing logic)
-      const { data: twoFAData, error: twoFAError } = await supabase
-        .from("two_factor_auth")
-        .select("*")
-        .eq("user_id", pendingUserId)
-        .eq("code", twoFactorCode)
-        .eq("verified", false)
-        .gte("expires_at", new Date().toISOString())
-        .maybeSingle();
-
+      const { data: twoFAData, error: twoFAError } = await supabase.from("two_factor_auth").select("*").eq("user_id", pendingUserId).eq("code", twoFactorCode).eq("verified", false).gte("expires_at", new Date().toISOString()).maybeSingle();
       if (twoFAError || !twoFAData) {
-        await logSuspiciousActivity(
-          "Invalid 2FA Code",
-          `Failed 2FA verification for user ${pendingUserId}`,
-          undefined,
-          { code: twoFactorCode }
-        );
-        
-        toast({
-          title: "Invalid Code",
-          description: "The verification code is incorrect or expired",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
+        await logSuspiciousActivity("Invalid 2FA Code", `Failed 2FA for user ${pendingUserId}`, undefined, { code: twoFactorCode });
+        toast({ title: "Invalid Code", description: "Verification code incorrect.", variant: "destructive" });
+        setLoading(false); return;
       }
-
-      // Mark code as verified
-      await supabase
-        .from("two_factor_auth")
-        .update({ verified: true })
-        .eq("id", twoFAData.id);
-
-      setShow2FADialog(false);
-      await completeLogin(pendingUserId, undefined, pendingUserEmail);
+      await supabase.from("two_factor_auth").update({ verified: true }).eq("id", twoFAData.id);
+      setShow2FADialog(false); await completeLogin(pendingUserId, undefined, pendingUserEmail);
     } catch (error: any) {
-      toast({
-        title: "Verification Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getSuspensionDuration = (): number => {
-    return 60; // 1 hour suspension
-  };
-
-  const getEscalationReason = (isBlocked: boolean): string => {
-    if (isBlocked) {
-      return "Account blocked due to repeated failed login attempts after suspension period. Contact administrator for assistance.";
-    }
-    return "Account suspended for 1 hour due to 3 failed login attempts.";
+      toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
+    } finally { setLoading(false); }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Get Turnstile CAPTCHA token (only enforce when widget is healthy)
-    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
     const captchaToken = loginTurnstile.getToken();
-
-    // Only enforce Turnstile if we are on the web, NOT on native mobile app
-    if (!isNativeMobile && loginTurnstile.isReady && !captchaToken) {
-      toast({
-        title: "CAPTCHA Required",
-        description: "Please complete the CAPTCHA verification",
-        variant: "destructive",
-      });
+    if (window.location.hostname !== 'localhost' && loginTurnstile.isReady && !captchaToken) {
+      toast({ title: "CAPTCHA Required", description: "Please complete CAPTCHA", variant: "destructive" });
       return;
     }
-    
     setLoading(true);
-
     try {
-      // Check profile with optimized query (select only needed fields)
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("user_id, email, full_name, is_suspended, account_status, suspended_reason, suspended_at, login_attempts, two_fa_enabled, preferred_2fa, totp_enabled, fingerprint_enabled")
-        .eq("email", email)
-        .maybeSingle();
+      const { data: profileData } = await supabase.from("profiles").select("user_id, email, full_name, is_suspended, account_status, suspended_reason, suspended_at, login_attempts, two_fa_enabled, preferred_2fa, totp_enabled, fingerprint_enabled").eq("email", email).maybeSingle();
 
-      // Check if account is suspended or blocked - CANNOT LOGIN
       if (profileData?.is_suspended || profileData?.account_status === "suspended" || profileData?.account_status === "blocked") {
-        // If account is blocked, always show the modal (requires admin intervention)
         if (profileData?.account_status === "blocked") {
-          setShowSuspendedModal(true);
-          setSuspensionReason(profileData.suspended_reason || "Account blocked. Contact administrator for assistance.");
-          setLoading(false);
-          return;
+          setShowSuspendedModal(true); setSuspensionReason(profileData.suspended_reason || "Account blocked.");
+          setLoading(false); return;
         }
-        
-        // For temporary suspensions, check if suspension has expired
         if (profileData.suspended_at) {
-          const suspendedAt = new Date(profileData.suspended_at);
-          const suspensionMinutes = getSuspensionDuration();
-          const until = new Date(suspendedAt.getTime() + suspensionMinutes * 60000);
-          
-          // Check if suspension has expired
+          const until = new Date(new Date(profileData.suspended_at).getTime() + 60 * 60000);
           if (new Date() < until) {
-            setSuspendedUntil(until.toISOString());
-            setShowSuspendedModal(true);
+            setSuspendedUntil(until.toISOString()); setShowSuspendedModal(true);
             setSuspensionReason(profileData.suspended_reason || "Account suspended");
-            setLoading(false);
-            return;
+            setLoading(false); return;
           } else {
-            // Suspension expired, but keep login_attempts count to track if user fails again
-            // DO NOT reset login_attempts here - only reset on successful login
-            await supabase
-              .from("profiles")
-              .update({
-                is_suspended: false,
-                account_status: "active",
-                suspended_reason: null,
-                suspended_at: null,
-                activation_code: null
-                // Keep login_attempts to track if this is post-suspension failure
-              })
-              .eq("user_id", profileData.user_id);
+            await supabase.from("profiles").update({ is_suspended: false, account_status: "active", suspended_reason: null, suspended_at: null, activation_code: null }).eq("user_id", profileData.user_id);
           }
         } else {
-          // No suspended_at timestamp, show modal anyway
-          setShowSuspendedModal(true);
-          setSuspensionReason(profileData.suspended_reason || "Account suspended");
-          setLoading(false);
-          return;
+          setShowSuspendedModal(true); setSuspensionReason(profileData.suspended_reason || "Account suspended");
+          setLoading(false); return;
         }
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-        options: captchaToken ? { captchaToken } : undefined,
-      });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password, options: captchaToken ? { captchaToken } : undefined });
 
       if (error) {
-        // Reset CAPTCHA on error
         loginTurnstile.reset();
-        
-        // Track failed login attempt
         if (profileData) {
           const newAttempts = (profileData.login_attempts || 0) + 1;
           const now = new Date().toISOString();
-          
-          // Check if this is a post-suspension attempt (was previously suspended)
-          const wasPreviouslySuspended = profileData.account_status === "suspended" || profileData.is_suspended;
-          
           if (newAttempts >= 3) {
-            // Generate activation code - try RPC first, fallback to random generation
-            let activationCode = '';
-            try {
-              const { data: codeData, error: rpcError } = await supabase.rpc('generate_activation_code');
-              if (rpcError) {
-                console.error('RPC error generating activation code:', rpcError);
-                activationCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-              } else {
-                activationCode = codeData || Math.random().toString(36).substring(2, 10).toUpperCase();
-              }
-            } catch (err) {
-              console.error('Failed to call RPC for activation code:', err);
-              activationCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-            }
-            
-            console.log('Generated activation code on failed login:', activationCode);
-            
-            const updateData: any = {
-              login_attempts: newAttempts,
-              last_login_attempt: now,
-              suspended_at: now,
-            };
-            
-            // If user was previously suspended and failed again, block immediately
-            if (wasPreviouslySuspended) {
-              updateData.is_suspended = true;
-              updateData.account_status = "blocked";
-              updateData.suspended_reason = getEscalationReason(true);
-              updateData.activation_code = activationCode;
-              
-              // Send blocked notification email
-              try {
-                await supabase.functions.invoke('send-suspension-notification', {
-                  body: {
-                    email: profileData.email,
-                    name: profileData.full_name,
-                    reason: updateData.suspended_reason,
-                    isBlocked: true
-                  }
-                });
-              } catch (emailError) {
-                console.error("Failed to send block notification email:", emailError);
-              }
-              
-              toast({
-                title: "Account Blocked",
-                description: "Your account has been blocked. Check your email for details.",
-                variant: "destructive",
-              });
-            } else {
-              // First time hitting 3 attempts: suspend for 1 hour
-              updateData.is_suspended = true;
-              updateData.account_status = "suspended";
-              updateData.suspended_reason = getEscalationReason(false);
-              updateData.activation_code = activationCode;
-              
-              const suspensionMinutes = getSuspensionDuration();
-              const until = new Date(new Date(now).getTime() + suspensionMinutes * 60000);
-              setSuspendedUntil(until.toISOString());
-              
-              // Send suspension notification email
-              try {
-                await supabase.functions.invoke('send-suspension-notification', {
-                  body: {
-                    email: profileData.email,
-                    name: profileData.full_name,
-                    reason: updateData.suspended_reason,
-                    isBlocked: false
-                  }
-                });
-              } catch (emailError) {
-                console.error("Failed to send suspension notification email:", emailError);
-              }
-              
-              toast({
-                title: "Account Suspended",
-                description: `Your account has been suspended for 1 hour. Check your email for details.`,
-                variant: "destructive",
-              });
-            }
-            
-            const { error: updateError, data: updatedProfile } = await supabase
-              .from("profiles")
-              .update(updateData)
-              .eq("user_id", profileData.user_id)
-              .select();
-            
-            if (updateError) {
-              console.error('Failed to update profile with suspension:', updateError);
-            } else {
-              console.log('Profile updated with activation code:', updatedProfile);
-            }
-            
-            await logLoginAttempt(
-              email,
-              false,
-              userIpRef.current || undefined
-            );
-            
-            setSuspensionReason(updateData.suspended_reason);
-            setShowSuspendedModal(true);
+            const activationCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+            const updateData: any = { login_attempts: newAttempts, last_login_attempt: now, suspended_at: now, is_suspended: true, account_status: "suspended", suspended_reason: "3 failed login attempts. Suspended for 1 hour.", activation_code: activationCode };
+            await supabase.from("profiles").update(updateData).eq("user_id", profileData.user_id);
+            await logLoginAttempt(email, false, userIpRef.current || undefined);
+            setSuspensionReason(updateData.suspended_reason); setShowSuspendedModal(true);
           } else {
-            // Update attempts but don't suspend yet
-            await supabase
-              .from("profiles")
-              .update({
-                login_attempts: newAttempts,
-                last_login_attempt: now
-              })
-              .eq("user_id", profileData.user_id);
-            
-            toast({
-              title: "Login Failed",
-              description: `Invalid credentials. ${3 - newAttempts} attempts remaining before suspension.`,
-              variant: "destructive",
-            });
+            await supabase.from("profiles").update({ login_attempts: newAttempts, last_login_attempt: now }).eq("user_id", profileData.user_id);
+            toast({ title: "Login Failed", description: `Invalid credentials. ${3 - newAttempts} attempts left.`, variant: "destructive" });
           }
         } else {
-          // Log failed attempt
           await logLoginAttempt(email, false, userIpRef.current || undefined);
-          
-          // Check if error is CAPTCHA related
-          const isCaptchaError = error.message.toLowerCase().includes('captcha') || 
-                                 error.message.toLowerCase().includes('turnstile');
-          
-          toast({
-            title: isCaptchaError ? "CAPTCHA Verification Failed" : "Login Failed",
-            description: isCaptchaError 
-              ? "CAPTCHA verification failed. Please try again." 
-              : error.message,
-            variant: "destructive",
-          });
+          toast({ title: "Login Failed", description: error.message, variant: "destructive" });
         }
-        setLoading(false);
-        return;
+        setLoading(false); return;
       }
 
       if (data.user) {
-        const currentUserId = data.user.id;
-        
-        // Use cached profile data from earlier check
-        const cachedProfile = profileData || await (async () => {
-          const { data: profData } = await supabase
-            .from("profiles")
-            .select("two_fa_enabled, preferred_2fa, totp_enabled, fingerprint_enabled, full_name")
-            .eq("user_id", currentUserId)
-            .maybeSingle();
-          return profData;
-        })();
-
-        // ALWAYS require 2FA for ALL users - email OTP is the mandatory default
-        // Additional methods available only if user has configured them
-        const has2FAConfigured = cachedProfile?.two_fa_enabled;
-        const hasTotp = cachedProfile?.totp_enabled || false;
-        const hasFingerprint = cachedProfile?.fingerprint_enabled || false;
-        
-        setAvailable2FAMethods({
-          email: true, // Email OTP always available and mandatory
-          totp: hasTotp,
-          fingerprint: hasFingerprint,
-          whatsapp: true, // WhatsApp OTP available as alternative
-        });
-        
-        // Always default to email_otp - user can switch if they have other methods
-        setPreferred2FAMethod("email_otp");
-        
-        setPendingUserId(currentUserId);
-        setPendingUserEmail(email);
-        
-        // The TwoFactorDialog will auto-send email OTP when it opens
-        setShow2FADialog(true);
+        setPendingUserId(data.user.id); setPendingUserEmail(email);
+        setAvailable2FAMethods({ email: true, totp: profileData?.totp_enabled || false, fingerprint: profileData?.fingerprint_enabled || false, whatsapp: true });
+        setPreferred2FAMethod("email_otp"); setShow2FADialog(true);
         setLoading(false);
-        return;
       }
     } catch (error: any) {
-      // Reset CAPTCHA on error
       loginTurnstile.reset();
-      
-      toast({
-        title: "Login Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+      toast({ title: "Login Failed", description: error.message, variant: "destructive" });
+    } finally { setLoading(false); }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
-    
-    // Get Turnstile CAPTCHA token (only enforce when widget is healthy)
     const captchaToken = signupTurnstile.getToken();
-
-    // Only enforce Turnstile if we are on the web, NOT on native mobile app
-    if (!isNativeMobile && signupTurnstile.isReady && !captchaToken) {
-      toast({
-        title: "CAPTCHA Required",
-        description: "Please complete the CAPTCHA verification",
-        variant: "destructive",
-      });
-      return;
+    if (window.location.hostname !== 'localhost' && signupTurnstile.isReady && !captchaToken) {
+      toast({ title: "CAPTCHA Required", description: "Complete CAPTCHA", variant: "destructive" }); return;
     }
-
-    if (!termsAccepted) {
-      toast({
-        title: "Terms Required",
-        description: "You must agree to the Terms and Conditions to register",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (regPassword !== regConfirmPassword) {
-      toast({
-        title: "Password Mismatch",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (passwordStrength === "weak") {
-      toast({
-        title: "Weak Password",
-        description: "Password must be at least 8 characters with uppercase, lowercase, numbers, and special characters",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!termsAccepted) { toast({ title: "Terms Required", description: "Agree to terms", variant: "destructive" }); return; }
+    if (regPassword !== regConfirmPassword) { toast({ title: "Mismatch", description: "Passwords do not match", variant: "destructive" }); return; }
+    if (passwordStrength === "weak") { toast({ title: "Weak Password", description: "Use a stronger password", variant: "destructive" }); return; }
 
     setLoading(true);
-
     try {
-      const isNativeMobile = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
-      const redirectUrl = isNativeMobile 
-        ? 'com.justice.ultimateautomobiles://auth' 
-        : `${window.location.origin}/auth`;
-      
-      // Format full phone number with country code
+      const isNative = window.location.hostname === 'localhost' || !window.location.origin.startsWith('http');
+      const redirectUrl = isNative ? 'com.justice.ultimateautomobiles://auth' : `${window.location.origin}/auth`;
       const fullPhone = `${countryCode}${regPhone}`;
-      
-      const { data, error } = await supabase.auth.signUp({
-        email: regEmail,
-        password: regPassword,
-        options: {
-          emailRedirectTo: redirectUrl,
-          ...(captchaToken ? { captchaToken } : {}),
-          data: {
-            full_name: regFullName,
-            phone: fullPhone,
-          }
-        }
-      });
-
+      const { data, error } = await supabase.auth.signUp({ email: regEmail, password: regPassword, options: { emailRedirectTo: redirectUrl, data: { full_name: regFullName, phone: fullPhone } } });
       if (error) throw error;
-
       if (data.user) {
-        // Update profile with additional details including country code
-        await supabase.from("profiles").update({
-          gender: gender[0],
-          county_city: countyCity,
-          exact_location: exactLocation,
-          preferred_contact: preferredContact,
-          country_code: countryCode,
-        }).eq("user_id", data.user.id);
-
+        await supabase.from("profiles").update({ gender: gender[0], county_city: countyCity, exact_location: exactLocation, preferred_contact: preferredContact, country_code: countryCode }).eq("user_id", data.user.id);
         setShowSuccessDialog(true);
       }
     } catch (error: any) {
-      // Reset CAPTCHA on error
       signupTurnstile.reset();
-      
-      // Check if error is CAPTCHA related
-      const isCaptchaError = error.message.toLowerCase().includes('captcha') || 
-                             error.message.toLowerCase().includes('turnstile');
-      
-      toast({
-        title: isCaptchaError ? "CAPTCHA Verification Failed" : "Registration Failed",
-        description: isCaptchaError 
-          ? "CAPTCHA verification failed. Please try again." 
-          : error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+      toast({ title: "Registration Failed", description: error.message, variant: "destructive" });
+    } finally { setLoading(false); }
   };
 
-  // Snowfall is now handled by the SeasonalEffects component
+  const [twoFactorCode, setTwoFactorCode] = useState("");
 
   if (maintenanceMode?.is_active) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-4">
-        <Card className="w-full max-w-md shadow-2xl">
-          <CardContent className="pt-8 pb-8 space-y-6">
-            <div className="text-center space-y-4">
-              <img 
-                src={maintenanceGif} 
-                alt="System under maintenance" 
-                className="w-40 h-40 mx-auto object-contain"
-              />
-              <h2 className="text-2xl font-bold text-foreground">System Under Maintenance</h2>
-              <p className="text-muted-foreground">{maintenanceMode.message}</p>
-              
-              {maintenanceCountdown && (
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Estimated time remaining:</p>
-                  <p className="text-3xl font-bold text-primary">{maintenanceCountdown}</p>
-                </div>
-              )}
-              
-              <p className="text-sm text-muted-foreground">
-                We apologize for the inconvenience. Our team is working hard to improve your experience.
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <Button 
-                onClick={() => navigate("/")} 
-                variant="outline" 
-                className="flex-1"
-              >
-                Back to Home
-              </Button>
-              <Button 
-                onClick={() => navigate("/catalogue")} 
-                className="flex-1"
-              >
-                See Catalogue
-              </Button>
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.05),transparent_70%)]" />
+        <Card className="w-full max-w-md shadow-2xl relative z-10 border-border bg-background">
+          <CardContent className="pt-10 pb-8 space-y-6 text-center">
+            <img src={maintenanceGif} alt="Maintenance" className="w-32 h-32 mx-auto" />
+            <h2 className="text-xl font-black uppercase tracking-widest">System Maintenance</h2>
+            <p className="text-xs text-muted-foreground uppercase font-bold">{maintenanceMode.message}</p>
+            {maintenanceCountdown && (
+              <div className="bg-secondary/10 p-4 rounded-md border border-border">
+                <p className="text-[10px] font-black uppercase mb-1">Restoration Cycle Remaining</p>
+                <p className="text-2xl font-black text-brand-red tracking-tighter">{maintenanceCountdown}</p>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <Button onClick={() => navigate("/")} variant="outline" className="flex-1 uppercase font-black text-[10px] h-12">Home Hub</Button>
+              <Button onClick={() => navigate("/catalogue")} className="flex-1 uppercase font-black text-[10px] h-12">Catalogue</Button>
             </div>
           </CardContent>
         </Card>
@@ -1218,575 +561,283 @@ const handleFacebookLogin = async () => {
   }
 
   return (
-    <>
-      <Snowfall />
-      <HolidayBanner />
-      <div 
-        className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center relative"
-        style={{ backgroundImage: `url(${authBg})` }}
-      >
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
-        
-        <Link to="/" className="absolute top-4 left-4 z-50">
-          <Button variant="outline" size="icon" className="glass">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden">
+      <Header />
+      <div className="pt-20">
+        <Snowfall />
+        <HolidayBanner />
 
-        <div
-          className={`glass-strong rounded-lg shadow-2xl max-w-4xl w-full min-h-[600px] md:max-h-[95vh] overflow-hidden relative transition-all duration-700 z-10 ${
-            isSignUp ? "auth-panel-active" : ""
-          }`}
-        >
-          {/* Sign In Form */}
-          <div className="auth-form-container sign-in-container absolute top-0 left-0 w-full md:w-1/2 h-full flex items-center justify-center z-20 transition-all duration-700 overflow-y-auto md:overflow-hidden">
-            <form onSubmit={handleLogin} className="auth-form-glass rounded-2xl p-6 md:p-12 flex flex-col items-center justify-center text-center space-y-4 md:space-y-6 w-full max-w-md my-4 md:my-0 shadow-[0_20px_60px_rgba(0,0,0,0.4)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.5)] transition-all duration-300 transform hover:scale-[1.02]">
-              <h1 className="text-4xl font-bold mb-6 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] animate-fade-in">Login</h1>
-              <Input 
-                type="email" 
-                placeholder="Email" 
-                className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <div className="relative w-full">
-                <Input 
-                  type={showLoginPassword ? "text" : "password"} 
-                  placeholder="Password" 
-                  className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200 pr-10"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowLoginPassword(!showLoginPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground transition-colors"
-                  aria-label={showLoginPassword ? "Hide password" : "Show password"}
-                >
-                  {showLoginPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-              
-              {/* Cloudflare Turnstile CAPTCHA */}
-              <div ref={loginTurnstile.containerRef} className="w-full flex justify-center" />
-              
-              <Link to="/reset-password" className="text-sm text-white hover:text-accent transition-all duration-300 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
-                Forgot Password?
-              </Link>
-              <Button 
-                type="submit" 
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-3 bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] text-primary-foreground font-bold text-lg py-6 rounded-full border-4 border-muted shadow-[0_4px_6px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.6),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_12px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:-translate-y-1 active:translate-y-0.5 transition-all duration-200"
-              >
-                <span className={`flex items-center justify-center w-10 h-10 rounded-full bg-background text-primary border-4 border-muted-foreground/30 shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-2px_5px_rgba(0,0,0,0.2)] ${loading ? 'animate-padlock-open' : ''}`}>
-                  <Lock className="w-5 h-5" />
-                </span>
-                {loading ? "Logging in..." : "Sign In"}
-              </Button>
-              
-              <div className="relative w-full my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-white/30" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-transparent px-2 text-white/80">Or continue with</span>
-                </div>
-              </div>
+        {/* Background Overlays */}
+        <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+        </div>
 
-              <TooltipProvider>
-                <div className="flex justify-center gap-4">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="button"
-                        onClick={handleGoogleLogin}
-                        disabled={loading}
-                        variant="outline"
-                        size="icon"
-                        className="w-14 h-14 rounded-full border-2 border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
-                      >
-                        <img src={googleIcon} alt="Google" className="h-7 w-7" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-background border border-border shadow-lg">
-                      <p className="font-semibold">Google</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="button"
-                        onClick={handleGitHubLogin}
-                        disabled={loading}
-                        variant="outline"
-                        size="icon"
-                        className="w-14 h-14 rounded-full border-2 border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
-                      >
-                        <img src={githubIcon} alt="GitHub" className="h-7 w-7 invert" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-background border border-border shadow-lg">
-                      <p className="font-semibold">GitHub</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="button"
-                        onClick={handleFacebookLogin}
-                        disabled={loading}
-                        variant="outline"
-                        size="icon"
-                        className="w-14 h-14 rounded-full border-2 border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
-                      >
-                        <img src={facebookIcon} alt="Facebook" className="h-7 w-7" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-background border border-border shadow-lg">
-                      <p className="font-semibold">Facebook</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </TooltipProvider>
-            </form>
+        {/* Official Trust Bar */}
+        <div className="bg-primary py-2 relative z-30 border-b border-white/5 shadow-2xl">
+          <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
+            <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
+              <ShieldCheck className="h-3 w-3 text-brand-red" />
+              Secure Identity Terminal
+            </span>
+            <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
+              <Globe className="h-3 w-3 text-brand-red" />
+              Global Access Network
+            </span>
+            <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
+              <Trophy className="h-3 w-3 text-brand-red" />
+              Justice Verified Authority
+            </span>
           </div>
+        </div>
 
-          {/* Sign Up Form */}
-          <div className="auth-form-container sign-up-container absolute top-0 left-0 w-full md:w-1/2 h-full z-10 md:opacity-0 transition-all duration-700 overflow-y-auto bg-gradient-to-br from-background/98 via-card/98 to-background/98">
-            <form onSubmit={handleRegister} className="auth-form-glass p-4 md:p-6 flex flex-col text-center space-y-2 md:space-y-3 w-full max-w-md mt-4 mb-4 mx-auto shadow-[0_20px_60px_rgba(0,0,0,0.4)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.5)] transition-all duration-300 transform hover:scale-[1.02]">
-              <h1 className="text-2xl font-bold mb-2 text-foreground drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] animate-fade-in">Registration</h1>
-              
-              <Input 
-                type="text" 
-                placeholder="Full Name" 
-                className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200"
-                value={regFullName}
-                onChange={(e) => setRegFullName(e.target.value)}
-                required
-              />
-              <Input 
-                type="email" 
-                placeholder="Email" 
-                className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200"
-                value={regEmail}
-                onChange={(e) => setRegEmail(e.target.value)}
-                required
-              />
-              <PhoneInputWithCountryCode
-                value={regPhone}
-                onChange={setRegPhone}
-                countryCode={countryCode}
-                onCountryCodeChange={setCountryCode}
-                placeholder="Phone number"
-                required
-              />
-              
-              <div className="w-full space-y-2">
-                <div className="relative">
-                  <Input 
-                    type={showRegPassword ? "text" : "password"} 
-                    placeholder="Password" 
-                    className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200 pr-10"
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowRegPassword(!showRegPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground transition-colors"
-                    aria-label={showRegPassword ? "Hide password" : "Show password"}
-                  >
-                    {showRegPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
-                {regPassword && (
-                  <p className={`text-xs ${
-                    passwordStrength === "strong" ? 'text-green-400' : 
-                    passwordStrength === "medium" ? 'text-yellow-400' : 
-                    'text-red-400'
-                  }`}>
-                    Password strength: {passwordStrength}
-                  </p>
-                )}
-              </div>
-
-              <div className="relative w-full">
-                <Input 
-                  type={showRegConfirmPassword ? "text" : "password"} 
-                  placeholder="Confirm Password" 
-                  className="h-12 px-4 bg-white/20 dark:bg-white/10 backdrop-blur-md border-2 border-white/30 dark:border-white/20 rounded-xl text-foreground placeholder:text-foreground/60 focus:border-primary focus:bg-white/30 dark:focus:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all duration-200 pr-10"
-                  value={regConfirmPassword}
-                  onChange={(e) => setRegConfirmPassword(e.target.value)}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowRegConfirmPassword(!showRegConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground transition-colors"
-                  aria-label={showRegConfirmPassword ? "Hide password" : "Show password"}
-                >
-                  {showRegConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-
-              <div className="w-full text-left space-y-2">
-                <Label className="text-sm text-foreground font-medium">Gender (Optional)</Label>
-                <div className="flex flex-wrap gap-4">
-                  {["female", "male", "rather_not_say", "other"].map((g) => (
-                    <div key={g} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={g}
-                        checked={gender.includes(g)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setGender([g]);
-                          } else {
-                            setGender([]);
-                          }
-                        }}
-                      />
-                      <label htmlFor={g} className="text-sm capitalize text-foreground cursor-pointer">
-                        {g.replace("_", " ")}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="w-full">
-                  <Label className="text-sm mb-2 text-foreground font-medium block text-left">County</Label>
-                  <Combobox
-                    options={kenyaLocations.counties.map((county: any) => county.name)}
-                    value={countyCity}
-                    onValueChange={setCountyCity}
-                    placeholder="Search county..."
-                    searchPlaceholder="Search counties..."
-                    emptyMessage="No county found."
-                  />
-                </div>
-                
-                <div className="w-full">
-                  <Label className="text-sm mb-2 text-foreground font-medium block text-left">Town / Location</Label>
-                  <Combobox
-                    options={availableTowns}
-                    value={exactLocation}
-                    onValueChange={setExactLocation}
-                    placeholder={countyCity ? "Search town..." : "First select county"}
-                    searchPlaceholder="Search towns..."
-                    emptyMessage="No town found."
-                  />
-                </div>
-              </div>
-
-              <div className="w-full text-left space-y-2">
-                <Label className="text-sm text-foreground font-medium">Preferred Contact Method</Label>
-                <RadioGroup value={preferredContact} onValueChange={setPreferredContact}>
-                  <div className="flex gap-4">
-                    {["email", "phone", "whatsapp"].map((method) => (
-                      <div key={method} className="flex items-center space-x-2">
-                        <RadioGroupItem value={method} id={method} />
-                        <Label htmlFor={method} className="capitalize text-foreground cursor-pointer">{method}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div className="w-full flex items-start space-x-2">
-                <Checkbox
-                  id="terms"
-                  checked={termsAccepted}
-                  onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-                  required
-                />
-                <Label htmlFor="terms" className="text-sm text-foreground cursor-pointer leading-relaxed">
-                  I agree to the{" "}
-                  <a 
-                    href="https://www.justiceultimateautomobiles.com/terms" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium"
-                  >
-                    Terms and Conditions
-                  </a>
-                </Label>
-              </div>
-              
-              {/* Cloudflare Turnstile CAPTCHA */}
-              <div ref={signupTurnstile.containerRef} className="w-full flex justify-center" />
-
-              <Button 
-                type="submit" 
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-3 bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] text-primary-foreground font-bold text-lg py-6 rounded-full border-4 border-muted shadow-[0_4px_6px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.6),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_12px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-3px_5px_rgba(0,0,0,0.2)] hover:-translate-y-1 active:translate-y-0.5 transition-all duration-200"
-              >
-                <span className={`flex items-center justify-center w-10 h-10 rounded-full bg-background text-primary border-4 border-muted-foreground/30 shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_2px_5px_rgba(255,255,255,0.8),inset_0_-2px_5px_rgba(0,0,0,0.2)] ${loading ? 'animate-register-pulse' : ''}`}>
-                  <UserPlus className="w-5 h-5" />
-                </span>
-                {loading ? "Registering..." : "Register"}
-              </Button>
-              
-              <div className="relative w-full my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border/50" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-                </div>
-              </div>
-
-              <TooltipProvider>
-                <div className="flex justify-center gap-4">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="button"
-                        onClick={handleGoogleLogin}
-                        disabled={loading}
-                        variant="outline"
-                        size="icon"
-                        className="w-14 h-14 rounded-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
-                      >
-                        <img src={googleIcon} alt="Google" className="h-7 w-7" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-background border border-border shadow-lg">
-                      <p className="font-semibold">Google</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="button"
-                        onClick={handleGitHubLogin}
-                        disabled={loading}
-                        variant="outline"
-                        size="icon"
-                        className="w-14 h-14 rounded-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
-                      >
-                        <img src={githubIcon} alt="GitHub" className="h-7 w-7 dark:invert" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-background border border-border shadow-lg">
-                      <p className="font-semibold">GitHub</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="button"
-                        onClick={handleFacebookLogin}
-                        disabled={loading}
-                        variant="outline"
-                        size="icon"
-                        className="w-14 h-14 rounded-full border-2 border-border/50 hover:border-primary/50 hover:bg-accent transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.5)] transform hover:scale-110 hover:-translate-y-1"
-                      >
-                        <img src={facebookIcon} alt="Facebook" className="h-7 w-7" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-background border border-border shadow-lg">
-                      <p className="font-semibold">Facebook</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </TooltipProvider>
-            </form>
-          </div>
-
-          {/* Overlay Container - Hidden on Mobile */}
-          <div className="overlay-container hidden md:block absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-transform duration-700 z-30">
-            <div className="overlay relative left-[-100%] h-full w-[200%] transform transition-transform duration-700 flex">
-              {/* Left Overlay - Shows on Register (with car lot image) */}
-              <div 
-                className="overlay-panel overlay-left absolute flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700 bg-cover bg-center"
-                style={{ backgroundImage: `url(${carLotOverlay})` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70 backdrop-blur-[2px]" />
-                <div className="relative z-10 transform hover:scale-105 transition-all duration-300">
-                  <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
-                    Welcome Back to Justice System
-                  </h1>
-                  <p className="text-xl text-white mb-8" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
-                    Already have an account?
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="bg-white text-primary border-2 border-white hover:bg-white/90 hover:scale-110 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.7)] font-semibold px-8 py-6 text-lg transform hover:-translate-y-1"
-                    onClick={() => setIsSignUp(false)}
-                    type="button"
-                  >
-                    Sign In
-                  </Button>
-                </div>
-              </div>
-
-              {/* Right Overlay - Shows on Login (with car lot image) */}
-              <div 
-                className="overlay-panel overlay-right absolute right-0 flex items-center justify-center flex-col px-12 text-center top-0 h-full w-1/2 transform transition-transform duration-700 bg-cover bg-center"
-                style={{ backgroundImage: `url(${carLotOverlay})` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70 backdrop-blur-[2px]" />
-                <div className="relative z-10 transform hover:scale-105 transition-all duration-300">
-                  <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
-                    Hello, Welcome to Justice Ultimate System
-                  </h1>
-                  <p className="text-xl text-white mb-8" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
-                    Don't have an account?
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="bg-white text-primary border-2 border-white hover:bg-white/90 hover:scale-110 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.7)] font-semibold px-8 py-6 text-lg transform hover:-translate-y-1"
-                    onClick={() => setIsSignUp(true)}
-                    type="button"
-                  >
-                    Sign Up
-                  </Button>
-                </div>
-              </div>
+        {/* Hero Header */}
+        <section className="relative flex items-center justify-center border-b border-border bg-secondary/5 py-16">
+          <div className="container mx-auto px-4 relative z-10 text-center">
+            <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Identity Gate: {sale.year}</p>
+              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground uppercase">
+                Identity <span className="text-brand-red">Terminal.</span>
+              </h1>
+              <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+                Authenticate via our secure protocol to access the Justice Ultimate ecosystem. <br />
+                Enterprise-grade encryption and 2FA protection active.
+              </p>
             </div>
           </div>
+        </section>
 
-          {/* Mobile Toggle Buttons */}
-          <div className="md:hidden absolute top-4 right-4 z-50 flex gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant={!isSignUp ? "default" : "outline"}
-              onClick={() => setIsSignUp(false)}
-              className="text-xs shadow-[0_4px_12px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-all duration-300"
-            >
-              Sign In
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={isSignUp ? "default" : "outline"}
-              onClick={() => setIsSignUp(true)}
-              className="text-xs shadow-[0_4px_12px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-all duration-300"
-            >
-              Sign Up
-            </Button>
+        <div className="container mx-auto px-4 py-12 relative z-10">
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-5 gap-12 items-start">
+
+            {/* Auth Card (3 columns) */}
+            <div className="lg:col-span-3">
+              <Card className="border-border bg-background shadow-2xl rounded-md overflow-hidden animate-in zoom-in duration-500">
+                <CardHeader className="border-b border-border/50 bg-secondary/5">
+                  <div className="flex items-center justify-between">
+                     <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center text-primary">
+                           {isSignUp ? <UserPlus className="h-5 w-5" /> : <Lock className="h-5 w-5" />}
+                        </div>
+                        <div>
+                           <CardTitle className="text-sm font-black uppercase tracking-widest">
+                              {isSignUp ? "Account Registration" : "Authentication Required"}
+                           </CardTitle>
+                           <CardDescription className="text-[10px] font-bold uppercase tracking-tighter">
+                              {isSignUp ? "Create a new corporate identity" : "Access your secure workspace"}
+                           </CardDescription>
+                        </div>
+                     </div>
+                     <Button variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-brand-red hover:bg-brand-red/5" onClick={() => setIsSignUp(!isSignUp)}>
+                        {isSignUp ? "Already Registered? Sign In" : "New Client? Register Here"}
+                     </Button>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-8">
+                  {/* Login Form */}
+                  {!isSignUp ? (
+                    <form onSubmit={handleLogin} className="space-y-6 max-w-lg mx-auto">
+                      <div className="space-y-2">
+                         <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Authorized Email</Label>
+                         <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input type="email" placeholder="email@corporate.com" className="h-12 pl-10 rounded-sm text-xs border-border" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                         </div>
+                      </div>
+
+                      <div className="space-y-2">
+                         <div className="flex justify-between items-center">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Encryption Passcode</Label>
+                            <Link to="/reset-password" id="forgot-password-link" className="text-[9px] font-black uppercase text-brand-red hover:underline">Reset Passcode</Link>
+                         </div>
+                         <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input type={showLoginPassword ? "text" : "password"} placeholder="••••••••" className="h-12 pl-10 pr-10 rounded-sm text-xs border-border" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                            <button type="button" onClick={() => setShowLoginPassword(!showLoginPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                               {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                         </div>
+                      </div>
+
+                      <div ref={loginTurnstile.containerRef} className="flex justify-center py-2" />
+
+                      <Button type="submit" disabled={loading} className="w-full h-14 bg-brand-red hover:bg-brand-red/90 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-md shadow-xl btn-signal">
+                         {loading ? <Activity className="h-5 w-5 animate-spin" /> : "Secure Login"}
+                      </Button>
+
+                      <div className="relative py-4">
+                         <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                         <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.3em]"><span className="bg-background px-4 text-muted-foreground">Social Auth Gateways</span></div>
+                      </div>
+
+                      <div className="flex justify-center gap-4">
+                         {[
+                           { icon: googleIcon, onClick: handleGoogleLogin, label: "Google" },
+                           { icon: githubIcon, onClick: handleGitHubLogin, label: "GitHub", invert: true },
+                           { icon: facebookIcon, onClick: handleFacebookLogin, label: "Facebook" }
+                         ].map((p, i) => (
+                           <Button key={i} type="button" variant="outline" className="h-14 w-14 rounded-full border-border hover:border-primary/50 transition-all p-0" onClick={p.onClick} disabled={loading}>
+                              <img src={p.icon} alt={p.label} className={`h-6 w-6 ${p.invert ? 'dark:invert' : ''}`} />
+                           </Button>
+                         ))}
+                      </div>
+                    </form>
+                  ) : (
+                    /* Registration Form */
+                    <form onSubmit={handleRegister} className="space-y-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Legal Name</Label>
+                            <div className="relative">
+                               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                               <Input className="h-12 pl-10 rounded-sm text-xs border-border" placeholder="John Doe" value={regFullName} onChange={(e) => setRegFullName(e.target.value)} required />
+                            </div>
+                         </div>
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Corporate Email</Label>
+                            <div className="relative">
+                               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                               <Input className="h-12 pl-10 rounded-sm text-xs border-border" type="email" placeholder="john@company.com" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} required />
+                            </div>
+                         </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-6">
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contact Number</Label>
+                            <PhoneInputWithCountryCode value={regPhone} onChange={setRegPhone} countryCode={countryCode} onCountryCodeChange={setCountryCode} required />
+                         </div>
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Identity Passcode</Label>
+                            <div className="relative">
+                               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                               <Input type={showRegPassword ? "text" : "password"} className="h-12 pl-10 pr-10 rounded-sm text-xs border-border" placeholder="••••••••" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} required />
+                               <button type="button" onClick={() => setShowRegPassword(!showRegPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                  {showRegPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                               </button>
+                            </div>
+                            {regPassword && <p className={`text-[8px] font-black uppercase tracking-widest ${passwordStrength === 'strong' ? 'text-emerald-500' : passwordStrength === 'medium' ? 'text-amber-500' : 'text-brand-red'}`}>Strength: {passwordStrength}</p>}
+                         </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-6">
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Location (County)</Label>
+                            <Combobox options={kenyaLocations.counties.map((c: any) => c.name)} value={countyCity} onValueChange={setCountyCity} placeholder="Select County" />
+                         </div>
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Town / Station</Label>
+                            <Combobox options={availableTowns} value={exactLocation} onValueChange={setExactLocation} placeholder={countyCity ? "Select Town" : "Select County First"} />
+                         </div>
+                      </div>
+
+                      <div className="flex items-start space-x-3 bg-secondary/5 p-4 rounded-md border border-border">
+                         <Checkbox id="terms" checked={termsAccepted} onCheckedChange={(c) => setTermsAccepted(c === true)} />
+                         <Label htmlFor="terms" className="text-[9px] font-bold uppercase leading-relaxed text-muted-foreground cursor-pointer">
+                            I acknowledge the Justice Ultimate <Link to="/terms" className="text-brand-red underline">Terms of Engagement</Link> and data protocols.
+                         </Label>
+                      </div>
+
+                      <div ref={signupTurnstile.containerRef} className="flex justify-center py-2" />
+
+                      <Button type="submit" disabled={loading} className="w-full h-14 bg-brand-red hover:bg-brand-red/90 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-md shadow-xl btn-signal">
+                         {loading ? <Activity className="h-5 w-5 animate-spin" /> : "Initiate Registration"}
+                      </Button>
+                    </form>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sidebar Information (2 columns) */}
+            <div className="lg:col-span-2 space-y-8">
+              <Card className="rounded-md border-border bg-secondary/5 overflow-hidden">
+                 <CardHeader className="pb-3 border-b border-border/50">
+                    <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Security Protocol</CardTitle>
+                 </CardHeader>
+                 <CardContent className="pt-6 space-y-6">
+                    {[
+                      { icon: ShieldCheck, title: "Biometric Capable", desc: "Access via fingerprint or face ID available post-auth." },
+                      { icon: Globe, title: "Encrypted Network", desc: "All sessions are proxied via secure Justice relay." },
+                      { icon: Trophy, title: "Verified Identity", desc: "Only authorized personnel and clients gain access." }
+                    ].map((p, i) => (
+                      <div key={i} className="flex gap-4">
+                         <div className="h-8 w-8 rounded bg-background border border-border flex items-center justify-center shrink-0">
+                            <p.icon className="h-4 w-4 text-primary" />
+                         </div>
+                         <div>
+                            <p className="text-[10px] font-black uppercase tracking-tight">{p.title}</p>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase leading-tight">{p.desc}</p>
+                         </div>
+                      </div>
+                    ))}
+                 </CardContent>
+              </Card>
+
+              <Card className="rounded-md border-border bg-background shadow-sm">
+                 <CardHeader className="pb-3 border-b border-border/50">
+                    <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Business Integrity</CardTitle>
+                 </CardHeader>
+                 <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center gap-3">
+                       <CheckCircle className="h-4 w-4 text-emerald-500" />
+                       <p className="text-[9px] font-black uppercase">GDPR & Data Act Compliant</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <Activity className="h-4 w-4 text-primary animate-pulse" />
+                       <p className="text-[9px] font-black uppercase text-primary">System Monitoring Active</p>
+                    </div>
+                 </CardContent>
+              </Card>
+
+              <Card className="rounded-md border-border bg-primary text-white overflow-hidden relative">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--accent)/0.2),transparent_50%)]" />
+                <CardContent className="pt-8 pb-6 text-center space-y-4 relative z-10">
+                  <Lock className="h-8 w-8 text-brand-red mx-auto" />
+                  <h3 className="text-xs font-black uppercase tracking-widest">Support Terminal</h3>
+                  <p className="text-xl font-black font-mono tracking-tighter">0722 827 458</p>
+                  <Button variant="outline" className="w-full bg-white/5 border-white/20 text-[10px] font-black uppercase tracking-widest h-10 rounded-sm hover:bg-white hover:text-primary transition-all" onClick={() => window.open("https://wa.me/254722827458")}>Secure Inquiry</Button>
+                </CardContent>
+              </Card>
+
+              <Button variant="outline" className="w-full h-12 rounded-md border-border text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-secondary" onClick={() => navigate("/")}>
+                 <ArrowLeft className="h-3 w-3" /> Return to Terminal
+              </Button>
+            </div>
           </div>
-
-          <style>{`
-            /* Desktop Animations */
-            @media (min-width: 768px) {
-              .auth-panel-active .sign-in-container {
-                transform: translateX(100%);
-              }
-              .auth-panel-active .sign-up-container {
-                transform: translateX(100%);
-                opacity: 1;
-                z-index: 25;
-              }
-              .auth-panel-active .overlay-container {
-                transform: translateX(-100%);
-              }
-              .auth-panel-active .overlay {
-                transform: translateX(50%);
-              }
-              .auth-panel-active .overlay-left {
-                transform: translateX(0);
-              }
-              .auth-panel-active .overlay-right {
-                transform: translateX(20%);
-              }
-              .overlay-left {
-                transform: translateX(-20%);
-              }
-            }
-            @media (max-width: 767px) {
-              .sign-in-container { display: ${!isSignUp ? 'flex' : 'none'} !important; position: static !important; width: 100% !important; }
-              .sign-up-container { display: ${isSignUp ? 'flex' : 'none'} !important; position: static !important; width: 100% !important; }
-            }
-          `}</style>
         </div>
+        <Footer />
       </div>
 
-      {/* Success Dialog */}
+      {/* Modals & Dialogs */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className="glass-strong">
+        <DialogContent className="border-border bg-background">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Registration Successful!</DialogTitle>
+            <DialogTitle className="text-xl font-black uppercase tracking-widest">Identity Verified</DialogTitle>
             <DialogDescription className="space-y-4 pt-4">
-              <p>Thank you for registering with Justice Ultimate Automobiles!</p>
-              <p className="text-sm text-muted-foreground">
-                A verification email has been sent to {regEmail}. Please verify your email before logging in.
-              </p>
-              <div className="flex gap-4 pt-4">
-                <Button
-                  variant="outline"
-                  className="flex-1 gap-2"
-                  onClick={() => window.open("https://gmail.com", "_blank")}
-                >
-                  <Mail className="h-4 w-4" />
-                  Open Gmail
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={() => {
-                    setShowSuccessDialog(false);
-                    setIsSignUp(false);
-                  }}
-                >
-                  Go to Login
-                </Button>
+              <p className="text-[10px] font-bold uppercase">Credential activation dispatch sent to {regEmail}.</p>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1 uppercase font-black text-[10px]" onClick={() => window.open("https://gmail.com", "_blank")}>Open Dispatch</Button>
+                <Button className="flex-1 uppercase font-black text-[10px]" onClick={() => { setShowSuccessDialog(false); setIsSignUp(false); }}>Go to Login</Button>
               </div>
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>
 
-      {/* Suspended User Modal */}
-      <SuspendedUserModal 
-        isOpen={showSuspendedModal}
-        reason={suspensionReason}
-        suspendedUntil={suspendedUntil}
-        onSuccess={() => {
-          setShowSuspendedModal(false);
-          setSuspensionReason("");
-          setSuspendedUntil(undefined);
-          sonnerToast.success("Account reactivated successfully! Please login again.");
-        }}
-      />
+      <SuspendedUserModal isOpen={showSuspendedModal} reason={suspensionReason} suspendedUntil={suspendedUntil} onSuccess={() => { setShowSuspendedModal(false); sonnerToast.success("Account reactivated!"); }} />
 
-      {/* 2FA Verification Dialog */}
       <TwoFactorDialog
         open={show2FADialog}
-        onClose={async () => {
-          await supabase.auth.signOut();
-          setShow2FADialog(false);
-          setPendingUserId(null);
-          setPendingUserEmail("");
-          toast({
-            title: "Login Cancelled",
-            description: "You must complete 2FA verification to login.",
-            variant: "destructive",
-          });
-        }}
+        onClose={async () => { await supabase.auth.signOut(); setShow2FADialog(false); toast({ title: "Auth Cancelled", variant: "destructive" }); }}
         userId={pendingUserId || ""}
         email={pendingUserEmail}
         availableMethods={available2FAMethods}
         preferredMethod={preferred2FAMethod}
-        onSuccess={async () => {
-          if (pendingUserId) {
-            setShow2FADialog(false);
-            await completeLogin(pendingUserId, undefined, pendingUserEmail);
-          }
-        }}
+        onSuccess={async () => { if (pendingUserId) { setShow2FADialog(false); await completeLogin(pendingUserId, undefined, pendingUserEmail); } }}
       />
-
-    </>
+    </div>
   );
 };
 
