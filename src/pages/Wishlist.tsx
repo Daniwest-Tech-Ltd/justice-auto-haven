@@ -10,7 +10,6 @@ import {
   Gauge,
   Settings as SettingsIcon,
   ShoppingCart,
-  ShieldCheck,
   Globe,
   Trophy,
   ShieldCheck as Shield,
@@ -175,7 +174,7 @@ const Wishlist = () => {
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex items-center shrink-0">
                 <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
-                  <ShieldCheck className="h-3 w-3 text-brand-red" />
+                  <Shield className="h-3 w-3 text-brand-red" />
                   Asset Preservation
                 </span>
                 <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">

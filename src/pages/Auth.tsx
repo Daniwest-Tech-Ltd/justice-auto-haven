@@ -675,7 +675,7 @@ const Auth = () => {
                       <div ref={loginTurnstile.containerRef} className="flex justify-center py-2" />
 
                       <Button type="submit" disabled={loading} className="w-full h-14 bg-brand-red hover:bg-brand-red/90 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-md shadow-xl btn-signal">
-                         {loading ? <Activity className="h-5 w-5 animate-spin mr-2" /> : <ShieldCheck className="h-5 w-5 mr-2" />}
+                         {loading ? <Activity className="h-5 w-5 animate-spin mr-2" /> : <Shield className="h-5 w-5 mr-2" />}
                          Secure Login
                       </Button>
 
@@ -772,7 +772,7 @@ const Auth = () => {
                  </CardHeader>
                  <CardContent className="pt-6 space-y-6">
                     {[
-                      { icon: ShieldCheck, title: "Biometric Capable", desc: "Access via fingerprint or face ID available post-auth." },
+                      { icon: Shield, title: "Biometric Capable", desc: "Access via fingerprint or face ID available post-auth." },
                       { icon: Globe, title: "Encrypted Network", desc: "All sessions are proxied via secure Justice relay." },
                       { icon: Trophy, title: "Verified Identity", desc: "Only authorized personnel and clients gain access." }
                     ].map((p, i) => (

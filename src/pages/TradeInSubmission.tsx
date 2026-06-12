@@ -414,7 +414,7 @@ const TradeInSubmission = () => {
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
                 {[
-                  { icon: ShieldCheck, title: "Fair Market Value", desc: "Direct market-driven appraisals.", color: "text-emerald-500" },
+                  { icon: Shield, title: "Fair Market Value", desc: "Direct market-driven appraisals.", color: "text-emerald-500" },
                   { icon: CheckCircle, title: "NTSA TIMS Verification", desc: "Seamless ownership transfer.", color: "text-primary" },
                   { icon: Navigation, title: "Strategic Location", desc: "Mpesi Lane 11, Westlands.", color: "text-accent" }
                 ].map((item, i) => (

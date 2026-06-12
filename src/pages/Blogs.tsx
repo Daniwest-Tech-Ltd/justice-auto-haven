@@ -281,7 +281,7 @@ const Blogs = () => {
                               <DialogTitle className="text-2xl font-black uppercase tracking-tight">{blog.title}</DialogTitle>
                               <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground pt-2">
                                 <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {formatDateTime(blog.created_at)}</span>
-                                <span className="flex items-center gap-1 text-brand-red"><ShieldCheck className="h-3 w-3" /> Verified Content</span>
+                                <span className="flex items-center gap-1 text-brand-red"><Shield className="h-3 w-3" /> Verified Content</span>
                               </div>
                             </DialogHeader>
                             <div className="space-y-6 pt-6">
@@ -382,7 +382,7 @@ const Blogs = () => {
                 </p>
                 <div className="flex items-center gap-3">
                    <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
-                      <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                      <Shield className="h-4 w-4 text-emerald-500" />
                    </div>
                    <p className="text-[9px] font-black uppercase">Factual Integrity Guaranteed</p>
                 </div>
