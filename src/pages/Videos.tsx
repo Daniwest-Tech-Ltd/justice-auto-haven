@@ -148,21 +148,47 @@ const Videos = () => {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
       </div>
 
-      {/* Official Trust Bar */}
-      <div className="bg-primary py-2 relative z-30 border-b border-white/5 shadow-2xl">
-        <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <ShieldCheck className="h-3 w-3 text-brand-red" />
-            Visual Asset Registry
-          </span>
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <Globe className="h-3 w-3 text-brand-red" />
-            Global Inventory Showcase
-          </span>
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <Trophy className="h-3 w-3 text-brand-red" />
-            Verified HD Content
-          </span>
+      {/* Official Trust Bar - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30 shadow-2xl">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                Visual Asset Registry
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Global Inventory Showcase
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                Verified HD Content
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Secondary Marquee - Multimedia Insights */}
+      <div className="bg-black/90 text-white/60 py-1.5 overflow-hidden border-b border-white/5 relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee-professional" style={{ animationDirection: 'reverse', animationDuration: '60s' }}>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                <VideoIcon className="h-2.5 w-2.5 text-primary" />
+                Slide 2: Cinema Grade Walkthroughs
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                <Activity className="h-2.5 w-2.5 text-primary" />
+                High Fidelity Visual Audit
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                <CheckCircle className="h-2.5 w-2.5 text-primary" />
+                Authorized Media Release
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 

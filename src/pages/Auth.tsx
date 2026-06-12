@@ -4,16 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Facebook,
-  Instagram,
-  Linkedin,
-  ArrowLeft,
   Mail,
-  Chrome,
   Eye,
   EyeOff,
   Lock,
@@ -24,12 +18,9 @@ import {
   Activity,
   ArrowRight,
   User,
-  Smartphone,
-  Navigation,
-  Building2,
-  CheckCircle,
-  Clock,
-  MessageCircle
+  ArrowLeft,
+  ShieldCheck as Shield,
+  CheckCircle
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,12 +33,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import HeroSlider from "@/components/HeroSlider";
 import { SuspendedUserModal } from "@/components/SuspendedUserModal";
 import { TwoFactorDialog } from "@/components/TwoFactorDialog";
@@ -106,7 +91,6 @@ const Auth = () => {
   const [regPassword, setRegPassword] = useState("");
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
   const [showRegPassword, setShowRegPassword] = useState(false);
-  const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
   const [gender, setGender] = useState<string[]>([]);
   const [countyCity, setCountyCity] = useState("");
   const [exactLocation, setExactLocation] = useState("");
@@ -411,35 +395,6 @@ const Auth = () => {
     } catch { navigate("/customer-dashboard", { replace: true }); }
   };
 
-  const verify2FA = async () => {
-    if (!pendingUserId || !twoFactorCode) {
-      toast({ title: "Error", description: "Enter verification code", variant: "destructive" });
-      return;
-    }
-    setLoading(true);
-    try {
-      if (preferred2FAMethod === "totp" && available2FAMethods.totp) {
-        const { data: totpResult, error: totpError } = await supabase.functions.invoke('verify-totp-login', { body: { userId: pendingUserId, code: twoFactorCode } });
-        if (totpError || !totpResult?.success) {
-          await logSuspiciousActivity("Invalid TOTP Code", `Failed TOTP for user ${pendingUserId}`, undefined, { code: twoFactorCode });
-          toast({ title: "Invalid Code", description: "Authenticator code incorrect.", variant: "destructive" });
-          setLoading(false); return;
-        }
-        setShow2FADialog(false); await completeLogin(pendingUserId, undefined, pendingUserEmail); return;
-      }
-      const { data: twoFAData, error: twoFAError } = await supabase.from("two_factor_auth").select("*").eq("user_id", pendingUserId).eq("code", twoFactorCode).eq("verified", false).gte("expires_at", new Date().toISOString()).maybeSingle();
-      if (twoFAError || !twoFAData) {
-        await logSuspiciousActivity("Invalid 2FA Code", `Failed 2FA for user ${pendingUserId}`, undefined, { code: twoFactorCode });
-        toast({ title: "Invalid Code", description: "Verification code incorrect.", variant: "destructive" });
-        setLoading(false); return;
-      }
-      await supabase.from("two_factor_auth").update({ verified: true }).eq("id", twoFAData.id);
-      setShow2FADialog(false); await completeLogin(pendingUserId, undefined, pendingUserEmail);
-    } catch (error: any) {
-      toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
-    } finally { setLoading(false); }
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const captchaToken = loginTurnstile.getToken();
@@ -534,11 +489,9 @@ const Auth = () => {
     } finally { setLoading(false); }
   };
 
-  const [twoFactorCode, setTwoFactorCode] = useState("");
-
   if (maintenanceMode?.is_active) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden text-left">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.05),transparent_70%)]" />
         <Card className="w-full max-w-md shadow-2xl relative z-10 border-border bg-background">
           <CardContent className="pt-10 pb-8 space-y-6 text-center">
@@ -562,7 +515,7 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden">
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden text-left">
       <Header />
       <div className="pt-20">
         <Snowfall />
@@ -574,23 +527,63 @@ const Auth = () => {
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
         </div>
 
-        {/* Official Trust Bar */}
-        <div className="bg-primary py-2 relative z-30 border-b border-white/5 shadow-2xl">
-          <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
-            <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-              <ShieldCheck className="h-3 w-3 text-brand-red" />
-              Secure Identity Terminal
-            </span>
-            <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-              <Globe className="h-3 w-3 text-brand-red" />
-              Global Access Network
-            </span>
-            <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-              <Trophy className="h-3 w-3 text-brand-red" />
-              Justice Verified Authority
-            </span>
+        {/* Professional Marquee - Institutional Branding */}
+        <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30 shadow-2xl">
+          <div className="flex whitespace-nowrap animate-marquee-professional">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center shrink-0">
+                <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                  <ShieldCheck className="h-3 w-3 text-brand-red" />
+                  Secure Identity Terminal
+                </span>
+                <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                  <Globe className="h-3 w-3 text-brand-red" />
+                  Global Access Network
+                </span>
+                <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                  <Trophy className="h-3 w-3 text-brand-red" />
+                  Justice Verified Authority
+                </span>
+                <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                  <Shield className="h-3 w-3 text-brand-red" />
+                  Institutional Security Ledger
+                </span>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* Secondary Marquee - Identity Insights */}
+        <div className="bg-black/90 text-white/60 py-1.5 overflow-hidden border-b border-white/5 relative z-30">
+          <div className="flex whitespace-nowrap animate-marquee-professional" style={{ animationDirection: 'reverse', animationDuration: '60s' }}>
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center shrink-0">
+                <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                  <Lock className="h-2.5 w-2.5 text-primary" />
+                  Slide 2: Encrypted Session active
+                </span>
+                <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                  <Activity className="h-2.5 w-2.5 text-primary" />
+                  Biometric Gateway Ready
+                </span>
+                <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                  <CheckCircle className="h-2.5 w-2.5 text-primary" />
+                  Certified Access Protocol
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <style>{`
+          @keyframes marquee-professional {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-marquee-professional {
+            animation: marquee-professional 40s linear infinite;
+          }
+        `}</style>
 
         {/* Hero Header */}
         <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
@@ -610,10 +603,10 @@ const Auth = () => {
         </section>
 
         <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-start">
+          <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-5 gap-8 lg:gap-12 items-start">
 
             {/* Auth Card (3 columns on large, full on small) */}
-            <div className="lg:col-span-3 order-1">
+            <div className="w-full lg:col-span-3 order-1 lg:order-1">
               <Card className="border-border bg-background shadow-2xl rounded-md overflow-hidden animate-in zoom-in duration-500 h-full">
                 <CardHeader className="border-b border-border/50 bg-secondary/5 p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -622,15 +615,22 @@ const Auth = () => {
                            {isSignUp ? <UserPlus className="h-5 w-5" /> : <Lock className="h-5 w-5" />}
                         </div>
                         <div>
-                           <CardTitle className="text-sm font-black uppercase tracking-widest">
+                           <CardTitle className="text-sm font-black uppercase tracking-widest leading-none">
                               {isSignUp ? "Account Registration" : "Authentication Required"}
                            </CardTitle>
-                           <CardDescription className="text-[10px] font-bold uppercase tracking-tighter">
+                           <CardDescription className="text-[10px] font-bold uppercase tracking-tighter mt-1">
                               {isSignUp ? "Create a new corporate identity" : "Access your secure workspace"}
                            </CardDescription>
                         </div>
                      </div>
-                     <Button variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-brand-red hover:bg-brand-red/5 p-0 h-auto sm:h-10 sm:px-4 shrink-0" onClick={() => setIsSignUp(!isSignUp)}>
+                     <Button
+                       variant="ghost"
+                       className="text-[10px] font-black uppercase tracking-widest text-brand-red hover:bg-brand-red/5 p-0 h-auto sm:h-10 sm:px-4 shrink-0"
+                       onClick={() => {
+                         setIsSignUp(!isSignUp);
+                         window.scrollTo({ top: 0, behavior: 'smooth' });
+                       }}
+                     >
                         {isSignUp ? "Already Registered? Sign In" : "New Client? Register Here"}
                      </Button>
                   </div>
@@ -639,12 +639,12 @@ const Auth = () => {
                 <CardContent className="p-4 sm:p-8">
                   {/* Login Form */}
                   {!isSignUp ? (
-                    <form onSubmit={handleLogin} className="space-y-6 max-w-lg mx-auto">
+                    <form onSubmit={handleLogin} className="space-y-6 w-full max-w-lg mx-auto">
                       <div className="space-y-2">
                          <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Authorized Email</Label>
                          <div className="relative">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input type="email" placeholder="email@corporate.com" className="h-12 pl-10 rounded-sm text-xs border-border" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                            <Input type="email" placeholder="email@corporate.com" className="h-12 pl-10 rounded-sm text-xs border-border w-full" value={email} onChange={(e) => setEmail(e.target.value)} required />
                          </div>
                       </div>
 
@@ -655,7 +655,7 @@ const Auth = () => {
                          </div>
                          <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input type={showLoginPassword ? "text" : "password"} placeholder="••••••••" className="h-12 pl-10 pr-10 rounded-sm text-xs border-border" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                            <Input type={showLoginPassword ? "text" : "password"} placeholder="••••••••" className="h-12 pl-10 pr-10 rounded-sm text-xs border-border w-full" value={password} onChange={(e) => setPassword(e.target.value)} required />
                             <button type="button" onClick={() => setShowLoginPassword(!showLoginPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                                {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                             </button>
@@ -665,12 +665,13 @@ const Auth = () => {
                       <div ref={loginTurnstile.containerRef} className="flex justify-center py-2" />
 
                       <Button type="submit" disabled={loading} className="w-full h-14 bg-brand-red hover:bg-brand-red/90 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-md shadow-xl btn-signal">
-                         {loading ? <Activity className="h-5 w-5 animate-spin" /> : "Secure Login"}
+                         {loading ? <Activity className="h-5 w-5 animate-spin mr-2" /> : <ShieldCheck className="h-5 w-5 mr-2" />}
+                         Secure Login
                       </Button>
 
                       <div className="relative py-4">
                          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-                         <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.3em]"><span className="bg-background px-4 text-muted-foreground">Social Auth Gateways</span></div>
+                         <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.3em]"><span className="bg-background px-4 text-muted-foreground text-center">Social Auth Gateways</span></div>
                       </div>
 
                       <div className="flex justify-center gap-4">
@@ -679,28 +680,28 @@ const Auth = () => {
                            { icon: githubIcon, onClick: handleGitHubLogin, label: "GitHub", invert: true },
                            { icon: facebookIcon, onClick: handleFacebookLogin, label: "Facebook" }
                          ].map((p, i) => (
-                           <Button key={i} type="button" variant="outline" className="h-14 w-14 rounded-full border-border hover:border-primary/50 transition-all p-0" onClick={p.onClick} disabled={loading}>
-                              <img src={p.icon} alt={p.label} className={`h-6 w-6 ${p.invert ? 'dark:invert' : ''}`} />
+                           <Button key={i} type="button" variant="outline" className="h-12 w-12 sm:h-14 sm:w-14 rounded-full border-border hover:border-primary/50 transition-all p-0" onClick={p.onClick} disabled={loading}>
+                              <img src={p.icon} alt={p.label} className={`h-5 w-5 sm:h-6 sm:w-6 ${p.invert ? 'dark:invert' : ''}`} />
                            </Button>
                          ))}
                       </div>
                     </form>
                   ) : (
                     /* Registration Form */
-                    <form onSubmit={handleRegister} className="space-y-6">
+                    <form onSubmit={handleRegister} className="space-y-6 w-full">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Legal Name</Label>
                             <div className="relative">
                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                               <Input className="h-12 pl-10 rounded-sm text-xs border-border" placeholder="John Doe" value={regFullName} onChange={(e) => setRegFullName(e.target.value)} required />
+                               <Input className="h-12 pl-10 rounded-sm text-xs border-border w-full" placeholder="John Doe" value={regFullName} onChange={(e) => setRegFullName(e.target.value)} required />
                             </div>
                          </div>
                          <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Corporate Email</Label>
                             <div className="relative">
                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                               <Input className="h-12 pl-10 rounded-sm text-xs border-border" type="email" placeholder="john@company.com" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} required />
+                               <Input className="h-12 pl-10 rounded-sm text-xs border-border w-full" type="email" placeholder="john@company.com" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} required />
                             </div>
                          </div>
                       </div>
@@ -714,10 +715,10 @@ const Auth = () => {
                             <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Identity Passcode</Label>
                             <div className="relative">
                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                               <Input type={showRegPassword ? "text" : "password"} className="h-12 pl-10 pr-10 rounded-sm text-xs border-border" placeholder="••••••••" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} required />
+                               <Input type={showRegPassword ? "text" : "password"} className="h-12 pl-10 pr-10 rounded-sm text-xs border-border w-full" placeholder="••••••••" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} required />
                                <button type="button" onClick={() => setShowRegPassword(!showRegPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                                   {showRegPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                               </button>
+                                </button>
                             </div>
                             {regPassword && <p className={`text-[8px] font-black uppercase tracking-widest ${passwordStrength === 'strong' ? 'text-emerald-500' : passwordStrength === 'medium' ? 'text-amber-500' : 'text-brand-red'}`}>Strength: {passwordStrength}</p>}
                          </div>
@@ -744,7 +745,8 @@ const Auth = () => {
                       <div ref={signupTurnstile.containerRef} className="flex justify-center py-2" />
 
                       <Button type="submit" disabled={loading} className="w-full h-14 bg-brand-red hover:bg-brand-red/90 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-md shadow-xl btn-signal">
-                         {loading ? <Activity className="h-5 w-5 animate-spin" /> : "Initiate Registration"}
+                         {loading ? <Activity className="h-5 w-5 animate-spin mr-2" /> : <UserPlus className="h-5 w-5 mr-2" />}
+                         Initiate Registration
                       </Button>
                     </form>
                   )}
@@ -753,7 +755,7 @@ const Auth = () => {
             </div>
 
             {/* Sidebar Information (2 columns on large, full on small) */}
-            <div className="lg:col-span-2 space-y-6 md:space-y-8 order-2">
+            <div className="w-full lg:col-span-2 space-y-6 md:space-y-8 order-2 lg:order-2">
               <Card className="rounded-md border-border bg-secondary/5 overflow-hidden">
                  <CardHeader className="pb-3 border-b border-border/50">
                     <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Security Protocol</CardTitle>

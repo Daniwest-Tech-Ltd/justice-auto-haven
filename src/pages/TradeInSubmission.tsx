@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, RefreshCw, ShieldCheck, Globe, Navigation, ChevronRight, CheckCircle, Clock, Car, Trophy, Shield } from "lucide-react";
+import { ArrowLeft, RefreshCw, ShieldCheck, Globe, Navigation, ChevronRight, CheckCircle, Clock, Car, Trophy, ShieldCheck as Shield, Activity } from "lucide-react";
 import { getCurrentSale } from "@/lib/currentSale";
 import HeroSlider from "@/components/HeroSlider";
 
@@ -124,6 +124,28 @@ const TradeInSubmission = () => {
               <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
                 <Shield className="h-3 w-3 text-brand-red" />
                 Unit Verification
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Secondary Marquee - Industry Insights */}
+      <div className="bg-black/90 text-white/60 py-1.5 overflow-hidden border-b border-white/5 relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee-professional" style={{ animationDirection: 'reverse', animationDuration: '60s' }}>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                <Globe className="h-2.5 w-2.5 text-primary" />
+                Corporate Media Desk
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                <Activity className="h-2.5 w-2.5 text-primary" />
+                Global Industry Insights
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                <CheckCircle className="h-2.5 w-2.5 text-primary" />
+                Verified Excellence
               </span>
             </div>
           ))}

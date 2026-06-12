@@ -4,34 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { Smartphone, Mail, Fingerprint, Clock, MessageCircle, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { startAuthentication } from '@simplewebauthn/browser';
-import { Capacitor } from '@capacitor/core';
-import { NativeBiometric } from 'capacitor-native-biometric';
-
-interface TwoFactorDialogProps {
-  open: boolean;
-  onClose: () => void;
-  userId: string;
-  email: string;
-  availableMethods: {
-    email: boolean;
-    totp: boolean;
-    fingerprint: boolean;
-    whatsapp: boolean;
-  };
-  preferredMethod: string;
-  onSuccess: () => void;
-}
-
-import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Smartphone, Mail, Fingerprint, Clock, MessageCircle, Loader2, ShieldCheck, Key, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -218,21 +190,31 @@ export const TwoFactorDialog = ({
     setLoading(true);
     try {
       if (Capacitor.isNativePlatform()) {
-        const bio = await NativeBiometric.isAvailable();
-        if (!bio.isAvailable) throw new Error("Biometric hardware not available");
-        await NativeBiometric.verifyIdentity({
-          reason: "Secure Login to Justice Ultimate Automobiles",
-          title: "Biometric Auth",
-          subtitle: "Verify identity",
-          description: "Use fingerprint or Face ID",
-          useFallback: true
-        });
-        await supabase.from("user_fingerprints").update({ last_used: new Date().toISOString() }).eq("user_id", userId);
-        onSuccess();
-        return;
+        try {
+          const bio = await NativeBiometric.isAvailable();
+          if (bio.isAvailable) {
+            await NativeBiometric.verifyIdentity({
+              reason: "Secure Login to Justice Ultimate Automobiles",
+              title: "Biometric Auth",
+              subtitle: "Verify identity",
+              description: "Use fingerprint or Face ID",
+              useFallback: true
+            });
+            await supabase.from("profiles").update({ last_seen: new Date().toISOString() }).eq("user_id", userId);
+            onSuccess();
+            return;
+          }
+        } catch (bioErr) {
+          console.error("Native biometric error:", bioErr);
+        }
       }
-      const { data: credentials } = await supabase.from("user_fingerprints").select("*").eq("user_id", userId);
-      if (!credentials || credentials.length === 0) throw new Error("No biometrics registered");
+
+      // Web Fallback / WebAuthn
+      const { data: credentials, error: credError } = await supabase.from("user_fingerprints").select("*").eq("user_id", userId);
+      if (credError || !credentials || credentials.length === 0) {
+        throw new Error("No biometrics registered on this account. Please register biometrics in your profile settings first.");
+      }
+
       const challengeBytes = crypto.getRandomValues(new Uint8Array(32));
       const challenge = btoa(String.fromCharCode(...challengeBytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
       const authOptions = {
@@ -242,13 +224,14 @@ export const TwoFactorDialog = ({
         timeout: 60000,
         rpId: window.location.hostname,
       };
+
       const authResult = await startAuthentication({ optionsJSON: authOptions });
       if (credentials.some(c => c.credential_id === authResult.id)) {
         await supabase.from("user_fingerprints").update({ last_used: new Date().toISOString() }).eq("credential_id", authResult.id);
         onSuccess();
-      } else throw new Error("Invalid credential");
+      } else throw new Error("Invalid biometric credential");
     } catch (error: any) {
-      toast({ title: "Auth Failed", description: error.message, variant: "destructive" });
+      toast({ title: "Authentication Failed", description: error.message, variant: "destructive" });
     } finally { setLoading(false); }
   };
 
@@ -257,7 +240,7 @@ export const TwoFactorDialog = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-lg p-0 overflow-hidden border-none bg-background shadow-2xl rounded-xl">
-        <div className="bg-primary py-8 px-6 text-white text-center relative overflow-hidden">
+        <div className="bg-primary py-8 px-6 text-white text-center relative overflow-hidden text-left">
            {/* Background HUD elements */}
            <div className="absolute inset-0 opacity-10 pointer-events-none">
               <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
@@ -265,8 +248,8 @@ export const TwoFactorDialog = ({
 
            <ShieldCheck className="h-16 w-16 mx-auto mb-4 text-brand-red animate-pulse" />
            <DialogHeader>
-             <DialogTitle className="text-2xl font-black uppercase tracking-widest text-white">Identity Verification</DialogTitle>
-             <DialogDescription className="text-white/70 text-xs font-bold uppercase tracking-wider pt-2">
+             <DialogTitle className="text-2xl font-black uppercase tracking-widest text-white text-center">Identity Verification</DialogTitle>
+             <DialogDescription className="text-white/70 text-xs font-bold uppercase tracking-wider pt-2 text-center">
                Enterprise-grade 2FA protection active
              </DialogDescription>
            </DialogHeader>
@@ -306,10 +289,10 @@ export const TwoFactorDialog = ({
                 {availableMethods.email && (
                   <TabsContent value="email_otp" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="text-center space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Digital Dispatch</p>
-                      <p className="text-xs font-bold text-foreground">Code sent to: {email}</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground text-center">Digital Dispatch</p>
+                      <p className="text-xs font-bold text-foreground text-center">Code sent to: {email}</p>
                       {otpSent && countdown > 0 && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 text-primary text-[10px] font-black uppercase">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 text-primary text-[10px] font-black uppercase mx-auto">
                           <Clock className="h-3 w-3" />
                           <span>Valid: {formatTime(countdown)}</span>
                         </div>
@@ -328,7 +311,7 @@ export const TwoFactorDialog = ({
                       {verifying && (
                         <div className="flex items-center justify-center gap-2 text-primary animate-pulse">
                           <Loader2 className="h-4 w-4 animate-spin" />
-                          <span className="text-[10px] font-black uppercase tracking-widest">Validating Payload...</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-center">Validating Payload...</span>
                         </div>
                       )}
                     </div>
@@ -345,10 +328,10 @@ export const TwoFactorDialog = ({
                 {availableMethods.whatsapp && (
                   <TabsContent value="whatsapp_otp" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="text-center space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">WhatsApp Dispatch</p>
-                      <p className="text-xs font-bold">Secure code transmitted via WhatsApp</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600 text-center">WhatsApp Dispatch</p>
+                      <p className="text-xs font-bold text-center">Secure code transmitted via WhatsApp</p>
                       {whatsappOtpSent && whatsappCountdown > 0 && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/5 text-green-600 text-[10px] font-black uppercase">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/5 text-green-600 text-[10px] font-black uppercase mx-auto">
                           <Clock className="h-3 w-3" />
                           <span>Expiry: {formatTime(whatsappCountdown)}</span>
                         </div>
@@ -375,8 +358,8 @@ export const TwoFactorDialog = ({
                 {availableMethods.totp && (
                   <TabsContent value="totp" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="text-center space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Authenticator Sync</p>
-                      <p className="text-xs font-bold">Enter the code from your device</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary text-center">Authenticator Sync</p>
+                      <p className="text-xs font-bold text-center">Enter the code from your device</p>
                     </div>
 
                     <div className="flex justify-center">
@@ -387,7 +370,7 @@ export const TwoFactorDialog = ({
                       </InputOTP>
                     </div>
 
-                    <p className="text-center text-[9px] font-bold text-muted-foreground uppercase tracking-wider italic">
+                    <p className="text-center text-[9px] font-bold text-muted-foreground uppercase tracking-wider italic text-center">
                       Verify via Google Authenticator or Microsoft Auth
                     </p>
                   </TabsContent>
@@ -395,13 +378,13 @@ export const TwoFactorDialog = ({
 
                 {availableMethods.fingerprint && (
                   <TabsContent value="fingerprint" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 text-center">
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-center">
                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-red">Biometric Gateway</p>
                        <p className="text-xs font-bold">Use hardware sensors to authenticate</p>
                     </div>
 
                     <div className="flex justify-center py-4">
-                      <div className="h-24 w-24 rounded-full bg-secondary/10 flex items-center justify-center border-4 border-dashed border-brand-red/20 group">
+                      <div className="h-24 w-24 rounded-full bg-secondary/10 flex items-center justify-center border-4 border-dashed border-brand-red/20 group mx-auto">
                         <Fingerprint className="h-12 w-12 text-brand-red animate-pulse group-hover:scale-110 transition-transform" />
                       </div>
                     </div>
@@ -419,8 +402,8 @@ export const TwoFactorDialog = ({
             <div className="space-y-6 animate-in zoom-in duration-300">
                <div className="text-center space-y-2">
                   <Key className="h-12 w-12 mx-auto text-primary" />
-                  <h4 className="text-sm font-black uppercase tracking-widest">Master Backup Override</h4>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase">Enter 8-digit archival security key</p>
+                  <h4 className="text-sm font-black uppercase tracking-widest text-center">Master Backup Override</h4>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase text-center">Enter 8-digit archival security key</p>
                </div>
 
                <div className="relative">
@@ -428,7 +411,7 @@ export const TwoFactorDialog = ({
                     placeholder="ENTER BACKUP KEY"
                     value={backupCode}
                     onChange={(e) => setBackupCode(e.target.value.toUpperCase())}
-                    className="h-14 text-center font-mono text-xl tracking-[0.3em] font-black border-2 border-primary/20 focus:border-primary bg-secondary/5"
+                    className="h-14 text-center font-mono text-xl tracking-[0.3em] font-black border-2 border-primary/20 focus:border-primary bg-secondary/5 w-full"
                   />
                </div>
 
@@ -436,7 +419,7 @@ export const TwoFactorDialog = ({
                   {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "Verify Security Key"}
                </Button>
 
-               <Button variant="link" onClick={() => setShowBackupCode(false)} className="w-full text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground">
+               <Button variant="link" onClick={() => setShowBackupCode(false)} className="w-full text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground text-center">
                   Return to Primary Channels
                </Button>
             </div>

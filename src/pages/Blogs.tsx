@@ -21,7 +21,8 @@ import {
   Newspaper,
   Users,
   Trophy,
-  Activity
+  Activity,
+  ShieldCheck as Shield
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -135,23 +136,63 @@ const Blogs = () => {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
       </div>
 
-      {/* Official Trust Bar */}
-      <div className="bg-primary py-2 relative z-30 border-b border-white/5 shadow-2xl">
-        <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <ShieldCheck className="h-3 w-3 text-brand-red" />
-            Corporate Media Desk
-          </span>
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <Globe className="h-3 w-3 text-brand-red" />
-            Global Industry Insights
-          </span>
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <Trophy className="h-3 w-3 text-brand-red" />
-            Verified Excellence
-          </span>
+      {/* Professional Marquee - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30 shadow-2xl">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                Corporate Media Desk
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Global Industry Insights
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                Verified Excellence
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="h-3 w-3 text-brand-red" />
+                Institutional Verification
+              </span>
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* Secondary Marquee - Industry Insights */}
+      <div className="bg-black/90 text-white/60 py-1.5 overflow-hidden border-b border-white/5 relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee-professional" style={{ animationDirection: 'reverse', animationDuration: '60s' }}>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                <Globe className="h-2.5 w-2.5 text-primary" />
+                Strategic Market Data
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                <Activity className="h-2.5 w-2.5 text-primary" />
+                Active Industry Monitoring
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[8px] font-black uppercase tracking-[0.4em]">
+                <CheckCircle className="h-2.5 w-2.5 text-primary" />
+                Certified Media Releases
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+      `}</style>
 
       {/* Hero - Professional & Formal */}
       <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">

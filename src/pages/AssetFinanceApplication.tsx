@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
-  FileText, CheckCircle, Clock, Shield,
+  FileText, CheckCircle, Clock, ShieldCheck as Shield,
   Building2, User, Car, DollarSign, Phone, Mail, MapPin,
   Briefcase, CreditCard, Loader2, ShieldCheck, Globe, Navigation, Headphones, Trophy
 } from "lucide-react";
