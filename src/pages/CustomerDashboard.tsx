@@ -95,8 +95,6 @@ const CustomerDashboard = () => {
     }
   };
 
-  
-
   const handleSignOut = async () => {
     await signOut();
     toast({
@@ -341,95 +339,95 @@ const CustomerDashboard = () => {
               </Card>
             </div>
 
-          <Tabs defaultValue="wishlist" className="space-y-6">
-            <TabsList className="glass-strong">
-              <TabsTrigger value="wishlist">Whitelist</TabsTrigger>
-              <TabsTrigger value="bookings">Bookings</TabsTrigger>
-              <TabsTrigger value="vehicles">My Vehicles</TabsTrigger>
-            </TabsList>
+            <Tabs defaultValue="wishlist" className="space-y-6">
+              <TabsList className="glass-strong">
+                <TabsTrigger value="wishlist">Whitelist</TabsTrigger>
+                <TabsTrigger value="bookings">Bookings</TabsTrigger>
+                <TabsTrigger value="vehicles">My Vehicles</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="wishlist" className="space-y-4">
-              {wishlistCars.length === 0 ? (
-                <Card className="glass-strong">
-                  <CardContent className="pt-6">
-                    <p className="text-muted-foreground text-center">Your whitelist is empty. Start browsing our catalogue!</p>
-                    <Button onClick={() => navigate("/catalogue")} className="mt-4 mx-auto block">Browse Cars</Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {wishlistCars.map((item: any) => (
-                    <Card key={item.id} className="glass-strong">
-                      <CardContent className="p-4">
-                        <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
-                          <img src={item.cars?.images?.[0] || "/placeholder.svg"} alt={item.cars?.model} className="w-full h-full object-cover" />
-                        </div>
-                        <h3 className="font-bold">{item.cars?.make} {item.cars?.model}</h3>
-                        <p className="text-sm text-muted-foreground">{item.cars?.year}</p>
-                        <p className="text-lg font-semibold text-primary mt-2">KSH {item.cars?.price?.toLocaleString()}</p>
-                        <Link to={`/car/${item.cars?.id}`}>
-                          <Button className="w-full mt-3" size="sm">View Details</Button>
-                        </Link>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="bookings" className="space-y-4">
-              {rentalsCars.length === 0 ? (
-                <Card className="glass-strong">
-                  <CardContent className="pt-6">
-                    <p className="text-muted-foreground text-center">No active rentals</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-4">
-                  {rentalsCars.map((rental: any) => (
-                    <Card key={rental.id} className="glass-strong">
-                      <CardContent className="p-4">
-                        <div className="flex gap-4">
-                          <img src={rental.cars?.images?.[0] || "/placeholder.svg"} alt={rental.cars?.model} className="w-24 h-24 object-cover rounded" />
-                          <div className="flex-1">
-                            <h3 className="font-bold">{rental.cars?.make} {rental.cars?.model}</h3>
-                            <p className="text-sm text-muted-foreground">From: {new Date(rental.start_date).toLocaleDateString()}</p>
-                            <p className="text-sm text-muted-foreground">To: {new Date(rental.end_date).toLocaleDateString()}</p>
-                            <p className="text-lg font-semibold text-primary mt-1">KSH {rental.total_price?.toLocaleString()}</p>
+              <TabsContent value="wishlist" className="space-y-4">
+                {wishlistCars.length === 0 ? (
+                  <Card className="glass-strong">
+                    <CardContent className="pt-6">
+                      <p className="text-muted-foreground text-center">Your whitelist is empty. Start browsing our catalogue!</p>
+                      <Button onClick={() => navigate("/catalogue")} className="mt-4 mx-auto block">Browse Cars</Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {wishlistCars.map((item: any) => (
+                      <Card key={item.id} className="glass-strong">
+                        <CardContent className="p-4">
+                          <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
+                            <img src={item.cars?.images?.[0] || "/placeholder.svg"} alt={item.cars?.model} className="w-full h-full object-cover" />
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+                          <h3 className="font-bold">{item.cars?.make} {item.cars?.model}</h3>
+                          <p className="text-sm text-muted-foreground">{item.cars?.year}</p>
+                          <p className="text-lg font-semibold text-primary mt-2">KSH {item.cars?.price?.toLocaleString()}</p>
+                          <Link to={`/car/${item.cars?.id}`}>
+                            <Button className="w-full mt-3" size="sm">View Details</Button>
+                          </Link>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
 
-            <TabsContent value="vehicles" className="space-y-4">
-              {purchasedCars.length === 0 ? (
-                <Card className="glass-strong">
-                  <CardContent className="pt-6">
-                    <p className="text-muted-foreground text-center">No purchased vehicles yet</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {purchasedCars.map((sale: any) => (
-                    <Card key={sale.id} className="glass-strong">
-                      <CardContent className="p-4">
-                        <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
-                          <img src={sale.cars?.images?.[0] || "/placeholder.svg"} alt={sale.cars?.model} className="w-full h-full object-cover" />
-                        </div>
-                        <h3 className="font-bold">{sale.cars?.make} {sale.cars?.model}</h3>
-                        <p className="text-sm text-muted-foreground">Purchased: {new Date(sale.sale_date).toLocaleDateString()}</p>
-                        <p className="text-lg font-semibold text-primary mt-2">KSH {sale.sale_price?.toLocaleString()}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+              <TabsContent value="bookings" className="space-y-4">
+                {rentalsCars.length === 0 ? (
+                  <Card className="glass-strong">
+                    <CardContent className="pt-6">
+                      <p className="text-muted-foreground text-center">No active rentals</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-4">
+                    {rentalsCars.map((rental: any) => (
+                      <Card key={rental.id} className="glass-strong">
+                        <CardContent className="p-4">
+                          <div className="flex gap-4">
+                            <img src={rental.cars?.images?.[0] || "/placeholder.svg"} alt={rental.cars?.model} className="w-24 h-24 object-cover rounded" />
+                            <div className="flex-1">
+                              <h3 className="font-bold">{rental.cars?.make} {rental.cars?.model}</h3>
+                              <p className="text-sm text-muted-foreground">From: {new Date(rental.start_date).toLocaleDateString()}</p>
+                              <p className="text-sm text-muted-foreground">To: {new Date(rental.end_date).toLocaleDateString()}</p>
+                              <p className="text-lg font-semibold text-primary mt-1">KSH {rental.total_price?.toLocaleString()}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="vehicles" className="space-y-4">
+                {purchasedCars.length === 0 ? (
+                  <Card className="glass-strong">
+                    <CardContent className="pt-6">
+                      <p className="text-muted-foreground text-center">No purchased vehicles yet</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {purchasedCars.map((sale: any) => (
+                      <Card key={sale.id} className="glass-strong">
+                        <CardContent className="p-4">
+                          <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
+                            <img src={sale.cars?.images?.[0] || "/placeholder.svg"} alt={sale.cars?.model} className="w-full h-full object-cover" />
+                          </div>
+                          <h3 className="font-bold">{sale.cars?.make} {sale.cars?.model}</h3>
+                          <p className="text-sm text-muted-foreground">Purchased: {new Date(sale.sale_date).toLocaleDateString()}</p>
+                          <p className="text-lg font-semibold text-primary mt-2">KSH {sale.sale_price?.toLocaleString()}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>

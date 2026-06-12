@@ -335,117 +335,116 @@ const AdminDashboard = () => {
           <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="px-3 sm:px-6 py-3">
               <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-              <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                <SidebarTrigger />
-                <img src={logo} alt="Justice Ultimate Automobiles" className="h-8 sm:h-10 w-auto shrink-0" />
-                <h1 className="text-sm sm:text-xl font-bold truncate hidden sm:block">Justice Ultimate Automobiles Admin Dashboard</h1>
-                <h1 className="text-sm font-bold truncate sm:hidden">Admin Dashboard</h1>
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                  <SidebarTrigger />
+                  <img src={logo} alt="Justice Ultimate Automobiles" className="h-8 sm:h-10 w-auto shrink-0" />
+                  <h1 className="text-sm sm:text-xl font-bold truncate hidden sm:block">Justice Ultimate Automobiles Admin Dashboard</h1>
+                  <h1 className="text-sm font-bold truncate sm:hidden">Admin Dashboard</h1>
+                </div>
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                  <Button variant="ghost" size="icon" onClick={() => navigate("/")} title="Home">
+                    <Home className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    title={currentTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                    onClick={async () => {
+                      const newTheme: Theme = currentTheme === "dark" ? "light" : "dark";
+                      setCurrentTheme(newTheme);
+                      await setTheme(newTheme, user?.id);
+                    }}
+                  >
+                    {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  </Button>
+                  <NotificationsPanel />
+                  <Button variant="ghost" size="icon" onClick={() => navigate("/admin/messages")}>
+                    <MessageSquare className="h-5 w-5" />
+                  </Button>
+                  <Button onClick={handleGenerateDailyReports} size="sm" disabled={isGeneratingReports} className="hidden md:inline-flex">
+                    <FileText className="h-4 w-4 mr-2" />
+                    {isGeneratingReports ? "Generating..." : "Generate Reports"}
+                  </Button>
+                  <Button onClick={handleGenerateDailyReports} size="icon" variant="outline" disabled={isGeneratingReports} className="md:hidden" title="Generate Reports">
+                    <FileText className="h-4 w-4" />
+                  </Button>
+                  <Button onClick={() => navigate("/admin/cars/add")} size="sm" className="hidden sm:inline-flex">Add Vehicle</Button>
+                  <Button onClick={() => navigate("/admin/cars/add")} size="icon" className="sm:hidden" title="Add Vehicle">
+                    <Car className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                <Button variant="ghost" size="icon" onClick={() => navigate("/")} title="Home">
-                  <Home className="h-5 w-5" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  title={currentTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                  onClick={async () => {
-                    const newTheme: Theme = currentTheme === "dark" ? "light" : "dark";
-                    setCurrentTheme(newTheme);
-                    await setTheme(newTheme, user?.id);
-                  }}
-                >
-                  {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </Button>
-                <NotificationsPanel />
-                <Button variant="ghost" size="icon" onClick={() => navigate("/admin/messages")}>
-                  <MessageSquare className="h-5 w-5" />
-                </Button>
-                <Button onClick={handleGenerateDailyReports} size="sm" disabled={isGeneratingReports} className="hidden md:inline-flex">
-                  <FileText className="h-4 w-4 mr-2" />
-                  {isGeneratingReports ? "Generating..." : "Generate Reports"}
-                </Button>
-                <Button onClick={handleGenerateDailyReports} size="icon" variant="outline" disabled={isGeneratingReports} className="md:hidden" title="Generate Reports">
-                  <FileText className="h-4 w-4" />
-                </Button>
-                <Button onClick={() => navigate("/admin/cars/add")} size="sm" className="hidden sm:inline-flex">Add Vehicle</Button>
-                <Button onClick={() => navigate("/admin/cars/add")} size="icon" className="sm:hidden" title="Add Vehicle">
-                  <Car className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-              <div className="relative flex-1 min-w-[160px] max-w-md">
-
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search pages..."
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSearchResults(e.target.value.length > 0);
-                  }}
-                  onFocus={() => searchQuery.length > 0 && setShowSearchResults(true)}
-                  onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
-                />
-                {showSearchResults && searchQuery.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
-                    {(() => {
-                      const allPages = menuGroups.flatMap(group => 
-                        group.items.map(item => ({ ...item, groupLabel: group.label }))
-                      );
-                      const filteredPages = allPages.filter(page =>
-                        page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        page.groupLabel.toLowerCase().includes(searchQuery.toLowerCase())
-                      );
-                      
-                      if (filteredPages.length === 0) {
-                        return (
-                          <div className="p-3 text-sm text-muted-foreground text-center">
-                            No pages found for "{searchQuery}"
-                          </div>
+              <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+                <div className="relative flex-1 min-w-[160px] max-w-md">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search pages..."
+                    className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setShowSearchResults(e.target.value.length > 0);
+                    }}
+                    onFocus={() => searchQuery.length > 0 && setShowSearchResults(true)}
+                    onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
+                  />
+                  {showSearchResults && searchQuery.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
+                      {(() => {
+                        const allPages = menuGroups.flatMap(group =>
+                          group.items.map(item => ({ ...item, groupLabel: group.label }))
                         );
-                      }
-                      
-                      return filteredPages.map((page, index) => (
-                        <button
-                          key={index}
-                          className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent text-left transition-colors"
-                          onClick={() => {
-                            navigate(page.path);
-                            setSearchQuery("");
-                            setShowSearchResults(false);
-                          }}
-                        >
-                          <page.icon className="h-4 w-4 text-muted-foreground" />
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">{page.title}</div>
-                            <div className="text-xs text-muted-foreground">{page.groupLabel}</div>
-                          </div>
-                        </button>
-                      ));
-                    })()}
-                  </div>
-                )}
+                        const filteredPages = allPages.filter(page =>
+                          page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          page.groupLabel.toLowerCase().includes(searchQuery.toLowerCase())
+                        );
+
+                        if (filteredPages.length === 0) {
+                          return (
+                            <div className="p-3 text-sm text-muted-foreground text-center">
+                              No pages found for "{searchQuery}"
+                            </div>
+                          );
+                        }
+
+                        return filteredPages.map((page, index) => (
+                          <button
+                            key={index}
+                            className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent text-left transition-colors"
+                            onClick={() => {
+                              navigate(page.path);
+                              setSearchQuery("");
+                              setShowSearchResults(false);
+                            }}
+                          >
+                            <page.icon className="h-4 w-4 text-muted-foreground" />
+                            <div className="flex-1">
+                              <div className="text-sm font-medium">{page.title}</div>
+                              <div className="text-xs text-muted-foreground">{page.groupLabel}</div>
+                            </div>
+                          </button>
+                        ));
+                      })()}
+                    </div>
+                  )}
+                </div>
+                <DashboardHolidayBanner />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    fetchCustomers();
+                    fetchRealStats();
+                    toast({ title: "Refreshed", description: "Dashboard data has been refreshed" });
+                  }}
+                  title="Refresh Dashboard"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
               </div>
-              <DashboardHolidayBanner />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  fetchCustomers();
-                  fetchRealStats();
-                  toast({ title: "Refreshed", description: "Dashboard data has been refreshed" });
-                }}
-                title="Refresh Dashboard"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
             </div>
-          </div>
-        </header>
+          </header>
 
           <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
             <div className="flex items-center gap-3 sm:gap-4">
@@ -566,138 +565,143 @@ const AdminDashboard = () => {
               </Card>
             </div>
 
-          <Tabs defaultValue="vehicles" className="space-y-6">
-            <TabsList className="glass-strong">
-              <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
-              <TabsTrigger value="customers">Customers</TabsTrigger>
-              <TabsTrigger value="sales">Sales</TabsTrigger>
-            </TabsList>
+            <Tabs defaultValue="vehicles" className="space-y-6">
+              <TabsList className="glass-strong">
+                <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
+                <TabsTrigger value="customers">Customers</TabsTrigger>
+                <TabsTrigger value="sales">Sales</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="vehicles" className="space-y-4">
-              <Card className="glass-strong">
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Recent Vehicles</CardTitle>
-                    <Button onClick={() => navigate("/admin/cars")}>View All</Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto"><Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Stock ID</TableHead>
-                        <TableHead>Make & Model</TableHead>
-                        <TableHead>Year</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {stats.totalVehicles > 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={5} className="text-center">
-                            <Button variant="link" onClick={() => navigate("/admin/cars")}>
-                              Click to view all vehicles
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={5} className="text-center text-muted-foreground">
-                            No vehicles yet. Add your first vehicle.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table></div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="customers" className="space-y-4">
-              <Card className="glass-strong">
-                <CardHeader>
-                  <CardTitle>Customer Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto"><Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Phone</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Joined</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredCustomers.length === 0 && searchQuery ? (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center text-muted-foreground">
-                            No customers found matching "{searchQuery}"
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        filteredCustomers.map((customer) => (
-                        <TableRow key={customer.id}>
-                          <TableCell className="font-medium">{customer.full_name}</TableCell>
-                          <TableCell>{customer.email}</TableCell>
-                          <TableCell>{customer.phone}</TableCell>
-                          <TableCell>{customer.county_city || "N/A"}</TableCell>
-                          <TableCell>
-                            <Badge variant={customer.user_roles?.[0]?.role === "admin" ? "default" : "secondary"}>
-                              {customer.user_roles?.[0]?.role || "customer"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {new Date(customer.created_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline">
-                                <Ban className="h-4 w-4" />
-                              </Button>
-                              <Button size="sm" variant="destructive">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )))}
-                    </TableBody>
-                  </Table></div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="sales" className="space-y-4">
-              <Card className="glass-strong">
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Sales Overview</CardTitle>
-                    <Button onClick={() => navigate("/admin/sales")}>View Analytics</Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="glass p-4 rounded-lg">
-                      <p className="text-sm text-muted-foreground">Total Revenue</p>
-                      <p className="text-2xl font-bold">KSh {stats.monthlySales.toLocaleString()}</p>
+              <TabsContent value="vehicles" className="space-y-4">
+                <Card className="glass-strong">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle>Recent Vehicles</CardTitle>
+                      <Button onClick={() => navigate("/admin/cars")}>View All</Button>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={() => navigate("/admin/sales")}
-                    >
-                      View Detailed Analytics
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Stock ID</TableHead>
+                            <TableHead>Make & Model</TableHead>
+                            <TableHead>Year</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {stats.totalVehicles > 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={5} className="text-center">
+                                <Button variant="link" onClick={() => navigate("/admin/cars")}>
+                                  Click to view all vehicles
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={5} className="text-center text-muted-foreground">
+                                No vehicles yet. Add your first vehicle.
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="customers" className="space-y-4">
+                <Card className="glass-strong">
+                  <CardHeader>
+                    <CardTitle>Customer Management</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Phone</TableHead>
+                            <TableHead>Location</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead>Joined</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredCustomers.length === 0 && searchQuery ? (
+                            <TableRow>
+                              <TableCell colSpan={7} className="text-center text-muted-foreground">
+                                No customers found matching "{searchQuery}"
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            filteredCustomers.map((customer) => (
+                              <TableRow key={customer.id}>
+                                <TableCell className="font-medium">{customer.full_name}</TableCell>
+                                <TableCell>{customer.email}</TableCell>
+                                <TableCell>{customer.phone}</TableCell>
+                                <TableCell>{customer.county_city || "N/A"}</TableCell>
+                                <TableCell>
+                                  <Badge variant={customer.user_roles?.[0]?.role === "admin" ? "default" : "secondary"}>
+                                    {customer.user_roles?.[0]?.role || "customer"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  {new Date(customer.created_at).toLocaleDateString()}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    <Button size="sm" variant="outline">
+                                      <Ban className="h-4 w-4" />
+                                    </Button>
+                                    <Button size="sm" variant="destructive">
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="sales" className="space-y-4">
+                <Card className="glass-strong">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle>Sales Overview</CardTitle>
+                      <Button onClick={() => navigate("/admin/sales")}>View Analytics</Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="glass p-4 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Total Revenue</p>
+                        <p className="text-2xl font-bold">KSh {stats.monthlySales.toLocaleString()}</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => navigate("/admin/sales")}
+                      >
+                        View Detailed Analytics
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>
