@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, RefreshCw, ShieldCheck, Globe, Navigation, ChevronRight, CheckCircle, Clock, Car } from "lucide-react";
+import { ArrowLeft, RefreshCw, ShieldCheck, Globe, Navigation, ChevronRight, CheckCircle, Clock, Car, Trophy, Shield } from "lucide-react";
 import { getCurrentSale } from "@/lib/currentSale";
 import HeroSlider from "@/components/HeroSlider";
 
@@ -104,19 +104,48 @@ const TradeInSubmission = () => {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
       </div>
 
-      {/* Official Trust Bar */}
-      <div className="bg-primary py-2 relative z-30 border-b border-white/5 shadow-2xl">
-        <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <ShieldCheck className="h-3 w-3 text-brand-red" />
-            Asset Valuation Protocol
-          </span>
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <Globe className="h-3 w-3 text-brand-red" />
-            Nationwide Exchange Hub
-          </span>
+      {/* Professional Marquee - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30 shadow-2xl">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                Asset Valuation Protocol
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Nationwide Exchange Hub
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                Aggressive Market Offers
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="h-3 w-3 text-brand-red" />
+                Unit Verification
+              </span>
+            </div>
+          ))}
         </div>
       </div>
+
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 8s linear infinite;
+        }
+      `}</style>
 
       {/* Hero - Professional & Formal */}
       <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
@@ -143,6 +172,43 @@ const TradeInSubmission = () => {
       </section>
 
       <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto mb-12">
+          <Card className="glass-strong border-border overflow-hidden group hover:border-brand-red/30 transition-all duration-500">
+            <div className="grid md:grid-cols-2 items-center">
+              <div className="p-8 md:p-12 space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-red/10 border border-brand-red/20 text-[10px] font-black uppercase tracking-widest text-brand-red">
+                  <RefreshCw className="h-3 w-3 animate-spin-slow" />
+                  Premium Exchange Service
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic">
+                  Turn Your Current Car Into <span className="text-brand-red">Liquid Capital.</span>
+                </h2>
+                <p className="text-sm font-medium text-muted-foreground leading-relaxed uppercase tracking-wide">
+                  Maximize your asset's value with our institutional exchange program. We offer aggressive market-driven valuations, seamless ownership transfer, and instant credit toward your next luxury upgrade.
+                </p>
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="space-y-1">
+                    <p className="text-xl font-black text-primary italic">100%</p>
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Transparency Audit</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xl font-black text-primary italic">48H</p>
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Valuation Cycle</p>
+                  </div>
+                </div>
+              </div>
+              <div className="relative h-64 md:h-full min-h-[300px] overflow-hidden">
+                <img
+                  src="/home/thome.png"
+                  alt="Premium Asset Exchange"
+                  className="absolute inset-0 w-full h-full object-contain transition-transform duration-[2s] group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent md:hidden" />
+              </div>
+            </div>
+          </Card>
+        </div>
+
         <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Main Application Track */}
           <div className="lg:col-span-2">

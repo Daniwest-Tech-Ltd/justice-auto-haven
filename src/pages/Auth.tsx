@@ -609,16 +609,16 @@ const Auth = () => {
           </div>
         </section>
 
-        <div className="container mx-auto px-4 py-12 relative z-10">
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-5 gap-12 items-start">
+        <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-start">
 
-            {/* Auth Card (3 columns) */}
-            <div className="lg:col-span-3">
-              <Card className="border-border bg-background shadow-2xl rounded-md overflow-hidden animate-in zoom-in duration-500">
-                <CardHeader className="border-b border-border/50 bg-secondary/5">
-                  <div className="flex items-center justify-between">
+            {/* Auth Card (3 columns on large, full on small) */}
+            <div className="lg:col-span-3 order-1">
+              <Card className="border-border bg-background shadow-2xl rounded-md overflow-hidden animate-in zoom-in duration-500 h-full">
+                <CardHeader className="border-b border-border/50 bg-secondary/5 p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center text-primary">
+                        <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
                            {isSignUp ? <UserPlus className="h-5 w-5" /> : <Lock className="h-5 w-5" />}
                         </div>
                         <div>
@@ -630,13 +630,13 @@ const Auth = () => {
                            </CardDescription>
                         </div>
                      </div>
-                     <Button variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-brand-red hover:bg-brand-red/5" onClick={() => setIsSignUp(!isSignUp)}>
+                     <Button variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-brand-red hover:bg-brand-red/5 p-0 h-auto sm:h-10 sm:px-4 shrink-0" onClick={() => setIsSignUp(!isSignUp)}>
                         {isSignUp ? "Already Registered? Sign In" : "New Client? Register Here"}
                      </Button>
                   </div>
                 </CardHeader>
 
-                <CardContent className="p-8">
+                <CardContent className="p-4 sm:p-8">
                   {/* Login Form */}
                   {!isSignUp ? (
                     <form onSubmit={handleLogin} className="space-y-6 max-w-lg mx-auto">
@@ -688,7 +688,7 @@ const Auth = () => {
                   ) : (
                     /* Registration Form */
                     <form onSubmit={handleRegister} className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Legal Name</Label>
                             <div className="relative">
@@ -705,7 +705,7 @@ const Auth = () => {
                          </div>
                       </div>
 
-                      <div className="grid md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contact Number</Label>
                             <PhoneInputWithCountryCode value={regPhone} onChange={setRegPhone} countryCode={countryCode} onCountryCodeChange={setCountryCode} required />
@@ -723,7 +723,7 @@ const Auth = () => {
                          </div>
                       </div>
 
-                      <div className="grid md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Location (County)</Label>
                             <Combobox options={kenyaLocations.counties.map((c: any) => c.name)} value={countyCity} onValueChange={setCountyCity} placeholder="Select County" />
@@ -735,7 +735,7 @@ const Auth = () => {
                       </div>
 
                       <div className="flex items-start space-x-3 bg-secondary/5 p-4 rounded-md border border-border">
-                         <Checkbox id="terms" checked={termsAccepted} onCheckedChange={(c) => setTermsAccepted(c === true)} />
+                         <Checkbox id="terms" checked={termsAccepted} onCheckedChange={(c) => setTermsAccepted(c === true)} className="mt-1" />
                          <Label htmlFor="terms" className="text-[9px] font-bold uppercase leading-relaxed text-muted-foreground cursor-pointer">
                             I acknowledge the Justice Ultimate <Link to="/terms" className="text-brand-red underline">Terms of Engagement</Link> and data protocols.
                          </Label>
@@ -752,8 +752,8 @@ const Auth = () => {
               </Card>
             </div>
 
-            {/* Sidebar Information (2 columns) */}
-            <div className="lg:col-span-2 space-y-8">
+            {/* Sidebar Information (2 columns on large, full on small) */}
+            <div className="lg:col-span-2 space-y-6 md:space-y-8 order-2">
               <Card className="rounded-md border-border bg-secondary/5 overflow-hidden">
                  <CardHeader className="pb-3 border-b border-border/50">
                     <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Security Protocol</CardTitle>

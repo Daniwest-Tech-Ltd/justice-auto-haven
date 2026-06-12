@@ -12,7 +12,7 @@ import {
   Activity, ShieldCheck, Briefcase,
   Navigation, Calendar, ChevronRight, Headphones, Star,
   Trophy, Shield,
-  ArrowUpRight
+  ArrowUpRight, CreditCard, RefreshCw
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +26,8 @@ const Home = () => {
   const [brands, setBrands] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [promo1Flipped, setPromo1Flipped] = useState(false);
+  const [promo2Flipped, setPromo2Flipped] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -310,6 +312,91 @@ const Home = () => {
               </Card>
               <div className="absolute -bottom-6 -right-6 h-32 w-32 border-r-4 border-b-4 border-brand-red/20 pointer-events-none" />
               <div className="absolute -top-6 -left-6 h-32 w-32 border-l-4 border-t-4 border-brand-red/20 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Executive Feature Grid */}
+      <section className="py-24 relative z-10">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-8 max-w-7xl mx-auto">
+            {/* Promo 1: Finance Focus */}
+            <div
+              className="group relative aspect-video overflow-hidden rounded-xl border-2 border-border bg-black shadow-2xl cursor-pointer"
+              onMouseEnter={() => setPromo1Flipped(!promo1Flipped)}
+              onClick={() => navigate("/asset-finance")}
+            >
+              <div className="absolute inset-0 z-0">
+                 <img
+                   src={promo1Flipped ? "/home/thome.png" : "/home/fhome.png"}
+                   alt="Institutional Finance"
+                   className="w-full h-full object-contain transition-all duration-700 ease-in-out"
+                 />
+                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500" />
+              </div>
+
+              {/* Dynamic HUD Message */}
+              <div className="absolute inset-0 z-20 flex items-center justify-start pointer-events-none pl-12">
+                 <div className="bg-brand-red text-white px-6 py-3 transform -translate-x-[120%] group-hover:translate-x-0 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-2xl border-l-4 border-white">
+                    <p className="text-xl md:text-2xl font-black uppercase italic tracking-tighter whitespace-nowrap overflow-hidden">
+                       We offer 90% asset financing
+                    </p>
+                 </div>
+              </div>
+
+              <div className="relative z-10 h-full flex flex-col justify-end p-8 space-y-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-black/80 via-transparent to-transparent">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-red/20 border border-brand-red/30 text-[9px] font-black uppercase tracking-widest text-brand-red backdrop-blur-md w-fit">
+                  <CreditCard className="h-3 w-3" />
+                  Finance Protocol Active
+                </div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic text-white leading-none">
+                  High-Fidelity <span className="text-brand-red">Capital.</span>
+                </h3>
+              </div>
+
+              {/* Animated Corner Brackets */}
+              <div className="absolute top-6 right-6 h-10 w-10 border-t-2 border-r-2 border-brand-red/40 group-hover:border-brand-red transition-colors duration-500" />
+              <div className="absolute bottom-6 left-6 h-10 w-10 border-b-2 border-l-2 border-brand-red/40 group-hover:border-brand-red transition-colors duration-500" />
+            </div>
+
+            {/* Promo 2: Trade-In Focus */}
+            <div
+              className="group relative aspect-video overflow-hidden rounded-xl border-2 border-border bg-black shadow-2xl cursor-pointer"
+              onMouseEnter={() => setPromo2Flipped(!promo2Flipped)}
+              onClick={() => navigate("/trade-in")}
+            >
+              <div className="absolute inset-0 z-0">
+                 <img
+                   src={promo2Flipped ? "/home/fhome.png" : "/home/thome.png"}
+                   alt="Asset Exchange"
+                   className="w-full h-full object-contain transition-all duration-700 ease-in-out"
+                 />
+                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500" />
+              </div>
+
+              {/* Dynamic HUD Message */}
+              <div className="absolute inset-0 z-20 flex items-center justify-start pointer-events-none pl-12">
+                 <div className="bg-primary text-white px-6 py-3 transform -translate-x-[120%] group-hover:translate-x-0 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-2xl border-l-4 border-white">
+                    <p className="text-xl md:text-2xl font-black uppercase italic tracking-tighter whitespace-nowrap overflow-hidden">
+                       Aggressive Trade-In Valuations
+                    </p>
+                 </div>
+              </div>
+
+              <div className="relative z-10 h-full flex flex-col justify-end p-8 space-y-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-black/80 via-transparent to-transparent">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-[9px] font-black uppercase tracking-widest text-primary backdrop-blur-md w-fit">
+                  <RefreshCw className="h-3 w-3" />
+                  Inventory Exchange Hub
+                </div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic text-white leading-none">
+                  Seamless <span className="text-brand-red">Exchange.</span>
+                </h3>
+              </div>
+
+              {/* Animated Corner Brackets */}
+              <div className="absolute top-6 right-6 h-10 w-10 border-t-2 border-r-2 border-primary/40 group-hover:border-primary transition-colors duration-500" />
+              <div className="absolute bottom-6 left-6 h-10 w-10 border-b-2 border-l-2 border-primary/40 group-hover:border-primary transition-colors duration-500" />
             </div>
           </div>
         </div>

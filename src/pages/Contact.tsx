@@ -273,14 +273,17 @@ const Contact = () => {
                      <Clock className="h-4 w-4 text-primary" />
                      <div className="space-y-1">
                         <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Nairobi (EAT)</p>
-                        <p className="text-[10px] font-black uppercase">8AM – 6PM, MON–SAT</p>
+                        <p className="text-[10px] font-black uppercase leading-tight">
+                           Mon – Fri: 8AM – 5PM<br />
+                           Sat: 8AM – 4PM | Sun: 10:30AM – 4PM
+                        </p>
                      </div>
                   </div>
                   <div className="flex items-center gap-3 opacity-60">
                      <Clock className="h-4 w-4 text-muted-foreground" />
                      <div className="space-y-1">
                         <p className="text-[9px] font-black uppercase tracking-widest">London (GMT)</p>
-                        <p className="text-[10px] font-black uppercase">7AM – 5PM, MON–FRI</p>
+                        <p className="text-[10px] font-black uppercase">7AM – 4PM, MON–FRI</p>
                      </div>
                   </div>
                </CardContent>

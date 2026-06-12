@@ -83,7 +83,10 @@ const HelpSupport = () => {
                 <a href="tel:+254722827458" className="font-semibold text-primary hover:underline">
                   +254 722 827 458
                 </a>
-                <p className="text-xs text-muted-foreground mt-2">Mon-Sat: 8AM-6PM</p>
+                <div className="text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-tight">
+                  <p>Mon-Fri: 8AM-5PM</p>
+                  <p>Sat: 8AM-4PM | Sun: 10:30AM-4PM</p>
+                </div>
               </CardContent>
             </Card>
 
@@ -127,7 +130,10 @@ const HelpSupport = () => {
                     Mpesi Lane 11<br />Westlands, Nairobi
                   </a>
                 </Button>
-                <p className="text-xs text-muted-foreground mt-2">Mon-Sat: 8AM-6PM</p>
+                <div className="text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-tight">
+                  <p>Mon-Fri: 8AM-5PM</p>
+                  <p>Sat: 8AM-4PM | Sun: 10:30AM-4PM</p>
+                </div>
               </CardContent>
             </Card>
           </div>

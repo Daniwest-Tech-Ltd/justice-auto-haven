@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { 
   FileText, CheckCircle, Clock, Shield,
   Building2, User, Car, DollarSign, Phone, Mail, MapPin,
-  Briefcase, CreditCard, Loader2, ShieldCheck, Globe, Navigation, Headphones
+  Briefcase, CreditCard, Loader2, ShieldCheck, Globe, Navigation, Headphones, Trophy
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -167,18 +167,40 @@ const AssetFinanceApplication = () => {
       </div>
 
       {/* Official Trust Bar */}
-      <div className="bg-primary py-2 relative z-30 border-b border-white/5">
-        <div className="container mx-auto px-4 flex justify-center items-center gap-10 whitespace-nowrap overflow-hidden">
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <ShieldCheck className="h-3 w-3 text-brand-red" />
-            Financial Compliance Protocol
-          </span>
-          <span className="flex items-center gap-2 text-white/80 text-[10px] font-bold uppercase tracking-widest">
-            <Globe className="h-3 w-3 text-brand-red" />
-            Nationwide Banking Network
-          </span>
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30 shadow-2xl">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                Banking Compliance
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Nationwide Coverage
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Trophy className="h-3 w-3 text-brand-red" />
+                90% Max Funding
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="h-3 w-3 text-brand-red" />
+                Instant Audit
+              </span>
+            </div>
+          ))}
         </div>
       </div>
+
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+      `}</style>
 
       {/* Hero - Professional & Formal */}
       <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
@@ -197,6 +219,47 @@ const AssetFinanceApplication = () => {
       </section>
 
       <div className="container mx-auto px-4 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto mb-12">
+          <Card className="glass-strong border-border overflow-hidden group hover:border-primary/30 transition-all duration-500">
+            <div className="grid md:grid-cols-2 items-center">
+              <div className="relative h-64 md:h-full min-h-[350px] overflow-hidden order-2 md:order-1">
+                <img
+                  src="/finance/financing.png"
+                  alt="Institutional Asset Financing"
+                  className="absolute inset-0 w-full h-full object-contain transition-transform duration-[3s] group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-l from-background via-transparent to-transparent md:hidden" />
+              </div>
+              <div className="p-8 md:p-12 space-y-6 order-1 md:order-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-widest text-primary">
+                  <CreditCard className="h-3 w-3 animate-pulse" />
+                  Tier-1 Financial Desk
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic">
+                  Own Your Dream Unit with <span className="text-brand-red">90% Capital Backing.</span>
+                </h2>
+                <p className="text-sm font-medium text-muted-foreground leading-relaxed uppercase tracking-wide">
+                  Bridge the gap between ambition and ownership. Our strategic banking alliances provide high-fidelity financing solutions with optimized interest caps and ultra-fast 72-hour dispatch cycles.
+                </p>
+                <div className="grid grid-cols-3 gap-4 pt-2">
+                  <div className="space-y-1">
+                    <p className="text-xl font-black text-primary italic">90%</p>
+                    <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Max Funding</p>
+                  </div>
+                  <div className="space-y-1 border-x border-border px-4">
+                    <p className="text-xl font-black text-primary italic">72H</p>
+                    <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Audit Cycle</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xl font-black text-primary italic">60</p>
+                    <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Max Months</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
         <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Main Application Track */}
           <div className="lg:col-span-2">

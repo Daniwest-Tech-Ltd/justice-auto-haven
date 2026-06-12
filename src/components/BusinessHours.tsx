@@ -10,12 +10,12 @@ import hourglassGif from "@/assets/hourglass.gif";
 
 const businessHours = {
   Sunday: { open: "10:30", close: "16:00" },
-  Monday: { open: "09:00", close: "17:00" },
-  Tuesday: { open: "09:00", close: "17:00" },
-  Wednesday: { open: "09:00", close: "17:00" },
-  Thursday: { open: "09:00", close: "17:00" },
-  Friday: { open: "09:00", close: "17:00" },
-  Saturday: { open: "09:00", close: "16:00" },
+  Monday: { open: "08:00", close: "17:00" },
+  Tuesday: { open: "08:00", close: "17:00" },
+  Wednesday: { open: "08:00", close: "17:00" },
+  Thursday: { open: "08:00", close: "17:00" },
+  Friday: { open: "08:00", close: "17:00" },
+  Saturday: { open: "08:00", close: "16:00" },
 };
 
 const isOpenNow = (day: string, time: string) => {

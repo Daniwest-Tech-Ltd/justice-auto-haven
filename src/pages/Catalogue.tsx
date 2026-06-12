@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2, ShieldCheck, Trophy } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2, ShieldCheck, Trophy, Bike } from "lucide-react";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -251,6 +251,13 @@ const Catalogue = () => {
         .animate-marquee-professional {
           animation: marquee-professional 40s linear infinite;
         }
+        @keyframes car-move-large {
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(10px); }
+        }
+        .animate-car-move-large {
+          animation: car-move-large 3s infinite ease-in-out;
+        }
       `}</style>
 
       {/* Catalogue Hero - Professional & Formal */}
@@ -258,6 +265,9 @@ const Catalogue = () => {
         <HeroSlider />
         <div className="container mx-auto px-4 relative z-10 text-center">
           <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+            <div className="flex justify-center mb-2">
+               <Car className="h-8 w-8 text-brand-red animate-car-move-large" />
+            </div>
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Operational Asset Ledger: {sale.year}</p>
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground uppercase">
               Automotive <span className="text-brand-red">Catalogue.</span>
@@ -272,10 +282,24 @@ const Catalogue = () => {
               <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider" onClick={() => navigate("/trade-in")}>
                 Trade-In Portal
               </Button>
+              <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider gap-2 group" onClick={() => navigate("/motorbikes")}>
+                Motorcycle
+                <Bike className="h-4 w-4 text-brand-red animate-bike-move" />
+              </Button>
             </div>
           </div>
         </div>
       </section>
+
+      <style>{`
+        @keyframes bike-move {
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(4px); }
+        }
+        .animate-bike-move {
+          animation: bike-move 1.5s infinite ease-in-out;
+        }
+      `}</style>
 
       {/* Asset Filtering Hub - Opaque & Professional */}
       <section className="relative z-20 -mt-6">

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, Moon, Sun, User, LogOut, LayoutDashboard, Heart, Bell, Mail, Download, ShieldCheck, Globe, Trophy, Shield } from "lucide-react";
+import { Menu, X, Moon, Sun, User, LogOut, LayoutDashboard, Heart, Bell, Mail, Download, ShieldCheck, Globe, Trophy, Shield, Car } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import logo from "@/assets/logo.png";
@@ -202,12 +202,15 @@ const Header = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`relative px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight transition-all duration-300 ${
+                className={`relative px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight transition-all duration-300 flex items-center gap-1 ${
                   location.pathname === link.to
                     ? "text-primary bg-primary/5 shadow-sm border border-primary/20"
                     : "text-muted-foreground hover:text-primary hover:bg-secondary/50 border border-transparent hover:border-border"
                 }`}
               >
+                {link.label === "Catalogue" && (
+                  <Car className="h-3 w-3 text-brand-red animate-car-move" />
+                )}
                 {link.label}
               </Link>
             ))}
@@ -239,6 +242,13 @@ const Header = () => {
             </Tooltip>
 
             <style>{`
+              @keyframes car-move {
+                0%, 100% { transform: translateX(0); }
+                50% { transform: translateX(3px); }
+              }
+              .animate-car-move {
+                animation: car-move 2s infinite ease-in-out;
+              }
               @keyframes vertical-bounce {
                 0%, 100% { transform: translateY(0); }
                 50% { transform: translateY(-4px); }

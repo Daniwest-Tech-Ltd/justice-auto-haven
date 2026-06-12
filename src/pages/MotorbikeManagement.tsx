@@ -187,84 +187,102 @@ const MotorbikeManagement = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin-dashboard")}>
-              <ArrowLeft className="h-5 w-5" />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" onClick={() => navigate("/admin-dashboard")} className="shrink-0">
+              <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full border border-primary/30 bg-primary/5 text-[10px] font-mono mb-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                ADMIN // MOTORBIKES
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/5 text-xs font-mono mb-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                ADMIN // TERMINAL // MOTORBIKES
               </div>
-              <h1 className="text-2xl font-bold flex items-center gap-2">
-                <Bike className="h-6 w-6 text-primary" />
-                Motorbike Management
+              <h1 className="text-3xl font-black uppercase italic tracking-tighter flex items-center gap-3">
+                <Bike className="h-8 w-8 text-brand-red" />
+                Motorbike Fleet Management
               </h1>
             </div>
           </div>
-          <Button onClick={openNew}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Motorbike
+          <Button onClick={openNew} className="bg-brand-red hover:bg-brand-red/90 text-white font-bold uppercase tracking-widest px-6 h-12 shadow-xl">
+            <Plus className="h-5 w-5 mr-2" />
+            Add New Unit
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Inventory ({bikes.length})</CardTitle>
+        <Card className="glass-strong border-border overflow-hidden">
+          <CardHeader className="border-b border-border bg-secondary/10">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-sm font-black uppercase tracking-widest">Active Inventory Ledger ({bikes.length})</CardTitle>
+              <div className="flex items-center gap-2">
+                 <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Database Terminal</span>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {loading ? (
-              <p className="text-muted-foreground py-8 text-center">Loading...</p>
+              <div className="py-20 text-center space-y-4">
+                 <RefreshCw className="h-8 w-8 text-brand-red animate-spin mx-auto" />
+                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Synchronizing Unit Data...</p>
+              </div>
             ) : bikes.length === 0 ? (
-              <div className="text-center py-12">
-                <Bike className="mx-auto h-12 w-12 text-muted-foreground mb-3" />
-                <p className="text-muted-foreground mb-4">No motorbikes yet.</p>
-                <Button onClick={openNew}>
+              <div className="text-center py-20 bg-secondary/5 border border-dashed border-border rounded-xl">
+                <Bike className="mx-auto h-16 w-16 text-muted-foreground/20 mb-4" />
+                <h3 className="text-lg font-bold uppercase tracking-tight mb-2">No Units Found</h3>
+                <p className="text-xs text-muted-foreground mb-6 uppercase tracking-widest">The motorbike inventory ledger is currently empty.</p>
+                <Button onClick={openNew} variant="outline" className="border-brand-red/50 text-brand-red hover:bg-brand-red hover:text-white font-bold uppercase tracking-widest">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add your first motorbike
+                  Initialize First Unit
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {bikes.map((b) => (
                   <div
                     key={b.id}
-                    className="border rounded-lg overflow-hidden bg-card hover:border-primary/50 transition"
+                    className="group relative bg-background border border-border hover:border-brand-red/40 transition-all duration-300 flex flex-col h-full rounded-lg overflow-hidden hover:shadow-2xl"
                   >
-                    <div className="aspect-video bg-muted relative">
+                    <div className="aspect-[4/3] bg-muted relative overflow-hidden border-b border-border">
                       {b.images && b.images[0] ? (
-                        <img src={b.images[0]} alt={`${b.make} ${b.model}`} className="object-cover w-full h-full" />
+                        <img src={b.images[0]} alt={`${b.make} ${b.model}`} className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110" />
                       ) : (
                         <div className="flex items-center justify-center h-full">
-                          <Bike className="h-10 w-10 text-muted-foreground" />
+                          <Bike className="h-12 w-12 text-muted-foreground/30" />
                         </div>
                       )}
+                      <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+                        <Badge className="bg-primary text-white text-[7px] font-bold uppercase rounded-sm py-0.5 px-1.5 tracking-wider">
+                           #{b.stock_id || 'UNIT'}
+                        </Badge>
+                      </div>
+                      <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                         <Badge className={`text-white text-[7px] font-bold uppercase rounded-sm py-0.5 px-1.5 tracking-wider border-none ${b.status === 'sold' ? 'bg-red-600' : 'bg-green-600'}`}>
+                            {b.status === 'sold' ? 'SOLD' : 'AVAILABLE'}
+                         </Badge>
+                      </div>
                       {b.is_featured && (
-                        <Badge className="absolute top-2 right-2">FEATURED</Badge>
+                        <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-amber-500 text-white text-[7px] font-black uppercase tracking-widest">
+                          Featured Unit
+                        </div>
                       )}
                     </div>
-                    <div className="p-3">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-semibold leading-tight">
-                            {b.make} {b.model}
-                          </p>
-                          <p className="text-xs text-muted-foreground font-mono">
-                            {b.year} · {b.engine_cc ? `${b.engine_cc}cc` : "—"} · {b.status}
-                          </p>
-                        </div>
-                        <div className="text-emerald-500 font-mono font-bold text-sm">
-                          KSh {Number(b.price).toLocaleString()}
+                    <div className="p-4 space-y-4 flex-1 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <p className="font-black uppercase tracking-tight text-sm group-hover:text-brand-red transition-colors">
+                          {b.make} {b.model}
+                        </p>
+                        <div className="flex justify-between items-center border-b border-border/50 pb-2 mb-2">
+                           <p className="text-[10px] font-bold text-muted-foreground uppercase">{b.year} · {b.engine_cc ? `${b.engine_cc} CC` : "—"}</p>
+                           <p className="text-sm font-black text-brand-red tracking-tighter italic">KSh {Number(b.price).toLocaleString()}</p>
                         </div>
                       </div>
-                      <div className="flex gap-2 mt-3">
-                        <Button size="sm" variant="outline" className="flex-1" onClick={() => openEdit(b)}>
-                          <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
+                      <div className="flex gap-2 pt-2">
+                        <Button size="sm" variant="outline" className="flex-1 border-border/50 hover:bg-secondary font-bold uppercase tracking-widest text-[10px]" onClick={() => openEdit(b)}>
+                          <Pencil className="h-3.5 w-3.5 mr-1 text-primary" /> Edit
                         </Button>
-                        <Button size="sm" variant="destructive" onClick={() => remove(b.id)}>
-                          <Trash2 className="h-3.5 w-3.5" />
+                        <Button size="sm" variant="outline" className="border-border/50 hover:bg-destructive/10 hover:text-destructive group/del" onClick={() => remove(b.id)}>
+                          <Trash2 className="h-3.5 w-3.5 group-hover/del:scale-110 transition-transform" />
                         </Button>
                       </div>
                     </div>
