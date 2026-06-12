@@ -444,7 +444,8 @@ const AdminDashboard = () => {
                 <RefreshCw className="h-4 w-4" />
               </Button>
             </div>
-          </header>
+          </div>
+        </header>
 
           <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
             <div className="flex items-center gap-3 sm:gap-4">

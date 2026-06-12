@@ -160,92 +160,93 @@ const CustomerDashboard = () => {
           <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="px-6 py-3">
               <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-4">
+                  <SidebarTrigger />
+                  <img src={logo} alt="Justice Ultimate Automobiles" className="h-10 w-auto" />
+                  <h1 className="text-xl font-bold">Justice Ultimate Automobiles Customer Dashboard</h1>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" onClick={() => navigate("/")} title="Home">
+                    <Home className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    title={currentTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                    onClick={async () => {
+                      const newTheme: Theme = currentTheme === "dark" ? "light" : "dark";
+                      setCurrentTheme(newTheme);
+                      await setTheme(newTheme, user?.id);
+                    }}
+                  >
+                    {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  </Button>
+                  <Button onClick={() => navigate("/catalogue")} size="sm">Browse Catalogue</Button>
+                </div>
+              </div>
               <div className="flex items-center gap-4">
-                <SidebarTrigger />
-                <img src={logo} alt="Justice Ultimate Automobiles" className="h-10 w-auto" />
-                <h1 className="text-xl font-bold">Justice Ultimate Automobiles Customer Dashboard</h1>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={() => navigate("/")} title="Home">
-                  <Home className="h-5 w-5" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  title={currentTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                  onClick={async () => {
-                    const newTheme: Theme = currentTheme === "dark" ? "light" : "dark";
-                    setCurrentTheme(newTheme);
-                    await setTheme(newTheme, user?.id);
-                  }}
-                >
-                  {currentTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </Button>
-                <Button onClick={() => navigate("/catalogue")} size="sm">Browse Catalogue</Button>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search pages..."
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSearchResults(e.target.value.length > 0);
-                  }}
-                  onFocus={() => searchQuery.length > 0 && setShowSearchResults(true)}
-                  onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
-                />
-                {showSearchResults && searchQuery.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
-                    {(() => {
-                      const filteredPages = menuItems.filter(page =>
-                        page.title.toLowerCase().includes(searchQuery.toLowerCase())
-                      );
-                      
-                      if (filteredPages.length === 0) {
-                        return (
-                          <div className="p-3 text-sm text-muted-foreground text-center">
-                            No pages found for "{searchQuery}"
-                          </div>
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search pages..."
+                    className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setShowSearchResults(e.target.value.length > 0);
+                    }}
+                    onFocus={() => searchQuery.length > 0 && setShowSearchResults(true)}
+                    onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
+                  />
+                  {showSearchResults && searchQuery.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
+                      {(() => {
+                        const filteredPages = menuItems.filter(page =>
+                          page.title.toLowerCase().includes(searchQuery.toLowerCase())
                         );
-                      }
-                      
-                      return filteredPages.map((page, index) => (
-                        <button
-                          key={index}
-                          className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent text-left transition-colors"
-                          onClick={() => {
-                            navigate(page.path);
-                            setSearchQuery("");
-                            setShowSearchResults(false);
-                          }}
-                        >
-                          <page.icon className="h-4 w-4 text-muted-foreground" />
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">{page.title}</div>
-                          </div>
-                        </button>
-                      ));
-                    })()}
-                  </div>
-                )}
+
+                        if (filteredPages.length === 0) {
+                          return (
+                            <div className="p-3 text-sm text-muted-foreground text-center">
+                              No pages found for "{searchQuery}"
+                            </div>
+                          );
+                        }
+
+                        return filteredPages.map((page, index) => (
+                          <button
+                            key={index}
+                            className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent text-left transition-colors"
+                            onClick={() => {
+                              navigate(page.path);
+                              setSearchQuery("");
+                              setShowSearchResults(false);
+                            }}
+                          >
+                            <page.icon className="h-4 w-4 text-muted-foreground" />
+                            <div className="flex-1">
+                              <div className="text-sm font-medium">{page.title}</div>
+                            </div>
+                          </button>
+                        ));
+                      })()}
+                    </div>
+                  )}
+                </div>
+                <DashboardHolidayBanner />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    fetchCustomerData();
+                    toast({ title: "Refreshed", description: "Dashboard data has been refreshed" });
+                  }}
+                  title="Refresh Dashboard"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
               </div>
-              <DashboardHolidayBanner />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  fetchCustomerData();
-                  toast({ title: "Refreshed", description: "Dashboard data has been refreshed" });
-                }}
-                title="Refresh Dashboard"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
             </div>
           </header>
 
