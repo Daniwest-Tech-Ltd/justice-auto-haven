@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, RefreshCw, ShieldCheck, Globe, Navigation, ChevronRight, CheckCircle, Clock, Car, Trophy, ShieldCheck as Shield, Activity } from "lucide-react";
+import { ArrowLeft, RefreshCw, ShieldCheck as Shield, Globe, Navigation, ChevronRight, CheckCircle, Clock, Car, Trophy, Activity } from "lucide-react";
 import { getCurrentSale } from "@/lib/currentSale";
 import HeroSlider from "@/components/HeroSlider";
 
@@ -110,7 +110,7 @@ const TradeInSubmission = () => {
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center shrink-0">
               <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
-                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                <Shield className="h-3 w-3 text-brand-red" />
                 Asset Valuation Protocol
               </span>
               <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">

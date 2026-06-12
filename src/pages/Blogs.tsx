@@ -10,7 +10,7 @@ import {
   ExternalLink,
   Share2,
   Clock,
-  ShieldCheck,
+  ShieldCheck as Shield,
   Globe,
   Navigation,
   ChevronRight,
@@ -21,8 +21,7 @@ import {
   Newspaper,
   Users,
   Trophy,
-  Activity,
-  ShieldCheck as Shield
+  Activity
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -142,7 +141,7 @@ const Blogs = () => {
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center shrink-0">
               <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
-                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                <Shield className="h-3 w-3 text-brand-red" />
                 Corporate Media Desk
               </span>
               <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">

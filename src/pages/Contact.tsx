@@ -16,7 +16,7 @@ import {
   Headphones,
   ShoppingBag,
   User,
-  ShieldCheck,
+  ShieldCheck as Shield,
   Globe,
   Navigation,
   ChevronRight,
@@ -24,7 +24,6 @@ import {
   CheckCircle,
   Briefcase,
   Trophy,
-  ShieldCheck as Shield,
   Activity
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -101,7 +100,7 @@ const Contact = () => {
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center shrink-0">
               <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
-                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                <Shield className="h-3 w-3 text-brand-red" />
                 Direct Communication Terminal
               </span>
               <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">

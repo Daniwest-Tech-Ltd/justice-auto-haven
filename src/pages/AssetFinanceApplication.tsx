@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { 
   FileText, CheckCircle, Clock, ShieldCheck as Shield,
   Building2, User, Car, DollarSign, Phone, Mail, MapPin,
-  Briefcase, CreditCard, Loader2, ShieldCheck, Globe, Navigation, Headphones, Trophy
+  Briefcase, CreditCard, Loader2, Globe, Navigation, Headphones, Trophy
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -172,7 +172,7 @@ const AssetFinanceApplication = () => {
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center shrink-0">
               <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
-                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                <Shield className="h-3 w-3 text-brand-red" />
                 Banking Compliance
               </span>
               <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
