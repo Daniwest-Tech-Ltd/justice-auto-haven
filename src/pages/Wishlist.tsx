@@ -28,6 +28,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { OrderSubmissionModal } from "@/components/OrderSubmissionModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AIChatFloat from "@/components/AIChatFloat";
 import HeroSlider from "@/components/HeroSlider";
 import { getCurrentSale } from "@/lib/currentSale";
 
@@ -261,11 +262,11 @@ const Wishlist = () => {
           </div>
         </section>
 
-        <div className="container mx-auto px-4 py-12 relative z-10">
-          <div className="max-w-7xl mx-auto">
+        <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
+          <div className="max-w-7xl mx-auto w-full">
             {wishlist.length === 0 ? (
-              <Card className="glass-strong border-border border-dashed border-2 animate-in zoom-in duration-500">
-                <CardContent className="p-20 text-center space-y-6">
+              <Card className="glass-strong border-border border-dashed border-2 animate-in zoom-in duration-500 w-full">
+                <CardContent className="p-10 md:p-20 text-center space-y-6">
                   <div className="h-20 w-20 rounded-full bg-secondary/20 flex items-center justify-center mx-auto">
                     <Heart className="h-10 w-10 text-muted-foreground/40" />
                   </div>
@@ -373,6 +374,7 @@ const Wishlist = () => {
         </div>
         <Footer />
       </div>
+      <AIChatFloat />
 
       {selectedCar && (
         <OrderSubmissionModal

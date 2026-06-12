@@ -53,6 +53,8 @@ import { getCurrentSale } from "@/lib/currentSale";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+import AIChatFloat from "@/components/AIChatFloat";
+
 const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
 
 const Auth = () => {
@@ -451,9 +453,18 @@ const Auth = () => {
       }
 
       if (data.user) {
+        // Fetch extended 2FA capabilities
+        const { data: fingerData } = await supabase.from("user_fingerprints").select("id").eq("user_id", data.user.id).limit(1);
+
         setPendingUserId(data.user.id); setPendingUserEmail(email);
-        setAvailable2FAMethods({ email: true, totp: profileData?.totp_enabled || false, fingerprint: profileData?.fingerprint_enabled || false, whatsapp: true });
-        setPreferred2FAMethod("email_otp"); setShow2FADialog(true);
+        setAvailable2FAMethods({
+          email: true,
+          totp: profileData?.totp_enabled || false,
+          fingerprint: (profileData?.fingerprint_enabled || (fingerData && fingerData.length > 0)) || false,
+          whatsapp: true
+        });
+        setPreferred2FAMethod(profileData?.preferred_2fa || "email_otp");
+        setShow2FADialog(true);
         setLoading(false);
       }
     } catch (error: any) {
@@ -841,6 +852,7 @@ const Auth = () => {
         preferredMethod={preferred2FAMethod}
         onSuccess={async () => { if (pendingUserId) { setShow2FADialog(false); await completeLogin(pendingUserId, undefined, pendingUserEmail); } }}
       />
+      <AIChatFloat />
     </div>
   );
 };

@@ -390,7 +390,7 @@ const AppContent = () => {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/order-status" element={<CustomerOrderStatus />} />
-          
+
           <Route 
             path="/admin/reports" 
             element={
