@@ -452,7 +452,7 @@ const Auth = () => {
       }
 
       if (data.user) {
-        // Fetch extended 2FA capabilities
+        // Fetch extended 2FA capabilitie
         const { data: fingerData } = await supabase.from("user_fingerprints").select("id").eq("user_id", data.user.id).limit(1);
 
         setPendingUserId(data.user.id); setPendingUserEmail(email);
