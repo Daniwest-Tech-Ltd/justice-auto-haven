@@ -11,7 +11,8 @@
 <h2 style="color:#ffa500;"> Official Domains</h2>
 
 * 🌍 https://justiceultimateautomobiles.com
-* 🇰🇪 https://justiceultimateautomobiles.co.ke *(Launching Soon)*
+* 🇰🇪 https://www.justiceautomotive.co.ke
+    https://www.justicecorporatelogistics.co.ke 
 
 ---
 
