@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import LoadingScreen from "@/components/LoadingScreen";
-import { ArrowLeft, Car } from "lucide-react";
+import { ArrowLeft, Car, ShieldCheck, Globe, Navigation, ChevronRight, Clock, Gauge, Activity, Zap, ArrowRight, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Carousel,
@@ -40,16 +40,7 @@ const RentalCarDetails = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
   const [car, setCar] = useState<RentalCar | null>(null);
-  const [formData, setFormData] = useState({
-    customerName: "",
-    customerEmail: "",
-    customerPhone: "",
-    startDate: "",
-    endDate: "",
-    notes: "",
-  });
 
   useEffect(() => {
     fetchCarDetails();
@@ -77,322 +68,227 @@ const RentalCarDetails = () => {
     }
   };
 
-  const calculatePrice = () => {
-    if (!car || !formData.startDate || !formData.endDate) return 0;
-
-    const start = new Date(formData.startDate);
-    const end = new Date(formData.endDate);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
-
-    if (diffDays >= 1 && car.price_per_day) {
-      return diffDays * car.price_per_day;
-    }
-    return diffHours * car.price_per_hour;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          variant: "destructive",
-          title: "Authentication Required",
-          description: "Please log in to book a rental",
-        });
-        navigate("/auth");
-        return;
-      }
-
-      if (!car) throw new Error("Car data not loaded");
-
-      const start = new Date(formData.startDate);
-      const end = new Date(formData.endDate);
-      const diffTime = Math.abs(end.getTime() - start.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
-
-      const { error: bookingError } = await supabase.from("rental_bookings").insert({
-        rental_car_id: car.id,
-        user_id: user.id,
-        customer_name: formData.customerName,
-        customer_email: formData.customerEmail,
-        customer_phone: formData.customerPhone,
-        start_date: formData.startDate,
-        end_date: formData.endDate,
-        hours: diffHours,
-        days: diffDays,
-        total_price: calculatePrice(),
-        status: "pending",
-        notes: formData.notes,
-      });
-
-      if (bookingError) throw bookingError;
-
-      // Send notification email
-      await supabase.functions.invoke("send-notifications", {
-        body: {
-          type: "rental",
-          to: formData.customerEmail,
-          data: {
-            customerName: formData.customerName,
-            carName: car.name,
-            carMake: car.make,
-            carModel: car.model,
-            startDate: formData.startDate,
-            endDate: formData.endDate,
-            totalPrice: calculatePrice(),
-          },
-        },
-      });
-
-      toast({
-        title: "Booking Submitted!",
-        description: "Your rental booking has been submitted. We'll confirm shortly.",
-      });
-
-      navigate("/customer/bookings");
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   if (loading) return <LoadingScreen />;
   if (!car) return <div>Car not found</div>;
 
   const allImages = [...(car.main_images || []), ...(car.additional_images || [])];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-4">
-        <Button onClick={() => navigate(-1)} variant="ghost">
-          <ArrowLeft className="mr-2" /> Back to Rentals
-        </Button>
-        
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/catalogue")}
-            className="font-semibold"
-          >
-            CATALOGUE
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/trade-in-submission")}
-            className="font-semibold"
-          >
-            TRADE IN
-          </Button>
+    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
+      {/* Background Overlays */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+      </div>
+
+      {/* Professional Marquee - Institutional Branding */}
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30 shadow-2xl">
+        <div className="flex whitespace-nowrap animate-marquee-professional">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                Asset Inspection
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Globe className="h-3 w-3 text-brand-red" />
+                Logistics Audit
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <Clock className="h-3 w-3 text-brand-red" />
+                Real-time Deployment
+              </span>
+              <span className="mx-12 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck className="h-3 w-3 text-brand-red" />
+                Unit Verification
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Car Images */}
-        <div>
-          {allImages.length > 0 ? (
-            <Carousel className="w-full">
-              <CarouselContent>
-                {allImages.map((image, index) => (
-                  <CarouselItem key={index}>
-                    <div className="aspect-video relative overflow-hidden rounded-lg">
-                      <img
-                        src={image}
-                        alt={`${car.name} - Image ${index + 1}`}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-          ) : (
-            <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-              <Car className="h-24 w-24 text-muted-foreground" />
-            </div>
-          )}
+      <style>{`
+        @keyframes marquee-professional {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-professional {
+          animation: marquee-professional 40s linear infinite;
+        }
+        @keyframes arrow-move-horizontal {
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(8px); }
+        }
+        .animate-arrow-move {
+          animation: arrow-move-horizontal 1.5s infinite ease-in-out;
+        }
+      `}</style>
 
-          {/* Car Details */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Vehicle Specifications</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h2 className="text-2xl font-bold mb-2">{car.name}</h2>
-                <p className="text-muted-foreground">{car.description}</p>
-              </div>
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+          <Button onClick={() => navigate(-1)} variant="ghost" className="text-[10px] font-black uppercase tracking-widest hover:bg-secondary">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Logistics Hub
+          </Button>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Make</p>
-                  <p className="font-semibold">{car.make}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Model</p>
-                  <p className="font-semibold">{car.model}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Year</p>
-                  <p className="font-semibold">{car.year}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Color</p>
-                  <p className="font-semibold">{car.color || "N/A"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Transmission</p>
-                  <p className="font-semibold">{car.transmission || "N/A"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Fuel Type</p>
-                  <p className="font-semibold">{car.fuel_type || "N/A"}</p>
-                </div>
-                {car.mileage && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Mileage</p>
-                    <p className="font-semibold">{car.mileage}</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="pt-4 border-t">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Per Hour</span>
-                    <span className="text-2xl font-bold">
-                      KES {car.price_per_hour.toLocaleString()}
-                    </span>
-                  </div>
-                  {car.price_per_day && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Per Day</span>
-                      <span className="text-2xl font-bold">
-                        KES {car.price_per_day.toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/catalogue")}
+              className="text-[10px] font-black uppercase tracking-widest h-10 px-6 border-border hover:bg-secondary"
+            >
+              Inventory Hub
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/trade-in")}
+              className="text-[10px] font-black uppercase tracking-widest h-10 px-6 border-border hover:bg-secondary"
+            >
+              Trade-In Portal
+            </Button>
+          </div>
         </div>
 
-        {/* Booking Form */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Book This Vehicle</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
+          {/* Car Images & Specs */}
+          <div className="space-y-8">
+            <div className="glass-strong p-4 rounded-xl border border-border shadow-2xl overflow-hidden group">
+              {allImages.length > 0 ? (
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {allImages.map((image, index) => (
+                      <CarouselItem key={index}>
+                        <div className="aspect-video relative overflow-hidden rounded-lg">
+                          <img
+                            src={image}
+                            alt={`${car.name} - Asset Image ${index + 1}`}
+                            className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-4" />
+                  <CarouselNext className="right-4" />
+                </Carousel>
+              ) : (
+                <div className="aspect-video bg-secondary/20 rounded-lg flex items-center justify-center border border-dashed border-border">
+                  <Car className="h-24 w-24 text-muted-foreground opacity-20" />
+                </div>
+              )}
+            </div>
+
+            {/* Asset Description */}
+            <Card className="glass-strong border-border shadow-xl">
+              <CardHeader className="border-b border-border/50">
+                <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em]">Asset Specifications</CardTitle>
+              </CardHeader>
+              <CardContent className="p-8 space-y-8">
                 <div>
-                  <Label htmlFor="customerName">Full Name *</Label>
-                  <Input
-                    id="customerName"
-                    value={formData.customerName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, customerName: e.target.value })
-                    }
-                    required
-                  />
+                  <h2 className="text-3xl font-black tracking-tighter uppercase italic text-foreground mb-4">
+                    {car.name} <span className="text-brand-red ml-2">[{car.year}]</span>
+                  </h2>
+                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed font-bold uppercase tracking-widest border-l-4 border-brand-red pl-6">
+                    {car.description}
+                  </p>
                 </div>
 
-                <div>
-                  <Label htmlFor="customerEmail">Email *</Label>
-                  <Input
-                    id="customerEmail"
-                    type="email"
-                    value={formData.customerEmail}
-                    onChange={(e) =>
-                      setFormData({ ...formData, customerEmail: e.target.value })
-                    }
-                    required
-                  />
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-4">
+                  {[
+                    { label: "Manufacturer", val: car.make, icon: ShieldCheck },
+                    { label: "Series", val: car.model, icon: Globe },
+                    { label: "Odometer", val: car.mileage || "N/A", icon: Gauge },
+                    { label: "Transmission", val: car.transmission || "N/A", icon: Activity },
+                    { label: "Fuel System", val: car.fuel_type || "N/A", icon: Zap },
+                    { label: "Exterior", val: car.color || "N/A", icon: Navigation }
+                  ].map((spec, i) => (
+                    <div key={i} className="space-y-1.5">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <spec.icon className="h-3.5 w-3.5 text-brand-red" />
+                        <p className="text-[8px] font-black uppercase tracking-widest">{spec.label}</p>
+                      </div>
+                      <p className="text-[11px] font-black uppercase tracking-tight text-foreground">{spec.val}</p>
+                    </div>
+                  ))}
                 </div>
 
-                <div>
-                  <Label htmlFor="customerPhone">Phone *</Label>
-                  <Input
-                    id="customerPhone"
-                    type="tel"
-                    value={formData.customerPhone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, customerPhone: e.target.value })
-                    }
-                    required
-                  />
+                <div className="pt-8 border-t border-border/50">
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Hourly Rate</p>
+                      <p className="text-2xl font-black text-foreground tracking-tighter">
+                        KES {car.price_per_hour.toLocaleString()}
+                      </p>
+                    </div>
+                    {car.price_per_day && (
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-black text-primary uppercase tracking-widest">Daily Rate</p>
+                        <p className="text-2xl font-black text-primary tracking-tighter">
+                          KES {car.price_per_day.toLocaleString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
 
-                <div>
-                  <Label htmlFor="startDate">Start Date & Time *</Label>
-                  <Input
-                    id="startDate"
-                    type="datetime-local"
-                    value={formData.startDate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, startDate: e.target.value })
-                    }
-                    required
-                  />
+          {/* Action Terminal */}
+          <div className="lg:sticky lg:top-24 h-fit">
+            <Card className="glass-strong border-border shadow-2xl overflow-hidden relative">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--brand-red)/0.05),transparent_50%)]" />
+              <CardHeader className="bg-primary/5 border-b border-border/50 p-8">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded bg-brand-red/10 flex items-center justify-center">
+                    <ExternalLink className="h-5 w-5 text-brand-red" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm font-black uppercase tracking-widest">Logistics Portal</CardTitle>
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Institutional Dispatch Access</p>
+                  </div>
                 </div>
-
-                <div>
-                  <Label htmlFor="endDate">End Date & Time *</Label>
-                  <Input
-                    id="endDate"
-                    type="datetime-local"
-                    value={formData.endDate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, endDate: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="notes">Additional Notes</Label>
-                  <Textarea
-                    id="notes"
-                    value={formData.notes}
-                    onChange={(e) =>
-                      setFormData({ ...formData, notes: e.target.value })
-                    }
-                    rows={3}
-                  />
-                </div>
-
-                {formData.startDate && formData.endDate && (
-                  <div className="p-4 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Estimated Total</p>
-                    <p className="text-2xl font-bold">
-                      KES {calculatePrice().toLocaleString()}
+              </CardHeader>
+              <CardContent className="p-8 space-y-8 relative z-10">
+                <div className="space-y-6">
+                  <div className="p-6 rounded-lg bg-secondary/5 border border-border/50 space-y-4">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                       <Clock className="h-3.5 w-3.5 text-brand-red" />
+                       Operational Status: Available
+                    </h4>
+                    <p className="text-[10px] font-bold text-muted-foreground leading-relaxed uppercase tracking-wider">
+                       To initiate a professional reservation or inquire about technical fleet logistics, please transition to our specialized corporate logistics terminal.
                     </p>
                   </div>
-                )}
+                </div>
 
-                <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? "Submitting..." : "Submit Booking Request"}
-                </Button>
+                <div className="space-y-4">
+                  <Button
+                    className="w-full h-16 bg-brand-red hover:bg-brand-red/90 text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-xl rounded-md group"
+                    onClick={() => window.open("https://www.justicecorporatelogistics.co.ke", "_blank")}
+                  >
+                    Read More
+                    <ArrowRight className="ml-3 h-5 w-5 animate-arrow-move" />
+                  </Button>
 
-                <p className="text-xs text-muted-foreground text-center">
-                  Your booking will be reviewed and confirmed by our team
-                </p>
-              </form>
-            </CardContent>
-          </Card>
+                  <div className="pt-4 flex flex-col items-center gap-3">
+                    <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em]">Official Connection</p>
+                    <div className="flex gap-4">
+                       <div className="h-1.5 w-1.5 bg-brand-red rounded-full animate-pulse" />
+                       <div className="h-1.5 w-1.5 bg-brand-red rounded-full animate-pulse delay-75" />
+                       <div className="h-1.5 w-1.5 bg-brand-red rounded-full animate-pulse delay-150" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="mt-8 bg-secondary/5 border border-border p-6 rounded-lg text-center">
+               <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-relaxed">
+                  Notice: All rentals are governed by the Justice Corporate Logistics standard framework and KeNHA regulatory standards.
+               </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

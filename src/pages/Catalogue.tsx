@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2, ShieldCheck, Trophy, Bike } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2, ShieldCheck, Trophy, Bike, Key } from "lucide-react";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -275,7 +275,7 @@ const Catalogue = () => {
             <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
               Browse our institutional collection of verified Japanese and European automotive assets. <br className="hidden md:block" /> Every unit is subjected to a rigorous 150-point mechanical and legal audit before listing.
             </p>
-            <div className="flex justify-center gap-3 pt-2">
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
               <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider" onClick={() => navigate("/asset-finance")}>
                 Financing Deck
               </Button>
@@ -285,6 +285,10 @@ const Catalogue = () => {
               <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider gap-2 group" onClick={() => navigate("/motorbikes")}>
                 Motorcycle
                 <Bike className="h-4 w-4 text-brand-red animate-bike-move" />
+              </Button>
+              <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider gap-2" onClick={() => navigate("/rentals")}>
+                Rent Now
+                <Key className="h-3.5 w-3.5 text-brand-red" />
               </Button>
             </div>
           </div>

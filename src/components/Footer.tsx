@@ -240,6 +240,45 @@ const Footer = () => {
         </div>
       </div>
 
+      {/* Our Companies Hub - Glassmorphism Integration */}
+      <div className="bg-background py-6 border-t border-border/50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent opacity-30" />
+        <div className="container mx-auto px-4 relative z-10 flex justify-center">
+          <div className="glass-strong p-4 px-8 rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center gap-4 transition-all hover:border-brand-red/20 group">
+             <div className="flex items-center gap-3">
+                <div className="h-[1px] w-4 bg-muted-foreground/30" />
+                <h4 className="text-[9px] font-black uppercase tracking-[0.5em] text-muted-foreground/60 group-hover:text-brand-red transition-colors">Our Companies</h4>
+                <div className="h-[1px] w-4 bg-muted-foreground/30" />
+             </div>
+             <div className="flex items-center gap-12">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <a href="https://www.justiceautomotive.co.ke" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-all duration-500 filter grayscale hover:grayscale-0 opacity-60 hover:opacity-100">
+                       <img src="/companies/Justice Automotive Kenya.png" alt="Justice Automotive Kenya" className="h-8 md:h-10 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-[10px] uppercase font-bold">Justice Automotive Kenya</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <div className="h-8 w-[1px] bg-border/50 rotate-12" />
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <a href="https://www.justicecorporatelogistics.co.ke" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-all duration-500 filter grayscale hover:grayscale-0 opacity-60 hover:opacity-100">
+                       <img src="/companies/Justice Corporate Kenya.png" alt="Justice Corporate Logistics Kenya" className="h-8 md:h-10 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-[10px] uppercase font-bold">Justice Corporate Logistics Kenya</p>
+                  </TooltipContent>
+                </Tooltip>
+             </div>
+          </div>
+        </div>
+      </div>
+
       {/* Corporate Copyright Bar */}
       <div className="bg-background py-8 border-t border-border">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
