@@ -229,9 +229,11 @@ const Footer = () => {
               </div>
 
               <div className="flex flex-col items-center lg:items-end">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">Infrastructural Partner</p>
-                <a href="https://daniwesttechnologies.vercel.app" target="_blank" rel="noopener noreferrer" className="group">
-                   <p className="text-[11px] font-black text-foreground hover:text-brand-red transition-colors uppercase tracking-widest">Daniwest Tech Ltd</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1 italic flex items-center gap-1">
+                   <Globe className="h-2.5 w-2.5" /> Powered by Online World kenya
+                </p>
+                <a href="https://onlineworldkenya.vercel.app" target="_blank" rel="noopener noreferrer" className="group">
+                   <p className="text-[11px] font-black text-foreground hover:text-brand-red transition-colors uppercase tracking-widest italic">Online World Kenya</p>
                    <div className="h-0.5 w-0 group-hover:w-full bg-brand-red transition-all duration-500" />
                 </a>
               </div>

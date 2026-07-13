@@ -145,12 +145,12 @@ const AIChatPopup = ({ isOpen, onClose }: AIChatPopupProps) => {
 
            <div className="text-center pb-1">
               <a
-                href="https://daniwesttechnologies.vercel.app"
+                href="https://onlineworldkenya.vercel.app"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[7px] font-bold text-white/30 uppercase tracking-[0.2em] hover:text-brand-red transition-colors"
+                className="text-[7px] font-bold text-white/30 uppercase tracking-[0.2em] hover:text-brand-red transition-colors italic flex items-center justify-center gap-1"
               >
-                powered by Daniwest tech Ltd.
+                <Globe className="h-2 w-2" /> powered by Online World kenya
               </a>
            </div>
         </div>
