@@ -3,8 +3,6 @@ import Header from "./Header";
 import Footer from "./Footer";
 import MouseTracker from "./MouseTracker";
 import HolidayBanner from "./HolidayBanner";
-import WhatsAppFloat from "./WhatsAppFloat";
-import AIChatFloat from "./AIChatFloat";
 import { Snowfall } from "./SeasonalEffects";
 import { ShieldCheck, Globe, Trophy } from "lucide-react";
 import heroCar from "@/assets/hero-car.jpg";
@@ -43,8 +41,6 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
         <Footer />
       </div>
-      <WhatsAppFloat />
-      <AIChatFloat />
     </div>
   );
 };
