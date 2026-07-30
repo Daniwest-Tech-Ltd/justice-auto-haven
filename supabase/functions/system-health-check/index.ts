@@ -473,6 +473,18 @@ function generateSuggestions(data: any): string[] {
 
 async function createHealthNotification(supabase: any, status: string, healthData: any) {
   try {
+    // Only alert on hard outages, and at most once every 6 hours
+    if (status !== 'down') return;
+
+    const { data: recentAlert } = await supabase
+      .from('notifications')
+      .select('id')
+      .eq('type', 'system_alert')
+      .gte('created_at', new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString())
+      .limit(1);
+
+    if (recentAlert && recentAlert.length > 0) return;
+
     // Get all admins
     const { data: admins } = await supabase
       .from('user_roles')
@@ -480,6 +492,7 @@ async function createHealthNotification(supabase: any, status: string, healthDat
       .eq('role', 'admin');
 
     if (!admins || admins.length === 0) return;
+
 
     const problemAreas = [];
     if (healthData.auth.status !== 'healthy') problemAreas.push('Authentication');
