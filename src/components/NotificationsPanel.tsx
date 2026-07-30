@@ -40,19 +40,27 @@ const NotificationsPanel = () => {
     }
   }, [user]);
 
+  // Machine-generated noise we never want in the bell
+  const NOISE_TYPES = ["system_alert", "system", "health", "debug", "log"];
+
   const fetchNotifications = async () => {
     let query = supabase
       .from("notifications")
       .select("*")
       .eq("user_id", user?.id)
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(30);
 
     if (filter === "unread") {
       query = query.eq("is_read", false);
     } else if (filter !== "all") {
       query = query.eq("type", filter);
     }
+
+    if (filter === "all" || filter === "unread") {
+      query = query.not("type", "in", `(${NOISE_TYPES.join(",")})`);
+    }
+
 
     const { data, error } = await query;
 

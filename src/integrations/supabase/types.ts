@@ -5796,6 +5796,7 @@ export type Database = {
         Returns: boolean
       }
       can_user_login: { Args: { _user_id: string }; Returns: Json }
+      cleanup_old_system_data: { Args: never; Returns: Json }
       create_daily_attendance: {
         Args: { attendance_date?: string }
         Returns: number

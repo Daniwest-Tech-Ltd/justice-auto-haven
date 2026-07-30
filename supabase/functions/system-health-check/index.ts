@@ -355,22 +355,35 @@ async function checkSystemUptime(supabase: any) {
 }
 
 async function storeHealthMetrics(supabase: any, healthData: any) {
+  // Storage guard: only persist history when something is wrong, and at most
+  // once every 15 minutes. Healthy checks are reflected in `system_health` only.
+  if (healthData.overall_status === 'healthy') return;
+
+  const { data: recent } = await supabase
+    .from('system_health_logs')
+    .select('created_at')
+    .gte('created_at', new Date(Date.now() - 15 * 60 * 1000).toISOString())
+    .limit(1);
+
+  if (recent && recent.length > 0) return;
+
   const categories = ['auth', 'database', 'api', 'storage', 'cron', 'logs', 'security', 'uptime'];
 
-  for (const category of categories) {
-    const categoryData = healthData[category];
-    if (!categoryData) continue;
+  const unhealthy = categories.filter(
+    (c) => healthData[c] && healthData[c].status !== 'healthy'
+  );
 
-    // Store in system_health_metrics
+  for (const category of unhealthy) {
+    const categoryData = healthData[category];
+
     await supabase.from('system_health_metrics').insert({
       category,
       metric_name: 'health_check',
-      metric_value: categoryData.status === 'healthy' ? 100 : categoryData.status === 'degraded' ? 50 : 0,
+      metric_value: categoryData.status === 'degraded' ? 50 : 0,
       status: categoryData.status,
       details: categoryData,
     });
 
-    // Store in system_health_logs
     await supabase.from('system_health_logs').insert({
       status: categoryData.status,
       service_name: category,
@@ -380,15 +393,15 @@ async function storeHealthMetrics(supabase: any, healthData: any) {
     });
   }
 
-  // Log the health check
+  // Single summary log entry (not one per check)
   await supabase.from('system_logs').insert({
     type: 'system_health_check',
-    severity: healthData.overall_status === 'healthy' ? 'info' : healthData.overall_status === 'degraded' ? 'warning' : 'error',
-    message: `System health check completed: ${healthData.overall_status}`,
+    severity: healthData.overall_status === 'degraded' ? 'warning' : 'error',
+    message: `System health check: ${healthData.overall_status}`,
     metadata: {
       duration_ms: healthData.check_duration_ms,
       overall_status: healthData.overall_status,
-      suggestions: healthData.suggestions,
+      affected: unhealthy,
     },
   });
 }
@@ -460,6 +473,18 @@ function generateSuggestions(data: any): string[] {
 
 async function createHealthNotification(supabase: any, status: string, healthData: any) {
   try {
+    // Only alert on hard outages, and at most once every 6 hours
+    if (status !== 'down') return;
+
+    const { data: recentAlert } = await supabase
+      .from('notifications')
+      .select('id')
+      .eq('type', 'system_alert')
+      .gte('created_at', new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString())
+      .limit(1);
+
+    if (recentAlert && recentAlert.length > 0) return;
+
     // Get all admins
     const { data: admins } = await supabase
       .from('user_roles')
@@ -467,6 +492,7 @@ async function createHealthNotification(supabase: any, status: string, healthDat
       .eq('role', 'admin');
 
     if (!admins || admins.length === 0) return;
+
 
     const problemAreas = [];
     if (healthData.auth.status !== 'healthy') problemAreas.push('Authentication');
