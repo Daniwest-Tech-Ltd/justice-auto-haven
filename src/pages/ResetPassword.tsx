@@ -71,60 +71,97 @@ const ResetPassword = () => {
       }
     });
 
-    // Check for recovery tokens in URL (before Supabase consumes them)
+    // Establish a session from the recovery tokens in the URL
     const checkRecoveryTokens = async () => {
-      // Check hash fragment
       const hash = window.location.hash;
-      const hashParams = new URLSearchParams(hash.substring(1));
-      const hashType = hashParams.get("type");
-      const hashAccessToken = hashParams.get("access_token");
-      
-      // Check query params
+      const hashParams = new URLSearchParams(hash.replace(/^#/, ""));
       const searchParams = new URLSearchParams(window.location.search);
-      const queryType = searchParams.get("type");
-      const queryAccessToken = searchParams.get("access_token");
-      
-      console.log("URL check - hash:", hash);
-      console.log("URL check - hashType:", hashType, "hashAccessToken:", !!hashAccessToken);
-      console.log("URL check - queryType:", queryType, "queryAccessToken:", !!queryAccessToken);
-      
-      // If we have recovery tokens, set reset mode
-      if (hashType === "recovery" || hashAccessToken || queryType === "recovery" || queryAccessToken) {
-        console.log("Recovery tokens found in URL");
-        if (isMounted) {
-          setIsResetMode(true);
-          setIsLoading(false);
-        }
+
+      const accessToken = hashParams.get("access_token") || searchParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token") || searchParams.get("refresh_token");
+      const type = hashParams.get("type") || searchParams.get("type");
+      const code = searchParams.get("code");
+      const errorDescription = hashParams.get("error_description") || searchParams.get("error_description");
+
+      if (errorDescription) {
+        toast({
+          title: "Reset link invalid",
+          description: errorDescription,
+          variant: "destructive",
+        });
+        if (isMounted) setIsLoading(false);
         return;
       }
-      
-      // Check if user has an active session (tokens might have been consumed)
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      console.log("Session check - session exists:", !!session, "error:", error?.message);
-      
-      if (session && isMounted) {
-        // User has a session - check if this looks like a recovery flow
-        // The hash being just "#" or empty after tokens were consumed indicates recovery
-        if (hash === "#" || hash === "" || window.location.href.includes('reset-password')) {
-          console.log("Session found on reset-password page - likely recovery flow");
-          setIsResetMode(true);
+
+      // 1) Implicit recovery link (#access_token=...&type=recovery)
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        // Strip tokens from the URL so they aren't reused/leaked
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        if (!isMounted) return;
+
+        if (error) {
+          console.error("setSession failed:", error);
+          toast({
+            title: "Reset link expired",
+            description: "This password reset link is no longer valid. Please request a new one.",
+            variant: "destructive",
+          });
           setIsLoading(false);
           return;
         }
-      }
-      
-      // No recovery indicators found - show forgot password form
-      if (isMounted) {
-        console.log("No recovery indicators - showing forgot password form");
+
+        setIsResetMode(true);
         setIsLoading(false);
+        return;
       }
+
+      // 2) PKCE recovery link (?code=...)
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        if (!isMounted) return;
+
+        if (error) {
+          console.error("exchangeCodeForSession failed:", error);
+          toast({
+            title: "Reset link expired",
+            description: "This password reset link is no longer valid. Please request a new one.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        setIsResetMode(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // 3) Tokens already consumed by the client — fall back to existing session
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!isMounted) return;
+
+      if (session && (type === "recovery" || hash === "#" || hash === "")) {
+        setIsResetMode(true);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(false);
     };
 
-    // Small delay to let Supabase process any tokens first
     const timeoutId = setTimeout(() => {
       checkRecoveryTokens();
-    }, 100);
+    }, 0);
+
 
     return () => {
       isMounted = false;
