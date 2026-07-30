@@ -232,9 +232,15 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Your reset link has expired. Please request a new password reset email.");
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: newPassword,
       });
+
 
       if (error) throw error;
 
