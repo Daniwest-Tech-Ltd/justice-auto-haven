@@ -39,10 +39,10 @@ const SystemHealth = () => {
     fetchHealthData();
     fetchSystemLogs();
     
-    // Auto-refresh every 30 seconds
+    // Auto-refresh every 10 minutes (avoids flooding the health log tables)
     const interval = setInterval(() => {
       fetchHealthData();
-    }, 30000);
+    }, 10 * 60 * 1000);
 
     // Set up realtime subscription for health updates
     const channel = supabase
