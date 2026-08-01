@@ -34,7 +34,7 @@ const HeroSlider = () => {
           <img
             src={img}
             alt={`Slide ${index + 1}`}
-            className="w-full h-full object-cover object-center grayscale-[20%] contrast-[1.1] brightness-[0.45]"
+            className="w-full h-full object-cover object-center grayscale-[10%] contrast-[1.2] brightness-[0.55]"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
         </div>

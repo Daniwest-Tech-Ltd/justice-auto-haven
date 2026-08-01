@@ -132,6 +132,9 @@ const CompanyDocuments = lazyWithRetry(() => import("./pages/CompanyDocuments"))
 const MotorbikeCatalogue = lazyWithRetry(() => import("./pages/MotorbikeCatalogue"));
 const MotorbikeManagement = lazyWithRetry(() => import("./pages/MotorbikeManagement"));
 const MotorbikeDetails = lazyWithRetry(() => import("./pages/MotorbikeDetails"));
+const Support = lazyWithRetry(() => import("./pages/Support"));
+const HelpCenter = lazyWithRetry(() => import("./pages/HelpCenter"));
+const BookAppointment = lazyWithRetry(() => import("./pages/BookAppointment"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -346,6 +349,9 @@ const AppContent = () => {
           <Route path="/faqs" element={<Layout><FAQs /></Layout>} />
           <Route path="/compliance-hub" element={<Layout><ComplianceHub /></Layout>} />
           <Route path="/help-support" element={<Layout><HelpSupport /></Layout>} />
+          <Route path="/support" element={<Layout><Support /></Layout>} />
+          <Route path="/help-center" element={<Layout><HelpCenter /></Layout>} />
+          <Route path="/appoint" element={<Layout><BookAppointment /></Layout>} />
           <Route path="/rental-booking" element={<Layout><RentalBooking /></Layout>} />
           <Route path="/rentals" element={<Layout><RentalCatalogue /></Layout>} />
           <Route path="/rental-catalogue" element={<Layout><RentalCatalogue /></Layout>} />

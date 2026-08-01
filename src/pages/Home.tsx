@@ -112,6 +112,19 @@ const Home = () => {
         .animate-marquee-professional {
           animation: marquee-professional 40s linear infinite;
         }
+        @keyframes image-flash {
+          0% { opacity: 1; filter: brightness(1); }
+          50% { opacity: 0.9; filter: brightness(1.5); }
+          100% { opacity: 1; filter: brightness(1); }
+        }
+        .group:hover .animate-flash {
+          animation: image-flash 0.6s ease-in-out;
+        }
+        .glass-clear {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(4px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
       `}</style>
 
       {/* Hero Showcase - Executive Minimalist */}
@@ -122,38 +135,38 @@ const Home = () => {
           <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-8 fade-in duration-1000">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-brand-red/30 bg-brand-red/10 backdrop-blur-md text-brand-red font-mono text-[9px] font-black tracking-[0.3em] uppercase mx-auto">
               <span className="h-2 w-2 rounded-full bg-brand-red animate-pulse" />
-              Operational Exchange Desk: {sale.year}
+              Our Inventory: {sale.year}
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-2xl md:text-4xl font-black tracking-tight leading-tight text-white uppercase whitespace-nowrap">
-                Executive <span className="text-brand-red drop-shadow-[0_0_20px_rgba(239,68,68,0.4)]">Automotive.</span>
+              <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-tight text-white uppercase whitespace-nowrap drop-shadow-lg">
+                Your Trusted <span className="text-brand-red drop-shadow-[0_0_30px_rgba(239,68,68,0.6)]">Automotive Partner.</span>
               </h1>
-              <p className="text-[9px] md:text-[10px] text-white/80 font-bold max-w-2xl mx-auto leading-loose uppercase tracking-[0.1em]">
-                Authorized procurement hub for Japanese and European inventory. We facilitate verified asset acquisition, 90% institutional financing, and nationwide logistical fulfillment.
+              <p className="text-[10px] md:text-[11px] text-white font-black max-w-2xl mx-auto leading-loose uppercase tracking-[0.2em] drop-shadow-md">
+                We are your number one choice for Japanese and European car imports. We make car buying easy with up to 90% financing and reliable delivery across Kenya.
               </p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-4 pt-4">
               <Button size="lg" className="rounded-md px-12 h-16 bg-brand-red hover:bg-brand-red/90 text-white font-black text-[11px] uppercase tracking-[0.3em] transition-all btn-signal shadow-2xl" onClick={() => navigate("/catalogue")}>
-                <span className="flex items-center gap-2">Scan Inventory <ArrowRight className="h-4 w-4" /></span>
+                <span className="flex items-center gap-2">Browse All Cars <ArrowRight className="h-4 w-4" /></span>
               </Button>
               <Button size="lg" variant="outline" className="rounded-md px-12 h-16 border-white/20 hover:border-brand-red/50 text-white font-black text-[11px] uppercase tracking-[0.3em] glass-strong btn-signal shadow-2xl" onClick={() => navigate("/asset-finance")}>
-                <span>Financing Desk</span>
+                <span>Car Loans</span>
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Asset Audit Module (Search) */}
+      {/* Asset Search Module */}
       <section className="relative z-20 -mt-12">
         <div className="container mx-auto px-4">
           <div className="bg-white border border-slate-200 p-4 shadow-xl flex flex-col md:flex-row gap-4 items-stretch rounded-xl backdrop-blur-sm">
             <div className="flex-1 relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-red" />
               <Input
-                placeholder="Asset Query: VIN, Manufacturer or Model Codes..."
+                placeholder="Search by car name, make or model..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-14 pl-12 rounded-lg bg-slate-50 border-slate-200 focus:border-brand-red/50 focus:ring-brand-red/20 transition-all text-[12px] font-bold uppercase tracking-widest text-slate-900"
@@ -163,7 +176,7 @@ const Home = () => {
             <div className="w-full md:w-72">
               <Select value={selectedBrand} onValueChange={setSelectedBrand}>
                 <SelectTrigger className="h-14 rounded-lg bg-slate-50 border-slate-200 text-[11px] font-black uppercase tracking-widest text-slate-700">
-                  <SelectValue placeholder="Filtered by Brand" />
+                  <SelectValue placeholder="Search by Brand" />
                 </SelectTrigger>
                 <SelectContent className="border-slate-200 bg-white">
                   {brands.map((brand) => (
@@ -174,7 +187,7 @@ const Home = () => {
             </div>
 
             <Button onClick={handleSearch} size="lg" className="h-14 px-12 rounded-lg bg-slate-900 hover:bg-brand-red transition-all duration-300 text-[11px] font-black uppercase tracking-[0.3em] shadow-lg hover:shadow-brand-red/20 text-white">
-              Execute Sourcing Audit
+              Search Now
             </Button>
           </div>
         </div>
@@ -185,8 +198,8 @@ const Home = () => {
         <section className="py-24 bg-white" aria-label="Asset Inventory">
           <div className="container mx-auto px-4">
             <div className="flex flex-col items-center gap-4 mb-16 text-center">
-              <p className="text-[11px] font-black uppercase tracking-[0.6em] text-brand-red">Active Operational Ledger</p>
-              <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 uppercase leading-none italic">Strategic Asset Deployment</h2>
+              <p className="text-[11px] font-black uppercase tracking-[0.6em] text-brand-red">Available Inventory</p>
+              <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 uppercase leading-none italic">Our Latest Cars</h2>
               <div className="h-1.5 w-24 bg-brand-red mt-4 rounded-full" />
             </div>
 
@@ -200,8 +213,9 @@ const Home = () => {
                     onClick={() => navigate(`/car/${car.id}`)}
                   >
                     <div className="aspect-[16/10] overflow-hidden relative">
-                      <img src={imageUrl || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.9] group-hover:brightness-100" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
+                      <img src={imageUrl || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.95] group-hover:brightness-110 animate-flash" />
+                      <div className="absolute inset-0 glass-clear opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-10 transition-opacity" />
                       <div className="absolute top-4 right-4">
                          <Badge className="bg-brand-red text-white text-[9px] font-black uppercase rounded-md py-1.5 px-3 border-none shadow-lg tracking-widest">In Stock</Badge>
                       </div>
@@ -218,11 +232,11 @@ const Home = () => {
 
                       <div className="grid grid-cols-3 gap-3 border-y border-slate-200 py-4 mb-4">
                         <div className="text-center space-y-1">
-                          <p className="text-[9px] font-black text-slate-400 uppercase">Series</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase">Year</p>
                           <p className="text-[11px] font-black text-slate-700">{car.year}</p>
                         </div>
                         <div className="text-center border-x border-slate-200 space-y-1">
-                          <p className="text-[9px] font-black text-slate-400 uppercase px-1">Drive</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase px-1">Type</p>
                           <p className="text-[11px] font-black text-slate-700 uppercase">{car.transmission?.slice(0, 3) || 'AWD'}</p>
                         </div>
                         <div className="text-center space-y-1">
@@ -235,7 +249,7 @@ const Home = () => {
                         <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                            <div className="h-full bg-brand-red w-full scale-x-[0.3] group-hover:scale-x-100 transition-transform origin-left duration-1000" />
                         </div>
-                        <p className="text-[9px] font-black text-slate-500 uppercase mt-3 tracking-widest group-hover:text-slate-900 transition-colors">Verified Technical Audit</p>
+                        <p className="text-[9px] font-black text-slate-500 uppercase mt-3 tracking-widest group-hover:text-slate-900 transition-colors">Fully Inspected</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -245,7 +259,7 @@ const Home = () => {
 
             <div className="mt-20 text-center">
                <Button variant="outline" className="border-slate-200 text-slate-900 font-black text-[11px] uppercase tracking-[0.4em] h-16 px-14 rounded-xl hover:bg-slate-900 hover:text-white transition-all shadow-lg hover:shadow-xl" onClick={() => navigate("/catalogue")}>
-                  Access Inventory Terminal <ArrowRight className="ml-3 h-5 w-5" />
+                  View Our Cars <ArrowRight className="ml-3 h-5 w-5" />
                </Button>
             </div>
           </div>
@@ -259,14 +273,14 @@ const Home = () => {
             <div className="space-y-12">
               <div className="space-y-6">
                 <Badge className="bg-brand-red text-white px-5 py-1.5 text-[11px] font-black tracking-[0.3em] uppercase rounded-md border-none shadow-lg">
-                   Financial Logistics
+                   Easy Financing
                 </Badge>
                 <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9] text-slate-900 uppercase italic">
-                  Capital <br />
-                  <span className="text-brand-red">Solutions.</span>
+                  Car Loans & <br />
+                  <span className="text-brand-red">Finance.</span>
                 </h2>
                 <p className="text-[11px] md:text-xs text-slate-500 leading-relaxed max-w-lg font-bold border-l-4 border-brand-red pl-8 uppercase tracking-widest">
-                  Tier-1 banking integration providing aggressive 90% asset funding. Streamlined 48-hour approval cycles for validated corporate profiles and salaried entities.
+                  Get up to 90% car financing through our banking partners. Fast 48-hour approval for employees and business owners.
                 </p>
               </div>
 
@@ -276,8 +290,8 @@ const Home = () => {
                     <Users className="h-7 w-7 text-slate-900 group-hover:text-white" />
                   </div>
                   <div>
-                    <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-900 mb-2">Salaried Stream</h4>
-                    <p className="text-[10px] text-slate-400 leading-relaxed font-bold uppercase tracking-tight">Accelerated 90% funding for employees with 3 payslip dispatch.</p>
+                    <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-900 mb-2">For Employees</h4>
+                    <p className="text-[10px] text-slate-400 leading-relaxed font-bold uppercase tracking-tight">Get up to 90% financing with just your last 3 months' payslips.</p>
                   </div>
                 </Card>
                 <Card className="bg-white border-slate-200 p-8 space-y-5 hover:border-brand-red/30 transition-all group rounded-xl shadow-md hover:shadow-xl">
@@ -285,14 +299,14 @@ const Home = () => {
                     <Briefcase className="h-7 w-7 text-slate-900 group-hover:text-white" />
                   </div>
                   <div>
-                    <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-900 mb-2">Corporate Scaling</h4>
-                    <p className="text-[10px] text-slate-400 leading-relaxed font-bold uppercase tracking-tight">Business unit acquisition with customized repayment schedules.</p>
+                    <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-900 mb-2">For Businesses</h4>
+                    <p className="text-[10px] text-slate-400 leading-relaxed font-bold uppercase tracking-tight">Expand your fleet with flexible payment plans for your business.</p>
                   </div>
                 </Card>
               </div>
 
               <Button className="rounded-xl px-16 h-18 bg-slate-900 hover:bg-brand-red text-white font-black text-[12px] uppercase tracking-[0.4em] shadow-2xl transition-all duration-500" onClick={() => navigate("/asset-finance")}>
-                Initialize Funding Protocol
+                Apply for Financing
               </Button>
             </div>
 
@@ -301,11 +315,11 @@ const Home = () => {
                  <div className="aspect-[4/3] relative overflow-hidden bg-primary/20">
                     <img src={specialOffer} alt="Financial Showcase" className="w-full h-full object-cover opacity-80" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-10 text-center bg-black/60">
-                       <p className="text-[10px] font-black tracking-[0.6em] text-brand-red uppercase mb-4 animate-pulse">Market Opportunity</p>
-                       <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-6">Q1 Interest Caps</h3>
-                       <p className="text-[9px] text-white/70 font-bold uppercase tracking-widest mb-10 max-w-xs leading-relaxed">Lowest historical rates secured for 2026 operations. Active for limited verified units.</p>
+                       <p className="text-[10px] font-black tracking-[0.6em] text-brand-red uppercase mb-4 animate-pulse">Special Offer</p>
+                       <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-6">Low Interest Rates</h3>
+                       <p className="text-[9px] text-white/70 font-bold uppercase tracking-widest mb-10 max-w-xs leading-relaxed">Enjoy the best interest rates for 2026. Available for select cars.</p>
                        <Button size="lg" className="bg-brand-red hover:bg-brand-red/80 rounded-sm px-12 h-14 font-black uppercase text-[10px] tracking-[0.2em] shadow-xl">
-                          Request Asset Deck
+                          Get More Info
                        </Button>
                     </div>
                  </div>
@@ -330,17 +344,18 @@ const Home = () => {
               <div className="absolute inset-0 z-0 bg-slate-50">
                  <img
                    src={promo1Flipped ? "/home/thome.png" : "/home/fhome.png"}
-                   alt="Institutional Finance"
-                   className="w-full h-full object-contain transition-all duration-700 ease-in-out"
+                   alt="Car Financing"
+                   className="w-full h-full object-contain transition-all duration-700 ease-in-out animate-flash"
                  />
-                 <div className="absolute inset-0 bg-slate-900/5 group-hover:bg-slate-900/20 transition-colors duration-500" />
+                 <div className="absolute inset-0 glass-clear opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                 <div className="absolute inset-0 bg-slate-900/5 group-hover:bg-slate-900/10 transition-colors duration-500" />
               </div>
 
-              {/* Dynamic HUD Message */}
+              {/* Dynamic Message */}
               <div className="absolute inset-0 z-20 flex items-center justify-start pointer-events-none pl-12">
                  <div className="bg-brand-red text-white px-8 py-4 transform -translate-x-[120%] group-hover:translate-x-0 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-2xl border-l-8 border-slate-900">
                     <p className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter whitespace-nowrap overflow-hidden">
-                       We offer 90% asset financing
+                       We offer 90% car financing
                     </p>
                  </div>
               </div>
@@ -348,10 +363,10 @@ const Home = () => {
               <div className="relative z-10 h-full flex flex-col justify-end p-10 space-y-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-red/20 border border-brand-red/30 text-[10px] font-black uppercase tracking-widest text-brand-red backdrop-blur-md w-fit">
                   <CreditCard className="h-4 w-4" />
-                  Finance Protocol Active
+                  Car Financing
                 </div>
                 <h3 className="text-3xl font-black uppercase tracking-tighter italic text-white leading-none">
-                  High-Fidelity <span className="text-brand-red">Capital.</span>
+                  Easy <span className="text-brand-red">Funding.</span>
                 </h3>
               </div>
 
@@ -369,17 +384,18 @@ const Home = () => {
               <div className="absolute inset-0 z-0 bg-slate-50">
                  <img
                    src={promo2Flipped ? "/home/fhome.png" : "/home/thome.png"}
-                   alt="Asset Exchange"
-                   className="w-full h-full object-contain transition-all duration-700 ease-in-out"
+                   alt="Car Trade-In"
+                   className="w-full h-full object-contain transition-all duration-700 ease-in-out animate-flash"
                  />
-                 <div className="absolute inset-0 bg-slate-900/5 group-hover:bg-slate-900/20 transition-colors duration-500" />
+                 <div className="absolute inset-0 glass-clear opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                 <div className="absolute inset-0 bg-slate-900/5 group-hover:bg-slate-900/10 transition-colors duration-500" />
               </div>
 
-              {/* Dynamic HUD Message */}
+              {/* Dynamic Message */}
               <div className="absolute inset-0 z-20 flex items-center justify-start pointer-events-none pl-12">
                  <div className="bg-slate-900 text-white px-8 py-4 transform -translate-x-[120%] group-hover:translate-x-0 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-2xl border-l-8 border-brand-red">
                     <p className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter whitespace-nowrap overflow-hidden">
-                       Aggressive Trade-In Valuations
+                       Exchange Your Car Today
                     </p>
                  </div>
               </div>
@@ -387,7 +403,7 @@ const Home = () => {
               <div className="relative z-10 h-full flex flex-col justify-end p-10 space-y-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-900 backdrop-blur-md w-fit">
                   <RefreshCw className="h-4 w-4" />
-                  Inventory Exchange Hub
+                  Car Trade-In
                 </div>
                 <h3 className="text-3xl font-black uppercase tracking-tighter italic text-white leading-none">
                   Seamless <span className="text-brand-red">Exchange.</span>
@@ -406,8 +422,8 @@ const Home = () => {
       <section className="py-32 relative bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-24">
-            <p className="text-[11px] font-black uppercase tracking-[0.8em] text-brand-red">Operational Standards</p>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 uppercase italic">Executive Advisory</h2>
+            <p className="text-[11px] font-black uppercase tracking-[0.8em] text-brand-red">Our Services</p>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 uppercase italic">Expert Support</h2>
             <div className="h-2 w-40 bg-brand-red mx-auto mt-6 rounded-full" />
           </div>
 
@@ -415,18 +431,18 @@ const Home = () => {
             {[
               {
                 icon: Headphones,
-                title: "Asset Advisory",
-                desc: "1-on-1 technical consultation for high-value fleet acquisition and unit selection."
+                title: "Expert Advice",
+                desc: "Get professional advice on choosing the best car for your needs."
               },
               {
                 icon: ShieldCheck,
-                title: "Quality Audit",
-                desc: "Unified 7-day mechanical verification protocol following nationwide dispatch."
+                title: "Quality Check",
+                desc: "We provide a 7-day mechanical guarantee on all delivered cars."
               },
               {
                 icon: Clock,
-                title: "Logistics Engine",
-                desc: "Nationwide inventory fulfillment within 48-72 business hours via secure carriers."
+                title: "Fast Delivery",
+                desc: "Get your car delivered anywhere in Kenya within 48 to 72 hours."
               }
             ].map((item, i) => (
               <Card key={i} className="bg-slate-50 border-slate-200 p-12 hover:bg-white transition-all hover:border-brand-red/30 rounded-xl flex flex-col items-center text-center shadow-md hover:shadow-2xl group">
@@ -442,10 +458,10 @@ const Home = () => {
           {/* Business KPI Dashboard - High Speed Style */}
           <div className="mt-32 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 border border-slate-200 bg-white p-0 overflow-hidden rounded-2xl max-w-7xl mx-auto shadow-2xl">
             {[
-              { val: "5.2K", label: "Validated Units" },
-              { val: "4.9/5", label: "Client Equity" },
-              { val: "100%", label: "VIN Authenticity" },
-              { val: "47", label: "County Hubs" }
+              { val: "5.2K", label: "Cars Sold" },
+              { val: "4.9/5", label: "Happy Customers" },
+              { val: "100%", label: "Verified Cars" },
+              { val: "47", label: "Service Locations" }
             ].map((stat, i) => (
               <div key={i} className="text-center py-16 first:border-l-0 border-l border-slate-100 group hover:bg-slate-900 transition-all duration-700">
                 <p className="text-4xl md:text-5xl font-black font-mono tracking-tighter text-slate-900 mb-3 group-hover:text-white">{stat.val}</p>
@@ -456,20 +472,42 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Customer Support Quick Link */}
+      <section className="py-24 bg-white border-t border-slate-100">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-200 shadow-xl">
+            <div className="space-y-4 text-center md:text-left">
+              <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tighter italic">Professional <span className="text-brand-red">Support.</span></h3>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest leading-relaxed max-w-md">
+                Need assistance with your automotive inquiry? Our executive support desk is operational and ready to assist.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <Button className="bg-slate-900 text-white h-14 px-10 rounded-xl text-[10px] font-black uppercase tracking-widest" onClick={() => navigate("/support")}>
+                Access Support Terminal
+              </Button>
+              <Button variant="outline" className="border-slate-200 h-14 px-10 rounded-xl text-[10px] font-black uppercase tracking-widest" onClick={() => navigate("/help-center")}>
+                Help Center
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Action Footer Call - Direct Business Lead */}
       <section className="py-24 bg-slate-900 relative border-t-4 border-brand-red">
         <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-center text-center lg:text-left gap-16">
           <div className="space-y-6">
-             <p className="text-[12px] font-black uppercase tracking-[0.8em] text-brand-red">Initiate Protocol</p>
-             <h4 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-none uppercase italic">Establish <br /> <span className="text-white/30">Direct Contact.</span></h4>
+             <p className="text-[12px] font-black uppercase tracking-[0.8em] text-brand-red drop-shadow-sm">Get in Touch</p>
+             <h4 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-none uppercase italic drop-shadow-lg">Contact <br /> <span className="text-white/40">Us Today.</span></h4>
           </div>
           <div className="flex flex-col gap-4 w-full md:w-auto items-center lg:items-start">
              <Button size="lg" className="rounded-md h-20 px-20 bg-white text-primary hover:bg-brand-red hover:text-white font-black text-[12px] uppercase tracking-[0.4em] transition-all shadow-2xl border-none" onClick={() => navigate("/contact")}>
-                <span>Open technical dispatch</span>
+                <span>Talk to our Team</span>
              </Button>
              <div className="flex items-center gap-2 text-[10px] font-black text-white/50 uppercase tracking-[0.4em]">
                 <Activity className="h-3 w-3 animate-pulse text-brand-red" />
-                Response latency: Average 12 minutes
+                Average response time: 12 minutes
              </div>
           </div>
         </div>

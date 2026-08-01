@@ -197,7 +197,9 @@ const Footer = () => {
               {[
                 { label: "Terms of Engagement", path: "/terms" },
                 { label: "Data Privacy", path: "/privacy" },
-                { label: "Cookie Policy", path: "/cookies" },
+                { label: "Support Terminal", path: "/support" },
+                { label: "Help Center", path: "/help-center" },
+                { label: "Book Appointment", path: "/appoint" },
                 { label: "Compliance Hub", path: "/compliance-hub" },
                 { label: "Technical FAQs", path: "/faqs" }
               ].map((item) => (
