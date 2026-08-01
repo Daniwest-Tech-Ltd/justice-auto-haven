@@ -345,6 +345,21 @@ const CarDetails = () => {
                         status: "order_placed"
                       });
                       if (error) throw error;
+                      // Notify + email admins
+                      supabase.functions.invoke("notify-admin-alert", {
+                        body: {
+                          kind: "order",
+                          title: `New Order — ${car.year} ${car.make} ${car.model}`,
+                          message: `A customer placed an order for the ${car.year} ${car.make} ${car.model}.`,
+                          details: {
+                            vehicle: `${car.year} ${car.make} ${car.model}`,
+                            price: `KES ${Number(car.price).toLocaleString()}`,
+                            color: car.color || "-",
+                            customer_email: user.email || "-",
+                            status: "order_placed",
+                          },
+                        },
+                      }).catch(() => {});
                       // Log tracking
                       toast({ title: "✅ Order Placed!", description: "Your order has been submitted. Track it from My Orders." });
                       navigate("/my-orders");

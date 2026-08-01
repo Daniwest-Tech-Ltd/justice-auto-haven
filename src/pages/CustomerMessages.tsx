@@ -110,13 +110,19 @@ const CustomerMessages = () => {
     });
 
     if (!error) {
-      // Create notification for admin
-      await supabase.from("notifications").insert({
-        user_id: adminData.user_id,
-        title: "New Message",
-        message: `New message from customer: ${newMessage.subject}`,
-        type: "message",
-      });
+      // Notify + email admins
+      supabase.functions.invoke("notify-admin-alert", {
+        body: {
+          kind: "message",
+          title: `New Message — ${newMessage.subject}`,
+          message: newMessage.message,
+          details: {
+            subject: newMessage.subject,
+            customer_email: user.email || "-",
+          },
+        },
+      }).catch(() => {});
+
 
       toast({
         title: "Success",

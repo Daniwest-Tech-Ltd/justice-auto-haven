@@ -58,28 +58,23 @@ export const OrderSubmissionModal = ({ open, onOpenChange, car }: OrderSubmissio
 
       if (error) throw error;
 
-      // Send notification to admin
-      const { data: adminProfiles } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .in("user_id", 
-          await supabase.from("user_roles")
-            .select("user_id")
-            .eq("role", "admin")
-            .then(res => res.data?.map(r => r.user_id) || [])
-        );
-
-      if (adminProfiles && adminProfiles.length > 0) {
-        await supabase.from("notifications").insert(
-          adminProfiles.map(profile => ({
-            user_id: profile.user_id,
-            type: "order",
-            title: "New VIP Order",
-            message: `${formData.full_name} placed an order for ${car.make} ${car.model}`,
-            metadata: { car_id: car.id, order_type: "whitelist", payment_method: formData.payment_method },
-          }))
-        );
-      }
+      // Notify + email admins (in-app notification + email handled server-side)
+      supabase.functions.invoke("notify-admin-alert", {
+        body: {
+          kind: "order",
+          title: `New VIP Order — ${car.make} ${car.model}`,
+          message: `${formData.full_name} placed a VIP order for the ${car.year} ${car.make} ${car.model}.`,
+          details: {
+            customer: formData.full_name,
+            phone: formData.phone,
+            email: formData.email,
+            preferred_contact: formData.contact_method,
+            payment_method: formData.payment_method,
+            vehicle: `${car.year} ${car.make} ${car.model}`,
+            price: `KES ${Number(car.price).toLocaleString()}`,
+          },
+        },
+      }).catch(() => {});
 
       // If payment method is Pesapal, show payment modal
       if (formData.payment_method === "pesapal") {
