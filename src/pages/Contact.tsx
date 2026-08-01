@@ -36,21 +36,20 @@ const Contact = () => {
 
       if (error) throw error;
 
-      const { data: adminData } = await supabase
-        .from("user_roles")
-        .select("user_id")
-        .eq("role", "admin")
-        .limit(1)
-        .single();
-
-      if (adminData) {
-        await supabase.from("notifications").insert({
-          user_id: adminData.user_id,
-          title: "New Contact Submission",
-          message: `${formData.name} sent a message: ${formData.subject}`,
-          type: "contact",
-        });
-      }
+      // Notify + email admins
+      supabase.functions.invoke("notify-admin-alert", {
+        body: {
+          kind: "message",
+          title: `New Contact Message — ${formData.subject}`,
+          message: formData.message,
+          details: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone || "-",
+            subject: formData.subject,
+          },
+        },
+      }).catch(() => {});
 
       toast({ title: "Message Sent!", description: "We'll get back to you as soon as possible." });
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
