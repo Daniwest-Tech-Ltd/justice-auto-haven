@@ -71,11 +71,11 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white overflow-x-hidden font-sans antialiased">
-      {/* HUD-Style Layout Overlays */}
+    <div className="min-h-screen bg-slate-50 selection:bg-brand-red selection:text-white overflow-x-hidden font-sans antialiased text-slate-900">
+      {/* Background Overlays - Subtle & Official */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
-        <div className="absolute inset-0 opacity-[0.015] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(200,210,255,0.15),transparent_70%)]" />
+        <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
       </div>
 
       {/* Professional Marquee - Institutional Branding */}
@@ -115,7 +115,7 @@ const Home = () => {
       `}</style>
 
       {/* Hero Showcase - Executive Minimalist */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-white/5 py-20">
+      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-slate-200 py-20 bg-slate-900">
         <HeroSlider />
 
         <div className="container mx-auto px-4 relative z-10 text-center">
@@ -147,34 +147,34 @@ const Home = () => {
       </section>
 
       {/* Asset Audit Module (Search) */}
-      <section className="relative z-20 -mt-10">
+      <section className="relative z-20 -mt-12">
         <div className="container mx-auto px-4">
-          <div className="bg-card border border-border p-3 shadow-2xl flex flex-col md:flex-row gap-3 items-stretch rounded-md">
+          <div className="bg-white border border-slate-200 p-4 shadow-xl flex flex-col md:flex-row gap-4 items-stretch rounded-xl backdrop-blur-sm">
             <div className="flex-1 relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-red" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-red" />
               <Input
                 placeholder="Asset Query: VIN, Manufacturer or Model Codes..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-14 pl-12 rounded-sm bg-background border-border focus:border-brand-red/50 transition-all text-[11px] font-bold uppercase tracking-widest"
+                className="h-14 pl-12 rounded-lg bg-slate-50 border-slate-200 focus:border-brand-red/50 focus:ring-brand-red/20 transition-all text-[12px] font-bold uppercase tracking-widest text-slate-900"
               />
             </div>
 
-            <div className="w-full md:w-64">
+            <div className="w-full md:w-72">
               <Select value={selectedBrand} onValueChange={setSelectedBrand}>
-                <SelectTrigger className="h-14 rounded-sm bg-background border-border text-[10px] font-black uppercase tracking-widest">
-                  <SelectValue placeholder="Brand Filter" />
+                <SelectTrigger className="h-14 rounded-lg bg-slate-50 border-slate-200 text-[11px] font-black uppercase tracking-widest text-slate-700">
+                  <SelectValue placeholder="Filtered by Brand" />
                 </SelectTrigger>
-                <SelectContent className="border-border bg-background">
+                <SelectContent className="border-slate-200 bg-white">
                   {brands.map((brand) => (
-                    <SelectItem key={brand.id} value={brand.name} className="text-[10px] uppercase font-black">{brand.name}</SelectItem>
+                    <SelectItem key={brand.id} value={brand.name} className="text-[11px] uppercase font-black">{brand.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <Button onClick={handleSearch} size="lg" className="h-14 px-12 rounded-sm bg-primary hover:bg-brand-red transition-colors text-[10px] font-black uppercase tracking-[0.3em]">
-              Execute Audit
+            <Button onClick={handleSearch} size="lg" className="h-14 px-12 rounded-lg bg-slate-900 hover:bg-brand-red transition-all duration-300 text-[11px] font-black uppercase tracking-[0.3em] shadow-lg hover:shadow-brand-red/20 text-white">
+              Execute Sourcing Audit
             </Button>
           </div>
         </div>
@@ -182,60 +182,60 @@ const Home = () => {
 
       {/* Current Assets - MICRO BUSINESS TILES */}
       {featuredCars.length > 0 && (
-        <section className="py-24" aria-label="Asset Inventory">
+        <section className="py-24 bg-white" aria-label="Asset Inventory">
           <div className="container mx-auto px-4">
             <div className="flex flex-col items-center gap-4 mb-16 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] text-brand-red">Active Inventory</p>
-              <h2 className="text-xl md:text-3xl font-black tracking-tighter text-white uppercase leading-none">Strategic Units</h2>
-              <div className="h-1 w-20 bg-brand-red mt-2" />
+              <p className="text-[11px] font-black uppercase tracking-[0.6em] text-brand-red">Active Operational Ledger</p>
+              <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 uppercase leading-none italic">Strategic Asset Deployment</h2>
+              <div className="h-1.5 w-24 bg-brand-red mt-4 rounded-full" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {featuredCars.map((car) => {
                 const imageUrl = getImageUrl(car.images);
                 return (
                   <Card
                     key={car.id} 
-                    className="group relative bg-background border-border hover:border-brand-red/40 transition-all duration-300 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-md"
+                    className="group relative bg-slate-50 border-slate-200 hover:border-brand-red/40 transition-all duration-500 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-xl border-b-4 hover:border-b-brand-red"
                     onClick={() => navigate(`/car/${car.id}`)}
                   >
                     <div className="aspect-[16/10] overflow-hidden relative">
-                      <img src={imageUrl || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                      <div className="absolute top-3 right-3">
-                         <Badge className="bg-brand-red text-white text-[8px] font-black uppercase rounded-sm py-1 px-2 border-none">Available</Badge>
+                      <img src={imageUrl || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.9] group-hover:brightness-100" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
+                      <div className="absolute top-4 right-4">
+                         <Badge className="bg-brand-red text-white text-[9px] font-black uppercase rounded-md py-1.5 px-3 border-none shadow-lg tracking-widest">In Stock</Badge>
                       </div>
                     </div>
 
-                    <CardContent className="p-5 flex flex-col flex-1">
+                    <CardContent className="p-6 flex flex-col flex-1">
                       <div className="mb-4">
                         <div className="flex justify-between items-start gap-2">
-                           <h3 className="text-xs font-black uppercase tracking-widest text-white group-hover:text-brand-red transition-colors line-clamp-1">{car.make} {car.model}</h3>
-                           <ArrowUpRight className="h-3 w-3 text-muted-foreground group-hover:text-brand-red group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                           <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 group-hover:text-brand-red transition-colors line-clamp-1">{car.make} {car.model}</h3>
+                           <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-brand-red group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                         </div>
-                        <p className="text-base font-black text-white tracking-tighter mt-1">KSh {car.price?.toLocaleString()}</p>
+                        <p className="text-lg font-black text-slate-900 tracking-tighter mt-1">KSh {car.price?.toLocaleString()}</p>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 border-y border-border py-3 mb-4">
+                      <div className="grid grid-cols-3 gap-3 border-y border-slate-200 py-4 mb-4">
                         <div className="text-center space-y-1">
-                          <p className="text-[8px] font-black text-muted-foreground uppercase">Model</p>
-                          <p className="text-[10px] font-black text-white">{car.year}</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase">Series</p>
+                          <p className="text-[11px] font-black text-slate-700">{car.year}</p>
                         </div>
-                        <div className="text-center border-x border-border space-y-1">
-                          <p className="text-[8px] font-black text-muted-foreground uppercase px-1">Drive</p>
-                          <p className="text-[10px] font-black text-white uppercase">{car.transmission?.slice(0, 3) || 'AWD'}</p>
+                        <div className="text-center border-x border-slate-200 space-y-1">
+                          <p className="text-[9px] font-black text-slate-400 uppercase px-1">Drive</p>
+                          <p className="text-[11px] font-black text-slate-700 uppercase">{car.transmission?.slice(0, 3) || 'AWD'}</p>
                         </div>
                         <div className="text-center space-y-1">
-                          <p className="text-[8px] font-black text-muted-foreground uppercase">Fuel</p>
-                          <p className="text-[10px] font-black text-white uppercase">{car.fuel_type?.slice(0, 3) || 'PET'}</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase">Fuel</p>
+                          <p className="text-[11px] font-black text-slate-700 uppercase">{car.fuel_type?.slice(0, 3) || 'PET'}</p>
                         </div>
                       </div>
 
                       <div className="mt-auto">
-                        <div className="w-full h-1 bg-secondary rounded-full overflow-hidden">
-                           <div className="h-full bg-brand-red w-full scale-x-[0.2] group-hover:scale-x-100 transition-transform origin-left duration-700" />
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                           <div className="h-full bg-brand-red w-full scale-x-[0.3] group-hover:scale-x-100 transition-transform origin-left duration-1000" />
                         </div>
-                        <p className="text-[8px] font-bold text-muted-foreground uppercase mt-2 tracking-widest group-hover:text-white transition-colors">Technical Verification Active</p>
+                        <p className="text-[9px] font-black text-slate-500 uppercase mt-3 tracking-widest group-hover:text-slate-900 transition-colors">Verified Technical Audit</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -243,9 +243,9 @@ const Home = () => {
               })}
             </div>
 
-            <div className="mt-16 text-center">
-               <Button variant="outline" className="border-border text-white font-black text-[10px] uppercase tracking-[0.4em] h-14 px-12 rounded-md hover:bg-white hover:text-primary transition-all" onClick={() => navigate("/catalogue")}>
-                  Full Operations Ledger <ArrowRight className="ml-2 h-4 w-4" />
+            <div className="mt-20 text-center">
+               <Button variant="outline" className="border-slate-200 text-slate-900 font-black text-[11px] uppercase tracking-[0.4em] h-16 px-14 rounded-xl hover:bg-slate-900 hover:text-white transition-all shadow-lg hover:shadow-xl" onClick={() => navigate("/catalogue")}>
+                  Access Inventory Terminal <ArrowRight className="ml-3 h-5 w-5" />
                </Button>
             </div>
           </div>
@@ -253,45 +253,45 @@ const Home = () => {
       )}
 
       {/* Financial Sourcing - Institutional Style */}
-      <section className="py-24 bg-secondary/10 border-y border-border relative">
+      <section className="py-32 bg-slate-50 border-y border-slate-200 relative overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
             <div className="space-y-12">
               <div className="space-y-6">
-                <Badge className="bg-brand-red text-white px-4 py-1 text-[10px] font-black tracking-[0.2em] uppercase rounded-sm border-none">
+                <Badge className="bg-brand-red text-white px-5 py-1.5 text-[11px] font-black tracking-[0.3em] uppercase rounded-md border-none shadow-lg">
                    Financial Logistics
                 </Badge>
-                <h2 className="text-3xl md:text-5xl font-black tracking-tighter leading-[0.8] text-white uppercase">
+                <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9] text-slate-900 uppercase italic">
                   Capital <br />
                   <span className="text-brand-red">Solutions.</span>
                 </h2>
-                <p className="text-[10px] md:text-xs text-muted-foreground leading-relaxed max-w-lg font-bold border-l-4 border-brand-red pl-6 uppercase tracking-[0.05em]">
+                <p className="text-[11px] md:text-xs text-slate-500 leading-relaxed max-w-lg font-bold border-l-4 border-brand-red pl-8 uppercase tracking-widest">
                   Tier-1 banking integration providing aggressive 90% asset funding. Streamlined 48-hour approval cycles for validated corporate profiles and salaried entities.
                 </p>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-6">
-                <Card className="bg-background/50 border-border p-6 space-y-4 hover:border-brand-red/30 transition-all group rounded-md">
-                  <div className="h-12 w-12 bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-brand-red group-hover:border-brand-red transition-all duration-500 rounded-sm">
-                    <Users className="h-6 w-6 text-primary group-hover:text-white" />
+              <div className="grid sm:grid-cols-2 gap-8">
+                <Card className="bg-white border-slate-200 p-8 space-y-5 hover:border-brand-red/30 transition-all group rounded-xl shadow-md hover:shadow-xl">
+                  <div className="h-14 w-14 bg-slate-100 border border-slate-200 flex items-center justify-center group-hover:bg-brand-red group-hover:border-brand-red transition-all duration-500 rounded-lg">
+                    <Users className="h-7 w-7 text-slate-900 group-hover:text-white" />
                   </div>
                   <div>
-                    <h4 className="text-[11px] font-black uppercase tracking-widest text-white mb-2">Salaried Stream</h4>
-                    <p className="text-[9px] text-muted-foreground leading-relaxed font-bold uppercase tracking-tight">Accelerated 90% funding for employees with 3 payslip dispatch.</p>
+                    <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-900 mb-2">Salaried Stream</h4>
+                    <p className="text-[10px] text-slate-400 leading-relaxed font-bold uppercase tracking-tight">Accelerated 90% funding for employees with 3 payslip dispatch.</p>
                   </div>
                 </Card>
-                <Card className="bg-background/50 border-border p-6 space-y-4 hover:border-brand-red/30 transition-all group rounded-md">
-                  <div className="h-12 w-12 bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-brand-red group-hover:border-brand-red transition-all duration-500 rounded-sm">
-                    <Briefcase className="h-6 w-6 text-primary group-hover:text-white" />
+                <Card className="bg-white border-slate-200 p-8 space-y-5 hover:border-brand-red/30 transition-all group rounded-xl shadow-md hover:shadow-xl">
+                  <div className="h-14 w-14 bg-slate-100 border border-slate-200 flex items-center justify-center group-hover:bg-brand-red group-hover:border-brand-red transition-all duration-500 rounded-lg">
+                    <Briefcase className="h-7 w-7 text-slate-900 group-hover:text-white" />
                   </div>
                   <div>
-                    <h4 className="text-[11px] font-black uppercase tracking-widest text-white mb-2">Corporate Scaling</h4>
-                    <p className="text-[9px] text-muted-foreground leading-relaxed font-bold uppercase tracking-tight">Business unit acquisition with customized repayment schedules.</p>
+                    <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-900 mb-2">Corporate Scaling</h4>
+                    <p className="text-[10px] text-slate-400 leading-relaxed font-bold uppercase tracking-tight">Business unit acquisition with customized repayment schedules.</p>
                   </div>
                 </Card>
               </div>
 
-              <Button className="rounded-md px-14 h-16 bg-brand-red hover:bg-brand-red/90 text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-2xl" onClick={() => navigate("/asset-finance")}>
+              <Button className="rounded-xl px-16 h-18 bg-slate-900 hover:bg-brand-red text-white font-black text-[12px] uppercase tracking-[0.4em] shadow-2xl transition-all duration-500" onClick={() => navigate("/asset-finance")}>
                 Initialize Funding Protocol
               </Button>
             </div>
@@ -323,95 +323,95 @@ const Home = () => {
           <div className="grid md:grid-cols-2 gap-8 max-w-7xl mx-auto">
             {/* Promo 1: Finance Focus */}
             <div
-              className="group relative aspect-video overflow-hidden rounded-xl border-2 border-border bg-black shadow-2xl cursor-pointer"
+              className="group relative aspect-video overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-2xl cursor-pointer"
               onMouseEnter={() => setPromo1Flipped(!promo1Flipped)}
               onClick={() => navigate("/asset-finance")}
             >
-              <div className="absolute inset-0 z-0">
+              <div className="absolute inset-0 z-0 bg-slate-50">
                  <img
                    src={promo1Flipped ? "/home/thome.png" : "/home/fhome.png"}
                    alt="Institutional Finance"
                    className="w-full h-full object-contain transition-all duration-700 ease-in-out"
                  />
-                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500" />
+                 <div className="absolute inset-0 bg-slate-900/5 group-hover:bg-slate-900/20 transition-colors duration-500" />
               </div>
 
               {/* Dynamic HUD Message */}
               <div className="absolute inset-0 z-20 flex items-center justify-start pointer-events-none pl-12">
-                 <div className="bg-brand-red text-white px-6 py-3 transform -translate-x-[120%] group-hover:translate-x-0 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-2xl border-l-4 border-white">
-                    <p className="text-xl md:text-2xl font-black uppercase italic tracking-tighter whitespace-nowrap overflow-hidden">
+                 <div className="bg-brand-red text-white px-8 py-4 transform -translate-x-[120%] group-hover:translate-x-0 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-2xl border-l-8 border-slate-900">
+                    <p className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter whitespace-nowrap overflow-hidden">
                        We offer 90% asset financing
                     </p>
                  </div>
               </div>
 
-              <div className="relative z-10 h-full flex flex-col justify-end p-8 space-y-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-black/80 via-transparent to-transparent">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-red/20 border border-brand-red/30 text-[9px] font-black uppercase tracking-widest text-brand-red backdrop-blur-md w-fit">
-                  <CreditCard className="h-3 w-3" />
+              <div className="relative z-10 h-full flex flex-col justify-end p-10 space-y-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-red/20 border border-brand-red/30 text-[10px] font-black uppercase tracking-widest text-brand-red backdrop-blur-md w-fit">
+                  <CreditCard className="h-4 w-4" />
                   Finance Protocol Active
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic text-white leading-none">
+                <h3 className="text-3xl font-black uppercase tracking-tighter italic text-white leading-none">
                   High-Fidelity <span className="text-brand-red">Capital.</span>
                 </h3>
               </div>
 
               {/* Animated Corner Brackets */}
-              <div className="absolute top-6 right-6 h-10 w-10 border-t-2 border-r-2 border-brand-red/40 group-hover:border-brand-red transition-colors duration-500" />
-              <div className="absolute bottom-6 left-6 h-10 w-10 border-b-2 border-l-2 border-brand-red/40 group-hover:border-brand-red transition-colors duration-500" />
+              <div className="absolute top-8 right-8 h-12 w-12 border-t-4 border-r-4 border-slate-200 group-hover:border-brand-red transition-all duration-500" />
+              <div className="absolute bottom-8 left-8 h-12 w-12 border-b-4 border-l-4 border-slate-200 group-hover:border-brand-red transition-all duration-500" />
             </div>
 
             {/* Promo 2: Trade-In Focus */}
             <div
-              className="group relative aspect-video overflow-hidden rounded-xl border-2 border-border bg-black shadow-2xl cursor-pointer"
+              className="group relative aspect-video overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-2xl cursor-pointer"
               onMouseEnter={() => setPromo2Flipped(!promo2Flipped)}
               onClick={() => navigate("/trade-in")}
             >
-              <div className="absolute inset-0 z-0">
+              <div className="absolute inset-0 z-0 bg-slate-50">
                  <img
                    src={promo2Flipped ? "/home/fhome.png" : "/home/thome.png"}
                    alt="Asset Exchange"
                    className="w-full h-full object-contain transition-all duration-700 ease-in-out"
                  />
-                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500" />
+                 <div className="absolute inset-0 bg-slate-900/5 group-hover:bg-slate-900/20 transition-colors duration-500" />
               </div>
 
               {/* Dynamic HUD Message */}
               <div className="absolute inset-0 z-20 flex items-center justify-start pointer-events-none pl-12">
-                 <div className="bg-primary text-white px-6 py-3 transform -translate-x-[120%] group-hover:translate-x-0 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-2xl border-l-4 border-white">
-                    <p className="text-xl md:text-2xl font-black uppercase italic tracking-tighter whitespace-nowrap overflow-hidden">
+                 <div className="bg-slate-900 text-white px-8 py-4 transform -translate-x-[120%] group-hover:translate-x-0 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-2xl border-l-8 border-brand-red">
+                    <p className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter whitespace-nowrap overflow-hidden">
                        Aggressive Trade-In Valuations
                     </p>
                  </div>
               </div>
 
-              <div className="relative z-10 h-full flex flex-col justify-end p-8 space-y-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-black/80 via-transparent to-transparent">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-[9px] font-black uppercase tracking-widest text-primary backdrop-blur-md w-fit">
-                  <RefreshCw className="h-3 w-3" />
+              <div className="relative z-10 h-full flex flex-col justify-end p-10 space-y-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-900 backdrop-blur-md w-fit">
+                  <RefreshCw className="h-4 w-4" />
                   Inventory Exchange Hub
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic text-white leading-none">
+                <h3 className="text-3xl font-black uppercase tracking-tighter italic text-white leading-none">
                   Seamless <span className="text-brand-red">Exchange.</span>
                 </h3>
               </div>
 
               {/* Animated Corner Brackets */}
-              <div className="absolute top-6 right-6 h-10 w-10 border-t-2 border-r-2 border-primary/40 group-hover:border-primary transition-colors duration-500" />
-              <div className="absolute bottom-6 left-6 h-10 w-10 border-b-2 border-l-2 border-primary/40 group-hover:border-primary transition-colors duration-500" />
+              <div className="absolute top-8 right-8 h-12 w-12 border-t-4 border-r-4 border-slate-200 group-hover:border-slate-900 transition-all duration-500" />
+              <div className="absolute bottom-8 left-8 h-12 w-12 border-b-4 border-l-4 border-slate-200 group-hover:border-slate-900 transition-all duration-500" />
             </div>
           </div>
         </div>
       </section>
 
       {/* Advisory & Support - High Density */}
-      <section className="py-24 relative">
+      <section className="py-32 relative bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center space-y-4 mb-20">
-            <p className="text-[10px] font-black uppercase tracking-[0.8em] text-brand-red">Operational Standards</p>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white uppercase">Executive Advisory</h2>
-            <div className="h-1.5 w-32 bg-brand-red mx-auto mt-4" />
+          <div className="text-center space-y-4 mb-24">
+            <p className="text-[11px] font-black uppercase tracking-[0.8em] text-brand-red">Operational Standards</p>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 uppercase italic">Executive Advisory</h2>
+            <div className="h-2 w-40 bg-brand-red mx-auto mt-6 rounded-full" />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-10 max-w-7xl mx-auto">
             {[
               {
                 icon: Headphones,
@@ -429,27 +429,27 @@ const Home = () => {
                 desc: "Nationwide inventory fulfillment within 48-72 business hours via secure carriers."
               }
             ].map((item, i) => (
-              <Card key={i} className="bg-background border-border p-12 hover:bg-secondary/5 transition-all hover:border-brand-red/30 rounded-md flex flex-col items-center text-center">
-                <div className="h-16 w-16 bg-primary/10 border border-primary/20 flex items-center justify-center mb-8 rounded-sm group-hover:bg-brand-red transition-all">
-                  <item.icon className="h-8 w-8 text-primary" />
+              <Card key={i} className="bg-slate-50 border-slate-200 p-12 hover:bg-white transition-all hover:border-brand-red/30 rounded-xl flex flex-col items-center text-center shadow-md hover:shadow-2xl group">
+                <div className="h-20 w-20 bg-slate-100 border border-slate-200 flex items-center justify-center mb-10 rounded-xl group-hover:bg-brand-red transition-all duration-500 shadow-inner">
+                  <item.icon className="h-10 w-10 text-slate-900 group-hover:text-white transition-colors" />
                 </div>
-                <h3 className="text-sm font-black tracking-[0.3em] uppercase text-white mb-6">{item.title}</h3>
-                <p className="text-[11px] text-muted-foreground leading-relaxed font-bold uppercase tracking-widest">{item.desc}</p>
+                <h3 className="text-sm font-black tracking-[0.4em] uppercase text-slate-900 mb-8">{item.title}</h3>
+                <p className="text-[12px] text-slate-500 leading-relaxed font-bold uppercase tracking-widest">{item.desc}</p>
               </Card>
             ))}
           </div>
 
           {/* Business KPI Dashboard - High Speed Style */}
-          <div className="mt-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 border border-border bg-card p-0 overflow-hidden rounded-md max-w-6xl mx-auto shadow-2xl">
+          <div className="mt-32 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 border border-slate-200 bg-white p-0 overflow-hidden rounded-2xl max-w-7xl mx-auto shadow-2xl">
             {[
               { val: "5.2K", label: "Validated Units" },
               { val: "4.9/5", label: "Client Equity" },
               { val: "100%", label: "VIN Authenticity" },
               { val: "47", label: "County Hubs" }
             ].map((stat, i) => (
-              <div key={i} className="text-center py-12 first:border-l-0 border-l border-border group hover:bg-primary transition-all duration-500">
-                <p className="text-3xl md:text-4xl font-black font-mono tracking-tighter text-white mb-2">{stat.val}</p>
-                <p className="text-[10px] uppercase font-black text-muted-foreground tracking-[0.4em] group-hover:text-white/80 transition-colors">{stat.label}</p>
+              <div key={i} className="text-center py-16 first:border-l-0 border-l border-slate-100 group hover:bg-slate-900 transition-all duration-700">
+                <p className="text-4xl md:text-5xl font-black font-mono tracking-tighter text-slate-900 mb-3 group-hover:text-white">{stat.val}</p>
+                <p className="text-[11px] uppercase font-black text-slate-400 tracking-[0.5em] group-hover:text-white/60 transition-colors">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -457,11 +457,11 @@ const Home = () => {
       </section>
 
       {/* Action Footer Call - Direct Business Lead */}
-      <section className="py-24 bg-primary relative border-t-2 border-brand-red">
+      <section className="py-24 bg-slate-900 relative border-t-4 border-brand-red">
         <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-center text-center lg:text-left gap-16">
           <div className="space-y-6">
-             <p className="text-[11px] font-black uppercase tracking-[1em] text-brand-red">Initiate Protocol</p>
-             <h4 className="text-3xl md:text-4xl font-black tracking-tight text-white leading-none uppercase">Establish <br /> <span className="text-white/40">Direct Contact.</span></h4>
+             <p className="text-[12px] font-black uppercase tracking-[0.8em] text-brand-red">Initiate Protocol</p>
+             <h4 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-none uppercase italic">Establish <br /> <span className="text-white/30">Direct Contact.</span></h4>
           </div>
           <div className="flex flex-col gap-4 w-full md:w-auto items-center lg:items-start">
              <Button size="lg" className="rounded-md h-20 px-20 bg-white text-primary hover:bg-brand-red hover:text-white font-black text-[12px] uppercase tracking-[0.4em] transition-all shadow-2xl border-none" onClick={() => navigate("/contact")}>
