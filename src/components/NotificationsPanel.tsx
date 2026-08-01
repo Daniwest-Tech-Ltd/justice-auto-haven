@@ -40,6 +40,13 @@ const NotificationsPanel = () => {
     }
   }, [user]);
 
+  // Refetch when the filter changes
+  useEffect(() => {
+    if (user) fetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
+
+
   // Machine-generated noise we never want in the bell
   const NOISE_TYPES = ["system_alert", "system", "health", "debug", "log"];
 
@@ -124,6 +131,8 @@ const NotificationsPanel = () => {
               <SelectContent>
                 <SelectItem value="all">All Notifications</SelectItem>
                 <SelectItem value="unread">Unread Only</SelectItem>
+                <SelectItem value="order">Orders</SelectItem>
+                <SelectItem value="message">Messages</SelectItem>
                 <SelectItem value="info">Info</SelectItem>
                 <SelectItem value="success">Success</SelectItem>
                 <SelectItem value="warning">Warning</SelectItem>

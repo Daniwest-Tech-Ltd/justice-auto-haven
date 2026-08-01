@@ -98,3 +98,6 @@ verify_jwt = false
 
 [functions.send-apology-and-april-offer]
 verify_jwt = false
+
+[functions.notify-admin-alert]
+verify_jwt = false
