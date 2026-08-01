@@ -40,6 +40,13 @@ const NotificationsPanel = () => {
     }
   }, [user]);
 
+  // Refetch when the filter changes
+  useEffect(() => {
+    if (user) fetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
+
+
   // Machine-generated noise we never want in the bell
   const NOISE_TYPES = ["system_alert", "system", "health", "debug", "log"];
 
