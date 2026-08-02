@@ -1,8 +1,18 @@
 # Justice Ultimate Automobiles - Dual Database Mirror Script
-# This script performs a full structural and data mirror from Supabase (Primary) to Neon (Secondary)
+# SECURITY: This script NO LONGER contains hardcoded credentials.
+# It expects the following Environment Variables to be set in your system or local session:
+# $env:SUPABASE_DB_URL  (Primary Supabase Connection String)
+# $env:NEON_DB_URL      (Secondary Neon Connection String)
 
-$SupabaseConn = "postgresql://postgres.ccsfhblxkmyqdqqcgitt:%40Justice%2426!Bac@aws-1-us-west-1.pooler.supabase.com:6543/postgres"
-$NeonConn = "postgresql://neondb_owner:npg_tXVWfuM0vDK7@ep-super-violet-aymja3fh-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require"
+$SupabaseConn = $env:SUPABASE_DB_URL
+$NeonConn = $env:NEON_DB_URL
+
+if (-not $SupabaseConn -or -not $NeonConn) {
+    Write-Host "ERROR: Missing environment variables SUPABASE_DB_URL or NEON_DB_URL." -ForegroundColor Red
+    Write-Host "Please set them before running this script for security." -ForegroundColor Yellow
+    exit 1
+}
+
 $BackupPath = "C:\backups\justice_full_sync_$(Get-Date -Format 'yyyyMMdd_HHmmss').dump"
 
 # Ensure backup directory exists
@@ -11,7 +21,7 @@ if (!(Test-Path "C:\backups")) {
 }
 
 Write-Host "--------------------------------------------------" -ForegroundColor Cyan
-Write-Host " JUSTICE ULTIMATE - DATABASE SYNC PROTOCOL ACTIVE " -ForegroundColor Cyan
+Write-Host " JUSTICE ULTIMATE - SECURE SYNC PROTOCOL ACTIVE   " -ForegroundColor Cyan
 Write-Host "--------------------------------------------------" -ForegroundColor Cyan
 
 # 1. Dump from Supabase

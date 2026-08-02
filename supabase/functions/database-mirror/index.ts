@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { postgres } from "https://deno.land/x/postgres@v0.17.0/mod.ts"
 
-const NEON_CONNECTION_STRING = "postgresql://neondb_owner:npg_tXVWfuM0vDK7@ep-super-violet-aymja3fh-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require"
+const NEON_CONNECTION_STRING = Deno.env.get('NEON_DATABASE_URL')!
 
 serve(async (req) => {
   try {
