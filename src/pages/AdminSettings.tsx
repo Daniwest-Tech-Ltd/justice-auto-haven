@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound, Database, Users, HardDrive, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw, Play, Shield, Calendar, Settings, Lock, Download, Globe, Server, Bell } from "lucide-react";
+import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound, Database, Users, HardDrive, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw, Play, Shield, Calendar, Settings, Lock, Download, Globe, Server, Bell, PanelLeftOpen, PanelLeftClose } from "lucide-react";
+
 import { downloadKillSwitchInvoice } from "@/components/KillSwitchOverlay";
 import { PasswordChangeDialog } from "@/components/PasswordChangeDialog";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -80,6 +81,8 @@ const AdminSettings = () => {
   const [fingerprintDevices, setFingerprintDevices] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "profile");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const contentAreaRef = useRef<HTMLDivElement>(null);
 
   const [profile, setProfile] = useState({
     full_name: "",
@@ -95,7 +98,11 @@ const AdminSettings = () => {
     if (tab && tab !== activeTab) {
       setActiveTab(tab);
     }
-  }, [searchParams]);
+    // Scroll content area to top when tab changes
+    if (contentAreaRef.current) {
+      contentAreaRef.current.scrollTo(0, 0);
+    }
+  }, [searchParams, activeTab]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -582,20 +589,29 @@ const AdminSettings = () => {
       <Card className="glass-strong max-w-7xl mx-auto overflow-hidden border-border/50">
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <div className="flex flex-col md:flex-row min-h-[800px]">
+            <div className="flex flex-col md:flex-row min-h-[800px] relative">
               {/* Desktop Slider Sidebar */}
-              <aside className="hidden md:flex w-72 flex-col bg-slate-900/40 border-r border-border/50 backdrop-blur-xl">
-                <div className="p-8 border-b border-border/30 bg-primary/5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="h-8 w-8 rounded bg-brand-red flex items-center justify-center">
+              <aside
+                className={`hidden md:flex flex-col bg-slate-900/40 border-r border-border/50 backdrop-blur-xl transition-all duration-500 ease-in-out overflow-hidden ${
+                  isSidebarVisible ? 'w-72 opacity-100' : 'w-0 opacity-0 border-none'
+                }`}
+              >
+                <div className="p-8 border-b border-border/30 bg-primary/5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded bg-brand-red flex items-center justify-center shrink-0">
                       <Settings className="h-5 w-5 text-white" />
                     </div>
-                    <h2 className="text-lg font-black uppercase tracking-tighter italic">Settings <span className="text-brand-red">Hub.</span></h2>
+                    <div className="overflow-hidden">
+                      <h2 className="text-lg font-black uppercase tracking-tighter italic whitespace-nowrap">Settings <span className="text-brand-red">Hub.</span></h2>
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Terminal V 3.1.0</p>
+                    </div>
                   </div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Terminal V 3.1.0</p>
+                  <Button variant="ghost" size="icon" onClick={() => setIsSidebarVisible(false)} className="hover:bg-brand-red/10 text-slate-400">
+                    <PanelLeftClose className="h-4 w-4" />
+                  </Button>
                 </div>
 
-                <TabsList className="flex flex-col h-auto bg-transparent border-none space-y-1 items-stretch p-4 flex-1">
+                <TabsList className="flex flex-col h-auto bg-transparent border-none space-y-1 items-stretch p-4 flex-1 overflow-y-auto custom-scrollbar">
                   {[
                     { value: "system", label: "Admin Settings", icon: Settings },
                     { value: "profile", label: "Profile", icon: User },
@@ -612,9 +628,9 @@ const AdminSettings = () => {
                     <TabsTrigger
                       key={tab.value}
                       value={tab.value}
-                      className={`justify-start gap-4 px-6 py-4 h-auto text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl border border-transparent data-[state=active]:bg-brand-red data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:bg-white/5 group ${tab.className || ""}`}
+                      className={`justify-start gap-4 px-6 py-4 h-auto text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl border border-transparent data-[state=active]:bg-brand-red data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:bg-white/5 group whitespace-nowrap ${tab.className || ""}`}
                     >
-                      <tab.icon className={`h-4 w-4 transition-transform group-hover:scale-110 ${activeTab === tab.value ? 'text-white' : 'text-slate-400'}`} />
+                      <tab.icon className={`h-4 w-4 transition-transform group-hover:scale-110 shrink-0 ${activeTab === tab.value ? 'text-white' : 'text-slate-400'}`} />
                       {tab.label}
                     </TabsTrigger>
                   ))}
@@ -626,14 +642,71 @@ const AdminSettings = () => {
                     className="w-full justify-start gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-brand-red hover:bg-transparent"
                     onClick={() => navigate("/admin-dashboard")}
                   >
-                    <LogOut className="h-4 w-4" />
-                    Close Terminal
+                    <LogOut className="h-4 w-4 shrink-0" />
+                    <span className="whitespace-nowrap">Close Terminal</span>
                   </Button>
                 </div>
               </aside>
 
               {/* Mobile Header / Menu Trigger */}
               <div className="md:hidden p-4 border-b border-border bg-slate-900 flex items-center justify-between">
+                 <div className="flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-brand-red" />
+                    <span className="text-sm font-black uppercase tracking-widest">Settings Hub</span>
+                 </div>
+                 <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                    <SheetTrigger asChild>
+                       <Button variant="ghost" size="icon"><Menu className="h-5 w-5" /></Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-80 bg-slate-950 border-r border-white/10 p-0">
+                       <div className="p-8 border-b border-white/5">
+                          <h3 className="text-xl font-black uppercase tracking-tighter italic">Settings <span className="text-brand-red">Hub.</span></h3>
+                       </div>
+                       <div className="flex flex-col gap-1 p-4">
+                          {[
+                            { value: "system", label: "Admin Settings", icon: Settings },
+                            { value: "profile", label: "Profile", icon: User },
+                            { value: "security", label: "Security", icon: Lock },
+                            { value: "preferences", label: "Preferences", icon: Settings },
+                            { value: "notifications", label: "Notifications", icon: Bell },
+                            { value: "privacy", label: "Privacy", icon: Shield },
+                            { value: "company", label: "Company", icon: Building },
+                            { value: "mobile-app", label: "Mobile App", icon: Globe },
+                            { value: "maintenance", label: "Maintenance", icon: Clock },
+                            { value: "backup", label: "Backup", icon: Database },
+                            { value: "danger", label: "Danger Zone", icon: AlertTriangle },
+                          ].map((tab) => (
+                            <Button
+                              key={tab.value}
+                              variant={activeTab === tab.value ? "default" : "ghost"}
+                              className={`justify-start gap-4 h-14 text-[10px] font-black uppercase tracking-widest rounded-xl ${activeTab === tab.value ? 'bg-brand-red shadow-lg shadow-brand-red/20' : ''}`}
+                              onClick={() => {
+                                handleTabChange(tab.value);
+                                setMobileMenuOpen(false);
+                              }}
+                            >
+                              <tab.icon className="h-4 w-4" />
+                              {tab.label}
+                            </Button>
+                          ))}
+                       </div>
+                    </SheetContent>
+                 </Sheet>
+              </div>
+
+              {/* Main Terminal Content Area */}
+              <div ref={contentAreaRef} className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/50 p-6 md:p-12 relative">
+                {/* Sidebar Toggle Trigger (Visible when sidebar hidden) */}
+                {!isSidebarVisible && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setIsSidebarVisible(true)}
+                    className="hidden md:flex fixed left-8 top-32 z-50 rounded-full bg-brand-red border-none text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] hover:scale-110 transition-all animate-in zoom-in"
+                  >
+                    <PanelLeftOpen className="h-5 w-5" />
+                  </Button>
+                )}
                  <div className="flex items-center gap-2">
                     <Settings className="h-5 w-5 text-brand-red" />
                     <span className="text-sm font-black uppercase tracking-widest">Settings Hub</span>

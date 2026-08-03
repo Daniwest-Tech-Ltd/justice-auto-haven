@@ -294,8 +294,8 @@ const AppContent = () => {
   }, [isAuthPage]);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [location.pathname]);
+    window.scrollTo(0, 0);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     const isInitialLoad = sessionStorage.getItem('initialLoadComplete') !== 'true';
