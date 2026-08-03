@@ -43,6 +43,7 @@ interface Car {
   is_featured: boolean | null;
   created_at: string | null;
   yard_location: string | null;
+  units_available?: number | null;
 }
 
 interface Brand {
@@ -687,7 +688,7 @@ const Catalogue = () => {
                             </Badge>
                           ) : (
                             <Badge className="bg-green-600 hover:bg-green-600 text-white px-3 py-1 shadow-lg">
-                              ✓ IN STOCK
+                              ✓ IN STOCK{car.units_available && car.units_available > 0 ? ` (${car.units_available})` : ""}
                             </Badge>
                           )}
                         </div>

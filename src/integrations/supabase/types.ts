@@ -1179,6 +1179,7 @@ export type Database = {
           supplier: string | null
           test_drives_count: number | null
           transmission: string | null
+          units_available: number | null
           updated_at: string | null
           views_count: number | null
           vin: string | null
@@ -1232,6 +1233,7 @@ export type Database = {
           supplier?: string | null
           test_drives_count?: number | null
           transmission?: string | null
+          units_available?: number | null
           updated_at?: string | null
           views_count?: number | null
           vin?: string | null
@@ -1285,6 +1287,7 @@ export type Database = {
           supplier?: string | null
           test_drives_count?: number | null
           transmission?: string | null
+          units_available?: number | null
           updated_at?: string | null
           views_count?: number | null
           vin?: string | null

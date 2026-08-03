@@ -41,6 +41,7 @@ const AddCar = () => {
     vin: "",
     vin_history: "",
     yard_location: "Westlands, Nairobi",
+    units_available: "",
   });
   const [availableColors, setAvailableColors] = useState<string[]>([]);
 
@@ -160,6 +161,7 @@ const AddCar = () => {
           vin: formData.vin || null, vin_history: formData.vin_history || null,
           available_colors: availableColors.length > 0 ? availableColors : null,
           yard_location: formData.yard_location || 'Westlands, Nairobi',
+          units_available: formData.units_available ? parseInt(formData.units_available) : null,
         }] as any)
         .select("id, stock_id")
         .single();
@@ -222,6 +224,7 @@ const AddCar = () => {
             vin_history: formData.vin_history || null,
             available_colors: availableColors.length > 0 ? availableColors : null,
             yard_location: formData.yard_location || 'Westlands, Nairobi',
+            units_available: formData.units_available ? parseInt(formData.units_available) : null,
           } as any,
         ])
         .select("id, stock_id")
@@ -552,6 +555,21 @@ const AddCar = () => {
               />
               <p className="text-xs text-muted-foreground">
                 Defaults to Westlands, Nairobi if not selected. Editable later.
+              </p>
+            </div>
+
+            <div className="space-y-2 mt-6">
+              <Label htmlFor="units_available">Units Available (Optional)</Label>
+              <Input
+                id="units_available"
+                type="number"
+                min={0}
+                value={formData.units_available}
+                onChange={(e) => setFormData({ ...formData, units_available: e.target.value })}
+                placeholder="e.g., 5"
+              />
+              <p className="text-xs text-muted-foreground">
+                If set, customers will see "Available (5)" in stock on the frontend.
               </p>
             </div>
 

@@ -30,6 +30,7 @@ interface Car {
   status: string | null;
   images: any;
   available_colors?: string[] | null;
+  units_available?: number | null;
 }
 
 const CarDetails = () => {
@@ -286,12 +287,22 @@ const CarDetails = () => {
                   • • {car.year}
                 </span>
                 {car.status && (
-                  <Badge variant={car.status === "available" ? "default" : "secondary"}>
-                    {car.status}
-                  </Badge>
+                  car.status === "available" ? (
+                    <Badge className="bg-green-600 hover:bg-green-600 text-white">
+                      available{car.units_available && car.units_available > 0 ? ` (${car.units_available})` : ""}
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">{car.status}</Badge>
+                  )
                 )}
               </div>
             </div>
+
+            {car.status === "available" && car.units_available && car.units_available > 0 && (
+              <div className="rounded-lg border border-green-600/40 bg-green-600/10 px-4 py-3 text-green-700 dark:text-green-400 font-semibold">
+                ✓ Available ({car.units_available}) units in stock
+              </div>
+            )}
 
             <div className="text-3xl font-bold">
               Price: KES {car.price.toLocaleString()}
