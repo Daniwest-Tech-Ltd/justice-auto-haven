@@ -40,6 +40,7 @@ const EditCar = () => {
     vin: "",
     vin_history: "",
     yard_location: "Westlands, Nairobi",
+    units_available: "" as string | number,
   });
   const [existingMainImages, setExistingMainImages] = useState<string[]>([]);
   const [existingAdditionalImages, setExistingAdditionalImages] = useState<string[]>([]);
@@ -89,6 +90,7 @@ const EditCar = () => {
           vin: (data as any).vin || "",
           vin_history: (data as any).vin_history || "",
           yard_location: (data as any).yard_location || "Westlands, Nairobi",
+          units_available: (data as any).units_available ?? "",
         });
         
         // Load images from new structure, fallback to old
@@ -215,6 +217,9 @@ const EditCar = () => {
         .from("cars")
         .update({
           ...formData,
+          units_available: formData.units_available === "" || formData.units_available === null
+            ? null
+            : parseInt(String(formData.units_available)),
           main_images: allMainImageUrls,
           additional_images: allAdditionalImageUrls,
           images: [...allMainImageUrls, ...allAdditionalImageUrls],
@@ -403,6 +408,21 @@ const EditCar = () => {
                     <SelectItem value="sold">Sold</SelectItem>
                   </SelectContent>
                 </Select>
+            </div>
+
+            <div className="mt-4">
+              <Label htmlFor="units_available">Units Available (Optional)</Label>
+              <Input
+                id="units_available"
+                type="number"
+                min={0}
+                value={formData.units_available}
+                onChange={(e) => setFormData({ ...formData, units_available: e.target.value })}
+                placeholder="e.g., 5"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                If set, customers see "Available (5)" in stock on the frontend.
+              </p>
             </div>
 
             <div className="mt-4">
