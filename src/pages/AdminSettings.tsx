@@ -136,9 +136,7 @@ const AdminSettings = () => {
   const [backupSettings, setBackupSettings] = useState<BackupSettings | null>(null);
   const [backupStats, setBackupStats] = useState<BackupStats | null>(null);
   const [backupHistory, setBackupHistory] = useState<BackupHistory[]>([]);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
+
   // User preferences hook
   const { 
     preferences, 
@@ -581,68 +579,23 @@ const AdminSettings = () => {
         Back to Dashboard
       </Button>
 
-      <Card className="glass-strong max-w-4xl mx-auto">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl md:text-3xl font-bold">
-              <span className="bg-gradient-accent bg-clip-text text-transparent">
-                Admin Settings
-              </span>
-            </CardTitle>
-            
-            {/* Mobile Menu Button */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="outline" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64">
-                <SheetHeader>
-                  <SheetTitle>Settings Menu</SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-2 mt-6">
-                  {[
-                    { value: "system", label: "Admin Settings" },
-                    { value: "profile", label: "Profile" },
-                    { value: "security", label: "Security" },
-                    { value: "preferences", label: "Preferences" },
-                    { value: "notifications", label: "Notifications" },
-                    { value: "privacy", label: "Privacy" },
-                    { value: "company", label: "Company" },
-                    { value: "mobile-app", label: "Mobile App" },
-                    { value: "maintenance", label: "Maintenance" },
-                    { value: "backup", label: "Backup" },
-                    { value: "danger", label: "Danger Zone" },
-                  ].map((tab) => (
-                    <Button
-                      key={tab.value}
-                      variant={activeTab === tab.value ? "default" : "ghost"}
-                      className="justify-start text-xs uppercase font-bold tracking-widest"
-                      onClick={() => {
-                        handleTabChange(tab.value);
-                        setMobileMenuOpen(false);
-                      }}
-                    >
-                      {tab.label}
-                    </Button>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0 sm:p-6">
+      <Card className="glass-strong max-w-7xl mx-auto overflow-hidden border-border/50">
+        <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <div className="flex flex-col md:flex-row min-h-[600px]">
-              {/* Desktop Sidebar Menu */}
-              <aside className="hidden md:flex w-64 flex-col border-r border-border/50 p-6 space-y-2">
-                <div className="mb-6 px-2">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-red">Configuration Hub</p>
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">System Terminal</h3>
+            <div className="flex flex-col md:flex-row min-h-[800px]">
+              {/* Desktop Slider Sidebar */}
+              <aside className="hidden md:flex w-72 flex-col bg-slate-900/40 border-r border-border/50 backdrop-blur-xl">
+                <div className="p-8 border-b border-border/30 bg-primary/5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-8 w-8 rounded bg-brand-red flex items-center justify-center">
+                      <Settings className="h-5 w-5 text-white" />
+                    </div>
+                    <h2 className="text-lg font-black uppercase tracking-tighter italic">Settings <span className="text-brand-red">Hub.</span></h2>
+                  </div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Terminal V 3.1.0</p>
                 </div>
 
-                <TabsList className="flex flex-col h-auto bg-transparent border-none space-y-1 items-stretch p-0">
+                <TabsList className="flex flex-col h-auto bg-transparent border-none space-y-1 items-stretch p-4 flex-1">
                   {[
                     { value: "system", label: "Admin Settings", icon: Settings },
                     { value: "profile", label: "Profile", icon: User },
@@ -654,34 +607,80 @@ const AdminSettings = () => {
                     { value: "mobile-app", label: "Mobile App", icon: Globe },
                     { value: "maintenance", label: "Maintenance", icon: Clock },
                     { value: "backup", label: "Backup", icon: Database },
-                    { value: "danger", label: "Danger Zone", icon: AlertTriangle, className: "text-destructive hover:text-destructive" },
+                    { value: "danger", label: "Danger Zone", icon: AlertTriangle, className: "text-destructive hover:bg-destructive/10" },
                   ].map((tab) => (
                     <TabsTrigger
                       key={tab.value}
                       value={tab.value}
-                      className={`justify-start gap-3 px-4 py-3 h-auto text-[11px] font-bold uppercase tracking-widest transition-all rounded-lg border border-transparent data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-secondary/50 hover:translate-x-1 ${tab.className || ""}`}
+                      className={`justify-start gap-4 px-6 py-4 h-auto text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl border border-transparent data-[state=active]:bg-brand-red data-[state=active]:text-white data-[state=active]:shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:bg-white/5 group ${tab.className || ""}`}
                     >
-                      <tab.icon className="h-4 w-4" />
+                      <tab.icon className={`h-4 w-4 transition-transform group-hover:scale-110 ${activeTab === tab.value ? 'text-white' : 'text-slate-400'}`} />
                       {tab.label}
                     </TabsTrigger>
                   ))}
                 </TabsList>
 
-                <div className="mt-auto pt-6 px-2 border-t border-border/30">
+                <div className="p-6 border-t border-border/30 bg-slate-950/20">
                   <Button
                     variant="ghost"
-                    className="w-full justify-start gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-brand-red"
+                    className="w-full justify-start gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-brand-red hover:bg-transparent"
                     onClick={() => navigate("/admin-dashboard")}
                   >
-                    <ArrowLeft className="h-4 w-4" />
-                    Exit Terminal
+                    <LogOut className="h-4 w-4" />
+                    Close Terminal
                   </Button>
                 </div>
               </aside>
 
-              {/* Content Area */}
-              <div className="flex-1 p-6 md:p-10 bg-slate-50/30 dark:bg-slate-900/30 overflow-y-auto">
-                <TabsContent value="profile" className="space-y-6 m-0 border-none p-0">
+              {/* Mobile Header / Menu Trigger */}
+              <div className="md:hidden p-4 border-b border-border bg-slate-900 flex items-center justify-between">
+                 <div className="flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-brand-red" />
+                    <span className="text-sm font-black uppercase tracking-widest">Settings Hub</span>
+                 </div>
+                 <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                    <SheetTrigger asChild>
+                       <Button variant="ghost" size="icon"><Menu className="h-5 w-5" /></Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-80 bg-slate-950 border-r border-white/10 p-0">
+                       <div className="p-8 border-b border-white/5">
+                          <h3 className="text-xl font-black uppercase tracking-tighter italic">Settings <span className="text-brand-red">Hub.</span></h3>
+                       </div>
+                       <div className="flex flex-col gap-1 p-4">
+                          {[
+                            { value: "system", label: "Admin Settings", icon: Settings },
+                            { value: "profile", label: "Profile", icon: User },
+                            { value: "security", label: "Security", icon: Lock },
+                            { value: "preferences", label: "Preferences", icon: Settings },
+                            { value: "notifications", label: "Notifications", icon: Bell },
+                            { value: "privacy", label: "Privacy", icon: Shield },
+                            { value: "company", label: "Company", icon: Building },
+                            { value: "mobile-app", label: "Mobile App", icon: Globe },
+                            { value: "maintenance", label: "Maintenance", icon: Clock },
+                            { value: "backup", label: "Backup", icon: Database },
+                            { value: "danger", label: "Danger Zone", icon: AlertTriangle },
+                          ].map((tab) => (
+                            <Button
+                              key={tab.value}
+                              variant={activeTab === tab.value ? "default" : "ghost"}
+                              className={`justify-start gap-4 h-14 text-[10px] font-black uppercase tracking-widest rounded-xl ${activeTab === tab.value ? 'bg-brand-red shadow-lg shadow-brand-red/20' : ''}`}
+                              onClick={() => {
+                                handleTabChange(tab.value);
+                                setMobileMenuOpen(false);
+                              }}
+                            >
+                              <tab.icon className="h-4 w-4" />
+                              {tab.label}
+                            </Button>
+                          ))}
+                       </div>
+                    </SheetContent>
+                 </Sheet>
+              </div>
+
+              {/* Main Terminal Content Area */}
+              <div className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/50 p-6 md:p-12">
+                <TabsContent value="profile" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="flex justify-center pb-6 border-b">
                 <AvatarUpload
                   currentAvatarUrl={avatarUrl}
@@ -1408,7 +1407,7 @@ const AdminSettings = () => {
                       <div className="text-2xl font-black text-brand-red">Active Sync</div>
                       <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold">Real-time Failover Node</p>
                     </CardContent>
-                  </div>
+                  </Card>
                 </div>
 
                 {/* Backup Header */}
@@ -1613,11 +1612,12 @@ supabase_functions.http_request(
               </div>
             </TabsContent>
           </div>
-        </Tabs>
-      </CardContent>
-      </Card>
-    </div>
-  );
+        </div>
+      </Tabs>
+    </CardContent>
+  </Card>
+</div>
+);
 };
 
 export default AdminSettings;
