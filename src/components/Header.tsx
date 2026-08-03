@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, Moon, Sun, User, LogOut, LayoutDashboard, Heart, Bell, Mail, Download, ShieldCheck, Globe, Trophy, Shield, Car } from "lucide-react";
+import {
+  Menu, X, Moon, Sun, User, LogOut, LayoutDashboard, Heart, Bell, Mail, Download, ShieldCheck, Globe, Trophy, Shield, Car,
+  ChevronDown, CreditCard, RefreshCw, Newspaper, Video, ChevronRight, ChevronUp, ChevronLeft
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import logo from "@/assets/logo.png";
@@ -23,6 +26,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "./ui/dropdown-menu";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -40,6 +50,8 @@ const Header = () => {
     const saved = localStorage.getItem("darkMode");
     return saved !== null ? JSON.parse(saved) : true;
   });
+
+  const [servicesOpen, setServicesOpen] = useState(false);
 
   
 
@@ -164,11 +176,14 @@ const Header = () => {
   const navLinks = [
     { to: "/", label: "Home" },
     { to: "/catalogue", label: "Catalogue" },
-    { to: "/asset-finance", label: "Financing" },
-    { to: "/trade-in", label: "Trade In" },
-    { to: "/blogs", label: "News & Reviews" },
-    { to: "/videos", label: "Videos" },
     { to: "/contact", label: "Contact" },
+  ];
+
+  const serviceLinks = [
+    { to: "/asset-finance", label: "Financing", icon: CreditCard },
+    { to: "/trade-in", label: "Trade In", icon: RefreshCw },
+    { to: "/blogs", label: "News & Reviews", icon: Newspaper },
+    { to: "/videos", label: "Videos", icon: Video },
   ];
 
   const isDashboard = location.pathname.includes("dashboard");
@@ -177,43 +192,114 @@ const Header = () => {
   return (
     <TooltipProvider>
     <>
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border shadow-md">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group shrink-0">
             <div className="relative h-12 w-12 transition-transform duration-500 group-hover:scale-110">
-              <img src={logo} alt="Justice Ultimate Automobiles" className="h-12 w-12 object-contain" />
+              <img src={logo} alt="Justice Ultimate Automobiles" className="h-12 w-12 object-contain shadow-sm" />
               <ChristmasHat hatImage={christmasHat} />
             </div>
             <div className="flex flex-col">
-              <span className="text-base font-black tracking-tighter bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hidden sm:block leading-none">
+              <span className="text-lg font-black tracking-tighter bg-gradient-to-r from-slate-900 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent hidden sm:block leading-none">
                 JUSTICE ULTIMATE
               </span>
-              <span className="text-[8px] font-bold tracking-[0.3em] uppercase text-muted-foreground hidden sm:block">
+              <span className="text-[9px] font-black tracking-[0.4em] uppercase text-brand-red hidden sm:block">
                 Automobiles
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden xl:flex items-center gap-0.5">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`relative px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight transition-all duration-300 flex items-center gap-1 ${
-                  location.pathname === link.to
-                    ? "text-primary bg-primary/5 shadow-sm border border-primary/20"
-                    : "text-muted-foreground hover:text-primary hover:bg-secondary/50 border border-transparent hover:border-border"
-                }`}
+          <nav className="hidden lg:flex items-center gap-1">
+            <Link
+              to="/"
+              className={`relative px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
+                location.pathname === "/"
+                  ? "text-white bg-slate-900 shadow-lg"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              Home
+            </Link>
+
+            <Link
+              to="/catalogue"
+              className={`relative px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
+                location.pathname === "/catalogue"
+                  ? "text-white bg-brand-red shadow-lg"
+                  : "text-slate-600 dark:text-slate-400 hover:text-brand-red hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              <Car className={`h-3.5 w-3.5 ${location.pathname === "/catalogue" ? "text-white" : "text-brand-red"} animate-car-move`} />
+              Catalogue
+            </Link>
+
+            {/* Services Dropdown */}
+            <DropdownMenu open={servicesOpen} onOpenChange={setServicesOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={`px-4 py-2 h-auto rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 gap-2 ${
+                    serviceLinks.some(link => location.pathname === link.to)
+                      ? "text-white bg-slate-900 dark:bg-slate-800"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  Solutions
+                  <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${servicesOpen ? 'rotate-180' : ''}`} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="center"
+                className="w-72 p-[2.5px] bg-white dark:bg-slate-900 border-none rounded-2xl shadow-2xl animate-in slide-in-from-top-4 fade-in duration-300 relative overflow-hidden"
               >
-                {link.label === "Catalogue" && (
-                  <Car className="h-3 w-3 text-brand-red animate-car-move" />
-                )}
-                {link.label}
-              </Link>
-            ))}
+                {/* Hazard Pattern Border - Slightly larger crawling edge */}
+                <div className="absolute inset-0 animate-hazard-border"
+                     style={{
+                       backgroundImage: 'repeating-linear-gradient(-45deg, #ef4444, #ef4444 6px, #fbbf24 6px, #fbbf24 12px)'
+                     }}
+                />
+
+                <div className="relative z-10 bg-white dark:bg-slate-900 rounded-[calc(1rem-2.5px)] p-3 space-y-1">
+                  <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Operational Desk</p>
+                    <h4 className="text-[11px] font-black uppercase text-slate-400">Institutional Solutions</h4>
+                  </div>
+                  {serviceLinks.map((link) => (
+                  <DropdownMenuItem
+                    key={link.to}
+                    className="p-0 focus:bg-transparent"
+                    onSelect={() => navigate(link.to)}
+                  >
+                    <Link
+                      to={link.to}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                        location.pathname === link.to
+                          ? "bg-slate-100 dark:bg-slate-800 text-brand-red"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:translate-x-1"
+                      }`}
+                    >
+                      <link.icon className="h-4 w-4 text-brand-red" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">{link.label}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link
+              to="/contact"
+              className={`relative px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
+                location.pathname === "/contact"
+                  ? "text-white bg-slate-900 shadow-lg"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              Contact
+            </Link>
           </nav>
 
           {/* Right Actions */}
@@ -269,6 +355,15 @@ const Header = () => {
               }
               .animate-marquee-professional {
                 animation: marquee-professional 40s linear infinite;
+              }
+
+              /* Hazard Pattern Border Animation */
+              @keyframes hazard-border-move {
+                0% { background-position: 0 0; }
+                100% { background-position: 32px 32px; }
+              }
+              .animate-hazard-border {
+                animation: hazard-border-move 1s linear infinite;
               }
             `}</style>
 
@@ -451,21 +546,48 @@ const Header = () => {
           </DrawerHeader>
           
           <div className="overflow-y-auto p-4 space-y-2">
-            {navLinks.map((link) => (
+            {/* Main Links */}
+            {[
+              { to: "/", label: "Home" },
+              { to: "/catalogue", label: "Catalogue" },
+              { to: "/contact", label: "Contact" },
+            ].map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`relative block px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${
+                className={`relative block px-4 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
                   location.pathname === link.to
-                    ? "text-primary bg-primary/5 border border-primary/20"
-                    : "text-muted-foreground border border-transparent hover:bg-secondary/50"
+                    ? "text-white bg-slate-900 shadow-lg"
+                    : "text-slate-600 border border-slate-100 hover:bg-slate-50"
                 }`}
               >
                 <span className="relative z-10">{link.label}</span>
               </Link>
             ))}
-            
+
+            {/* Service Links Group */}
+            <div className="pt-4 pb-2">
+               <p className="px-4 text-[9px] font-black uppercase tracking-[0.3em] text-brand-red mb-3">Our Services</p>
+               <div className="grid grid-cols-1 gap-2">
+                  {serviceLinks.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
+                        location.pathname === link.to
+                          ? "text-white bg-brand-red shadow-lg"
+                          : "text-slate-600 border border-slate-100"
+                      }`}
+                    >
+                      <link.icon className="h-4 w-4" />
+                      {link.label}
+                    </Link>
+                  ))}
+               </div>
+            </div>
+
             {isAuthenticated ? (
               <>
                 {!isDashboard && (

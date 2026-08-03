@@ -284,8 +284,18 @@ const Footer = () => {
       </div>
 
       {/* Corporate Copyright Bar */}
-      <div className="bg-background py-8 border-t border-border">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
+      <div className="bg-background py-8 border-t border-border relative group">
+        {/* Hazard Pattern Border - Background layer */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden animate-hazard-border opacity-40 group-hover:opacity-100 transition-opacity duration-500"
+             style={{
+               backgroundImage: 'repeating-linear-gradient(-45deg, #ef4444, #ef4444 8px, #fbbf24 8px, #fbbf24 16px)'
+             }}
+        />
+
+        {/* Inner Content Surface */}
+        <div className="absolute inset-[1.5px] bg-background pointer-events-none" />
+
+        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 relative z-10">
           <div className="flex items-center gap-3">
              <Shield className="h-4 w-4 text-brand-red" />
              <p>© 2026 Justice Ultimate Automobiles. Institutional Asset Management Division.</p>
@@ -298,6 +308,13 @@ const Footer = () => {
       </div>
 
       <style>{`
+        @keyframes hazard-border-move {
+          0% { background-position: 0 0; }
+          100% { background-position: 32px 32px; }
+        }
+        .animate-hazard-border {
+          animation: hazard-border-move 1s linear infinite;
+        }
         @keyframes vertical-bounce {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }

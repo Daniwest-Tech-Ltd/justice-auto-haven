@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2, ShieldCheck, Trophy, Bike, Key } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2, ShieldCheck, Trophy, Bike, Key, ArrowUpRight } from "lucide-react";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -211,11 +211,11 @@ const Catalogue = () => {
   if (isLoading && !carsData) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
-      {/* Background Overlays */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+    <div className="min-h-screen bg-slate-50 selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20 text-slate-900">
+      {/* Background Overlays - Subtle & Official */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(200,210,255,0.15),transparent_70%)]" />
+        <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
       </div>
 
       {/* Professional Marquee - Institutional Branding */}
@@ -259,39 +259,43 @@ const Catalogue = () => {
         .animate-car-move-large {
           animation: car-move-large 3s infinite ease-in-out;
         }
+        @keyframes image-flash {
+          0% { opacity: 1; filter: brightness(1); }
+          50% { opacity: 0.9; filter: brightness(1.5); }
+          100% { opacity: 1; filter: brightness(1); }
+        }
+        .group:hover .animate-flash {
+          animation: image-flash 0.6s ease-in-out;
+        }
+        .glass-clear {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(4px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        @keyframes hazard-border-move {
+          0% { background-position: 0 0; }
+          100% { background-position: 32px 32px; }
+        }
+        .animate-hazard-border {
+          animation: hazard-border-move 1s linear infinite;
+        }
       `}</style>
 
       {/* Catalogue Hero - Professional & Formal */}
-      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
+      <section className="relative flex items-center justify-center border-b border-slate-200 py-16 sm:py-24 overflow-hidden bg-slate-900">
         <HeroSlider />
         <div className="container mx-auto px-4 relative z-10 text-center">
           <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
             <div className="flex justify-center mb-2">
-               <Car className="h-8 w-8 text-brand-red animate-car-move-large" />
+               <Car className="h-10 w-10 text-brand-red animate-car-move-large drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
             </div>
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Operational Asset Ledger: {sale.year}</p>
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground uppercase">
+            <p className="text-[11px] font-black tracking-[0.4em] uppercase text-brand-red drop-shadow-sm">Operational Asset Ledger: {sale.year}</p>
+            <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white uppercase italic drop-shadow-lg leading-none">
               Automotive <span className="text-brand-red">Catalogue.</span>
             </h1>
-            <p className="text-xs md:text-sm text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
-              Browse our institutional collection of verified Japanese and European automotive assets. <br className="hidden md:block" /> Every unit is subjected to a rigorous 150-point mechanical and legal audit before listing.
+            <p className="text-[10px] md:text-xs text-white font-black max-w-2xl mx-auto leading-loose uppercase tracking-[0.2em] drop-shadow-md pt-4">
+              Browse our institutional collection of verified Japanese and European automotive assets. Every unit is subjected to a rigorous 150-point mechanical and legal audit before listing.
             </p>
-            <div className="flex flex-wrap justify-center gap-3 pt-2">
-              <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider" onClick={() => navigate("/asset-finance")}>
-                Financing Deck
-              </Button>
-              <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider" onClick={() => navigate("/trade-in")}>
-                Trade-In Portal
-              </Button>
-              <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider gap-2 group" onClick={() => navigate("/motorbikes")}>
-                Motorcycle
-                <Bike className="h-4 w-4 text-brand-red animate-bike-move" />
-              </Button>
-              <Button size="sm" variant="outline" className="px-6 h-9 rounded-md border-border hover:bg-secondary text-[10px] font-bold uppercase tracking-wider gap-2" onClick={() => navigate("/rentals")}>
-                Rent Now
-                <Key className="h-3.5 w-3.5 text-brand-red" />
-              </Button>
-            </div>
           </div>
         </div>
       </section>
@@ -307,27 +311,36 @@ const Catalogue = () => {
       `}</style>
 
       {/* Asset Filtering Hub - Opaque & Professional */}
-      <section className="relative z-20 -mt-6">
+      <section className="relative z-20 -mt-8">
         <div className="container mx-auto px-4">
-          <div className="bg-background border border-border p-3 shadow-lg flex flex-col gap-3 rounded-lg max-w-6xl mx-auto">
-            <div className="flex flex-col md:flex-row gap-3">
+          <div className="max-w-6xl mx-auto relative group">
+            {/* Hazard Pattern Border - Background layer */}
+            <div className="absolute -inset-[2px] rounded-2xl overflow-hidden animate-hazard-border opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                 style={{
+                   backgroundImage: 'repeating-linear-gradient(-45deg, #ef4444, #ef4444 8px, #fbbf24 8px, #fbbf24 16px)'
+                 }}
+            />
+
+            {/* Inner Content - Solid background to mask the hazard pattern center */}
+            <div className="relative bg-white dark:bg-slate-900 border border-transparent p-4 shadow-2xl flex flex-col gap-4 rounded-xl backdrop-blur-md m-[1px]">
+              <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-red" />
                 <Input
                   placeholder="Asset Search: VIN, Make, Model..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-10 pl-10 rounded-md border-input focus:ring-1 focus:ring-brand-red/50 text-[11px] font-bold uppercase tracking-tight"
+                  className="h-12 pl-12 rounded-lg bg-slate-50 border-slate-200 focus:border-brand-red/50 focus:ring-brand-red/20 text-[12px] font-bold uppercase tracking-widest text-slate-900"
                 />
               </div>
-              <div className="flex gap-1 border border-border p-1 rounded-md">
+              <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
                 {["all", "in-stock", "sold-out"].map((s) => (
                   <Button
                     key={s}
                     variant={stockFilter === s ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setStockFilter(s)}
-                    className={`rounded-sm text-[9px] font-bold uppercase tracking-widest px-4 h-8 ${stockFilter === s ? "bg-primary text-white" : "text-muted-foreground hover:bg-secondary"}`}
+                    className={`rounded-md text-[10px] font-black uppercase tracking-widest px-6 h-10 ${stockFilter === s ? "bg-slate-900 text-white shadow-lg" : "text-slate-500 hover:bg-white"}`}
                   >
                     {s.replace('-', ' ')}
                   </Button>
@@ -335,7 +348,7 @@ const Catalogue = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 { key: 'brand', label: 'Manufacturer', options: uniqueMakes },
                 { key: 'year', label: 'Model Year', options: uniqueYears },
@@ -343,10 +356,10 @@ const Catalogue = () => {
                 { key: 'priceRange', label: 'Capital Class', options: ['Under 1M', '1M - 3M', '3M - 5M', '5M - 10M', '10M+'] }
               ].map((f) => (
                 <Select key={f.key} value={(filters as any)[f.key]} onValueChange={(val) => setFilters({ ...filters, [f.key]: val })}>
-                  <SelectTrigger className="h-10 rounded-md bg-secondary/20 border-border text-[10px] font-bold uppercase tracking-wider">
+                  <SelectTrigger className="h-12 rounded-lg bg-slate-50 border-slate-200 text-[11px] font-black uppercase tracking-widest text-slate-700">
                     <SelectValue placeholder={f.label} />
                   </SelectTrigger>
-                  <SelectContent className="border-border">
+                  <SelectContent className="border-slate-200 bg-white">
                     <SelectItem value="all" className="text-[11px] font-bold uppercase">All {f.label}s</SelectItem>
                     {f.options.map((opt: any) => (
                       <SelectItem key={opt} value={opt.toString().includes('M') ? opt.toString().replace(/ /g, '').toLowerCase() : opt.toString()} className="text-[11px] font-bold uppercase">{opt}</SelectItem>
@@ -356,97 +369,102 @@ const Catalogue = () => {
               ))}
             </div>
 
-            <div className="flex justify-between items-center px-1 border-t border-border pt-2">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Showing {carsData?.total || 0} Professional Assets</p>
-              <Button variant="link" size="sm" onClick={clearFilters} className="h-auto p-0 text-[10px] font-bold uppercase tracking-widest text-brand-red hover:no-underline">Purge Filters</Button>
+            <div className="flex justify-between items-center px-2 border-t border-slate-100 pt-3">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Total Operational Inventory: {carsData?.total || 0}</p>
+              <Button variant="link" size="sm" onClick={clearFilters} className="h-auto p-0 text-[10px] font-black uppercase tracking-widest text-brand-red hover:no-underline hover:text-slate-900 transition-colors">Reset Terminal</Button>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* Asset Ledger Grid */}
-      <section className="py-16 relative z-10">
+      <section className="py-24 relative z-10">
         <div className="container mx-auto px-4">
           {cars.length === 0 ? (
-            <div className="bg-secondary/5 border border-dashed border-border rounded-xl p-20 text-center max-w-4xl mx-auto">
-              <Car className="h-10 w-10 mx-auto mb-6 text-brand-red opacity-30" />
-              <h3 className="text-xl font-bold tracking-tight uppercase mb-4 text-foreground">Query Buffer Empty</h3>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-relaxed mb-8 max-w-md mx-auto">
-                No verified units currently match your selection criteria. <br /> Our logistics team can facilitate a direct procurement from Japan for your specific configuration.
+            <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-24 text-center max-w-4xl mx-auto shadow-2xl">
+              <Car className="h-12 w-12 mx-auto mb-8 text-brand-red opacity-20" />
+              <h3 className="text-2xl font-black tracking-tighter uppercase mb-4 text-slate-900">Query Buffer Empty</h3>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed mb-10 max-w-md mx-auto">
+                No verified units currently match your selection criteria. Our logistics team can facilitate a direct procurement from Japan for your specific configuration.
               </p>
-              <Button onClick={clearFilters} className="bg-primary font-bold text-[10px] uppercase tracking-widest px-8 h-10 rounded-md">
-                Reset Audit Hub
+              <Button onClick={clearFilters} className="bg-slate-900 font-black text-[11px] uppercase tracking-[0.3em] px-12 h-14 rounded-xl shadow-xl hover:bg-brand-red transition-all duration-500">
+                Clear Filters
               </Button>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 sm:gap-8">
                 {cars.map((car) => {
                   const images = getImages(car);
                   const isWhitelisted = wishlist.includes(car.id);
                   return (
                     <div
                       key={car.id}
-                      className="group relative bg-background border border-border hover:border-brand-red/40 transition-all duration-300 cursor-pointer flex flex-col h-full hover:shadow-xl rounded-lg overflow-hidden"
+                      className="group relative bg-white border border-slate-200 hover:border-brand-red/40 transition-all duration-500 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-xl border-b-4 hover:border-b-brand-red"
                     >
-                      <div className="aspect-[4/3] overflow-hidden relative border-b border-border" onClick={() => navigate(`/car/${car.id}`)}>
-                        <img src={images[0] || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-[1s] group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="aspect-[4/3] overflow-hidden relative border-b border-slate-100" onClick={() => navigate(`/car/${car.id}`)}>
+                        <img src={images[0] || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.95] group-hover:brightness-110 animate-flash" />
+                        <div className="absolute inset-0 glass-clear opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-10 transition-opacity" />
                         
-                        <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
-                          <Badge className="bg-primary text-white text-[7px] font-bold uppercase rounded-sm py-0.5 px-1.5 tracking-wider">
+                        <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
+                          <Badge className="bg-slate-900 text-white text-[8px] font-black uppercase rounded-md py-1 px-2 tracking-widest shadow-lg border-none">
                              #{car.stock_id || 'UNIT'}
                           </Badge>
                         </div>
-                        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-                           <Badge className={`text-white text-[7px] font-bold uppercase rounded-sm py-0.5 px-1.5 tracking-wider border-none ${car.status === 'sold' ? 'bg-red-600' : 'bg-green-600'}`}>
-                              {car.status === 'sold' ? 'SOLD' : 'AVAILABLE'}
+                        <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                           <Badge className={`text-white text-[9px] font-black uppercase rounded-md py-1.5 px-3 tracking-widest border-none shadow-lg ${car.status === 'sold' ? 'bg-red-600' : 'bg-brand-red'}`}>
+                              {car.status === 'sold' ? 'SOLD' : 'IN STOCK'}
                            </Badge>
                            {car.status === 'available' && car.units_available && car.units_available > 1 && (
-                             <Badge className="bg-emerald-600 text-white text-[7px] font-bold uppercase rounded-sm py-0.5 px-1.5 tracking-wider border-none shadow-md">
-                                ({car.units_available}) UNITS
+                             <Badge className="bg-emerald-600 text-white text-[8px] font-black uppercase rounded-md py-1 px-2 border-none shadow-lg tracking-widest">
+                                Available ({car.units_available})
                              </Badge>
                            )}
                         </div>
 
-                        <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                           <Button size="icon" variant="secondary" className="h-7 w-7 rounded-md bg-white/90 text-black hover:bg-brand-red hover:text-white border-none shadow-md"
+                        <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                           <Button size="icon" variant="secondary" className="h-9 w-9 rounded-xl bg-white/90 text-slate-900 hover:bg-brand-red hover:text-white border-none shadow-xl"
                               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFullscreen({ images: images.length ? images : ["/placeholder.svg"], title: `${car.make} ${car.model}` }); }}
                            >
-                              <Maximize2 className="h-3.5 w-3.5" />
+                              <Maximize2 className="h-4 w-4" />
                            </Button>
-                           <Button size="icon" variant="secondary" className={`h-7 w-7 rounded-md border-none shadow-md transition-all ${isWhitelisted ? "bg-brand-red text-white" : "bg-white/90 text-black hover:bg-brand-red hover:text-white"}`}
+                           <Button size="icon" variant="secondary" className={`h-9 w-9 rounded-xl border-none shadow-xl transition-all ${isWhitelisted ? "bg-brand-red text-white" : "bg-white/90 text-slate-900 hover:bg-brand-red hover:text-white"}`}
                               onClick={(e) => toggleWishlist(e, car.id)}
                            >
-                              <Heart className={`h-3.5 w-3.5 ${isWhitelisted ? "fill-white" : ""}`} />
+                              <Heart className={`h-4 w-4 ${isWhitelisted ? "fill-white" : ""}`} />
                            </Button>
                         </div>
                       </div>
 
-                      <div className="p-3 space-y-3 flex-1 flex flex-col justify-between" onClick={() => navigate(`/car/${car.id}`)}>
+                      <div className="p-5 space-y-4 flex-1 flex flex-col justify-between" onClick={() => navigate(`/car/${car.id}`)}>
                         <div className="space-y-1">
-                          <h3 className="text-[11px] font-extrabold uppercase tracking-tight truncate text-foreground/90 group-hover:text-brand-red transition-colors">{car.make} {car.model}</h3>
-                          <div className="flex justify-between items-center border-b border-border/50 pb-1.5 mb-1.5">
-                            <p className="text-sm font-black text-foreground tracking-tighter">KSh {car.price?.toLocaleString()}</p>
-                            <p className="text-[9px] font-bold text-muted-foreground uppercase">{car.year}</p>
+                          <div className="flex justify-between items-start gap-2">
+                             <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900 group-hover:text-brand-red transition-colors line-clamp-1">{car.make} {car.model}</h3>
+                             <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-brand-red group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                          </div>
+                          <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-2">
+                            <p className="text-lg font-black text-slate-900 tracking-tighter">KSh {car.price?.toLocaleString()}</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase">{car.year}</p>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                          <div className="flex items-center gap-1.5">
-                            <Gauge className="h-3 w-3 text-primary" />
-                            <p className="text-[9px] font-bold text-muted-foreground uppercase truncate">{car.mileage || '0 KM'}</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="flex items-center gap-2">
+                            <Gauge className="h-3.5 w-3.5 text-slate-400" />
+                            <p className="text-[10px] font-black text-slate-500 uppercase truncate">{car.mileage || '0 KM'}</p>
                           </div>
-                          <div className="flex items-center gap-1.5 justify-end">
-                            <SettingsIcon className="h-3 w-3 text-primary" />
-                            <p className="text-[9px] font-bold text-muted-foreground uppercase truncate">{car.transmission || 'MT'}</p>
+                          <div className="flex items-center gap-2 justify-end">
+                            <SettingsIcon className="h-3.5 w-3.5 text-slate-400" />
+                            <p className="text-[10px] font-black text-slate-500 uppercase truncate">{car.transmission || 'MT'}</p>
                           </div>
                         </div>
 
-                        <div className="pt-2 border-t border-border/50 mt-auto">
-                          <div className="flex items-center justify-between text-[8px] font-black uppercase text-muted-foreground tracking-widest">
-                            <span className="flex items-center gap-1"><Fuel className="h-2.5 w-2.5" /> {car.fuel_type || 'PET'}</span>
-                            <span className="text-brand-red">Details <ChevronRight className="h-2 w-2 inline" /></span>
+                        <div className="pt-4 border-t border-slate-100 mt-auto">
+                          <div className="flex items-center justify-between text-[9px] font-black uppercase text-slate-400 tracking-widest">
+                            <span className="flex items-center gap-2"><Fuel className="h-3 w-3" /> {car.fuel_type || 'PET'}</span>
+                            <span className="text-brand-red group-hover:underline underline-offset-4">Details <ChevronRight className="h-3 w-3 inline" /></span>
                           </div>
                         </div>
                       </div>
@@ -491,33 +509,33 @@ const Catalogue = () => {
 
       {/* Formal Business Leads */}
       <section className="container mx-auto px-4 pb-20">
-        <div className="grid md:grid-cols-2 gap-4">
-           <div className="bg-background border border-border p-8 rounded-xl flex flex-col items-center text-center space-y-4 shadow-sm hover:border-primary/30 transition-all group">
-              <div className="h-12 w-12 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                 <CreditCard className="h-6 w-6" />
+        <div className="grid md:grid-cols-2 gap-8">
+           <div className="bg-white border border-slate-200 p-10 rounded-2xl flex flex-col items-center text-center space-y-6 shadow-lg hover:shadow-2xl hover:border-primary/30 transition-all group">
+              <div className="h-16 w-16 rounded-xl bg-slate-100 flex items-center justify-center text-slate-900 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner">
+                 <CreditCard className="h-8 w-8" />
               </div>
-              <div className="space-y-1">
-                 <h4 className="text-lg font-extrabold uppercase tracking-tight">Institutional Financing</h4>
-                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest max-w-sm">Aggressive 90% capital backing via tier-1 partners. 48h dispatch audit cycle.</p>
+              <div className="space-y-2">
+                 <h4 className="text-xl font-black uppercase tracking-tight text-slate-900">Institutional Financing</h4>
+                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest max-w-sm leading-relaxed">Aggressive 90% capital backing via tier-1 partners. 48h dispatch audit cycle.</p>
               </div>
-              <Button size="sm" className="px-10 h-10 rounded-md bg-primary hover:bg-primary/90 text-white font-bold text-[10px] uppercase tracking-widest" onClick={() => navigate("/asset-finance")}>
+              <Button size="lg" className="px-12 h-14 rounded-xl bg-slate-900 hover:bg-brand-red text-white font-black text-[11px] uppercase tracking-[0.3em] transition-all duration-500" onClick={() => navigate("/asset-finance")}>
                 Initialize Finance Application
               </Button>
            </div>
-           <div className="bg-background border border-border p-8 rounded-xl flex flex-col items-center text-center space-y-4 shadow-sm hover:border-brand-red/30 transition-all group">
-              <div className="h-12 w-12 rounded-full bg-brand-red/5 flex items-center justify-center text-brand-red group-hover:bg-brand-red group-hover:text-white transition-all duration-300">
-                 <Headphones className="h-6 w-6" />
+           <div className="bg-white border border-slate-200 p-10 rounded-2xl flex flex-col items-center text-center space-y-6 shadow-lg hover:shadow-2xl hover:border-brand-red/30 transition-all group">
+              <div className="h-16 w-16 rounded-xl bg-slate-100 flex items-center justify-center text-slate-900 group-hover:bg-brand-red group-hover:text-white transition-all duration-500 shadow-inner">
+                 <Headphones className="h-8 w-8" />
               </div>
-              <div className="space-y-1">
-                 <h4 className="text-lg font-extrabold uppercase tracking-tight">Technical Support Hub</h4>
-                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest max-w-sm">Direct line to technical yard dispatch. Mean response latency: 12 minutes.</p>
+              <div className="space-y-2">
+                 <h4 className="text-xl font-black uppercase tracking-tight text-slate-900">Technical Support Hub</h4>
+                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest max-w-sm leading-relaxed">Direct line to technical yard dispatch. Mean response latency: 12 minutes.</p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full justify-center">
-                <Button size="sm" variant="outline" className="px-10 h-10 rounded-md border-border text-foreground font-bold text-[10px] uppercase tracking-widest group-hover:bg-brand-red group-hover:text-white group-hover:border-brand-red flex-1 sm:flex-none" onClick={() => navigate("/contact")}>
-                  Establish Direct Contact
+              <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                <Button size="lg" variant="outline" className="px-12 h-14 rounded-xl border-slate-200 text-slate-900 font-black text-[11px] uppercase tracking-[0.3em] group-hover:bg-slate-900 group-hover:text-white transition-all duration-500 flex-1 sm:flex-none shadow-md" onClick={() => navigate("/contact")}>
+                  Establish Contact
                 </Button>
-                <Button size="sm" variant="outline" className="px-10 h-10 rounded-md border-border text-foreground font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white flex-1 sm:flex-none" onClick={() => window.open("https://maps.app.goo.gl/7x51yn7VHwHfpEpV8")}>
-                  <MapPin className="h-3 w-3 mr-2" />
+                <Button size="lg" variant="outline" className="px-12 h-14 rounded-xl border-slate-200 text-slate-900 font-black text-[11px] uppercase tracking-[0.3em] hover:bg-primary hover:text-white transition-all duration-500 flex-1 sm:flex-none shadow-md" onClick={() => window.open("https://maps.app.goo.gl/7x51yn7VHwHfpEpV8")}>
+                  <MapPin className="h-4 w-4 mr-2" />
                   View Strategic Hub
                 </Button>
               </div>
