@@ -37,6 +37,7 @@ interface Car {
   status: string | null;
   images: any;
   available_colors?: string[] | null;
+  units_available?: number | null;
 }
 
 const CarDetails = () => {
@@ -245,9 +246,15 @@ const CarDetails = () => {
 
                 {/* Status Badges */}
                 <div className="absolute top-6 left-6 flex flex-col gap-2">
-                   <Badge className="bg-brand-red text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-none py-1.5 px-4 border-none shadow-xl">
-                      Verified Unit
-                   </Badge>
+                   {car.status === "available" && car.units_available && car.units_available > 1 ? (
+                     <Badge className="bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-none py-1.5 px-4 border-none shadow-xl">
+                        Available ({car.units_available})
+                     </Badge>
+                   ) : (
+                     <Badge className="bg-brand-red text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-none py-1.5 px-4 border-none shadow-xl">
+                        Verified Unit
+                     </Badge>
+                   )}
                    <Badge className="bg-white/10 text-white backdrop-blur-md border border-white/20 text-[9px] font-bold uppercase tracking-[0.1em] rounded-none py-1 px-3">
                       High Definition Asset
                    </Badge>
@@ -344,6 +351,14 @@ const CarDetails = () => {
                  <div className="absolute top-0 right-0 p-4">
                     <Trophy className="h-8 w-8 text-brand-red/10 group-hover:text-brand-red/20 transition-all duration-700" />
                  </div>
+
+                 {car.status === "available" && car.units_available && car.units_available > 1 && (
+                   <div className="mb-4 flex items-center gap-2 text-emerald-500 bg-emerald-500/10 w-fit px-3 py-1 rounded-sm border border-emerald-500/20">
+                      <CheckCircle className="h-3.5 w-3.5" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Available ({car.units_available}) units in stock</span>
+                   </div>
+                 )}
+
                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.4em] mb-2">Valuation Amount</p>
                  <div className="flex items-baseline gap-3">
                     <span className="text-4xl font-black text-white tracking-tighter">KES {car.price.toLocaleString()}</span>

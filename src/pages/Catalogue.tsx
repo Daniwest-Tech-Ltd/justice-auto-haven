@@ -37,6 +37,7 @@ interface Car {
   is_featured: boolean | null;
   created_at: string | null;
   yard_location: string | null;
+  units_available?: number | null;
 }
 
 const Catalogue = () => {
@@ -401,6 +402,11 @@ const Catalogue = () => {
                            <Badge className={`text-white text-[7px] font-bold uppercase rounded-sm py-0.5 px-1.5 tracking-wider border-none ${car.status === 'sold' ? 'bg-red-600' : 'bg-green-600'}`}>
                               {car.status === 'sold' ? 'SOLD' : 'AVAILABLE'}
                            </Badge>
+                           {car.status === 'available' && car.units_available && car.units_available > 1 && (
+                             <Badge className="bg-emerald-600 text-white text-[7px] font-bold uppercase rounded-sm py-0.5 px-1.5 tracking-wider border-none shadow-md">
+                                ({car.units_available}) UNITS
+                             </Badge>
+                           )}
                         </div>
 
                         <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300">

@@ -212,14 +212,17 @@ const Home = () => {
                     className="group relative bg-slate-50 border-slate-200 hover:border-brand-red/40 transition-all duration-500 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-xl border-b-4 hover:border-b-brand-red"
                     onClick={() => navigate(`/car/${car.id}`)}
                   >
-                    <div className="aspect-[16/10] overflow-hidden relative">
-                      <img src={imageUrl || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.95] group-hover:brightness-110 animate-flash" />
-                      <div className="absolute inset-0 glass-clear opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-10 transition-opacity" />
-                      <div className="absolute top-4 right-4">
-                         <Badge className="bg-brand-red text-white text-[9px] font-black uppercase rounded-md py-1.5 px-3 border-none shadow-lg tracking-widest">In Stock</Badge>
+                      <div className="aspect-[16/10] overflow-hidden relative">
+                        <img src={imageUrl || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.95] group-hover:brightness-110 animate-flash" />
+                        <div className="absolute inset-0 glass-clear opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-10 transition-opacity" />
+                        <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
+                           <Badge className="bg-brand-red text-white text-[9px] font-black uppercase rounded-md py-1.5 px-3 border-none shadow-lg tracking-widest whitespace-nowrap">In Stock</Badge>
+                           {car.status === 'available' && car.units_available > 1 && (
+                             <Badge className="bg-emerald-600 text-white text-[8px] font-black uppercase rounded-md py-1 px-2 border-none shadow-lg tracking-widest whitespace-nowrap">Available ({car.units_available})</Badge>
+                           )}
+                        </div>
                       </div>
-                    </div>
 
                     <CardContent className="p-6 flex flex-col flex-1">
                       <div className="mb-4">
