@@ -680,6 +680,20 @@ const AdminSettings = () => {
 
               {/* Main Terminal Content Area */}
               <div className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/50 p-6 md:p-12">
+                <TabsContent value="system" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+                  <div className="space-y-4">
+                    <div className="bg-muted/50 rounded-lg p-6">
+                      <h3 className="text-lg font-bold mb-4">System Information</h3>
+                      <div className="space-y-2 text-sm">
+                        <p><strong>Version:</strong> {companySettings.system_version}</p>
+                        <p><strong>Environment:</strong> {companySettings.environment}</p>
+                        <p><strong>Database:</strong> Connected</p>
+                        <p><strong>Storage:</strong> Active</p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
                 <TabsContent value="profile" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="flex justify-center pb-6 border-b">
                 <AvatarUpload
@@ -774,7 +788,7 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
             
-            <TabsContent value="security" className="space-y-6 pt-6">
+            <TabsContent value="security" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-6">
                 {/* Password Change */}
                 <div className="p-6 bg-muted/30 rounded-lg border">
@@ -815,7 +829,7 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="preferences" className="space-y-6 pt-6">
+            <TabsContent value="preferences" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Theme Settings</h3>
@@ -846,7 +860,7 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="notifications" className="space-y-6 pt-6">
+            <TabsContent value="notifications" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Notification Preferences</h3>
                 <p className="text-sm text-muted-foreground">
@@ -958,7 +972,7 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="privacy" className="space-y-6 pt-6">
+            <TabsContent value="privacy" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Privacy Settings</h3>
                 <p className="text-sm text-muted-foreground">
@@ -1013,7 +1027,7 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="company" className="space-y-6 pt-6">
+            <TabsContent value="company" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="company_name">
@@ -1068,13 +1082,13 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="mobile-app" className="space-y-6 pt-6">
+            <TabsContent value="mobile-app" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <MobileAppManager />
             </TabsContent>
 
 
 
-            <TabsContent value="system" className="space-y-6 pt-6">
+            <TabsContent value="system" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-4">
                 <div className="bg-muted/50 rounded-lg p-6">
                   <h3 className="text-lg font-bold mb-4">System Information</h3>
@@ -1088,7 +1102,7 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="danger" className="space-y-6 pt-6">
+            <TabsContent value="danger" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-4">
                 <div className="border border-destructive/50 rounded-lg p-6 bg-destructive/5">
                   <h3 className="text-lg font-semibold text-destructive mb-2">Danger Zone</h3>
@@ -1121,7 +1135,7 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="maintenance" className="space-y-6 pt-6">
+            <TabsContent value="maintenance" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-6">
                 {/* Current Status */}
                 <div className={`rounded-lg p-6 border-2 ${
@@ -1372,8 +1386,7 @@ const AdminSettings = () => {
               </div>
             </TabsContent>
 
-            {/* Backup Tab */}
-            <TabsContent value="backup" className="space-y-6 pt-6">
+            <TabsContent value="backup" className="m-0 border-none p-0 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="space-y-6">
                 {/* Dual Database Monitor */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
