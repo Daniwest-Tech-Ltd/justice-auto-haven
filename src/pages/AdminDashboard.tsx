@@ -260,7 +260,7 @@ const AdminDashboard = () => {
       label: "System Settings",
       items: [
         { title: "Settings", icon: Settings, path: "/admin/settings" },
-        { title: "Data Backup", icon: Database, path: "/admin/backup" },
+        { title: "Data Backup", icon: Database, path: "/admin/settings?tab=backup" },
         { title: "System Health", icon: Activity, path: "/system-health" },
         { title: "Auth Details", icon: Key, path: "/system-auth-details" },
         { title: "Database Details", icon: Database, path: "/system-database-details" },

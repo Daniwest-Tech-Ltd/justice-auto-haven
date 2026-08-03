@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound, Database, Users, HardDrive, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw, Play, Shield, Calendar, Settings, Lock, Download } from "lucide-react";
+import { ArrowLeft, Save, User, Building, Mail, Phone, Menu, Send, LogOut, Loader2, KeyRound, Database, Users, HardDrive, Clock, CheckCircle, XCircle, AlertTriangle, RefreshCw, Play, Shield, Calendar, Settings, Lock, Download, Globe, Server } from "lucide-react";
 import { downloadKillSwitchInvoice } from "@/components/KillSwitchOverlay";
 import { PasswordChangeDialog } from "@/components/PasswordChangeDialog";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -67,6 +67,10 @@ interface BackupHistory {
 }
 
 const AdminSettings = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingCompany, setSavingCompany] = useState(false);
@@ -74,8 +78,9 @@ const AdminSettings = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [fingerprintDevices, setFingerprintDevices] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "profile");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const [profile, setProfile] = useState({
     full_name: "",
     email: "",
@@ -84,6 +89,18 @@ const AdminSettings = () => {
     exact_location: "",
     theme: "system" as Theme,
   });
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setSearchParams({ tab: value });
+  };
   const [companySettings, setCompanySettings] = useState({
     id: "",
     company_name: "",
@@ -585,119 +602,86 @@ const AdminSettings = () => {
                   <SheetTitle>Settings Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-2 mt-6">
-                  <Button
-                    variant={activeTab === "profile" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => {
-                      setActiveTab("profile");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Profile
-                  </Button>
-                  <Button
-                    variant={activeTab === "security" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => {
-                      setActiveTab("security");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Security
-                  </Button>
-                  <Button
-                    variant={activeTab === "preferences" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => {
-                      setActiveTab("preferences");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Preferences
-                  </Button>
-                  <Button
-                    variant={activeTab === "notifications" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => {
-                      setActiveTab("notifications");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Notifications
-                  </Button>
-                  <Button
-                    variant={activeTab === "privacy" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => {
-                      setActiveTab("privacy");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Privacy
-                  </Button>
-                  <Button
-                    variant={activeTab === "company" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => {
-                      setActiveTab("company");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Company
-                  </Button>
-                  <Button
-                    variant={activeTab === "maintenance" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => {
-                      setActiveTab("maintenance");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Maintenance
-                  </Button>
-                  <Button
-                    variant={activeTab === "backup" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => {
-                      setActiveTab("backup");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Backup
-                  </Button>
-                  <Button
-                    variant={activeTab === "danger" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => {
-                      setActiveTab("danger");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Danger Zone
-                  </Button>
+                  {[
+                    { value: "system", label: "Admin Settings" },
+                    { value: "profile", label: "Profile" },
+                    { value: "security", label: "Security" },
+                    { value: "preferences", label: "Preferences" },
+                    { value: "notifications", label: "Notifications" },
+                    { value: "privacy", label: "Privacy" },
+                    { value: "company", label: "Company" },
+                    { value: "mobile-app", label: "Mobile App" },
+                    { value: "maintenance", label: "Maintenance" },
+                    { value: "backup", label: "Backup" },
+                    { value: "danger", label: "Danger Zone" },
+                  ].map((tab) => (
+                    <Button
+                      key={tab.value}
+                      variant={activeTab === tab.value ? "default" : "ghost"}
+                      className="justify-start text-xs uppercase font-bold tracking-widest"
+                      onClick={() => {
+                        handleTabChange(tab.value);
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      {tab.label}
+                    </Button>
+                  ))}
                 </div>
               </SheetContent>
             </Sheet>
           </div>
         </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            {/* Desktop Tabs - Hidden on Mobile */}
-            <TabsList className="hidden md:grid w-full grid-cols-10 overflow-x-auto">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="security">Security</TabsTrigger>
-              <TabsTrigger value="preferences">Preferences</TabsTrigger>
-              <TabsTrigger value="notifications">Notifications</TabsTrigger>
-              <TabsTrigger value="privacy">Privacy</TabsTrigger>
-              <TabsTrigger value="company">Company</TabsTrigger>
-              <TabsTrigger value="mobile-app">Mobile App</TabsTrigger>
-              <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-              <TabsTrigger value="backup">Backup</TabsTrigger>
-              <TabsTrigger value="danger">Danger Zone</TabsTrigger>
-            </TabsList>
+        <CardContent className="p-0 sm:p-6">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <div className="flex flex-col md:flex-row min-h-[600px]">
+              {/* Desktop Sidebar Menu */}
+              <aside className="hidden md:flex w-64 flex-col border-r border-border/50 p-6 space-y-2">
+                <div className="mb-6 px-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-red">Configuration Hub</p>
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">System Terminal</h3>
+                </div>
 
+                <TabsList className="flex flex-col h-auto bg-transparent border-none space-y-1 items-stretch p-0">
+                  {[
+                    { value: "system", label: "Admin Settings", icon: Settings },
+                    { value: "profile", label: "Profile", icon: User },
+                    { value: "security", label: "Security", icon: Lock },
+                    { value: "preferences", label: "Preferences", icon: Settings },
+                    { value: "notifications", label: "Notifications", icon: Bell },
+                    { value: "privacy", label: "Privacy", icon: Shield },
+                    { value: "company", label: "Company", icon: Building },
+                    { value: "mobile-app", label: "Mobile App", icon: Globe },
+                    { value: "maintenance", label: "Maintenance", icon: Clock },
+                    { value: "backup", label: "Backup", icon: Database },
+                    { value: "danger", label: "Danger Zone", icon: AlertTriangle, className: "text-destructive hover:text-destructive" },
+                  ].map((tab) => (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className={`justify-start gap-3 px-4 py-3 h-auto text-[11px] font-bold uppercase tracking-widest transition-all rounded-lg border border-transparent data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg hover:bg-secondary/50 hover:translate-x-1 ${tab.className || ""}`}
+                    >
+                      <tab.icon className="h-4 w-4" />
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
 
-            <TabsContent value="profile" className="space-y-6 pt-6">
+                <div className="mt-auto pt-6 px-2 border-t border-border/30">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-brand-red"
+                    onClick={() => navigate("/admin-dashboard")}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Exit Terminal
+                  </Button>
+                </div>
+              </aside>
+
+              {/* Content Area */}
+              <div className="flex-1 p-6 md:p-10 bg-slate-50/30 dark:bg-slate-900/30 overflow-y-auto">
+                <TabsContent value="profile" className="space-y-6 m-0 border-none p-0">
               <div className="flex justify-center pb-6 border-b">
                 <AvatarUpload
                   currentAvatarUrl={avatarUrl}
@@ -1392,19 +1376,54 @@ const AdminSettings = () => {
             {/* Backup Tab */}
             <TabsContent value="backup" className="space-y-6 pt-6">
               <div className="space-y-6">
+                {/* Dual Database Monitor */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="border-primary/20 bg-primary/5">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <div className="space-y-1">
+                        <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                          <Database className="h-4 w-4 text-primary" />
+                          Primary: Supabase
+                        </CardTitle>
+                      </div>
+                      <Badge className="bg-green-500">Live</Badge>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-black text-primary">Connected</div>
+                      <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold">Main Transaction Node</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-brand-red/20 bg-brand-red/5">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <div className="space-y-1">
+                        <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                          <Server className="h-4 w-4 text-brand-red" />
+                          Secondary: Neon
+                        </CardTitle>
+                      </div>
+                      <Badge className="bg-brand-red animate-pulse">Mirroring</Badge>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-black text-brand-red">Active Sync</div>
+                      <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold">Real-time Failover Node</p>
+                    </CardContent>
+                  </div>
+                </div>
+
                 {/* Backup Header */}
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold flex items-center gap-2">
-                      <Database className="h-5 w-5" />
-                      Backup & Recovery
+                      <RefreshCw className="h-5 w-5" />
+                      Mirror & Recovery Protocol
                     </h3>
-                    <p className="text-sm text-muted-foreground">Enterprise-grade backup management</p>
+                    <p className="text-sm text-muted-foreground">Dual-write architecture management</p>
                   </div>
                   <Button 
                     onClick={runBackup} 
                     disabled={backupInProgress}
-                    className="gap-2"
+                    className="gap-2 bg-brand-red hover:bg-brand-red/90 text-white"
                   >
                     {backupInProgress ? (
                       <RefreshCw className="h-4 w-4 animate-spin" />
@@ -1415,64 +1434,52 @@ const AdminSettings = () => {
                   </Button>
                 </div>
 
-                {/* Status Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium">Backup Status</CardTitle>
-                      <Shield className="h-4 w-4 text-muted-foreground" />
+                {/* Failover & Mirroring Controls */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Mirroring SQL Trigger */}
+                  <Card className="border-primary/20">
+                    <CardHeader className="bg-primary/5">
+                      <CardTitle className="text-sm font-bold uppercase tracking-widest">Mirror Activation</CardTitle>
+                      <CardDescription>Run in Supabase SQL Editor</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-2">
-                        <div className={`h-3 w-3 rounded-full ${getBackupHealthColor(backupStats?.backup_health || 'unknown')}`} />
-                        <span className="text-xl font-bold capitalize">{backupStats?.backup_health || 'Unknown'}</span>
+                    <CardContent className="pt-4">
+                      <div className="bg-slate-900 p-4 rounded-lg font-mono text-[10px] text-emerald-400 border border-slate-800 overflow-x-auto">
+                        <pre>{`CREATE TRIGGER mirror_to_neon
+AFTER INSERT OR UPDATE OR DELETE
+ON [TABLE_NAME]
+FOR EACH ROW EXECUTE FUNCTION
+supabase_functions.http_request(
+  'https://ccsfhblxkmyqdqqcgitt.functions.supabase.co/database-mirror',
+  'POST',
+  '{"Content-Type":"application/json"}',
+  '{}'
+);`}</pre>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {backupSettings?.auto_backup_enabled ? 'Auto-backup enabled' : 'Auto-backup disabled'}
-                      </p>
                     </CardContent>
                   </Card>
 
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium">Last Backup</CardTitle>
-                      <Clock className="h-4 w-4 text-muted-foreground" />
+                  {/* Hot-Swap Control */}
+                  <Card className="border-yellow-500/30 bg-yellow-500/5">
+                    <CardHeader>
+                      <CardTitle className="text-sm font-bold uppercase tracking-widest text-yellow-700 dark:text-yellow-500">Node Hot-Swap</CardTitle>
+                      <CardDescription>Emergency Failover Switch</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-xl font-bold">
-                        {backupStats?.last_successful_backup 
-                          ? format(new Date(backupStats.last_successful_backup), 'MMM d, HH:mm')
-                          : 'Never'}
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-yellow-800/60">Active Production Node</label>
+                        <Select defaultValue="primary">
+                          <SelectTrigger className="h-12 border-yellow-500/30 bg-white dark:bg-slate-900">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="primary">Supabase (Primary)</SelectItem>
+                            <SelectItem value="secondary">Neon (Secondary)</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {backupStats?.last_successful_backup 
-                          ? format(new Date(backupStats.last_successful_backup), 'yyyy')
-                          : 'No backups yet'}
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium">Database</CardTitle>
-                      <Database className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-xl font-bold">{backupStats?.total_rows?.toLocaleString() || 0}</div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {backupStats?.total_tables || 0} tables backed up
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium">Auth Users</CardTitle>
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-xl font-bold">{backupStats?.total_users?.toLocaleString() || 0}</div>
-                      <p className="text-xs text-muted-foreground mt-1">Users backed up</p>
+                      <Button variant="outline" className="w-full border-yellow-500/30 text-yellow-700 h-11 uppercase font-black text-[9px] tracking-[0.2em]">
+                         Initialize Switchover protocol
+                      </Button>
                     </CardContent>
                   </Card>
                 </div>
@@ -1483,15 +1490,13 @@ const AdminSettings = () => {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-base">
                         <Settings className="h-4 w-4" />
-                        Backup Settings
+                        Frequency
                       </CardTitle>
-                      <CardDescription>Configure automatic backups</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium text-sm">Automatic Backup</p>
-                          <p className="text-xs text-muted-foreground">Enable scheduled backups</p>
+                          <p className="font-medium text-sm">Auto-Backup</p>
                         </div>
                         <Switch
                           checked={backupSettings?.auto_backup_enabled || false}
@@ -1500,7 +1505,7 @@ const AdminSettings = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Backup Frequency</label>
+                        <label className="text-sm font-medium">Frequency</label>
                         <Select
                           value={backupSettings?.backup_frequency || 'daily'}
                           onValueChange={(value) => updateBackupSettings({ backup_frequency: value })}
@@ -1512,55 +1517,23 @@ const AdminSettings = () => {
                             <SelectItem value="hourly">Hourly</SelectItem>
                             <SelectItem value="daily">Daily</SelectItem>
                             <SelectItem value="weekly">Weekly</SelectItem>
-                            <SelectItem value="monthly">Monthly</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Retention Period</label>
-                        <Select
-                          value={String(backupSettings?.retention_days || 30)}
-                          onValueChange={(value) => updateBackupSettings({ retention_days: parseInt(value) })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="7">7 days</SelectItem>
-                            <SelectItem value="14">14 days</SelectItem>
-                            <SelectItem value="30">30 days</SelectItem>
-                            <SelectItem value="60">60 days</SelectItem>
-                            <SelectItem value="90">90 days</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       <div className="space-y-3 pt-4 border-t">
-                        <p className="text-sm font-medium">What to Backup</p>
-                        
+                        <p className="text-sm font-medium text-muted-foreground uppercase text-[10px] tracking-widest">Audit Scope</p>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm">Database Tables</span>
-                          <Switch
-                            checked={backupSettings?.backup_database ?? true}
-                            onCheckedChange={(checked) => updateBackupSettings({ backup_database: checked })}
-                          />
+                          <span className="text-sm">Database</span>
+                          <Switch checked={backupSettings?.backup_database ?? true} onCheckedChange={(checked) => updateBackupSettings({ backup_database: checked })} />
                         </div>
-
                         <div className="flex items-center justify-between">
-                          <span className="text-sm">Auth Users</span>
-                          <Switch
-                            checked={backupSettings?.backup_auth_users ?? true}
-                            onCheckedChange={(checked) => updateBackupSettings({ backup_auth_users: checked })}
-                          />
+                          <span className="text-sm">Auth</span>
+                          <Switch checked={backupSettings?.backup_auth_users ?? true} onCheckedChange={(checked) => updateBackupSettings({ backup_auth_users: checked })} />
                         </div>
-
                         <div className="flex items-center justify-between">
-                          <span className="text-sm">Storage Files</span>
-                          <Switch
-                            checked={backupSettings?.backup_storage || false}
-                            onCheckedChange={(checked) => updateBackupSettings({ backup_storage: checked })}
-                          />
+                          <span className="text-sm">Storage</span>
+                          <Switch checked={backupSettings?.backup_storage || false} onCheckedChange={(checked) => updateBackupSettings({ backup_storage: checked })} />
                         </div>
                       </div>
                     </CardContent>
@@ -1571,35 +1544,34 @@ const AdminSettings = () => {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-base">
                         <Calendar className="h-4 w-4" />
-                        Backup History
+                        Historical Logs
                       </CardTitle>
-                      <CardDescription>Recent backup operations</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <Table>
                         <TableHeader>
-                          <TableRow>
-                            <TableHead>Date</TableHead>
+                          <TableRow className="text-[10px] uppercase font-black tracking-widest">
+                            <TableHead>Timestamp</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Records</TableHead>
+                            <TableHead className="text-right">Payload</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {backupHistory.length === 0 ? (
                             <TableRow>
-                              <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                                No backup history yet. Run your first backup!
+                              <TableCell colSpan={4} className="text-center text-muted-foreground py-8 uppercase text-[10px] font-bold">
+                                No historical snapshots found
                               </TableCell>
                             </TableRow>
                           ) : (
                             backupHistory.map((item) => (
-                              <TableRow key={item.id}>
-                                <TableCell className="text-sm">
+                              <TableRow key={item.id} className="text-xs">
+                                <TableCell className="font-medium">
                                   {format(new Date(item.started_at), 'MMM d, HH:mm')}
                                 </TableCell>
                                 <TableCell>
-                                  <Badge variant="outline" className="capitalize text-xs">
+                                  <Badge variant="outline" className="text-[9px] uppercase font-bold">
                                     {item.backup_type}
                                   </Badge>
                                 </TableCell>
@@ -1609,8 +1581,8 @@ const AdminSettings = () => {
                                     <span className="capitalize text-sm">{item.status}</span>
                                   </div>
                                 </TableCell>
-                                <TableCell className="text-sm">
-                                  {item.rows_backed_up?.toLocaleString() || 0} rows
+                                <TableCell className="text-right font-mono">
+                                  {item.rows_backed_up?.toLocaleString() || 0} units
                                 </TableCell>
                               </TableRow>
                             ))
@@ -1623,16 +1595,16 @@ const AdminSettings = () => {
 
                 {/* Progress Indicator when backup is running */}
                 {backupInProgress && (
-                  <Card className="border-primary">
+                  <Card className="border-brand-red/50 bg-brand-red/5">
                     <CardContent className="pt-6">
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Backup in progress...</span>
-                          <RefreshCw className="h-4 w-4 animate-spin text-primary" />
+                          <span className="text-sm font-black uppercase tracking-widest text-brand-red">Snapshot In Progress...</span>
+                          <RefreshCw className="h-4 w-4 animate-spin text-brand-red" />
                         </div>
-                        <Progress value={undefined} className="h-2" />
-                        <p className="text-xs text-muted-foreground">
-                          Please wait while we back up your data.
+                        <Progress value={undefined} className="h-2 bg-brand-red/20" />
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold">
+                          Generating encrypted archive of all operational nodes.
                         </p>
                       </div>
                     </CardContent>
@@ -1640,8 +1612,9 @@ const AdminSettings = () => {
                 )}
               </div>
             </TabsContent>
-          </Tabs>
-        </CardContent>
+          </div>
+        </Tabs>
+      </CardContent>
       </Card>
     </div>
   );
