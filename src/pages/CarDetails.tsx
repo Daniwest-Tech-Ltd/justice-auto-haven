@@ -488,118 +488,6 @@ const CarDetails = () => {
             </div>
           </div>
         </div>
-                 <div className="flex items-baseline gap-3">
-                    <span className="text-4xl font-black text-white tracking-tighter">KES {car.price.toLocaleString()}</span>
-                    <span className="text-[10px] font-bold text-brand-red uppercase tracking-widest">* Verified</span>
-                 </div>
-                 <div className="mt-4 flex items-center gap-2">
-                    <Activity className="h-3 w-3 text-brand-red animate-pulse" />
-                    <span className="text-[9px] font-black text-white/50 uppercase tracking-[0.2em]">Market Value Verified</span>
-                 </div>
-              </div>
-
-              {/* Transaction Dispatch Buttons */}
-              <div className="space-y-4">
-                {user && car.status === "available" && (
-                  <Button
-                    className="w-full h-20 bg-brand-red hover:bg-brand-red/90 text-white font-black text-[13px] uppercase tracking-[0.4em] rounded-sm btn-signal shadow-2xl transition-all"
-                    onClick={async () => {
-                      try {
-                        const { error } = await supabase.from("customer_orders").insert({
-                          customer_id: user.id,
-                          car_id: car.id,
-                          car_make: car.make,
-                          car_model: car.model,
-                          car_year: car.year,
-                          car_price: car.price,
-                          car_color: car.color,
-                          status: "order_placed"
-                        });
-                        if (error) throw error;
-                        toast({ title: "✅ PROTOCOL INITIATED", description: "Order successfully submitted to the dispatch center." });
-                        navigate("/my-orders");
-                      } catch (err: any) {
-                        toast({ title: "System Error", description: err.message, variant: "destructive" });
-                      }
-                    }}
-                  >
-                    <span className="flex items-center gap-3">
-                       <Zap className="h-5 w-5 fill-current" />
-                       Initialize Asset Acquisition
-                    </span>
-                  </Button>
-                )}
-
-                <div className="grid grid-cols-2 gap-4">
-                   <Button
-                      variant="outline"
-                      className="h-16 border-border hover:border-brand-red/40 bg-background text-[11px] font-black uppercase tracking-[0.2em] rounded-sm transition-all"
-                      onClick={() => navigate(`/compare?ids=${car.id}`)}
-                    >
-                      Compare Matrix
-                   </Button>
-                   <Button
-                      variant="outline"
-                      className="h-16 border-border hover:border-brand-red/40 bg-background text-[11px] font-black uppercase tracking-[0.2em] rounded-sm transition-all"
-                      onClick={() => navigate("/trade-in")}
-                    >
-                      Asset Exchange
-                   </Button>
-                </div>
-              </div>
-
-              {/* Advisory Dispatch - Contact Grid */}
-              <div className="space-y-4">
-                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 px-1">Technical Advisory Desk</p>
-                 <div className="grid grid-cols-1 gap-3">
-                    <a href={`https://wa.me/254722827458?text=${encodeURIComponent(`[ASSET QUERY] I'm interested in the ${car.year} ${car.make} ${car.model} (ID: ${car.stock_id})`)}`} target="_blank" rel="noopener noreferrer">
-                      <Card className="bg-green-500/5 border-green-500/20 hover:bg-green-500 hover:border-green-500 transition-all group cursor-pointer p-4 rounded-sm">
-                        <div className="flex items-center justify-between">
-                           <div className="flex items-center gap-4">
-                              <MessageCircle className="h-5 w-5 text-green-500 group-hover:text-white transition-colors" />
-                              <div>
-                                 <p className="text-[10px] font-black text-white uppercase tracking-widest mb-0.5">Secure Dispatch</p>
-                                 <p className="text-[9px] font-bold text-muted-foreground group-hover:text-white/80 uppercase tracking-tight">WhatsApp technical line</p>
-                              </div>
-                           </div>
-                           <ArrowUpRight className="h-4 w-4 text-green-500 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-                        </div>
-                      </Card>
-                    </a>
-
-                    <div className="grid grid-cols-2 gap-3">
-                       <a href="tel:+254722827458">
-                         <Card className="bg-primary/5 border-border hover:bg-primary hover:border-primary transition-all group cursor-pointer p-4 rounded-sm h-full">
-                            <div className="space-y-3">
-                               <Phone className="h-5 w-5 text-primary group-hover:text-white" />
-                               <div>
-                                  <p className="text-[10px] font-black text-white uppercase tracking-widest mb-0.5">Voice Desk</p>
-                                  <p className="text-[9px] font-bold text-muted-foreground group-hover:text-white/80 uppercase tracking-tight">Direct Comms</p>
-                               </div>
-                            </div>
-                         </Card>
-                       </a>
-                       <a href="mailto:support@justiceultimateautomobiles.com">
-                         <Card className="bg-primary/5 border-border hover:bg-primary hover:border-primary transition-all group cursor-pointer p-4 rounded-sm h-full">
-                            <div className="space-y-3">
-                               <Mail className="h-5 w-5 text-primary group-hover:text-white" />
-                               <div>
-                                  <p className="text-[10px] font-black text-white uppercase tracking-widest mb-0.5">Formal Query</p>
-                                  <p className="text-[9px] font-bold text-muted-foreground group-hover:text-white/80 uppercase tracking-tight">Email Support</p>
-                               </div>
-                            </div>
-                         </Card>
-                       </a>
-                    </div>
-                 </div>
-                 <div className="flex items-center justify-center gap-2 pt-2">
-                    <Activity className="h-3 w-3 text-brand-red animate-pulse" />
-                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">Technical Agents Online: Active Now</span>
-                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Narrative & Colors Section */}
         <div className="mt-24 space-y-16">
@@ -607,18 +495,18 @@ const CarDetails = () => {
              <div className="lg:col-span-8 space-y-8">
                 <div className="space-y-4">
                    <div className="flex items-center gap-4">
-                      <h2 className="text-xl md:text-2xl font-black tracking-tight text-white uppercase">Executive Overview</h2>
+                      <h2 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 uppercase">Executive Overview</h2>
                       <div className="h-1 flex-1 bg-brand-red/20" />
                    </div>
                    {car.description ? (
-                      <div className="bg-secondary/5 border-l-4 border-brand-red p-8 rounded-r-md">
-                         <p className="text-[11px] md:text-xs text-white/80 leading-relaxed font-bold uppercase tracking-[0.05em] whitespace-pre-line">
+                      <div className="bg-white border-l-4 border-brand-red p-8 rounded-r-md shadow-sm">
+                         <p className="text-[11px] md:text-xs text-slate-600 leading-relaxed font-bold uppercase tracking-[0.05em] whitespace-pre-line">
                             {car.description}
                          </p>
                       </div>
                    ) : (
-                      <div className="bg-secondary/5 p-8 rounded-md border border-border">
-                         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest italic">Official asset description pending technical upload.</p>
+                      <div className="bg-white p-8 rounded-md border border-slate-100">
+                         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic">Official asset description pending technical upload.</p>
                       </div>
                    )}
                 </div>
@@ -627,11 +515,11 @@ const CarDetails = () => {
                 {car.available_colors && car.available_colors.length > 0 && (
                   <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                       <h3 className="text-lg font-black tracking-tight text-white uppercase">Operational Variants</h3>
+                       <h3 className="text-lg font-black tracking-tight text-slate-900 uppercase">Operational Variants</h3>
                        <div className="h-1 flex-1 bg-brand-red/20" />
                     </div>
-                    <Card className="bg-background border-border p-8 rounded-md">
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] mb-6">Inventory Matrix: Alternative Finishes</p>
+                    <Card className="bg-white border-slate-100 p-8 rounded-2xl shadow-sm">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6">Inventory Matrix: Alternative Finishes</p>
                       <ColorDisplay colors={car.available_colors} />
                     </Card>
                   </div>
@@ -639,10 +527,10 @@ const CarDetails = () => {
              </div>
 
              <div className="lg:col-span-4">
-                <Card className="bg-card border-border p-8 space-y-8 rounded-md shadow-2xl">
+                <Card className="bg-white border-slate-200 p-8 space-y-8 rounded-3xl shadow-2xl">
                    <div className="text-center space-y-2">
                       <p className="text-[10px] font-black text-brand-red uppercase tracking-[0.4em]">Asset Protection</p>
-                      <h4 className="text-lg font-black text-white uppercase tracking-tight">Verified Logistics</h4>
+                      <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight">Verified Logistics</h4>
                    </div>
 
                    <div className="space-y-6">
@@ -652,18 +540,18 @@ const CarDetails = () => {
                         { icon: Wallet, title: "90% Funding", desc: "Tier-1 bank integration" },
                       ].map((item, i) => (
                         <div key={i} className="flex gap-4 items-start group">
-                           <div className="h-10 w-10 bg-primary/10 border border-primary/20 flex items-center justify-center rounded-sm group-hover:bg-brand-red transition-colors">
-                              <item.icon className="h-5 w-5 text-primary group-hover:text-white" />
+                           <div className="h-10 w-10 bg-slate-50 border border-slate-100 flex items-center justify-center rounded-xl group-hover:bg-brand-red transition-all">
+                              <item.icon className="h-5 w-5 text-slate-400 group-hover:text-white" />
                            </div>
                            <div>
-                              <p className="text-[11px] font-black text-white uppercase tracking-widest mb-1">{item.title}</p>
-                              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">{item.desc}</p>
+                              <p className="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-1">{item.title}</p>
+                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">{item.desc}</p>
                            </div>
                         </div>
                       ))}
                    </div>
 
-                   <Button variant="outline" className="w-full border-border text-[9px] font-black uppercase tracking-[0.3em] h-12 rounded-sm" onClick={() => navigate("/asset-finance")}>
+                   <Button variant="outline" className="w-full border-slate-200 text-[10px] font-black uppercase tracking-[0.3em] h-14 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-md" onClick={() => navigate("/asset-finance")}>
                       View Funding Deck
                    </Button>
                 </Card>
@@ -674,11 +562,11 @@ const CarDetails = () => {
         {/* Customer Intelligence (Reviews) */}
         <div className="mt-24">
            <div className="flex flex-col items-center gap-4 mb-16 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] text-brand-red">Operational Feedback</p>
-              <h2 className="text-xl md:text-3xl font-black tracking-tighter text-white uppercase leading-none">Client Intelligence</h2>
-              <div className="h-1 w-20 bg-brand-red mt-2" />
+              <p className="text-[11px] font-black uppercase tracking-[0.6em] text-brand-red">Operational Feedback</p>
+              <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 uppercase leading-none italic">Client Intelligence</h2>
+              <div className="h-1.5 w-24 bg-brand-red mt-4 rounded-full" />
            </div>
-           <Card className="bg-black/20 border-border p-8 rounded-md overflow-hidden">
+           <Card className="bg-white border-slate-200 p-10 rounded-3xl shadow-xl overflow-hidden">
               <ReviewsSection carId={car.id} carName={`${car.make} ${car.model}`} />
            </Card>
         </div>
@@ -686,11 +574,11 @@ const CarDetails = () => {
         {/* Analytics Engine */}
         <div className="mt-24">
            <div className="flex flex-col items-center gap-4 mb-12 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] text-brand-red">Market Dynamics</p>
-              <h2 className="text-xl md:text-3xl font-black tracking-tighter text-white uppercase leading-none">Asset Engagement</h2>
-              <div className="h-1 w-20 bg-brand-red mt-2" />
+              <p className="text-[11px] font-black uppercase tracking-[0.6em] text-brand-red">Market Dynamics</p>
+              <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 uppercase leading-none italic">Asset Engagement</h2>
+              <div className="h-1.5 w-24 bg-brand-red mt-4 rounded-full" />
            </div>
-           <Card className="bg-background border-border p-8 rounded-md shadow-2xl">
+           <Card className="bg-white border-slate-200 p-10 rounded-3xl shadow-2xl">
               <VehicleAnalyticsChart carId={car.id} />
            </Card>
         </div>
@@ -699,60 +587,60 @@ const CarDetails = () => {
         {similarCars.length > 0 && (
           <div className="mt-24">
             <div className="flex flex-col items-center gap-4 mb-16 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] text-brand-red">Comparative Units</p>
-              <h2 className="text-xl md:text-3xl font-black tracking-tighter text-white uppercase leading-none">Similar {car.make} Units</h2>
-              <div className="h-1 w-20 bg-brand-red mt-2" />
+              <p className="text-[11px] font-black uppercase tracking-[0.6em] text-brand-red">Comparative Units</p>
+              <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 uppercase leading-none italic">Similar {car.make} Units</h2>
+              <div className="h-1.5 w-24 bg-brand-red mt-4 rounded-full" />
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {similarCars.map((similarCar) => {
                 const images = getImages(similarCar);
                 return (
                   <Card
                     key={similarCar.id}
-                    className="group relative bg-background border-border hover:border-brand-red/40 transition-all duration-300 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-md"
+                    className="group relative bg-white border-slate-200 hover:border-brand-red/40 transition-all duration-500 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-2xl border-b-4 hover:border-b-brand-red"
                     onClick={() => {
                       navigate(`/car/${similarCar.id}`);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      window.scrollTo({ top: 0, behavior: 'instant' });
                     }}
                   >
                     <div className="aspect-[16/10] overflow-hidden relative">
-                      <img src={images[0] || "/placeholder.svg"} alt={similarCar.model} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                      <div className="absolute top-3 right-3">
-                         <Badge className="bg-brand-red text-white text-[8px] font-black uppercase rounded-sm py-1 px-2 border-none">Available</Badge>
+                      <img src={images[0] || "/placeholder.svg"} alt={similarCar.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-10 transition-opacity" />
+                      <div className="absolute top-4 right-4">
+                         <Badge className="bg-brand-red text-white text-[9px] font-black uppercase rounded-md py-1.5 px-3 border-none shadow-lg tracking-widest">Available</Badge>
                       </div>
                     </div>
 
-                    <CardContent className="p-5 flex flex-col flex-1">
+                    <CardContent className="p-6 flex flex-col flex-1">
                       <div className="mb-4">
                         <div className="flex justify-between items-start gap-2">
-                           <h3 className="text-xs font-black uppercase tracking-widest text-white group-hover:text-brand-red transition-colors line-clamp-1">{similarCar.make} {similarCar.model}</h3>
-                           <ArrowUpRight className="h-3 w-3 text-muted-foreground group-hover:text-brand-red group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                           <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 group-hover:text-brand-red transition-colors line-clamp-1">{similarCar.make} {similarCar.model}</h3>
+                           <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-brand-red group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                         </div>
-                        <p className="text-base font-black text-white tracking-tighter mt-1">KSh {similarCar.price.toLocaleString()}</p>
+                        <p className="text-lg font-black text-slate-900 tracking-tighter mt-1">KSh {similarCar.price.toLocaleString()}</p>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 border-y border-border py-3 mb-4">
+                      <div className="grid grid-cols-3 gap-3 border-y border-slate-100 py-4 mb-4">
                         <div className="text-center space-y-1">
-                          <p className="text-[8px] font-black text-muted-foreground uppercase">Model</p>
-                          <p className="text-[10px] font-black text-white">{similarCar.year}</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase">Year</p>
+                          <p className="text-[11px] font-black text-slate-700">{similarCar.year}</p>
                         </div>
-                        <div className="text-center border-x border-border space-y-1">
-                          <p className="text-[8px] font-black text-muted-foreground uppercase px-1">Drive</p>
-                          <p className="text-[10px] font-black text-white uppercase">{similarCar.transmission?.slice(0, 3) || 'AWD'}</p>
+                        <div className="text-center border-x border-slate-100 space-y-1">
+                          <p className="text-[9px] font-black text-slate-400 uppercase px-1">Drive</p>
+                          <p className="text-[11px] font-black text-slate-700 uppercase">{similarCar.transmission?.slice(0, 3) || 'AWD'}</p>
                         </div>
                         <div className="text-center space-y-1">
-                          <p className="text-[8px] font-black text-muted-foreground uppercase">Fuel</p>
-                          <p className="text-[10px] font-black text-white uppercase">{similarCar.fuel_type?.slice(0, 3) || 'PET'}</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase">Fuel</p>
+                          <p className="text-[11px] font-black text-slate-700 uppercase">{similarCar.fuel_type?.slice(0, 3) || 'PET'}</p>
                         </div>
                       </div>
 
                       <div className="mt-auto">
-                        <div className="w-full h-1 bg-secondary rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                            <div className="h-full bg-brand-red w-full scale-x-[0.2] group-hover:scale-x-100 transition-transform origin-left duration-700" />
                         </div>
-                        <p className="text-[8px] font-bold text-muted-foreground uppercase mt-2 tracking-widest group-hover:text-white transition-colors">Verification Active</p>
+                        <p className="text-[9px] font-black text-slate-400 uppercase mt-3 tracking-widest group-hover:text-slate-900 transition-colors">Verification Active</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -766,60 +654,60 @@ const CarDetails = () => {
         {recommendedCars.length > 0 && (
           <div className="mt-24">
             <div className="flex flex-col items-center gap-4 mb-16 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] text-brand-red">Market Discovery</p>
-              <h2 className="text-xl md:text-3xl font-black tracking-tighter text-white uppercase leading-none">You May Also Like</h2>
-              <div className="h-1 w-20 bg-brand-red mt-2" />
+              <p className="text-[11px] font-black uppercase tracking-[0.6em] text-brand-red">Market Discovery</p>
+              <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 uppercase leading-none italic">You May Also Like</h2>
+              <div className="h-1.5 w-24 bg-brand-red mt-4 rounded-full" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {recommendedCars.map((recCar) => {
                 const images = getImages(recCar);
                 return (
                   <Card
                     key={recCar.id}
-                    className="group relative bg-background border-border hover:border-brand-red/40 transition-all duration-300 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-md"
+                    className="group relative bg-white border-slate-200 hover:border-brand-red/40 transition-all duration-500 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-2xl border-b-4 hover:border-b-brand-red"
                     onClick={() => {
                       navigate(`/car/${recCar.id}`);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      window.scrollTo({ top: 0, behavior: 'instant' });
                     }}
                   >
                     <div className="aspect-[16/10] overflow-hidden relative">
-                      <img src={images[0] || "/placeholder.svg"} alt={recCar.model} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                      <div className="absolute top-3 right-3">
-                         <Badge className="bg-brand-red text-white text-[8px] font-black uppercase rounded-sm py-1 px-2 border-none">Available</Badge>
+                      <img src={images[0] || "/placeholder.svg"} alt={recCar.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-10 transition-opacity" />
+                      <div className="absolute top-4 right-4">
+                         <Badge className="bg-brand-red text-white text-[9px] font-black uppercase rounded-md py-1.5 px-3 border-none shadow-lg tracking-widest">Available</Badge>
                       </div>
                     </div>
 
-                    <CardContent className="p-5 flex flex-col flex-1">
+                    <CardContent className="p-6 flex flex-col flex-1">
                       <div className="mb-4">
                         <div className="flex justify-between items-start gap-2">
-                           <h3 className="text-xs font-black uppercase tracking-widest text-white group-hover:text-brand-red transition-colors line-clamp-1">{recCar.make} {recCar.model}</h3>
-                           <ArrowUpRight className="h-3 w-3 text-muted-foreground group-hover:text-brand-red group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                           <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 group-hover:text-brand-red transition-colors line-clamp-1">{recCar.make} {recCar.model}</h3>
+                           <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-brand-red group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                         </div>
-                        <p className="text-base font-black text-white tracking-tighter mt-1">KSh {recCar.price.toLocaleString()}</p>
+                        <p className="text-lg font-black text-slate-900 tracking-tighter mt-1">KSh {recCar.price.toLocaleString()}</p>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 border-y border-border py-3 mb-4">
+                      <div className="grid grid-cols-3 gap-3 border-y border-slate-100 py-4 mb-4">
                         <div className="text-center space-y-1">
-                          <p className="text-[8px] font-black text-muted-foreground uppercase">Model</p>
-                          <p className="text-[10px] font-black text-white">{recCar.year}</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase">Year</p>
+                          <p className="text-[11px] font-black text-slate-700">{recCar.year}</p>
                         </div>
-                        <div className="text-center border-x border-border space-y-1">
-                          <p className="text-[8px] font-black text-muted-foreground uppercase px-1">Drive</p>
-                          <p className="text-[10px] font-black text-white uppercase">{recCar.transmission?.slice(0, 3) || 'AWD'}</p>
+                        <div className="text-center border-x border-slate-100 space-y-1">
+                          <p className="text-[9px] font-black text-slate-400 uppercase px-1">Drive</p>
+                          <p className="text-[11px] font-black text-slate-700 uppercase">{recCar.transmission?.slice(0, 3) || 'AWD'}</p>
                         </div>
                         <div className="text-center space-y-1">
-                          <p className="text-[8px] font-black text-muted-foreground uppercase">Fuel</p>
-                          <p className="text-[10px] font-black text-white uppercase">{recCar.fuel_type?.slice(0, 3) || 'PET'}</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase">Fuel</p>
+                          <p className="text-[11px] font-black text-slate-700 uppercase">{recCar.fuel_type?.slice(0, 3) || 'PET'}</p>
                         </div>
                       </div>
 
                       <div className="mt-auto">
-                        <div className="w-full h-1 bg-secondary rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                            <div className="h-full bg-brand-red w-full scale-x-[0.2] group-hover:scale-x-100 transition-transform origin-left duration-700" />
                         </div>
-                        <p className="text-[8px] font-bold text-muted-foreground uppercase mt-2 tracking-widest group-hover:text-white transition-colors">Verification Active</p>
+                        <p className="text-[9px] font-black text-slate-400 uppercase mt-3 tracking-widest group-hover:text-slate-900 transition-colors">Verification Active</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -833,9 +721,9 @@ const CarDetails = () => {
           <Button
              variant="outline"
              onClick={() => navigate("/catalogue")}
-             className="border-border text-white font-black text-[10px] uppercase tracking-[0.4em] h-14 px-12 rounded-md hover:bg-white hover:text-primary transition-all"
+             className="border-slate-200 text-slate-900 font-black text-[11px] uppercase tracking-[0.4em] h-18 px-16 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-xl hover:shadow-2xl"
           >
-             Full Operations Ledger <ArrowRight className="ml-2 h-4 w-4" />
+             Full Operations Ledger <ArrowRight className="ml-3 h-5 w-5" />
           </Button>
         </div>
       </div>
