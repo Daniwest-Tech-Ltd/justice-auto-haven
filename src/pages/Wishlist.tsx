@@ -27,7 +27,6 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { OrderSubmissionModal } from "@/components/OrderSubmissionModal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import AIChatFloat from "@/components/AIChatFloat";
 import HeroSlider from "@/components/HeroSlider";
 import { getCurrentSale } from "@/lib/currentSale";
 
@@ -373,7 +372,6 @@ const Wishlist = () => {
         </div>
         <Footer />
       </div>
-      <AIChatFloat />
 
       {selectedCar && (
         <OrderSubmissionModal

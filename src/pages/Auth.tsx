@@ -52,8 +52,6 @@ import { getCurrentSale } from "@/lib/currentSale";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-import AIChatFloat from "@/components/AIChatFloat";
-
 const TURNSTILE_SITE_KEY = "0x4AAAAAACB3OcIZy30ifRMd";
 
 const Auth = () => {
@@ -851,7 +849,7 @@ const Auth = () => {
         preferredMethod={preferred2FAMethod}
         onSuccess={async () => { if (pendingUserId) { setShow2FADialog(false); await completeLogin(pendingUserId, undefined, pendingUserEmail); } }}
       />
-      <AIChatFloat />
+      <Footer />
     </div>
   );
 };
