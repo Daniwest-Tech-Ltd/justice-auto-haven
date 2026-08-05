@@ -24,8 +24,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import { CustomerLoyaltyBadge } from "@/components/CustomerLoyaltyBadge";
-import { LiveChatWidget } from "@/components/LiveChatWidget";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
 import logo from "@/assets/logo.png";
 import { setTheme, Theme } from "@/lib/theme";
 import DashboardHolidayBanner, { DashboardSnowfall } from "@/components/DashboardHolidayBanner";
@@ -437,8 +435,6 @@ const CustomerDashboard = () => {
         onConfirm={handleSignOut}
         onCancel={() => setShowLogoutModal(false)}
       />
-      
-      <WhatsAppFloat />
     </SidebarProvider>
   );
 };

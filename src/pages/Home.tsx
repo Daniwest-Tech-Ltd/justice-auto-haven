@@ -4,21 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Car, Globe, Zap, Users, Search,
   CheckCircle, Heart, ArrowRight,
   Clock, DollarSign, Settings, Phone, Gauge, Mail,
-  Activity, ShieldCheck, Briefcase,
+  Activity, ShieldCheck, Briefcase, Flame,
   Navigation, Calendar, ChevronRight, Headphones, Star,
   Trophy, Shield,
-  ArrowUpRight, CreditCard, RefreshCw
+  ArrowUpRight, CreditCard, RefreshCw, Eye, Maximize2
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentSale } from "@/lib/currentSale";
-import HeroSlider from "@/components/HeroSlider";
 import specialOffer from "@/assets/special-offer.png";
+import QuickViewModal from "@/components/QuickViewModal";
+import { LiveViewers, StockUrgency } from "@/components/SocialProof";
+import { useAuth } from "@/hooks/useAuth";
+import { CarCard } from "@/components/CarCard";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Home = () => {
   const sale = getCurrentSale();
@@ -28,12 +37,61 @@ const Home = () => {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [promo1Flipped, setPromo1Flipped] = useState(false);
   const [promo2Flipped, setPromo2Flipped] = useState(false);
+
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<any>(null);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchAllData();
-  }, []);
+    loadWishlist();
+  }, [user]);
+
+  const loadWishlist = async () => {
+    if (user) {
+      const { data } = await supabase.from("wishlist").select("car_id").eq("user_id", user.id);
+      setWishlist(data?.map(w => w.car_id) || []);
+    } else {
+      setWishlist(JSON.parse(localStorage.getItem("wishlist") || "[]"));
+    }
+  };
+
+  const toggleWishlist = async (e: React.MouseEvent, carId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      if (wishlist.includes(carId)) {
+        if (user) await supabase.from("wishlist").delete().eq("user_id", user.id).eq("car_id", carId);
+        else {
+          const local = JSON.parse(localStorage.getItem("wishlist") || "[]");
+          localStorage.setItem("wishlist", JSON.stringify(local.filter((id: string) => id !== carId)));
+        }
+        setWishlist(wishlist.filter(id => id !== carId));
+        toast({ title: "Removed from whitelist" });
+      } else {
+        if (user) await supabase.from("wishlist").insert({ user_id: user.id, car_id: carId });
+        else {
+          const local = JSON.parse(localStorage.getItem("wishlist") || "[]");
+          localStorage.setItem("wishlist", JSON.stringify([...local, carId]));
+        }
+        setWishlist([...wishlist, carId]);
+        toast({ title: "Added to whitelist" });
+      }
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const openQuickView = (e: React.MouseEvent, car: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedCar(car);
+    setQuickViewOpen(true);
+  };
 
   const fetchAllData = async () => {
     const { data: featuredData } = await supabase
@@ -62,12 +120,6 @@ const Home = () => {
         variant: "destructive"
       });
     }
-  };
-
-  const getImageUrl = (images: any) => {
-    if (!images) return null;
-    const imageArray = Array.isArray(images) ? images : [];
-    return imageArray[0] || null;
   };
 
   return (
@@ -127,40 +179,71 @@ const Home = () => {
         }
       `}</style>
 
-      {/* Hero Showcase - Executive Minimalist */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-slate-200 py-20 bg-slate-900">
-        <HeroSlider />
+      {/* Hero Showcase - Full Viewport Institutional Terminal */}
+      <section className="relative w-full h-screen min-h-[600px] bg-slate-900 overflow-hidden">
+        {/* Background Image - Scale to Fill while remaining fully visible */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/home im.png"
+            alt="Justice Ultimate Automobiles Terminal"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Institutional Overlay - Balances visibility and readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60 z-10" />
+        </div>
 
-        <div className="container mx-auto px-4 relative z-10 text-center">
-          <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom-8 fade-in duration-1000">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-brand-red/30 bg-brand-red/10 backdrop-blur-md text-brand-red font-mono text-[9px] font-black tracking-[0.3em] uppercase mx-auto">
-              <span className="h-2 w-2 rounded-full bg-brand-red animate-pulse" />
-              Our Inventory: {sale.year}
+        {/* Content Overlay - Centered Terminal Interface */}
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4">
+          <div className="w-full max-w-[1400px] space-y-4 md:space-y-10 animate-in slide-in-from-bottom-12 fade-in duration-1000">
+
+            {/* Status Badge */}
+            <div className="flex justify-center">
+              <div className="inline-flex items-center gap-3 px-5 py-1.5 rounded-full border border-white/20 bg-black/40 backdrop-blur-xl text-white font-mono text-[9px] md:text-[11px] font-black tracking-[0.4em] uppercase shadow-2xl">
+                <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-brand-red animate-pulse shadow-[0_0_10px_#ef4444]" />
+                Institutional Hub: 2026
+              </div>
             </div>
 
-            <div className="space-y-4">
-              <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-tight text-white uppercase whitespace-nowrap drop-shadow-lg">
-                Your Trusted <span className="text-brand-red drop-shadow-[0_0_30px_rgba(239,68,68,0.6)]">Automotive Partner.</span>
+            {/* Main Branding - Official Style Single Line Typography */}
+            <div className="space-y-3 md:space-y-6 text-center">
+              <h1 className="text-[4vw] min-text-[20px] sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white uppercase drop-shadow-[0_8px_24px_rgba(0,0,0,1)] leading-tight">
+                <span className="inline-block">Africa's Premier Japanese and</span>
+                <span className="text-brand-red inline-block md:ml-3">European Car Importers.</span>
               </h1>
-              <p className="text-[10px] md:text-[11px] text-white font-black max-w-2xl mx-auto leading-loose uppercase tracking-[0.2em] drop-shadow-md">
-                We are your number one choice for Japanese and European car imports. We make car buying easy with up to 90% financing and reliable delivery across Kenya.
+              <p className="text-[10px] sm:text-[14px] md:text-[18px] lg:text-[20px] text-white font-medium max-w-4xl mx-auto leading-relaxed uppercase tracking-[0.25em] drop-shadow-[0_4px_12px_rgba(0,0,0,1)] px-4">
+                We sell high quality cars and offer easy car loans with fast delivery across Kenya.
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-4 pt-4">
-              <Button size="lg" className="rounded-md px-12 h-16 bg-brand-red hover:bg-brand-red/90 text-white font-black text-[11px] uppercase tracking-[0.3em] transition-all btn-signal shadow-2xl" onClick={() => navigate("/catalogue")}>
-                <span className="flex items-center gap-2">Browse All Cars <ArrowRight className="h-4 w-4" /></span>
+            {/* Rapid Conversion Hub */}
+            <div className="flex flex-row items-center justify-center gap-3 sm:gap-8 pt-6 sm:pt-10">
+              <Button
+                size="lg"
+                className="flex-1 sm:flex-none rounded-xl px-6 sm:px-16 h-12 sm:h-20 bg-brand-red hover:bg-brand-red/90 text-white font-black text-[9px] sm:text-[11px] md:text-[13px] uppercase tracking-[0.3em] transition-all shadow-xl border-none active:scale-95"
+                onClick={() => navigate("/catalogue")}
+              >
+                Enter Catalogue
               </Button>
-              <Button size="lg" variant="outline" className="rounded-md px-12 h-16 border-white/20 hover:border-brand-red/50 text-white font-black text-[11px] uppercase tracking-[0.3em] glass-strong btn-signal shadow-2xl" onClick={() => navigate("/asset-finance")}>
-                <span>Car Loans</span>
+              <Button
+                size="lg"
+                variant="outline"
+                className="flex-1 sm:flex-none rounded-xl px-6 sm:px-16 h-12 sm:h-20 border-white/40 bg-white/10 backdrop-blur-xl hover:bg-white hover:text-slate-900 text-white font-black text-[9px] sm:text-[11px] md:text-[13px] uppercase tracking-[0.3em] transition-all shadow-xl active:scale-95"
+                onClick={() => navigate("/asset-finance")}
+              >
+                Finance Portal
               </Button>
             </div>
           </div>
         </div>
+
+        {/* Subtle Indicator for Scroll */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 animate-bounce hidden md:block">
+           <div className="w-1 h-10 rounded-full bg-gradient-to-b from-white/60 to-transparent" />
+        </div>
       </section>
 
       {/* Asset Search Module */}
-      <section className="relative z-20 -mt-12">
+      <section className="relative z-30 -mt-10 sm:-mt-12">
         <div className="container mx-auto px-4">
           <div className="bg-white border border-slate-200 p-4 shadow-xl flex flex-col md:flex-row gap-4 items-stretch rounded-xl backdrop-blur-sm">
             <div className="flex-1 relative group">
@@ -203,61 +286,16 @@ const Home = () => {
               <div className="h-1.5 w-24 bg-brand-red mt-4 rounded-full" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {featuredCars.map((car) => {
-                const imageUrl = getImageUrl(car.images);
-                return (
-                  <Card
-                    key={car.id} 
-                    className="group relative bg-slate-50 border-slate-200 hover:border-brand-red/40 transition-all duration-500 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-xl border-b-4 hover:border-b-brand-red"
-                    onClick={() => navigate(`/car/${car.id}`)}
-                  >
-                      <div className="aspect-[16/10] overflow-hidden relative">
-                        <img src={imageUrl || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.95] group-hover:brightness-110 animate-flash" />
-                        <div className="absolute inset-0 glass-clear opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-10 transition-opacity" />
-                        <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
-                           <Badge className="bg-brand-red text-white text-[9px] font-black uppercase rounded-md py-1.5 px-3 border-none shadow-lg tracking-widest whitespace-nowrap">In Stock</Badge>
-                           {car.status === 'available' && car.units_available > 1 && (
-                             <Badge className="bg-emerald-600 text-white text-[8px] font-black uppercase rounded-md py-1 px-2 border-none shadow-lg tracking-widest whitespace-nowrap">Available ({car.units_available})</Badge>
-                           )}
-                        </div>
-                      </div>
-
-                    <CardContent className="p-6 flex flex-col flex-1">
-                      <div className="mb-4">
-                        <div className="flex justify-between items-start gap-2">
-                           <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 group-hover:text-brand-red transition-colors line-clamp-1">{car.make} {car.model}</h3>
-                           <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-brand-red group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-                        </div>
-                        <p className="text-lg font-black text-slate-900 tracking-tighter mt-1">KSh {car.price?.toLocaleString()}</p>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3 border-y border-slate-200 py-4 mb-4">
-                        <div className="text-center space-y-1">
-                          <p className="text-[9px] font-black text-slate-400 uppercase">Year</p>
-                          <p className="text-[11px] font-black text-slate-700">{car.year}</p>
-                        </div>
-                        <div className="text-center border-x border-slate-200 space-y-1">
-                          <p className="text-[9px] font-black text-slate-400 uppercase px-1">Type</p>
-                          <p className="text-[11px] font-black text-slate-700 uppercase">{car.transmission?.slice(0, 3) || 'AWD'}</p>
-                        </div>
-                        <div className="text-center space-y-1">
-                          <p className="text-[9px] font-black text-slate-400 uppercase">Fuel</p>
-                          <p className="text-[11px] font-black text-slate-700 uppercase">{car.fuel_type?.slice(0, 3) || 'PET'}</p>
-                        </div>
-                      </div>
-
-                      <div className="mt-auto">
-                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                           <div className="h-full bg-brand-red w-full scale-x-[0.3] group-hover:scale-x-100 transition-transform origin-left duration-1000" />
-                        </div>
-                        <p className="text-[9px] font-black text-slate-500 uppercase mt-3 tracking-widest group-hover:text-slate-900 transition-colors">Fully Inspected</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+              {featuredCars.map((car) => (
+                <CarCard
+                  key={car.id}
+                  car={car}
+                  isWhitelisted={wishlist.includes(car.id)}
+                  onToggleWishlist={toggleWishlist}
+                  onQuickView={openQuickView}
+                />
+              ))}
             </div>
 
             <div className="mt-20 text-center">
@@ -515,6 +553,12 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      <QuickViewModal
+        open={quickViewOpen}
+        onOpenChange={setQuickViewOpen}
+        car={selectedCar}
+      />
     </div>
   );
 };

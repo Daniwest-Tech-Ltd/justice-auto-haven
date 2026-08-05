@@ -4,12 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, Star, Activity, Zap, Globe, Headphones, Maximize2, ShieldCheck, Trophy, Bike, Key, ArrowUpRight } from "lucide-react";
+import { Search, Phone, Mail, MessageCircle, Car, Gauge, Settings as SettingsIcon, Heart, Shield, MapPin, Clock, CreditCard, Fuel, Navigation, ChevronRight, ChevronLeft, Star, Activity, Zap, Globe, Headphones, Maximize2, ShieldCheck, Trophy, Bike, Key, ArrowUpRight, Flame, Eye, ArrowRight } from "lucide-react";
 import { PaymentMethodsModal } from "@/components/PaymentMethodsModal";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingScreen from "@/components/LoadingScreen";
-import HeroSlider from "@/components/HeroSlider";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +17,14 @@ import { X as XIcon, Clock as ClockIcon } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import useDisableRightClick from "@/hooks/useDisableRightClick";
 import FullscreenImageViewer from "@/components/FullscreenImageViewer";
+import QuickViewModal from "@/components/QuickViewModal";
+import { LiveViewers, StockUrgency } from "@/components/SocialProof";
+import { CarCard } from "@/components/CarCard";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Car {
   id: string;
@@ -59,10 +65,18 @@ const Catalogue = () => {
   const [wishlist, setWishlist] = useState<string[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
-  const itemsPerPage = 64;
+  const itemsPerPage = 1000;
   const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches("catalogue"));
   const [showRecent, setShowRecent] = useState(false);
   const [fullscreen, setFullscreen] = useState<{ images: string[]; title: string } | null>(null);
+
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [selectedQuickCar, setSelectedQuickCar] = useState<any>(null);
+
+  // Instant scroll-to-top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const q = searchQuery.trim();
@@ -138,7 +152,7 @@ const Catalogue = () => {
       if (error) throw error;
       return { cars: data || [], total: count || 0 };
     },
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
     placeholderData: (previousData) => previousData,
   });
 
@@ -281,20 +295,36 @@ const Catalogue = () => {
         }
       `}</style>
 
-      {/* Catalogue Hero - Professional & Formal */}
-      <section className="relative flex items-center justify-center border-b border-slate-200 py-16 sm:py-24 overflow-hidden bg-slate-900">
-        <HeroSlider />
-        <div className="container mx-auto px-4 relative z-10 text-center">
-          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+      {/* Catalogue Hero - Full Fidelity Responsive Institutional Terminal */}
+      <section className="relative w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] min-h-[400px] overflow-hidden bg-slate-900 border-b border-slate-200">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/catalogue.png"
+            alt="Justice Ultimate Automobiles Ledger"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Institutional Overlay - Balances visibility and readability */}
+          <div className="absolute inset-0 bg-black/30 z-10" />
+        </div>
+
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center">
+          <div className="w-full max-w-[1400px] space-y-4 md:space-y-6 animate-in slide-in-from-bottom-8 fade-in duration-1000">
             <div className="flex justify-center mb-2">
-               <Car className="h-10 w-10 text-brand-red animate-car-move-large drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
+               <Car className="h-8 w-8 sm:h-10 sm:w-10 text-brand-red animate-car-move-large drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
             </div>
-            <p className="text-[11px] font-black tracking-[0.4em] uppercase text-brand-red drop-shadow-sm">Operational Asset Ledger: {sale.year}</p>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white uppercase italic drop-shadow-lg leading-none">
-              Automotive <span className="text-brand-red">Catalogue.</span>
+
+            <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-white/20 bg-black/40 backdrop-blur-xl text-white font-mono text-[8px] sm:text-[10px] font-black tracking-[0.3em] uppercase mx-auto">
+               <span className="h-1.5 w-1.5 rounded-full bg-brand-red animate-pulse" />
+               Our Full Stock: 2026
+            </div>
+
+            <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white uppercase drop-shadow-[0_8px_20px_rgba(0,0,0,1)] leading-tight">
+              Car <span className="text-brand-red">Catalogue.</span>
             </h1>
-            <p className="text-[10px] md:text-xs text-white font-black max-w-2xl mx-auto leading-loose uppercase tracking-[0.2em] drop-shadow-md pt-4">
-              Browse our institutional collection of verified Japanese and European automotive assets. Every unit is subjected to a rigorous 150-point mechanical and legal audit before listing.
+
+            <p className="text-[9px] sm:text-[12px] md:text-[14px] lg:text-[16px] text-white/90 font-medium max-w-2xl mx-auto leading-relaxed uppercase tracking-[0.2em] drop-shadow-[0_4px_12px_rgba(0,0,0,1)] px-4">
+              Browse our high-quality Japanese and European cars. <br className="hidden sm:block" />
+              Every car is fully inspected and verified before being listed.
             </p>
           </div>
         </div>
@@ -311,67 +341,67 @@ const Catalogue = () => {
       `}</style>
 
       {/* Asset Filtering Hub - Opaque & Professional */}
-      <section className="relative z-20 -mt-8">
-        <div className="container mx-auto px-4">
+      <section className="relative z-20 -mt-6 sm:-mt-8">
+        <div className="container mx-auto px-2 sm:px-4">
           <div className="max-w-6xl mx-auto relative group">
             {/* Hazard Pattern Border - Background layer */}
-            <div className="absolute -inset-[2px] rounded-2xl overflow-hidden animate-hazard-border opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+            <div className="absolute -inset-[1px] sm:-inset-[2px] rounded-xl sm:rounded-2xl overflow-hidden animate-hazard-border opacity-60 group-hover:opacity-100 transition-opacity duration-500"
                  style={{
                    backgroundImage: 'repeating-linear-gradient(-45deg, #ef4444, #ef4444 8px, #fbbf24 8px, #fbbf24 16px)'
                  }}
             />
 
             {/* Inner Content - Solid background to mask the hazard pattern center */}
-            <div className="relative bg-white dark:bg-slate-900 border border-transparent p-4 shadow-2xl flex flex-col gap-4 rounded-xl backdrop-blur-md m-[1px]">
-              <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative bg-white dark:bg-slate-900 border border-transparent p-3 sm:p-4 shadow-2xl flex flex-col gap-3 sm:gap-4 rounded-lg sm:rounded-xl backdrop-blur-md m-[1px]">
+              <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
               <div className="flex-1 relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-red" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-brand-red" />
                 <Input
-                  placeholder="Asset Search: VIN, Make, Model..."
+                  placeholder="Search by car model, year, or color..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-12 pl-12 rounded-lg bg-slate-50 border-slate-200 focus:border-brand-red/50 focus:ring-brand-red/20 text-[12px] font-bold uppercase tracking-widest text-slate-900"
+                  className="h-10 sm:h-12 pl-10 sm:pl-12 rounded-lg bg-slate-50 border-slate-200 focus:border-brand-red/50 focus:ring-brand-red/20 text-[11px] sm:text-[12px] font-bold uppercase tracking-widest text-slate-900"
                 />
               </div>
-              <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+              <div className="flex gap-1 bg-slate-100 p-1 rounded-lg overflow-x-auto no-scrollbar">
                 {["all", "in-stock", "sold-out"].map((s) => (
                   <Button
                     key={s}
                     variant={stockFilter === s ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setStockFilter(s)}
-                    className={`rounded-md text-[10px] font-black uppercase tracking-widest px-6 h-10 ${stockFilter === s ? "bg-slate-900 text-white shadow-lg" : "text-slate-500 hover:bg-white"}`}
+                    className={`rounded-md text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-4 sm:px-6 h-8 sm:h-10 whitespace-nowrap ${stockFilter === s ? "bg-slate-900 text-white shadow-lg" : "text-slate-500 hover:bg-white"}`}
                   >
-                    {s.replace('-', ' ')}
+                    {s === 'all' ? 'All' : s === 'in-stock' ? 'In Stock' : 'Sold'}
                   </Button>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
               {[
-                { key: 'brand', label: 'Manufacturer', options: uniqueMakes },
-                { key: 'year', label: 'Model Year', options: uniqueYears },
-                { key: 'fuelType', label: 'Propulsion', options: uniqueFuelTypes },
-                { key: 'priceRange', label: 'Capital Class', options: ['Under 1M', '1M - 3M', '3M - 5M', '5M - 10M', '10M+'] }
+                { key: 'brand', label: 'Brand', options: uniqueMakes },
+                { key: 'year', label: 'Year', options: uniqueYears },
+                { key: 'fuelType', label: 'Fuel Type', options: uniqueFuelTypes },
+                { key: 'priceRange', label: 'Price Range', options: ['Under 1M', '1M - 3M', '3M - 5M', '5M - 10M', '10M+'] }
               ].map((f) => (
                 <Select key={f.key} value={(filters as any)[f.key]} onValueChange={(val) => setFilters({ ...filters, [f.key]: val })}>
-                  <SelectTrigger className="h-12 rounded-lg bg-slate-50 border-slate-200 text-[11px] font-black uppercase tracking-widest text-slate-700">
+                  <SelectTrigger className="h-10 sm:h-12 rounded-lg bg-slate-50 border-slate-200 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-700">
                     <SelectValue placeholder={f.label} />
                   </SelectTrigger>
                   <SelectContent className="border-slate-200 bg-white">
-                    <SelectItem value="all" className="text-[11px] font-bold uppercase">All {f.label}s</SelectItem>
+                    <SelectItem value="all" className="text-[10px] sm:text-[11px] font-bold uppercase">All {f.label}s</SelectItem>
                     {f.options.map((opt: any) => (
-                      <SelectItem key={opt} value={opt.toString().includes('M') ? opt.toString().replace(/ /g, '').toLowerCase() : opt.toString()} className="text-[11px] font-bold uppercase">{opt}</SelectItem>
+                      <SelectItem key={opt} value={opt.toString().includes('M') ? opt.toString().replace(/ /g, '').toLowerCase() : opt.toString()} className="text-[10px] sm:text-[11px] font-bold uppercase">{opt}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               ))}
             </div>
 
-            <div className="flex justify-between items-center px-2 border-t border-slate-100 pt-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Total Operational Inventory: {carsData?.total || 0}</p>
-              <Button variant="link" size="sm" onClick={clearFilters} className="h-auto p-0 text-[10px] font-black uppercase tracking-widest text-brand-red hover:no-underline hover:text-slate-900 transition-colors">Reset Terminal</Button>
+            <div className="flex justify-between items-center px-1 sm:px-2 border-t border-slate-100 pt-2 sm:pt-3">
+              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Found: {carsData?.total || 0}</p>
+              <Button variant="link" size="sm" onClick={clearFilters} className="h-auto p-0 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-brand-red hover:no-underline hover:text-slate-900 transition-colors">Reset</Button>
             </div>
           </div>
         </div>
@@ -379,129 +409,49 @@ const Catalogue = () => {
     </section>
 
       {/* Asset Ledger Grid */}
-      <section className="py-24 relative z-10">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-24 relative z-10">
+        <div className="container max-w-[2400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 mb-6 sm:mb-10 border-b border-slate-100 pb-4 sm:pb-6">
+            <div className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-emerald-500" />
+            <span className="text-sm sm:text-lg font-black text-slate-900 uppercase tracking-tight">In Stock</span>
+            <span className="bg-emerald-100 text-emerald-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-black">
+              {carsData?.total || 0}
+            </span>
+          </div>
+
           {cars.length === 0 ? (
-            <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-24 text-center max-w-4xl mx-auto shadow-2xl">
-              <Car className="h-12 w-12 mx-auto mb-8 text-brand-red opacity-20" />
-              <h3 className="text-2xl font-black tracking-tighter uppercase mb-4 text-slate-900">Query Buffer Empty</h3>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed mb-10 max-w-md mx-auto">
-                No verified units currently match your selection criteria. Our logistics team can facilitate a direct procurement from Japan for your specific configuration.
+            <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-12 sm:p-24 text-center max-w-4xl mx-auto shadow-2xl">
+              <Car className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-6 sm:mb-8 text-brand-red opacity-20" />
+              <h3 className="text-xl sm:text-2xl font-black tracking-tighter uppercase mb-2 sm:mb-4 text-slate-900">Query Buffer Empty</h3>
+              <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed mb-8 sm:mb-10 max-w-md mx-auto">
+                No verified units match your criteria.
               </p>
-              <Button onClick={clearFilters} className="bg-slate-900 font-black text-[11px] uppercase tracking-[0.3em] px-12 h-14 rounded-xl shadow-xl hover:bg-brand-red transition-all duration-500">
+              <Button onClick={clearFilters} className="bg-slate-900 font-black text-[10px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.3em] px-8 sm:px-12 h-12 sm:h-14 rounded-xl shadow-xl hover:bg-brand-red transition-all duration-500">
                 Clear Filters
               </Button>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 sm:gap-8">
-                {cars.map((car) => {
-                  const images = getImages(car);
-                  const isWhitelisted = wishlist.includes(car.id);
-                  return (
-                    <div
-                      key={car.id}
-                      className="group relative bg-white border border-slate-200 hover:border-brand-red/40 transition-all duration-500 cursor-pointer flex flex-col h-full hover:shadow-2xl overflow-hidden rounded-xl border-b-4 hover:border-b-brand-red"
-                    >
-                      <div className="aspect-[4/3] overflow-hidden relative border-b border-slate-100" onClick={() => navigate(`/car/${car.id}`)}>
-                        <img src={images[0] || "/placeholder.svg"} alt={car.model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-[0.95] group-hover:brightness-110 animate-flash" />
-                        <div className="absolute inset-0 glass-clear opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-40 group-hover:opacity-10 transition-opacity" />
-                        
-                        <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
-                          <Badge className="bg-slate-900 text-white text-[8px] font-black uppercase rounded-md py-1 px-2 tracking-widest shadow-lg border-none">
-                             #{car.stock_id || 'UNIT'}
-                          </Badge>
-                        </div>
-                        <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
-                           <Badge className={`text-white text-[9px] font-black uppercase rounded-md py-1.5 px-3 tracking-widest border-none shadow-lg ${car.status === 'sold' ? 'bg-red-600' : 'bg-brand-red'}`}>
-                              {car.status === 'sold' ? 'SOLD' : 'IN STOCK'}
-                           </Badge>
-                           {car.status === 'available' && car.units_available && car.units_available > 1 && (
-                             <Badge className="bg-emerald-600 text-white text-[8px] font-black uppercase rounded-md py-1 px-2 border-none shadow-lg tracking-widest">
-                                Available ({car.units_available})
-                             </Badge>
-                           )}
-                        </div>
-
-                        <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                           <Button size="icon" variant="secondary" className="h-9 w-9 rounded-xl bg-white/90 text-slate-900 hover:bg-brand-red hover:text-white border-none shadow-xl"
-                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFullscreen({ images: images.length ? images : ["/placeholder.svg"], title: `${car.make} ${car.model}` }); }}
-                           >
-                              <Maximize2 className="h-4 w-4" />
-                           </Button>
-                           <Button size="icon" variant="secondary" className={`h-9 w-9 rounded-xl border-none shadow-xl transition-all ${isWhitelisted ? "bg-brand-red text-white" : "bg-white/90 text-slate-900 hover:bg-brand-red hover:text-white"}`}
-                              onClick={(e) => toggleWishlist(e, car.id)}
-                           >
-                              <Heart className={`h-4 w-4 ${isWhitelisted ? "fill-white" : ""}`} />
-                           </Button>
-                        </div>
-                      </div>
-
-                      <div className="p-5 space-y-4 flex-1 flex flex-col justify-between" onClick={() => navigate(`/car/${car.id}`)}>
-                        <div className="space-y-1">
-                          <div className="flex justify-between items-start gap-2">
-                             <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900 group-hover:text-brand-red transition-colors line-clamp-1">{car.make} {car.model}</h3>
-                             <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-brand-red group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-                          </div>
-                          <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-2">
-                            <p className="text-lg font-black text-slate-900 tracking-tighter">KSh {car.price?.toLocaleString()}</p>
-                            <p className="text-[10px] font-black text-slate-400 uppercase">{car.year}</p>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex items-center gap-2">
-                            <Gauge className="h-3.5 w-3.5 text-slate-400" />
-                            <p className="text-[10px] font-black text-slate-500 uppercase truncate">{car.mileage || '0 KM'}</p>
-                          </div>
-                          <div className="flex items-center gap-2 justify-end">
-                            <SettingsIcon className="h-3.5 w-3.5 text-slate-400" />
-                            <p className="text-[10px] font-black text-slate-500 uppercase truncate">{car.transmission || 'MT'}</p>
-                          </div>
-                        </div>
-
-                        <div className="pt-4 border-t border-slate-100 mt-auto">
-                          <div className="flex items-center justify-between text-[9px] font-black uppercase text-slate-400 tracking-widest">
-                            <span className="flex items-center gap-2"><Fuel className="h-3 w-3" /> {car.fuel_type || 'PET'}</span>
-                            <span className="text-brand-red group-hover:underline underline-offset-4">Details <ChevronRight className="h-3 w-3 inline" /></span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 4xl:grid-cols-8 gap-4 sm:gap-6 lg:gap-8 xl:gap-10">
+                {cars.map((car) => (
+                  <CarCard
+                    key={car.id}
+                    car={car}
+                    isWhitelisted={wishlist.includes(car.id)}
+                    onToggleWishlist={toggleWishlist}
+                    onQuickView={(e, c) => { setSelectedQuickCar(c); setQuickViewOpen(true); }}
+                    onZoom={(imgs, t) => setFullscreen({ images: imgs, title: t })}
+                  />
+                ))}
               </div>
 
-              {totalPages > 1 && (
-                <Pagination className="mt-16">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        className={`text-[10px] font-bold uppercase tracking-widest ${currentPage === 1 ? "pointer-events-none opacity-20" : "cursor-pointer"}`}
-                      />
-                    </PaginationItem>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => setCurrentPage(page)}
-                          isActive={currentPage === page}
-                          className={`text-[11px] font-bold rounded-md h-9 w-9 transition-all ${currentPage === page ? "bg-primary text-white" : "border border-border hover:bg-secondary"}`}
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        className={`text-[10px] font-bold uppercase tracking-widest ${currentPage === totalPages ? "pointer-events-none opacity-20" : "cursor-pointer"}`}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              )}
+              {carsData?.total && carsData.total > cars.length ? (
+                <div className="mt-16 text-center">
+                   <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
+                      Displaying {cars.length} of {carsData.total} Institutional Units
+                   </p>
+                </div>
+              ) : null}
             </>
           )}
         </div>
@@ -542,6 +492,12 @@ const Catalogue = () => {
            </div>
         </div>
       </section>
+
+      <QuickViewModal
+        open={quickViewOpen}
+        onOpenChange={setQuickViewOpen}
+        car={selectedQuickCar}
+      />
 
       <FullscreenImageViewer
         open={!!fullscreen}

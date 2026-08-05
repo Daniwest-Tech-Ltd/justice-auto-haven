@@ -30,7 +30,6 @@ import LoadingScreen from "@/components/LoadingScreen";
 import logo from "@/assets/logo.png";
 import { setTheme, Theme } from "@/lib/theme";
 import DashboardHolidayBanner, { DashboardSnowfall } from "@/components/DashboardHolidayBanner";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 const AdminDashboard = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -712,7 +711,6 @@ const AdminDashboard = () => {
         onConfirm={handleSignOut}
         onCancel={() => setShowLogoutModal(false)}
       />
-      <WhatsAppFloat />
     </SidebarProvider>
   );
 };

@@ -48,10 +48,10 @@ const Support = () => {
                 </CardHeader>
                 <CardContent className="p-8 space-y-6">
                   <p className="text-slate-500 text-xs font-bold uppercase leading-relaxed">
-                    Chat with our team instantly using the floating icon at the bottom right of your screen.
+                    Contact us via WhatsApp or Email for instant technical support.
                   </p>
-                  <Button className="w-full bg-brand-red hover:bg-brand-red/90 text-[10px] font-black uppercase tracking-widest h-12" onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}>
-                    Start Chat Now
+                  <Button className="w-full bg-brand-red hover:bg-brand-red/90 text-[10px] font-black uppercase tracking-widest h-12" onClick={() => window.open('https://wa.me/254722827458', '_blank')}>
+                    Start WhatsApp Chat
                   </Button>
                 </CardContent>
               </Card>
