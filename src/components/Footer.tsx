@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search, Clock, X, Headphones, Smartphone, Mail, Globe, ArrowRight, Shield, Download, Trophy, Activity } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search, Clock, X, Headphones, Smartphone, Mail, Globe, ArrowRight, Shield, Download, Trophy, Activity, Send } from "lucide-react";
 import BrandMarquee from "./BrandMarquee";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import logo from "@/assets/logo.png";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import {
   Tooltip,
   TooltipContent,
@@ -19,7 +21,10 @@ import {
 
 const Footer = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [footerSearch, setFooterSearch] = useState("");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const [recent, setRecent] = useState<string[]>(() => getRecentSearches("catalogue"));
 
   const submitSearch = (term: string) => {
@@ -33,6 +38,43 @@ const Footer = () => {
   const handleFooterSearch = (e: React.FormEvent) => {
     e.preventDefault();
     submitSearch(footerSearch);
+  };
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("mailing_list")
+        .insert([{ email }]);
+
+      if (error) {
+        if (error.code === "23505") {
+          toast({
+            title: "Already Subscribed",
+            description: "You are already on our institutional mailing list.",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Successfully Subscribed",
+          description: "Official Notice: You are now synced to our terminal logs.",
+        });
+        setEmail("");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Subscription Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,22 +122,53 @@ const Footer = () => {
               </p>
             </div>
 
-            <form onSubmit={handleFooterSearch} className="space-y-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Inventory Audit Search</p>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-red" />
-                  <Input
-                    type="search"
-                    placeholder="VIN, MAKE OR MODEL..."
-                    className="h-12 pl-12 rounded-sm bg-secondary/30 border-border focus:border-brand-red/50 text-[10px] font-black uppercase tracking-widest"
-                    value={footerSearch}
-                    onChange={(e) => setFooterSearch(e.target.value)}
-                  />
+            <div className="space-y-6">
+              <form onSubmit={handleFooterSearch} className="space-y-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Inventory Audit Search</p>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-red" />
+                    <Input
+                      type="search"
+                      placeholder="VIN, MAKE OR MODEL..."
+                      className="h-12 pl-12 rounded-sm bg-secondary/30 border-border focus:border-brand-red/50 text-[10px] font-black uppercase tracking-widest"
+                      value={footerSearch}
+                      onChange={(e) => setFooterSearch(e.target.value)}
+                    />
+                  </div>
+                  <Button type="submit" className="h-12 px-8 rounded-sm font-black text-[10px] uppercase tracking-[0.3em] bg-brand-red hover:bg-brand-red/90 shadow-xl transition-all text-white border-none">Query</Button>
                 </div>
-                <Button type="submit" className="h-12 px-8 rounded-sm font-black text-[10px] uppercase tracking-[0.3em] bg-brand-red hover:bg-brand-red/90 shadow-xl transition-all">Query</Button>
-              </div>
-            </form>
+              </form>
+
+              <form onSubmit={handleSubscribe} className="space-y-4 pt-6 border-t border-border/50">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-red">Mailing Team</p>
+                  <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest italic">
+                    Subscribe for real-time terminal entry logs and car updates.
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-red" />
+                    <Input
+                      type="email"
+                      placeholder="ENTER EMAIL FOR UPDATES..."
+                      required
+                      className="h-12 pl-12 rounded-sm bg-secondary/30 border-border focus:border-brand-red/50 text-[10px] font-black uppercase tracking-widest text-foreground"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    disabled={loading}
+                    type="submit"
+                    className="h-12 px-6 rounded-sm font-black text-[10px] uppercase tracking-[0.3em] bg-slate-900 hover:bg-brand-red text-white shadow-xl transition-all duration-500 group"
+                  >
+                    {loading ? "..." : <Send className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
+                  </Button>
+                </div>
+              </form>
+            </div>
           </div>
 
           {/* Business Units */}

@@ -232,15 +232,15 @@ const CarDetails = () => {
 
   return (
     <div className="min-h-screen bg-white selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden text-slate-900 pb-20">
-      {/* Fixed Back Button */}
-      <div className="fixed top-24 left-4 z-50 hidden xl:block">
+      {/* Fixed Back Button - Visible on all screen sizes */}
+      <div className="fixed top-24 left-4 z-50">
         <Button
           variant="outline"
           onClick={() => navigate("/catalogue")}
-          className="h-12 px-4 border-slate-200 bg-white/80 backdrop-blur-md hover:bg-slate-900 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center gap-2 group"
+          className="h-10 sm:h-12 px-3 sm:px-4 border-slate-200 bg-white/90 backdrop-blur-md hover:bg-slate-900 hover:text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center gap-2 group border-none sm:border-solid"
         >
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Catalogue
+          <span className="hidden xs:inline">Back to Catalogue</span>
         </Button>
       </div>
 

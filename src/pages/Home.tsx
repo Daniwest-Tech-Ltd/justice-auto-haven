@@ -179,8 +179,8 @@ const Home = () => {
         }
       `}</style>
 
-      {/* Hero Showcase - Full Viewport Institutional Terminal */}
-      <section className="relative w-full h-screen min-h-[600px] bg-slate-900 overflow-hidden">
+      {/* Hero Showcase - Compact Institutional Terminal */}
+      <section className="relative w-full h-[70vh] min-h-[500px] bg-slate-900 overflow-hidden">
         {/* Background Image - Scale to Fill while remaining fully visible */}
         <div className="absolute inset-0 z-0">
           <img

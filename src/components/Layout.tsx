@@ -1,8 +1,11 @@
 import { ReactNode } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
+import BottomNav from "./BottomNav";
 import MouseTracker from "./MouseTracker";
 import HolidayBanner from "./HolidayBanner";
+import SubscriptionPopup from "./SubscriptionPopup";
+import FloatingActions from "./FloatingActions";
 import { Snowfall } from "./SeasonalEffects";
 import { ShieldCheck, Globe, Trophy } from "lucide-react";
 import heroCar from "@/assets/hero-car.jpg";
@@ -13,7 +16,7 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative pb-16 lg:pb-0">
       <MouseTracker />
       
       {/* Seasonal Snowfall - only shows Nov 1 to Jan 5 */}
@@ -41,6 +44,15 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
         <Footer />
       </div>
+
+      {/* Mobile-Only Bottom Navigation Terminal */}
+      <BottomNav />
+
+      {/* Global Institutional Subscription Popup */}
+      <SubscriptionPopup />
+
+      {/* Floating Action Terminal - Share & Scroll */}
+      <FloatingActions />
     </div>
   );
 };
