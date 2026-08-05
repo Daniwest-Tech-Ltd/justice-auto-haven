@@ -162,13 +162,13 @@ const SubscriptionPopup = () => {
 
               <div className="flex flex-col items-center gap-4 pt-2">
                 <div className="flex gap-3">
-                  {[
-                    { icon: Facebook, href: "https://www.facebook.com/justiceultimateautomobiles" },
-                    { icon: Instagram, href: "https://www.instagram.com/justiceultimateautomobiles" },
-                    { icon: Youtube, href: "https://www.youtube.com/@justiceultimateautomobiles" },
-                    { icon: Twitter, href: "https://twitter.com/justiceultimate" },
-                    { icon: MessageCircle, href: "https://wa.me/254722827458" }
-                  ].map((social, i) => (
+                {[
+                  { icon: Facebook, href: "https://www.facebook.com/justiceultimatemotors" },
+                  { icon: Instagram, href: "https://www.instagram.com/justiceultimateautomobiles" },
+                  { icon: Youtube, href: "https://www.youtube.com/@justiceultimateautomobiles" },
+                  { icon: Twitter, href: "https://x.com/justiceultimat1" },
+                  { icon: MessageCircle, href: "https://wa.me/254722827458" }
+                ].map((social, i) => (
                     <a
                       key={i}
                       href={social.href}

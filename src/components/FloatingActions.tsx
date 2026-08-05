@@ -27,10 +27,10 @@ const FloatingActions = () => {
   };
 
   const socialLinks = [
-    { icon: Facebook, href: "https://www.facebook.com/justiceultimateautomobiles", label: "Facebook" },
+    { icon: Facebook, href: "https://www.facebook.com/justiceultimatemotors", label: "Facebook" },
     { icon: Instagram, href: "https://www.instagram.com/justiceultimateautomobiles", label: "Instagram" },
     { icon: Youtube, href: "https://www.youtube.com/@justiceultimateautomobiles", label: "YouTube" },
-    { icon: Twitter, href: "https://twitter.com/justiceultimate", label: "Twitter" },
+    { icon: Twitter, href: "https://x.com/justiceultimat1", label: "Twitter" },
     { icon: MessageCircle, href: "https://wa.me/254722827458", label: "WhatsApp" },
   ];
 

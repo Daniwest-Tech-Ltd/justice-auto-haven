@@ -247,9 +247,9 @@ const Footer = () => {
 
               <div className="flex gap-4 pt-2">
                 {[
-                  { icon: Facebook, href: "https://facebook.com" },
+                  { icon: Facebook, href: "https://www.facebook.com/justiceultimatemotors" },
                   { icon: Instagram, href: "https://instagram.com" },
-                  { icon: Twitter, href: "https://twitter.com" },
+                  { icon: Twitter, href: "https://x.com/justiceultimat1" },
                   { icon: Youtube, href: "https://youtube.com" }
                 ].map((social, i) => (
                   <a key={i} href={social.href} target="_blank" rel="noreferrer" className="h-11 w-11 rounded bg-background hover:bg-brand-red hover:text-white transition-all flex items-center justify-center border border-border shadow-sm group/social">
