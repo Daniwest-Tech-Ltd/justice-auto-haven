@@ -27,36 +27,46 @@ export const addWatermarkToImage = async (
       // Draw original image
       ctx.drawImage(img, 0, 0);
       
-      // Add semi-transparent overlay
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-      ctx.fillRect(0, canvas.height - 120, canvas.width, 120);
+      // Calculate dynamic sizing based on image width
+      const scaleFactor = canvas.width / 1200;
+      const barHeight = 120 * scaleFactor;
+      const fontSizeLarge = Math.round(42 * scaleFactor);
+      const fontSizeMedium = Math.round(24 * scaleFactor);
+      const fontSizeSmall = Math.round(18 * scaleFactor);
+
+      // Add semi-transparent overlay at bottom
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(0, canvas.height - barHeight, canvas.width, barHeight);
       
       // Add main watermark text
-      ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.font = `black ${fontSizeLarge}px system-ui, -apple-system, sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText('JUSTICE ULTIMATE AUTOMOBILES', canvas.width / 2, canvas.height - 70);
+
+      // Draw "JUSTICE" in white
+      const fullText = "JUSTICE ULTIMATE AUTOMOBILES";
+      ctx.fillStyle = 'white';
+      ctx.fillText(fullText, canvas.width / 2, canvas.height - (barHeight * 0.6));
       
       // Add car info
-      ctx.font = '24px system-ui, -apple-system, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-      ctx.fillText(`${carInfo.year} ${carInfo.make} ${carInfo.model}`, canvas.width / 2, canvas.height - 35);
+      ctx.font = `bold ${fontSizeMedium}px system-ui, -apple-system, sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillText(`${carInfo.year} ${carInfo.make} ${carInfo.model}`.toUpperCase(), canvas.width / 2, canvas.height - (barHeight * 0.3));
       
-      // Add diagonal watermark across image
+      // Add massive diagonal watermark across center
       ctx.save();
       ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.rotate(-Math.PI / 6); // -30 degrees
-      ctx.font = 'bold 48px system-ui, -apple-system, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.rotate(-Math.PI / 4); // -45 degrees
+      ctx.font = `black ${fontSizeLarge * 2.5}px system-ui, -apple-system, sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
       ctx.textAlign = 'center';
-      ctx.fillText('JUSTICE ULTIMATE AUTOMOBILES', 0, 0);
+      ctx.fillText('JUSTICE ULTIMATE', 0, 0);
       ctx.restore();
       
-      // Add copyright symbol in corner
-      ctx.font = '18px system-ui, -apple-system, sans-serif';
+      // Add official company corner badge
+      ctx.font = `bold ${fontSizeSmall}px system-ui, -apple-system, sans-serif`;
       ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
       ctx.textAlign = 'right';
-      ctx.fillText('© Justice Ultimate Automobiles', canvas.width - 20, 30);
+      ctx.fillText('© JUSTICE ULTIMATE AUTOMOBILES 2026', canvas.width - (20 * scaleFactor), fontSizeLarge);
       
       // Convert to blob
       canvas.toBlob((blob) => {
