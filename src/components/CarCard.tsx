@@ -161,9 +161,21 @@ export const CarCard = ({ car, isWhitelisted, onToggleWishlist, onQuickView, onZ
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             Stock ID: {car.stock_id || car.id.slice(0, 8).toUpperCase()}
           </p>
-          <h3 className="font-black text-slate-900 dark:text-white uppercase leading-tight italic group-hover:text-emerald-600 transition-colors">
-            {car.make} {car.model}
-          </h3>
+          <div className="flex justify-between items-center gap-2">
+            <h3 className="font-black text-slate-900 dark:text-white uppercase leading-tight italic group-hover:text-emerald-600 transition-colors">
+              {car.make} {car.model}
+            </h3>
+            <div className="flex flex-col items-end gap-1">
+              <div className="bg-brand-red/5 px-2 py-1 rounded-lg border border-brand-red/10">
+                <p className="text-lg font-black text-brand-red whitespace-nowrap drop-shadow-sm leading-none">
+                  <span className="text-[9px] font-bold mr-0.5 opacity-70">KSh</span>{car.price?.toLocaleString()}
+                </p>
+              </div>
+              <span className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter leading-none animate-pulse text-right">
+                Lipa Mdogo Mdogo ...Deposit Available
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Spec Chips */}

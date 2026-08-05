@@ -259,8 +259,14 @@ const CarDetails = () => {
         {/* Top Info Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-100 pb-6 mb-8">
           <div className="space-y-2">
-            <div className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest w-fit">
-              In Stock
+            <div className="flex items-center gap-3">
+              <div className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest w-fit">
+                In Stock
+              </div>
+              <div className="text-2xl font-black text-brand-red tracking-tight flex items-baseline gap-1">
+                <span className="text-xs font-bold text-slate-400">KSh</span>
+                {car.price.toLocaleString()}
+              </div>
             </div>
             <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 uppercase">
               {car.make} {car.model} {car.year} {car.engine} {car.fuel_type}
@@ -334,6 +340,37 @@ const CarDetails = () => {
 
           {/* RIGHT: Quick Specs & Details (Span 4) */}
           <div className="lg:col-span-4 space-y-8">
+            {/* Price Card - High Visibility Money Design */}
+            <div className="bg-slate-900 text-white p-8 rounded-3xl space-y-4 shadow-2xl relative overflow-hidden border border-white/10 group animate-in fade-in slide-in-from-right-8 duration-700">
+               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform duration-700">
+                  <Wallet className="h-20 w-20" />
+               </div>
+               <div className="relative z-10 space-y-1">
+                  <div className="flex justify-between items-center">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Acquisition Value</p>
+                    <Badge className="bg-brand-red text-white text-[9px] font-bold px-2 py-0.5 rounded border-none shadow-lg">VERIFIED</Badge>
+                  </div>
+                  <div className="flex items-baseline gap-2 pt-2">
+                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">KSh</span>
+                    <h2 className="text-4xl sm:text-5xl font-black tracking-tighter text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+                      {car.price.toLocaleString()}
+                    </h2>
+                  </div>
+                  <div className="bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl border border-emerald-500/30 w-fit mt-2 animate-pulse flex items-center gap-2">
+                     <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
+                     <span className="text-[10px] font-black uppercase tracking-[0.1em]">
+                        Lipa Mdogo Mdogo ...Deposit Available
+                     </span>
+                  </div>
+               </div>
+               <div className="pt-4 border-t border-white/10 relative z-10">
+                  <div className="flex items-center gap-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                    <Activity className="h-3 w-3 text-brand-red animate-pulse" />
+                    Market Synchronization Active
+                  </div>
+               </div>
+            </div>
+
             {/* Quick Specs Grid */}
             <div className="grid grid-cols-2 gap-4">
                {[

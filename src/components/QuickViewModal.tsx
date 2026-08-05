@@ -148,10 +148,21 @@ const QuickViewModal = ({ open, onOpenChange, car }: QuickViewModalProps) => {
                   </div>
                </div>
                <div className="pt-2">
-                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Price</p>
-                 <p className="text-4xl font-black text-foreground tracking-tighter flex items-baseline gap-1">
-                   <span className="text-xl font-bold">KSh</span> {car.price?.toLocaleString()}
-                 </p>
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-1">Acquisition Value</p>
+                 <div className="flex flex-col gap-2">
+                    <div className="bg-brand-red/5 p-4 rounded-2xl border border-brand-red/10 inline-flex items-baseline gap-2 w-fit">
+                       <span className="text-sm font-bold text-brand-red/70 uppercase">KSh</span>
+                       <p className="text-4xl font-black text-brand-red tracking-tighter drop-shadow-sm">
+                         {car.price?.toLocaleString()}
+                       </p>
+                    </div>
+                    <div className="flex items-center gap-2 text-emerald-600 animate-pulse">
+                       <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
+                       <span className="text-[10px] font-black uppercase tracking-widest">
+                          Lipa Mdogo Mdogo ...Deposit Available
+                       </span>
+                    </div>
+                 </div>
                </div>
             </div>
 
