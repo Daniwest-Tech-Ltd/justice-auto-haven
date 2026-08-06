@@ -118,15 +118,18 @@ const SubscriptionPopup = () => {
                <div className="h-20 w-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
                   <CheckCircle className="h-10 w-10 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
                </div>
-               <div className="space-y-2">
-                  <h3 className="text-xl font-black uppercase tracking-tighter text-white">Access Granted</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed px-4">
-                     Official Notice: You are now synced to our terminal logs. <br/>
-                     Receive new updates on every unit arrival.
+               <div className="space-y-3">
+                  <h3 className="text-2xl font-black uppercase tracking-tighter text-white italic">Subscription Successful</h3>
+                  <div className="h-1 w-12 bg-emerald-500 mx-auto rounded-full" />
+                  <p className="text-[11px] font-black text-emerald-400 uppercase tracking-[0.2em] leading-relaxed px-4">
+                     OFFICIAL NOTICE: YOU ARE NOW SYNCED TO THE ULTIMATE TERMINAL LOGS.
+                  </p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed px-6">
+                     You will receive real-time notifications on every new vehicle arrival and market price shift.
                   </p>
                </div>
-               <Button onClick={handleClose} variant="outline" className="h-10 px-8 rounded-xl border-white/10 text-white font-black text-[9px] uppercase tracking-widest hover:bg-white hover:text-black transition-all">
-                  Continue Browsing
+               <Button onClick={handleClose} className="h-12 px-10 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-xl">
+                  ENTER TERMINAL
                </Button>
             </div>
           ) : (
@@ -163,10 +166,10 @@ const SubscriptionPopup = () => {
               <div className="flex flex-col items-center gap-4 pt-2">
                 <div className="flex gap-3">
                 {[
-                  { icon: Facebook, href: "https://www.facebook.com/justiceultimatemotors" },
+                  { icon: Facebook, href: "https://www.facebook.com/justiceultimateautomobiles" },
                   { icon: Instagram, href: "https://www.instagram.com/justiceultimateautomobiles" },
                   { icon: Youtube, href: "https://www.youtube.com/@justiceultimateautomobiles" },
-                  { icon: Twitter, href: "https://x.com/justiceultimat1" },
+                  { icon: Twitter, href: "https://twitter.com/justiceultimate" },
                   { icon: MessageCircle, href: "https://wa.me/254722827458" }
                 ].map((social, i) => (
                     <a

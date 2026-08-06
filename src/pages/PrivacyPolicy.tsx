@@ -159,6 +159,27 @@ const PrivacyPolicy = () => {
               </div>
             </section>
 
+            <section className="space-y-4">
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                <div className="h-1.5 w-1.5 bg-brand-red rounded-full" />
+                5. Third-Party Advertising & Cookies
+              </h3>
+              <div className="pl-4 border-l border-primary/20 space-y-4">
+                <p className="text-[11px] font-bold uppercase tracking-wider leading-relaxed">
+                  Our Terminal uses Google AdSense to serve advertisements. Google and other third-party vendors use cookies to serve ads based on a user's prior visits to our website or other websites.
+                </p>
+                <div className="bg-secondary/5 p-4 rounded border border-border space-y-3">
+                   <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Critical Disclosures:</p>
+                   <ul className="text-[10px] font-medium space-y-2 text-muted-foreground leading-relaxed uppercase tracking-tight">
+                     <li>• Third party vendors, including Google, use cookies to serve ads based on your prior visits to this site.</li>
+                     <li>• Google's use of advertising cookies enables it and its partners to serve ads to you based on your visit to our sites and/or other sites on the Internet.</li>
+                     <li>• You may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" className="text-brand-red underline">Ads Settings</a>.</li>
+                     <li>• This Terminal may utilize web beacons and IP address tracking to collect information as a result of ad serving.</li>
+                   </ul>
+                </div>
+              </div>
+            </section>
+
             <div className="mt-16 pt-10 border-t border-border flex flex-col md:flex-row justify-between gap-8 items-start">
               <div className="space-y-4">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Privacy Meta-Data</p>

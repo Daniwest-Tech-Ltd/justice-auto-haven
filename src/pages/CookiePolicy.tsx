@@ -132,6 +132,24 @@ const CookiePolicy = () => {
               </div>
             </section>
 
+            <section className="space-y-4">
+              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                <div className="h-1.5 w-1.5 bg-brand-red rounded-full" />
+                4. Third-Party Advertising (Google AdSense)
+              </h3>
+              <div className="pl-4 border-l border-primary/20 space-y-4">
+                <p className="text-[11px] font-bold uppercase tracking-wider leading-relaxed">
+                  Third-party vendors, including Google, use cookies to serve ads based on a user's prior visits to this Terminal or other websites. Google's use of advertising cookies enables it and its partners to serve ads to users based on their visit to this site and/or other sites on the Internet.
+                </p>
+                <div className="bg-brand-red/5 p-4 rounded border border-brand-red/10 space-y-2">
+                   <p className="text-[10px] font-black uppercase tracking-widest text-brand-red">Opt-Out Options:</p>
+                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 leading-relaxed">
+                     Users may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" className="underline">Google Ads Settings</a>. Alternatively, you can opt out of a third-party vendor's use of cookies for personalized advertising by visiting <a href="https://www.aboutads.info" target="_blank" className="underline">www.aboutads.info</a>.
+                   </p>
+                </div>
+              </div>
+            </section>
+
             <div className="mt-16 pt-10 border-t border-border flex flex-col md:flex-row justify-between gap-8 items-start">
               <div className="space-y-4">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cookie Meta-Data</p>

@@ -8,7 +8,7 @@ const FloatingActions = () => {
 
   useEffect(() => {
     const checkScroll = () => {
-      if (window.scrollY > 200) {
+      if (window.scrollY > 50) {
         setShowScroll(true);
       } else {
         setShowScroll(false);
@@ -27,27 +27,40 @@ const FloatingActions = () => {
   };
 
   const socialLinks = [
-    { icon: Facebook, href: "https://www.facebook.com/justiceultimatemotors", label: "Facebook" },
+    { icon: Facebook, href: "https://www.facebook.com/justiceultimateautomobiles", label: "Facebook" },
     { icon: Instagram, href: "https://www.instagram.com/justiceultimateautomobiles", label: "Instagram" },
     { icon: Youtube, href: "https://www.youtube.com/@justiceultimateautomobiles", label: "YouTube" },
-    { icon: Twitter, href: "https://x.com/justiceultimat1", label: "Twitter" },
+    { icon: Twitter, href: "https://twitter.com/justiceultimate", label: "Twitter" },
     { icon: MessageCircle, href: "https://wa.me/254722827458", label: "WhatsApp" },
   ];
 
   return (
-    <div className="fixed bottom-32 right-6 z-[9999] flex flex-col-reverse items-center gap-4">
+    <div className="fixed bottom-24 right-6 z-[9999] flex flex-col items-center gap-4 pointer-events-none">
       <style>{`
         @keyframes bounce-up-down {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(8px); }
+          50% { transform: translateY(-8px); }
         }
         .animate-bounce-up-down {
           animation: bounce-up-down 2s infinite ease-in-out;
         }
       `}</style>
 
+      {/* Scroll to Top Button - Institutional Gold Design */}
+      <div className={`transition-all duration-700 transform pointer-events-auto ${showScroll ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-10'}`}>
+        <Button
+          size="icon"
+          onClick={scrollToTop}
+          className="h-14 w-14 rounded-full bg-gradient-to-br from-[#FFD700] via-[#B8860B] to-[#FFD700] text-white shadow-[0_10px_30px_-10px_rgba(184,134,11,0.6)] border-none animate-bounce-up-down hover:brightness-110 transition-all active:scale-95 group relative overflow-hidden"
+          title="Return to Top"
+        >
+          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <ArrowUp className="h-7 w-7 drop-shadow-lg" />
+        </Button>
+      </div>
+
       {/* Share Container */}
-      <div className="relative">
+      <div className="relative pointer-events-auto">
         {isVisible && (
           <div className="absolute right-full mr-4 bottom-0 flex flex-col gap-3 p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-slate-100 dark:border-slate-800 animate-in slide-in-from-right-4 fade-in duration-300 min-w-[50px]">
              <p className="text-[8px] font-black uppercase tracking-[0.3em] text-brand-red text-center pb-2 mb-1 border-b border-slate-50 dark:border-slate-800">Direct</p>
@@ -71,19 +84,6 @@ const FloatingActions = () => {
           className={`h-14 w-14 rounded-full shadow-2xl transition-all duration-500 border-2 ${isVisible ? 'bg-slate-900 text-white border-white/10 rotate-90' : 'bg-white text-slate-900 hover:bg-slate-50 border-slate-100'}`}
         >
           {isVisible ? <X className="h-6 w-6" /> : <Share2 className="h-6 w-6" />}
-        </Button>
-      </div>
-
-      {/* Scroll to Top Button - Institutional Gold Design */}
-      <div className={`transition-all duration-700 transform ${showScroll ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-10 pointer-events-none'}`}>
-        <Button
-          size="icon"
-          onClick={scrollToTop}
-          className="h-14 w-14 rounded-full bg-gradient-to-br from-[#FFD700] via-[#B8860B] to-[#FFD700] text-white shadow-[0_10px_30px_-10px_rgba(184,134,11,0.5)] border-none animate-bounce-up-down hover:brightness-110 transition-all active:scale-95 group relative overflow-hidden"
-          title="Return to Top"
-        >
-          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-          <ArrowUp className="h-7 w-7 drop-shadow-lg" />
         </Button>
       </div>
     </div>

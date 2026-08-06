@@ -54,7 +54,7 @@ const Footer = () => {
         if (error.code === "23505") {
           toast({
             title: "Already Subscribed",
-            description: "You are already on our institutional mailing list.",
+            description: "You are already on our mailing list.",
           });
         } else {
           throw error;
@@ -62,7 +62,7 @@ const Footer = () => {
       } else {
         toast({
           title: "Successfully Subscribed",
-          description: "Official Notice: You are now synced to our terminal logs.",
+          description: "You will now receive our car updates.",
         });
         setEmail("");
       }
@@ -90,8 +90,8 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-12">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
             <div className="space-y-2 text-center md:text-left">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Market Dominance</h3>
-              <p className="text-2xl font-black tracking-tighter uppercase">Strategic Corporate Alliances</p>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Our Certifications</h3>
+              <p className="text-2xl font-black tracking-tighter uppercase">We Work With the Best</p>
             </div>
             <div className="flex flex-wrap justify-center gap-4">
               <Badge variant="outline" className="px-5 py-2 border-brand-red/30 bg-brand-red/5 text-brand-red text-[10px] font-black uppercase tracking-widest">NTSA Verified</Badge>
@@ -118,20 +118,20 @@ const Footer = () => {
                 </div>
               </Link>
               <p className="text-[11px] text-muted-foreground leading-loose font-bold uppercase tracking-wider max-w-sm">
-                Africa's premier automotive transactional terminal. specializing in high-fidelity Japanese imports, corporate fleet scaling, and encrypted logistics management.
+                Kenya's trusted car dealer. We import quality cars from Japan and Europe and offer easy financing and fast delivery.
               </p>
             </div>
 
             <div className="space-y-6">
               <form onSubmit={handleFooterSearch} className="space-y-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Inventory Audit Search</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Search for a Car</p>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-red" />
                     <Input
                       type="search"
-                      placeholder="VIN, MAKE OR MODEL..."
-                      className="h-12 pl-12 rounded-sm bg-secondary/30 border-border focus:border-brand-red/50 text-[10px] font-black uppercase tracking-widest"
+                      placeholder="SEARCH BY MAKE OR MODEL..."
+                      className="h-12 pl-12 rounded-sm bg-secondary/30 border-border focus:border-brand-red/50 text-[10px] font-black uppercase tracking-widest text-foreground"
                       value={footerSearch}
                       onChange={(e) => setFooterSearch(e.target.value)}
                     />
@@ -142,9 +142,9 @@ const Footer = () => {
 
               <form onSubmit={handleSubscribe} className="space-y-4 pt-6 border-t border-border/50">
                 <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-red">Mailing Team</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-red">Join Our Mailing List</p>
                   <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest italic">
-                    Subscribe for real-time terminal entry logs and car updates.
+                    Subscribe for real-time car updates and arrivals.
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -171,16 +171,16 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Business Units */}
+          {/* Quick Links */}
           <div className="lg:col-span-2 space-y-8">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Business Units</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Quick Links</h4>
             <ul className="space-y-4">
               {[
-                { to: "/catalogue", label: "Asset Inventory" },
-                { to: "/asset-finance", label: "Financing Desk" },
-                { to: "/trade-in", label: "Trade-In Portal" },
-                { to: "/motorbikes", label: "Motorbike Fleet" },
-                { to: "/videos", label: "Visual Yard Audit" }
+                { to: "/catalogue", label: "All Cars" },
+                { to: "/asset-finance", label: "Car Loans" },
+                { to: "/trade-in", label: "Exchange Your Car" },
+                { to: "/motorbikes", label: "Motorbikes" },
+                { to: "/videos", label: "Car Videos" }
               ].map((link) => (
                 <li key={link.label}>
                   <Link to={link.to} className="text-[11px] font-black text-muted-foreground hover:text-brand-red transition-all flex items-center group uppercase tracking-widest">
@@ -192,26 +192,26 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Regional Hubs */}
+          {/* Our Locations */}
           <div className="lg:col-span-2 space-y-8">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Regional Hubs</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Our Locations</h4>
             <ul className="space-y-4">
               {["Nairobi", "Mombasa", "Kisumu", "Eldoret", "Nyeri", "Kisii"].map((loc) => (
                 <li key={loc}>
                   <Link to={`/catalogue?location=${loc}`} className="text-[11px] font-black text-muted-foreground hover:text-brand-red transition-all flex items-center group uppercase tracking-widest">
                     <MapPin className="h-3 w-3 mr-2 text-muted-foreground/30 group-hover:text-brand-red transition-colors" />
-                    {loc} Operations
+                    {loc} Yard
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Governance & Support */}
+          {/* Contact Us */}
           <div className="lg:col-span-4 space-y-10">
             <div className="bg-secondary/10 p-8 rounded-md border border-border space-y-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 h-32 w-32 bg-brand-red/5 rounded-full blur-3xl pointer-events-none group-hover:bg-brand-red/10 transition-colors" />
-              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Executive Support</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Contact Us</h4>
 
               <div className="space-y-6">
                 <a href="tel:+254722827458" className="flex items-center gap-5 group/item cursor-pointer">
@@ -219,7 +219,7 @@ const Footer = () => {
                     <Phone className="h-5 w-5 text-brand-red" />
                   </div>
                   <div>
-                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">24/7 Corporate Line</p>
+                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Call Us Anytime</p>
                     <p className="text-base font-black tracking-tighter group-hover/item:text-brand-red transition-colors">+254 722 827 458</p>
                   </div>
                 </a>
@@ -229,7 +229,7 @@ const Footer = () => {
                     <Mail className="h-5 w-5 text-brand-red" />
                   </div>
                   <div>
-                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Direct Dispatch</p>
+                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Email Us</p>
                     <p className="text-[11px] font-black uppercase tracking-tighter truncate max-w-[200px] group-hover/item:text-brand-red transition-colors">info@justiceultimateautomobiles.com</p>
                   </div>
                 </a>
@@ -239,7 +239,7 @@ const Footer = () => {
                     <MapPin className="h-5 w-5 text-brand-red" />
                   </div>
                   <div>
-                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Institutional Hub</p>
+                    <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em]">Our Office</p>
                     <p className="text-[11px] font-black uppercase tracking-tighter group-hover/item:text-brand-red transition-colors">Westlands, Nairobi, Kenya</p>
                   </div>
                 </a>
@@ -247,10 +247,10 @@ const Footer = () => {
 
               <div className="flex gap-4 pt-2">
                 {[
-                  { icon: Facebook, href: "https://www.facebook.com/justiceultimatemotors" },
-                  { icon: Instagram, href: "https://instagram.com" },
-                  { icon: Twitter, href: "https://x.com/justiceultimat1" },
-                  { icon: Youtube, href: "https://youtube.com" }
+                  { icon: Facebook, href: "https://www.facebook.com/justiceultimateautomobiles" },
+                  { icon: Instagram, href: "https://www.instagram.com/justiceultimateautomobiles" },
+                  { icon: Twitter, href: "https://twitter.com/justiceultimate" },
+                  { icon: Youtube, href: "https://www.youtube.com/@justiceultimateautomobiles" }
                 ].map((social, i) => (
                   <a key={i} href={social.href} target="_blank" rel="noreferrer" className="h-11 w-11 rounded bg-background hover:bg-brand-red hover:text-white transition-all flex items-center justify-center border border-border shadow-sm group/social">
                     <social.icon className="h-4 w-4 transition-transform group-hover/social:scale-110" />
@@ -268,13 +268,14 @@ const Footer = () => {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
             <div className="flex flex-wrap justify-center lg:justify-start gap-x-10 gap-y-6">
               {[
-                { label: "Terms of Engagement", path: "/terms" },
-                { label: "Data Privacy", path: "/privacy" },
-                { label: "Support Terminal", path: "/support" },
+                { label: "Our Story", path: "/about" },
+                { label: "Terms of Use", path: "/terms" },
+                { label: "Privacy Policy", path: "/privacy" },
+                { label: "Help & Support", path: "/support" },
                 { label: "Help Center", path: "/help-center" },
                 { label: "Book Appointment", path: "/appoint" },
-                { label: "Compliance Hub", path: "/compliance-hub" },
-                { label: "Technical FAQs", path: "/faqs" }
+                { label: "Compliance", path: "/compliance-hub" },
+                { label: "FAQs", path: "/faqs" }
               ].map((item) => (
                 <Link key={item.label} to={item.path} className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-brand-red transition-colors">
                   {item.label}
@@ -371,11 +372,11 @@ const Footer = () => {
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 relative z-10">
           <div className="flex items-center gap-3">
              <Shield className="h-4 w-4 text-brand-red" />
-             <p>© 2026 Justice Ultimate Automobiles. Institutional Asset Management Division.</p>
+             <p>© 2026 Justice Ultimate Automobiles. Official Car Dealer.</p>
           </div>
           <div className="flex items-center gap-2 px-4 py-1.5 bg-secondary/10 rounded-full border border-border">
             <Activity className="h-3 w-3 text-brand-red animate-pulse" />
-            <span className="text-[8px] tracking-[0.2em]">Encrypted Terminal active</span>
+            <span className="text-[8px] tracking-[0.2em]">Secure Site</span>
           </div>
         </div>
       </div>

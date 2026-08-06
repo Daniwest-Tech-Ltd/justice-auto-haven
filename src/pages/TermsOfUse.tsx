@@ -119,7 +119,7 @@ const TermsOfUse = () => {
 
                 <div className="bg-brand-red/5 border border-brand-red/20 p-4 rounded-md">
                    <p className="text-[10px] font-black uppercase text-brand-red tracking-widest flex items-center gap-2">
-                     <Clock className="h-4 w-4" /> Professional Certificate Coming Soon
+                     <ShieldCheck className="h-4 w-4" /> Verified Institutional Dealer Status: Active
                    </p>
                 </div>
               </div>

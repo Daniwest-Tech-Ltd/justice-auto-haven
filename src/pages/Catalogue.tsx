@@ -340,7 +340,7 @@ const Catalogue = () => {
         }
       `}</style>
 
-      {/* Asset Filtering Hub - Opaque & Professional */}
+      {/* Search and Filter */}
       <section className="relative z-20 -mt-6 sm:-mt-8">
         <div className="container mx-auto px-2 sm:px-4">
           <div className="max-w-6xl mx-auto relative group">
@@ -357,7 +357,7 @@ const Catalogue = () => {
               <div className="flex-1 relative group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-brand-red" />
                 <Input
-                  placeholder="Search by car model, year, or color..."
+                  placeholder="Search for a car (e.g. Toyota, Nissan)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-10 sm:h-12 pl-10 sm:pl-12 rounded-lg bg-slate-50 border-slate-200 focus:border-brand-red/50 focus:ring-brand-red/20 text-[11px] sm:text-[12px] font-bold uppercase tracking-widest text-slate-900"
@@ -408,7 +408,7 @@ const Catalogue = () => {
       </div>
     </section>
 
-      {/* Asset Ledger Grid */}
+      {/* Our Car Collection */}
       <section className="py-12 sm:py-24 relative z-10">
         <div className="container max-w-[2400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 mb-6 sm:mb-10 border-b border-slate-100 pb-4 sm:pb-6">
@@ -422,9 +422,9 @@ const Catalogue = () => {
           {cars.length === 0 ? (
             <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-12 sm:p-24 text-center max-w-4xl mx-auto shadow-2xl">
               <Car className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-6 sm:mb-8 text-brand-red opacity-20" />
-              <h3 className="text-xl sm:text-2xl font-black tracking-tighter uppercase mb-2 sm:mb-4 text-slate-900">Query Buffer Empty</h3>
+              <h3 className="text-xl sm:text-2xl font-black tracking-tighter uppercase mb-2 sm:mb-4 text-slate-900">No Cars Found</h3>
               <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed mb-8 sm:mb-10 max-w-md mx-auto">
-                No verified units match your criteria.
+                We couldn't find any cars matching your search. You can order exactly what you want directly from Japan through our team.
               </p>
               <Button onClick={clearFilters} className="bg-slate-900 font-black text-[10px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.3em] px-8 sm:px-12 h-12 sm:h-14 rounded-xl shadow-xl hover:bg-brand-red transition-all duration-500">
                 Clear Filters
@@ -448,7 +448,7 @@ const Catalogue = () => {
               {carsData?.total && carsData.total > cars.length ? (
                 <div className="mt-16 text-center">
                    <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">
-                      Displaying {cars.length} of {carsData.total} Institutional Units
+                      Displaying {cars.length} of {carsData.total} Available Cars
                    </p>
                 </div>
               ) : null}
@@ -457,7 +457,7 @@ const Catalogue = () => {
         </div>
       </section>
 
-      {/* Formal Business Leads */}
+      {/* Our Services */}
       <section className="container mx-auto px-4 pb-20">
         <div className="grid md:grid-cols-2 gap-8">
            <div className="bg-white border border-slate-200 p-10 rounded-2xl flex flex-col items-center text-center space-y-6 shadow-lg hover:shadow-2xl hover:border-primary/30 transition-all group">
@@ -465,11 +465,11 @@ const Catalogue = () => {
                  <CreditCard className="h-8 w-8" />
               </div>
               <div className="space-y-2">
-                 <h4 className="text-xl font-black uppercase tracking-tight text-slate-900">Institutional Financing</h4>
-                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest max-w-sm leading-relaxed">Aggressive 90% capital backing via tier-1 partners. 48h dispatch audit cycle.</p>
+                 <h4 className="text-xl font-black uppercase tracking-tight text-slate-900">Easy Car Financing</h4>
+                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest max-w-sm leading-relaxed">Get up to 90% financing from top banks. Fast approval in 48 hours.</p>
               </div>
               <Button size="lg" className="px-12 h-14 rounded-xl bg-slate-900 hover:bg-brand-red text-white font-black text-[11px] uppercase tracking-[0.3em] transition-all duration-500" onClick={() => navigate("/asset-finance")}>
-                Initialize Finance Application
+                Apply for a Car Loan
               </Button>
            </div>
            <div className="bg-white border border-slate-200 p-10 rounded-2xl flex flex-col items-center text-center space-y-6 shadow-lg hover:shadow-2xl hover:border-brand-red/30 transition-all group">
@@ -477,16 +477,16 @@ const Catalogue = () => {
                  <Headphones className="h-8 w-8" />
               </div>
               <div className="space-y-2">
-                 <h4 className="text-xl font-black uppercase tracking-tight text-slate-900">Technical Support Hub</h4>
-                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest max-w-sm leading-relaxed">Direct line to technical yard dispatch. Mean response latency: 12 minutes.</p>
+                 <h4 className="text-xl font-black uppercase tracking-tight text-slate-900">Need Help?</h4>
+                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest max-w-sm leading-relaxed">Call our support team directly. We respond in less than 15 minutes.</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
                 <Button size="lg" variant="outline" className="px-12 h-14 rounded-xl border-slate-200 text-slate-900 font-black text-[11px] uppercase tracking-[0.3em] group-hover:bg-slate-900 group-hover:text-white transition-all duration-500 flex-1 sm:flex-none shadow-md" onClick={() => navigate("/contact")}>
-                  Establish Contact
+                  Contact Us
                 </Button>
                 <Button size="lg" variant="outline" className="px-12 h-14 rounded-xl border-slate-200 text-slate-900 font-black text-[11px] uppercase tracking-[0.3em] hover:bg-primary hover:text-white transition-all duration-500 flex-1 sm:flex-none shadow-md" onClick={() => window.open("https://maps.app.goo.gl/7x51yn7VHwHfpEpV8")}>
                   <MapPin className="h-4 w-4 mr-2" />
-                  View Strategic Hub
+                  View Location
                 </Button>
               </div>
            </div>

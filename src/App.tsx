@@ -135,6 +135,7 @@ const MotorbikeDetails = lazyWithRetry(() => import("./pages/MotorbikeDetails"))
 const Support = lazyWithRetry(() => import("./pages/Support"));
 const HelpCenter = lazyWithRetry(() => import("./pages/HelpCenter"));
 const BookAppointment = lazyWithRetry(() => import("./pages/BookAppointment"));
+const About = lazyWithRetry(() => import("./pages/About"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -340,6 +341,7 @@ const AppContent = () => {
           <Route path="/motorbike/:id" element={<Layout><MotorbikeDetails /></Layout>} />
           <Route path="/videos" element={<Layout><Videos /></Layout>} />
           <Route path="/blogs" element={<Layout><Blogs /></Layout>} />
+          <Route path="/about" element={<Layout><About /></Layout>} />
           <Route path="/terms" element={<Layout><TermsOfUse /></Layout>} />
           <Route path="/terms-of-use" element={<Layout><TermsOfUse /></Layout>} />
           <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
