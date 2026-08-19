@@ -25,6 +25,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import SEO from "@/components/SEO";
 
 interface Car {
   id: string;
@@ -226,6 +227,11 @@ const Catalogue = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20 text-slate-900">
+      <SEO
+        title="Cars for Sale in Kenya | Toyota, Mazda, Mercedes Stock"
+        description="Browse our wide collection of high-quality Japanese and European cars for sale in Nairobi. Flexible financing and trade-in options available."
+        keywords="cars for sale Kenya, car bazaar Nairobi, Toyota Vitz price Kenya, Subaru for sale Nairobi"
+      />
       {/* Background Overlays - Subtle & Official */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(200,210,255,0.15),transparent_70%)]" />

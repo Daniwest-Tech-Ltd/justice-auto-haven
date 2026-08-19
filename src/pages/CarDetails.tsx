@@ -26,6 +26,7 @@ import ContactExpertModal from "@/components/ContactExpertModal";
 import QuickViewModal from "@/components/QuickViewModal";
 import FullscreenImageViewer from "@/components/FullscreenImageViewer";
 import { CarCard } from "@/components/CarCard";
+import SEO from "@/components/SEO";
 
 interface Car {
   id: string;
@@ -230,8 +231,19 @@ const CarDetails = () => {
   const currentImage = images[currentImageIndex] || "/placeholder.svg";
   const whatsappLink = `https://wa.me/254722827458?text=${encodeURIComponent(`Hello, I'm inquiring about the ${car.year} ${car.make} ${car.model} (Stock ID: ${car.stock_id}) seen on your website.`)}`;
 
+  const carTitle = `${car.year} ${car.make} ${car.model}`;
+  const carPrice = car.price.toLocaleString();
+  const seoDescription = `Buy this ${carTitle} for KSh ${carPrice} at Justice Ultimate Automobiles. Features: ${car.engine}, ${car.transmission}, ${car.fuel_type}. Located in ${car.yard_location || 'Nairobi'}.`;
+
   return (
     <div className="min-h-screen bg-white selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden text-slate-900 pb-20">
+      <SEO
+        title={carTitle}
+        description={seoDescription}
+        keywords={`${car.make} for sale Kenya, ${car.model} price Nairobi, used ${car.make} ${car.model} Kenya`}
+        image={images[0]}
+        url={window.location.href}
+      />
       {/* Fixed Back Button - Visible on all screen sizes */}
       <div className="fixed top-24 left-4 z-50">
         <Button

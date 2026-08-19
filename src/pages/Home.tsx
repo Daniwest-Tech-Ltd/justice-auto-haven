@@ -28,6 +28,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import SEO from "@/components/SEO";
 
 const Home = () => {
   const sale = getCurrentSale();
@@ -124,6 +125,11 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-brand-red selection:text-white overflow-x-hidden font-sans antialiased text-slate-900">
+      <SEO
+        title="Best Car Deals in Kenya | Lipa Mdogo Mdogo Loans"
+        description="Buy your next car from Justice Ultimate Automobiles. Top-rated car dealer in Westlands, Nairobi. We offer up to 90% financing and direct Japan imports."
+        keywords="Lipa Mdogo Mdogo cars, car dealers Nairobi, car imports Kenya, Toyota for sale Kenya, cheap cars Nairobi"
+      />
       {/* Background Overlays - Subtle & Official */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(200,210,255,0.15),transparent_70%)]" />
