@@ -1179,6 +1179,7 @@ export type Database = {
           supplier: string | null
           test_drives_count: number | null
           transmission: string | null
+          units_available: number | null
           updated_at: string | null
           views_count: number | null
           vin: string | null
@@ -1232,6 +1233,7 @@ export type Database = {
           supplier?: string | null
           test_drives_count?: number | null
           transmission?: string | null
+          units_available?: number | null
           updated_at?: string | null
           views_count?: number | null
           vin?: string | null
@@ -1285,6 +1287,7 @@ export type Database = {
           supplier?: string | null
           test_drives_count?: number | null
           transmission?: string | null
+          units_available?: number | null
           updated_at?: string | null
           views_count?: number | null
           vin?: string | null
@@ -2582,6 +2585,27 @@ export type Database = {
           id?: string
           rtl_support?: boolean | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mailing_list: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean | null
         }
         Relationships: []
       }
@@ -3950,6 +3974,156 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sales_agreements: {
+        Row: {
+          accessories: Json | null
+          agreement_date: string
+          agreement_number: string | null
+          balance_payable: number | null
+          buyer_address: string | null
+          buyer_id_no: string | null
+          buyer_kra_pin: string | null
+          buyer_name: string | null
+          buyer_phone: string | null
+          buyer_signature: string | null
+          condition_accepted: boolean | null
+          created_at: string
+          created_by: string
+          deposit_paid: number | null
+          documents: Json | null
+          id: string
+          instalment_amount: number | null
+          instalment_count: number | null
+          other_accessories: string | null
+          other_documents: string | null
+          payment_method: string | null
+          payment_terms: string | null
+          pdf_path: string | null
+          purchase_price: number | null
+          seller_address: string | null
+          seller_id_no: string | null
+          seller_kra_pin: string | null
+          seller_name: string | null
+          seller_phone: string | null
+          seller_signature: string | null
+          status: string
+          terms_accepted: boolean | null
+          updated_at: string
+          vehicle_body: string | null
+          vehicle_color: string | null
+          vehicle_condition: string | null
+          vehicle_engine_no: string | null
+          vehicle_fuel: string | null
+          vehicle_make: string | null
+          vehicle_model: string | null
+          vehicle_registration: string | null
+          vehicle_seats: number | null
+          vehicle_transmission: string | null
+          vehicle_vin: string | null
+          vehicle_year: number | null
+          witness_name: string | null
+          witness_signature: string | null
+        }
+        Insert: {
+          accessories?: Json | null
+          agreement_date?: string
+          agreement_number?: string | null
+          balance_payable?: number | null
+          buyer_address?: string | null
+          buyer_id_no?: string | null
+          buyer_kra_pin?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          buyer_signature?: string | null
+          condition_accepted?: boolean | null
+          created_at?: string
+          created_by: string
+          deposit_paid?: number | null
+          documents?: Json | null
+          id?: string
+          instalment_amount?: number | null
+          instalment_count?: number | null
+          other_accessories?: string | null
+          other_documents?: string | null
+          payment_method?: string | null
+          payment_terms?: string | null
+          pdf_path?: string | null
+          purchase_price?: number | null
+          seller_address?: string | null
+          seller_id_no?: string | null
+          seller_kra_pin?: string | null
+          seller_name?: string | null
+          seller_phone?: string | null
+          seller_signature?: string | null
+          status?: string
+          terms_accepted?: boolean | null
+          updated_at?: string
+          vehicle_body?: string | null
+          vehicle_color?: string | null
+          vehicle_condition?: string | null
+          vehicle_engine_no?: string | null
+          vehicle_fuel?: string | null
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_registration?: string | null
+          vehicle_seats?: number | null
+          vehicle_transmission?: string | null
+          vehicle_vin?: string | null
+          vehicle_year?: number | null
+          witness_name?: string | null
+          witness_signature?: string | null
+        }
+        Update: {
+          accessories?: Json | null
+          agreement_date?: string
+          agreement_number?: string | null
+          balance_payable?: number | null
+          buyer_address?: string | null
+          buyer_id_no?: string | null
+          buyer_kra_pin?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          buyer_signature?: string | null
+          condition_accepted?: boolean | null
+          created_at?: string
+          created_by?: string
+          deposit_paid?: number | null
+          documents?: Json | null
+          id?: string
+          instalment_amount?: number | null
+          instalment_count?: number | null
+          other_accessories?: string | null
+          other_documents?: string | null
+          payment_method?: string | null
+          payment_terms?: string | null
+          pdf_path?: string | null
+          purchase_price?: number | null
+          seller_address?: string | null
+          seller_id_no?: string | null
+          seller_kra_pin?: string | null
+          seller_name?: string | null
+          seller_phone?: string | null
+          seller_signature?: string | null
+          status?: string
+          terms_accepted?: boolean | null
+          updated_at?: string
+          vehicle_body?: string | null
+          vehicle_color?: string | null
+          vehicle_condition?: string | null
+          vehicle_engine_no?: string | null
+          vehicle_fuel?: string | null
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_registration?: string | null
+          vehicle_seats?: number | null
+          vehicle_transmission?: string | null
+          vehicle_vin?: string | null
+          vehicle_year?: number | null
+          witness_name?: string | null
+          witness_signature?: string | null
+        }
+        Relationships: []
       }
       sales_prospects: {
         Row: {
@@ -5796,6 +5970,7 @@ export type Database = {
         Returns: boolean
       }
       can_user_login: { Args: { _user_id: string }; Returns: Json }
+      cleanup_old_logs: { Args: never; Returns: undefined }
       cleanup_old_system_data: { Args: never; Returns: Json }
       create_daily_attendance: {
         Args: { attendance_date?: string }

@@ -1,11 +1,13 @@
 import { ShieldCheck, Globe, Trophy, Shield, FileText, CheckCircle2, AlertCircle, Building2, Scale } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import CertificateModal from "@/components/CertificateModal";
 import HeroSlider from "@/components/HeroSlider";
 
 const ComplianceHub = () => {
   const [showCertificate, setShowCertificate] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">

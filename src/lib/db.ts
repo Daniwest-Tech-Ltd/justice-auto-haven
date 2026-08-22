@@ -11,11 +11,11 @@ export async function dualWrite(tableName: string, data: any, action: 'INSERT' |
     let primaryResult;
 
     if (action === 'INSERT') {
-      primaryResult = await supabase.from(tableName).insert(data).select();
+      primaryResult = await supabase.from(tableName as any).insert(data).select();
     } else if (action === 'UPDATE') {
-      primaryResult = await supabase.from(tableName).update(data).eq('id', data.id).select();
+      primaryResult = await supabase.from(tableName as any).update(data).eq('id', data.id).select();
     } else if (action === 'DELETE') {
-      primaryResult = await supabase.from(tableName).delete().eq('id', data.id).select();
+      primaryResult = await supabase.from(tableName as any).delete().eq('id', data.id).select();
     }
 
     if (primaryResult?.error) throw primaryResult.error;
