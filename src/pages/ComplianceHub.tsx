@@ -7,6 +7,7 @@ import HeroSlider from "@/components/HeroSlider";
 
 const ComplianceHub = () => {
   const [showCertificate, setShowCertificate] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
