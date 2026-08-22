@@ -1179,6 +1179,7 @@ export type Database = {
           supplier: string | null
           test_drives_count: number | null
           transmission: string | null
+          units_available: number | null
           updated_at: string | null
           views_count: number | null
           vin: string | null
@@ -1232,6 +1233,7 @@ export type Database = {
           supplier?: string | null
           test_drives_count?: number | null
           transmission?: string | null
+          units_available?: number | null
           updated_at?: string | null
           views_count?: number | null
           vin?: string | null
@@ -1285,6 +1287,7 @@ export type Database = {
           supplier?: string | null
           test_drives_count?: number | null
           transmission?: string | null
+          units_available?: number | null
           updated_at?: string | null
           views_count?: number | null
           vin?: string | null
@@ -2582,6 +2585,27 @@ export type Database = {
           id?: string
           rtl_support?: boolean | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mailing_list: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean | null
         }
         Relationships: []
       }
@@ -5796,6 +5820,7 @@ export type Database = {
         Returns: boolean
       }
       can_user_login: { Args: { _user_id: string }; Returns: Json }
+      cleanup_old_logs: { Args: never; Returns: undefined }
       cleanup_old_system_data: { Args: never; Returns: Json }
       create_daily_attendance: {
         Args: { attendance_date?: string }
