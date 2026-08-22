@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Bike, Plus, Pencil, Trash2, ArrowLeft, Upload, X } from "lucide-react";
+import { Bike, Plus, Pencil, Trash2, ArrowLeft, Upload, X, RefreshCw } from "lucide-react";
 
 interface Motorbike {
   id: string;

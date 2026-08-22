@@ -46,6 +46,9 @@ interface Car {
   images: any;
   available_colors?: string[] | null;
   units_available?: number | null;
+  yard_location?: string | null;
+  is_featured?: boolean | null;
+  created_at?: string | null;
 }
 
 const CarDetails = () => {

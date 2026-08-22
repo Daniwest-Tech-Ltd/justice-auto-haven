@@ -1,5 +1,6 @@
 import { ShieldCheck, Globe, Trophy, Shield, FileText, CheckCircle2, AlertCircle, Building2, Scale } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import CertificateModal from "@/components/CertificateModal";
 import HeroSlider from "@/components/HeroSlider";

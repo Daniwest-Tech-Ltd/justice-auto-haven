@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { X, Search, Send, Home, MessageCircle, Sparkles, Bot, Activity } from "lucide-react";
+import { X, Search, Send, Home, MessageCircle, Sparkles, Bot, Activity, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
