@@ -183,6 +183,8 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
   };
 
   // ============ HEADER ============
+  // Draw the watermark first so all page-1 content sits on top of it
+  drawWatermark();
   y = 14;
   // Logo (795x295 ratio ≈ 2.69)
   doc.addImage(logoData, "PNG", M, y, 56, 20.8);
