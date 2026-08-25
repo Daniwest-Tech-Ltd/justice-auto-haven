@@ -13,6 +13,8 @@ import { Users, UserPlus, Calendar, DollarSign, TrendingUp, ArrowLeft, Search, S
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { SalesAgreementsTab } from "@/components/sales/SalesAgreementsTab";
+import { FileSignature } from "lucide-react";
 
 interface UserWithRole {
   user_id: string;
@@ -257,11 +259,15 @@ const HRManagement = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="staff">Staff Members</TabsTrigger>
             <TabsTrigger value="users">All Users / Assign Roles</TabsTrigger>
             <TabsTrigger value="receipts">Receipt Approvals ({stats.pendingReceipts})</TabsTrigger>
             <TabsTrigger value="attendance">Today's Attendance</TabsTrigger>
+            <TabsTrigger value="agreements" className="gap-1.5">
+              <FileSignature className="w-4 h-4" />
+              Agreements
+            </TabsTrigger>
           </TabsList>
 
           {/* Staff Members Tab */}
