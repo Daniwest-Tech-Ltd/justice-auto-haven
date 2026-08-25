@@ -137,7 +137,7 @@ export const SalesAgreementWizard = ({ initial, onClose }: WizardProps) => {
     }
     const { data: inserted, error } = await supabase
       .from("sales_agreements")
-      .insert(payload)
+      .insert(payload as any)
       .select()
       .single();
     if (error) throw error;
@@ -164,7 +164,7 @@ export const SalesAgreementWizard = ({ initial, onClose }: WizardProps) => {
       const finalData = { ...data, ...saved };
 
       // Generate PDF
-      const blob = await buildSalesAgreementPdf(finalData);
+      const blob = await buildSalesAgreementPdf(finalData as SalesAgreementData);
 
       // Upload to Supabase storage (private bucket)
       const path = `${finalData.agreement_number ?? finalData.id}.pdf`;
