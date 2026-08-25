@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PaymentReceiptsTab } from "@/components/PaymentReceiptsTab";
 import { BulkPDFDownloader } from "@/components/BulkPDFDownloader";
+import { SalesAgreementsTab } from "@/components/sales/SalesAgreementsTab";
+import { FileSignature } from "lucide-react";
 const SalesAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -159,7 +161,7 @@ const SalesAnalytics = () => {
       </div>
 
       <Tabs defaultValue="analytics" className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="analytics" className="gap-2">
             <TrendingUp className="w-4 h-4" />
             Analytics
@@ -167,6 +169,10 @@ const SalesAnalytics = () => {
           <TabsTrigger value="receipts" className="gap-2">
             <Receipt className="w-4 h-4" />
             Receipts
+          </TabsTrigger>
+          <TabsTrigger value="agreements" className="gap-2">
+            <FileSignature className="w-4 h-4" />
+            Agreements
           </TabsTrigger>
         </TabsList>
 
