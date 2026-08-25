@@ -127,9 +127,19 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
 
   const [logoData, stampData] = await Promise.all([toDataUrl(logoUrl), toDataUrl(stampUrl)]);
 
+  // ULTIMATE watermark — diagonal (~40°). Drawn BEFORE any page content
+  // so all text/tables render on top of it, while staying clearly visible.
+  const drawWatermark = () => {
+    doc.setTextColor(226, 226, 226);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(92);
+    doc.text("ULTIMATE", W / 2, 170, { align: "center", angle: 40 });
+  };
+
   const ensureSpace = (needed: number) => {
     if (y + needed > 278) {
       doc.addPage();
+      drawWatermark(); // watermark under the new page's content
       y = 18;
     }
   };
@@ -395,15 +405,11 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
   }
   y += boxH + 8;
 
-  // ============ WATERMARK + FOOTER ON EVERY PAGE ============
+  // ============ FOOTER ON EVERY PAGE ============
+  // (watermark is drawn beneath the content when each page is created)
   const pages = doc.getNumberOfPages();
   for (let p = 1; p <= pages; p++) {
     doc.setPage(p);
-    // ULTIMATE watermark — diagonal (~40°)
-    doc.setTextColor(233, 233, 233);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(92);
-    doc.text("ULTIMATE", W / 2, 170, { align: "center", angle: 40 });
     // Footer
     doc.setDrawColor(...RED);
     doc.setLineWidth(0.5);
