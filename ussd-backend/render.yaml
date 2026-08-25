@@ -1,0 +1,25 @@
+# Render deployment configuration
+# Justice Ultimate Automobiles — USSD Backend (*384*4940#)
+services:
+  - type: web
+    name: justice-ultimate-ussd
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: AT_USERNAME
+        sync: false
+      - key: AT_API_KEY
+        sync: false
+      - key: AT_ENVIRONMENT
+        value: production
