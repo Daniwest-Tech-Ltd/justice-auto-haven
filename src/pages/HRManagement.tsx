@@ -472,6 +472,10 @@ const HRManagement = () => {
           </TabsContent>
 
           {/* Today's Attendance Tab */}
+          <TabsContent value="agreements">
+            <SalesAgreementsTab />
+          </TabsContent>
+
           <TabsContent value="attendance">
             <AttendanceOverview />
           </TabsContent>
