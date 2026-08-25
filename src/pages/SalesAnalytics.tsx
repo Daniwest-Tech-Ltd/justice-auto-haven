@@ -326,6 +326,10 @@ const SalesAnalytics = () => {
           <h1 className="text-4xl font-bold mb-8">Payment Receipts</h1>
           <PaymentReceiptsTab />
         </TabsContent>
+
+        <TabsContent value="agreements">
+          <SalesAgreementsTab />
+        </TabsContent>
       </Tabs>
     </div>
   );
