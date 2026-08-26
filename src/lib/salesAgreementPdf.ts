@@ -196,24 +196,37 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
   // ============ HEADER ============
   // Draw the watermark first so all page-1 content sits on top of it
   drawWatermark();
-  y = 14;
+  y = 12;
   // Logo (795x295 ratio ≈ 2.69)
-  doc.addImage(logoData, "PNG", M, y, 56, 20.8);
+  doc.addImage(logoData, "PNG", M, y, 50, 18.6);
+
+  // Company name + contact block (top-right)
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(...GREY);
-  doc.text(`Agreement No: ${v(data.agreement_number)}`, W - M, y + 6, { align: "right" });
-  doc.text(`Date: ${fmtDate(data.agreement_date)}`, W - M, y + 11, { align: "right" });
+  doc.setFontSize(13.5);
+  doc.setTextColor(...RED);
+  doc.text("JUSTICE ULTIMATE AUTOMOBILES", W - M, y + 5, { align: "right" });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text("Westlands, Nairobi, Kenya", W - M, y + 16, { align: "right" });
-  y += 25;
+  doc.setTextColor(...DARK);
+  doc.text("Westlands, Nairobi, Kenya", W - M, y + 10, { align: "right" });
+  doc.text("Tel: 0722 827 458  •  0751 555 544", W - M, y + 14, { align: "right" });
+  doc.text("www.justiceultimateautomobiles.com", W - M, y + 18, { align: "right" });
+  y += 23;
+
+  // Agreement meta strip
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.setTextColor(...GREY);
+  doc.text(`Agreement No: ${v(data.agreement_number)}`, M, y);
+  doc.text(`Date: ${fmtDate(data.agreement_date)}`, W - M, y, { align: "right" });
+  y += 3.5;
 
   // Red rule
   doc.setDrawColor(...RED);
   doc.setLineWidth(0.9);
   doc.line(M, y, W - M, y);
   y += 8;
+
 
   // Title
   doc.setFont("helvetica", "bold");
