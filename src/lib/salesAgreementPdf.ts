@@ -4,7 +4,7 @@
  */
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import logoUrl from "@/assets/agreement-logo.png";
+const logoUrl = "/pdf.png";
 import stampUrl from "@/assets/stamp.png";
 
 declare module "docx" {
@@ -221,9 +221,10 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
   doc.line(M + 35, y, W - M - 35, y);
   y += 5;
 
-  // Center aligned Logo (795x295 ratio ≈ 2.69)
-  const logoWidth = 65;
-  const logoHeight = 24.2;
+  // Center aligned Logo (Dynamic sizing to ensure no edges are cut)
+  const imgProps = doc.getImageProperties(logoData);
+  const logoWidth = 75;
+  const logoHeight = logoWidth / (imgProps.width / imgProps.height);
   const logoX = (W - logoWidth) / 2;
   doc.addImage(logoData, "PNG", logoX, y, logoWidth, logoHeight);
   y += logoHeight + 5;
@@ -284,25 +285,52 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
   );
   y += 10;
 
-  // ============ 1. SELLER ============
-  sectionBar("1. Seller Details");
-  pairTable([
-    ["Full Name", v(data.seller_name)],
-    ["ID / Passport No.", v(data.seller_id_no)],
-    ["Address", v(data.seller_address)],
-    ["Phone", v(data.seller_phone)],
-    ["KRA PIN", v(data.seller_kra_pin)],
-  ]);
+  // ============ SELLER & BUYER SIDE BY SIDE ============
+  ensureSpace(45);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...RED);
+  doc.text("SELLER:", M, y);
+  doc.text("BUYER:", W / 2 + 5, y);
+  y += 4;
 
-  // ============ 2. BUYER ============
-  sectionBar("2. Buyer Details");
-  pairTable([
-    ["Full Name", v(data.buyer_name)],
-    ["ID / Passport No.", v(data.buyer_id_no)],
-    ["Address", v(data.buyer_address)],
-    ["Phone", v(data.buyer_phone)],
-    ["KRA PIN", v(data.buyer_kra_pin)],
-  ]);
+  const detailsRows = [
+    ["Name:", v(data.seller_name), "Name:", v(data.buyer_name)],
+    ["ID/Passport No.:", v(data.seller_id_no), "ID/Passport No.:", v(data.buyer_id_no)],
+    ["Address:", v(data.seller_address), "Address:", v(data.buyer_address)],
+    ["Phone:", v(data.seller_phone), "Phone:", v(data.buyer_phone)],
+    ["KRA PIN:", v(data.seller_kra_pin), "KRA PIN:", v(data.buyer_kra_pin)],
+  ];
+
+  autoTable(doc, {
+    startY: y,
+    margin: { left: M, right: M },
+    theme: "plain",
+    body: detailsRows,
+    styles: { fontSize: 9, cellPadding: 1.8, textColor: DARK },
+    columnStyles: {
+      0: { cellWidth: 28, fontStyle: "normal" },
+      1: { cellWidth: 62, fontStyle: "bold" },
+      2: { cellWidth: 28, fontStyle: "normal" },
+      3: { cellWidth: 62, fontStyle: "bold" },
+    },
+    didDrawCell: (data) => {
+      // Underline only for values in columns 1 and 3
+      if ((data.column.index === 1 || data.column.index === 3)) {
+        const text = String(data.cell.raw);
+        const textWidth = doc.getTextWidth(text);
+        doc.setDrawColor(...DARK);
+        doc.setLineWidth(0.4);
+        doc.line(
+          data.cell.x + data.cell.padding('left'),
+          data.cell.y + data.cell.height - 1.2,
+          data.cell.x + data.cell.padding('left') + textWidth,
+          data.cell.y + data.cell.height - 1.2
+        );
+      }
+    }
+  });
+  y = (doc as any).lastAutoTable.finalY + 10;
 
   // ============ 3. VEHICLE ============
   sectionBar("3. Vehicle Details");

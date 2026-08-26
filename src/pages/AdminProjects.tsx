@@ -16,7 +16,7 @@ import {
   FileText, Server, ShieldCheck, Sparkles, TrendingUp, Wallet, Eraser,
   Database, Cpu, Workflow, Rocket, Award,
 } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "/pdf.png";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import QRCode from "qrcode";
@@ -204,7 +204,14 @@ const AdminProjects = () => {
         doc.rect(0, 0, W, 70, "F");
         doc.setFillColor(...GOLD);
         doc.rect(0, 70, W, 3, "F");
-        try { doc.addImage(logoData, "PNG", 24, 12, 46, 46); } catch {}
+        try {
+          const imgProps = doc.getImageProperties(logo);
+          const lW = 50;
+          const lH = lW / (imgProps.width / imgProps.height);
+          doc.addImage(logo, "PNG", 24, 12, lW, lH);
+        } catch (e) {
+          console.error("Logo error:", e);
+        }
         doc.setTextColor(255, 255, 255);
         doc.setFont("helvetica", "bold"); doc.setFontSize(15);
         doc.text("JUSTICE ULTIMATE AUTOMOBILES", 82, 32);

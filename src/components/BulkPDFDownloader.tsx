@@ -76,15 +76,23 @@ export const BulkPDFDownloader = ({ type, onDownloadStart, onDownloadComplete }:
 
     // Header
     pdf.setFillColor(30, 64, 175);
-    pdf.rect(0, 0, pageWidth, 30, "F");
+    pdf.rect(0, 0, pageWidth, 40, "F"); // Increased height to fit logo
+
+    // Add Logo
+    try {
+      pdf.addImage("/pdf.png", "PNG", (pageWidth - 40) / 2, 5, 40, 15);
+    } catch (e) {
+      console.error("Logo failed to load in Bulk PDF:", e);
+    }
+
     pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(16);
+    pdf.setFontSize(14);
     pdf.setFont("helvetica", "bold");
-    pdf.text(COMPANY.name, pageWidth / 2, 12, { align: "center" });
-    pdf.setFontSize(10);
+    pdf.text(COMPANY.name, pageWidth / 2, 25, { align: "center" });
+    pdf.setFontSize(9);
     pdf.setFont("helvetica", "normal");
-    pdf.text(COMPANY.tagline, pageWidth / 2, 20, { align: "center" });
-    pdf.text(`Phone: ${COMPANY.phone1} | ${COMPANY.phone2}`, pageWidth / 2, 27, { align: "center" });
+    pdf.text(COMPANY.tagline, pageWidth / 2, 32, { align: "center" });
+    pdf.text(`Phone: ${COMPANY.phone1} | ${COMPANY.phone2}`, pageWidth / 2, 38, { align: "center" });
 
     // Footer
     pdf.setFillColor(30, 64, 175);
@@ -94,7 +102,7 @@ export const BulkPDFDownloader = ({ type, onDownloadStart, onDownloadComplete }:
     pdf.text(`${COMPANY.name} | ${COMPANY.tagline}`, pageWidth / 2, pageHeight - 13, { align: "center" });
     pdf.text(`Email: ${COMPANY.email} | Web: ${COMPANY.web}`, pageWidth / 2, pageHeight - 6, { align: "center" });
 
-    return { contentTop: 40, contentBottom: pageHeight - 30 };
+    return { contentTop: 50, contentBottom: pageHeight - 30 };
   };
 
   const generateReceiptPage = (pdf: jsPDF, receipt: any, pageNum: number, totalPages: number) => {

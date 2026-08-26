@@ -92,16 +92,9 @@ export const PaymentReceiptsTab = () => {
     
     // Load and add logo
     try {
-      const logoImg = new Image();
-      logoImg.src = logo;
-      logoImg.crossOrigin = 'anonymous';
-      await new Promise((resolve, reject) => {
-        logoImg.onload = resolve;
-        logoImg.onerror = reject;
-        setTimeout(reject, 3000);
-      });
-      doc.addImage(logoImg, 'PNG', 14, 10, 40, 20);
-    } catch {
+      doc.addImage("/pdf.png", 'PNG', 14, 10, 45, 18);
+    } catch (e) {
+      console.error("Logo failed to load in PDF:", e);
       // Logo failed to load, continue without it
     }
     
