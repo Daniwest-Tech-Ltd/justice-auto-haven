@@ -153,6 +153,9 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
     doc.setFontSize(10);
     doc.text(title.toUpperCase(), M + 3, y + 5.2);
     y += 10.5;
+    // reset ink to dark so following body text is always visible
+    doc.setTextColor(...DARK);
+    doc.setFont("helvetica", "normal");
   };
 
   const pairTable = (rows: [string, string][]) => {
@@ -161,10 +164,14 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
       margin: { left: M, right: M },
       theme: "grid",
       body: rows,
-      styles: { fontSize: 9, cellPadding: 2.2, textColor: DARK, lineColor: [220, 220, 220], lineWidth: 0.2 },
-      columnStyles: { 0: { fontStyle: "bold", cellWidth: 52, textColor: GREY } },
+      styles: { fontSize: 9, cellPadding: 2.4, textColor: DARK, lineColor: [215, 215, 215], lineWidth: 0.2 },
+      columnStyles: {
+        0: { fontStyle: "bold", cellWidth: 52, textColor: GREY },
+        1: { fontStyle: "bold", textColor: DARK },
+      },
     });
     y = (doc as any).lastAutoTable.finalY + 6;
+    doc.setTextColor(...DARK);
   };
 
   const quadTable = (rows: [string, string, string, string][]) => {
@@ -173,36 +180,53 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
       margin: { left: M, right: M },
       theme: "grid",
       body: rows,
-      styles: { fontSize: 9, cellPadding: 2.2, textColor: DARK, lineColor: [220, 220, 220], lineWidth: 0.2 },
+      styles: { fontSize: 9, cellPadding: 2.4, textColor: DARK, lineColor: [215, 215, 215], lineWidth: 0.2 },
       columnStyles: {
         0: { fontStyle: "bold", cellWidth: 30, textColor: GREY },
+        1: { fontStyle: "bold", textColor: DARK },
         2: { fontStyle: "bold", cellWidth: 34, textColor: GREY },
+        3: { fontStyle: "bold", textColor: DARK },
       },
     });
     y = (doc as any).lastAutoTable.finalY + 6;
+    doc.setTextColor(...DARK);
   };
+
 
   // ============ HEADER ============
   // Draw the watermark first so all page-1 content sits on top of it
   drawWatermark();
-  y = 14;
+  y = 12;
   // Logo (795x295 ratio ≈ 2.69)
-  doc.addImage(logoData, "PNG", M, y, 56, 20.8);
+  doc.addImage(logoData, "PNG", M, y, 50, 18.6);
+
+  // Company name + contact block (top-right)
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(...GREY);
-  doc.text(`Agreement No: ${v(data.agreement_number)}`, W - M, y + 6, { align: "right" });
-  doc.text(`Date: ${fmtDate(data.agreement_date)}`, W - M, y + 11, { align: "right" });
+  doc.setFontSize(13.5);
+  doc.setTextColor(...RED);
+  doc.text("JUSTICE ULTIMATE AUTOMOBILES", W - M, y + 5, { align: "right" });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text("Westlands, Nairobi, Kenya", W - M, y + 16, { align: "right" });
-  y += 25;
+  doc.setTextColor(...DARK);
+  doc.text("Westlands, Nairobi, Kenya", W - M, y + 10, { align: "right" });
+  doc.text("Tel: 0722 827 458  •  0751 555 544", W - M, y + 14, { align: "right" });
+  doc.text("www.justiceultimateautomobiles.com", W - M, y + 18, { align: "right" });
+  y += 23;
+
+  // Agreement meta strip
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.setTextColor(...GREY);
+  doc.text(`Agreement No: ${v(data.agreement_number)}`, M, y);
+  doc.text(`Date: ${fmtDate(data.agreement_date)}`, W - M, y, { align: "right" });
+  y += 3.5;
 
   // Red rule
   doc.setDrawColor(...RED);
   doc.setLineWidth(0.9);
   doc.line(M, y, W - M, y);
   y += 8;
+
 
   // Title
   doc.setFont("helvetica", "bold");
@@ -352,7 +376,7 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
 
   // ============ 9. SIGNATURES ============
   sectionBar("9. Signatures");
-  ensureSpace(52);
+  ensureSpace(90);
   const boxW = (CW - 12) / 3;
   const boxH = 38;
   const boxes: { label: string; name?: string | null; sig?: string | null }[] = [
@@ -381,31 +405,40 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
     doc.setFontSize(8.5);
     doc.setTextColor(...RED);
     doc.text(b.label, x + boxW / 2, y + 21.5, { align: "center" });
-    doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(...DARK);
     doc.text(`Name: ${b.name ? String(b.name) : "________________"}`, x + 3, y + 28, { maxWidth: boxW - 6 });
     doc.text(`Date: ${fmtDate(data.agreement_date)}`, x + 3, y + 34);
   });
+  y += boxH + 6;
 
-  // Official stamp overlapping the signature row (left)
-  const stampSize = 46;
-  const stampX = M + 2;
-  const stampY = y - 14;
+  // Official stamp — placed clear of all signature boxes (below, right side)
+  const stampSize = 40;
+  const stampX = W - M - stampSize;
+  const stampY = y;
   try {
     doc.addImage(stampData, "PNG", stampX, stampY, stampSize, stampSize);
     // Dynamic date centered inside the stamp
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7.5);
+    doc.setFontSize(7);
     doc.setTextColor(178, 18, 28);
     const stampDate = data.agreement_date
       ? new Date(data.agreement_date).toLocaleDateString("en-GB")
       : new Date().toLocaleDateString("en-GB");
-    doc.text(stampDate, stampX + stampSize / 2, stampY + stampSize / 2 + 2.5, { align: "center" });
+    doc.text(stampDate, stampX + stampSize / 2, stampY + stampSize / 2 + 2.2, { align: "center" });
   } catch {
     /* stamp optional */
   }
-  y += boxH + 8;
+  // Certification note on the left of the stamp
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...DARK);
+  doc.text("Certified by Justice Ultimate Automobiles", M, y + 12);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...GREY);
+  doc.text("Official company stamp affixed.", M, y + 17);
+  y += stampSize + 6;
 
   // ============ FOOTER ON EVERY PAGE ============
   // (watermark is drawn beneath the content when each page is created)
@@ -415,20 +448,21 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
     // Footer
     doc.setDrawColor(...RED);
     doc.setLineWidth(0.5);
-    doc.line(M, 285, W - M, 285);
-    doc.setFontSize(7.5);
+    doc.line(M, 283, W - M, 283);
+    doc.setFontSize(7.2);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(...GREY);
     doc.text(
       "© 2026 Justice Ultimate Automobiles • Westlands, Nairobi • 0722 827 458 / 0751 555 544 • www.justiceultimateautomobiles.com",
       W / 2,
-      289.5,
+      287.5,
       { align: "center" }
     );
-    doc.setFont("helvetica", "bold");
-    doc.text(`Page ${p} of ${pages}`, W - M, 289.5, { align: "right" });
     doc.setFont("helvetica", "italic");
-    doc.text("Trusted. Reliable. With you every step of the way.", M, 289.5);
+    doc.text("Trusted. Reliable. With you every step of the way.", M, 292);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Page ${p} of ${pages}`, W - M, 292, { align: "right" });
+
   }
 
   return doc.output("blob");
