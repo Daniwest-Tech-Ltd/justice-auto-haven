@@ -4,16 +4,33 @@
  */
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import {
-  Document,
-  Packer,
-  Paragraph,
-  TextRun,
-  AlignmentType,
-  HeadingLevel,
-} from "docx";
 import logoUrl from "@/assets/agreement-logo.png";
 import stampUrl from "@/assets/stamp.png";
+
+declare module "docx" {
+  export class Document {
+    constructor(options?: any);
+  }
+  export class Paragraph {
+    constructor(options?: any);
+  }
+  export class TextRun {
+    constructor(text?: any, options?: any);
+  }
+  export const Packer: {
+    toBlob: (doc: any) => Promise<Blob>;
+  };
+  export enum AlignmentType {
+    LEFT,
+    CENTER,
+    RIGHT,
+  }
+  export enum HeadingLevel {
+    HEADING_1,
+    HEADING_2,
+    HEADING_3,
+  }
+}
 
 export interface SalesAgreementData {
   id?: string;
@@ -196,49 +213,71 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
   // ============ HEADER ============
   // Draw the watermark first so all page-1 content sits on top of it
   drawWatermark();
-  y = 12;
-  // Logo (795x295 ratio ≈ 2.69)
-  doc.addImage(logoData, "PNG", M, y, 50, 18.6);
+  y = 10;
 
-  // Company name + contact block (top-right)
+  // Top decorative thin line (grey)
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.2);
+  doc.line(M + 35, y, W - M - 35, y);
+  y += 5;
+
+  // Center aligned Logo (795x295 ratio ≈ 2.69)
+  const logoWidth = 65;
+  const logoHeight = 24.2;
+  const logoX = (W - logoWidth) / 2;
+  doc.addImage(logoData, "PNG", logoX, y, logoWidth, logoHeight);
+  y += logoHeight + 5;
+
+  // Company name: JUSTICE ULTIMATE AUTOMOBILES
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13.5);
-  doc.setTextColor(...RED);
-  doc.text("JUSTICE ULTIMATE AUTOMOBILES", W - M, y + 5, { align: "right" });
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
+  doc.setFontSize(18);
   doc.setTextColor(...DARK);
-  doc.text("Westlands, Nairobi, Kenya", W - M, y + 10, { align: "right" });
-  doc.text("Tel: 0722 827 458  •  0751 555 544", W - M, y + 14, { align: "right" });
-  doc.text("www.justiceultimateautomobiles.com", W - M, y + 18, { align: "right" });
-  y += 23;
+  doc.text("JUSTICE ULTIMATE AUTOMOBILES", W / 2, y, { align: "center" });
+  y += 7;
 
-  // Agreement meta strip
+  // Tagline: TRUSTED CAR MASTERS
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...RED);
+  doc.text("TRUSTED CAR MASTERS", W / 2, y, { align: "center" });
+  y += 6.5;
+
+  // Contact line: Phone • Location • Email
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...DARK);
+  const contactLine = "0722827458 / 0751555544   •   Mpesi Lane 11, Westlands, Nairobi   •   info@justiceultimateautomobiles.com";
+  doc.text(contactLine, W / 2, y, { align: "center" });
+  y += 9;
+
+  // Main Document Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(...DARK);
+  doc.text("MOTOR VEHICLE SALES AGREEMENT", W / 2, y, { align: "center" });
+  y += 8;
+
+  // Agreement meta strip (Agreement No & Date)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
   doc.setTextColor(...GREY);
   doc.text(`Agreement No: ${v(data.agreement_number)}`, M, y);
   doc.text(`Date: ${fmtDate(data.agreement_date)}`, W - M, y, { align: "right" });
-  y += 3.5;
+  y += 4;
 
-  // Red rule
+  // Red thick separator rule
   doc.setDrawColor(...RED);
   doc.setLineWidth(0.9);
   doc.line(M, y, W - M, y);
-  y += 8;
+  y += 10;
 
 
-  // Title
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(17);
-  doc.setTextColor(...RED);
-  doc.text("MOTOR VEHICLE SALE AGREEMENT", W / 2, y, { align: "center" });
-  y += 6;
+  // Introductory Paragraph
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
   doc.setTextColor(...DARK);
   doc.text(
-    `This Motor Vehicle Sale Agreement ("the Agreement") is made and entered into on ${fmtDate(data.agreement_date)} by and between the Seller and the Buyer named below.`,
+    `This Motor Vehicle Sales Agreement ("the Agreement") is made and entered into on ${fmtDate(data.agreement_date)} by and between the Seller and the Buyer named below.`,
     W / 2,
     y,
     { align: "center", maxWidth: CW }
