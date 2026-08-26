@@ -376,7 +376,7 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
 
   // ============ 9. SIGNATURES ============
   sectionBar("9. Signatures");
-  ensureSpace(52);
+  ensureSpace(90);
   const boxW = (CW - 12) / 3;
   const boxH = 38;
   const boxes: { label: string; name?: string | null; sig?: string | null }[] = [
@@ -405,31 +405,40 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
     doc.setFontSize(8.5);
     doc.setTextColor(...RED);
     doc.text(b.label, x + boxW / 2, y + 21.5, { align: "center" });
-    doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(...DARK);
     doc.text(`Name: ${b.name ? String(b.name) : "________________"}`, x + 3, y + 28, { maxWidth: boxW - 6 });
     doc.text(`Date: ${fmtDate(data.agreement_date)}`, x + 3, y + 34);
   });
+  y += boxH + 6;
 
-  // Official stamp overlapping the signature row (left)
-  const stampSize = 46;
-  const stampX = M + 2;
-  const stampY = y - 14;
+  // Official stamp — placed clear of all signature boxes (below, right side)
+  const stampSize = 40;
+  const stampX = W - M - stampSize;
+  const stampY = y;
   try {
     doc.addImage(stampData, "PNG", stampX, stampY, stampSize, stampSize);
     // Dynamic date centered inside the stamp
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7.5);
+    doc.setFontSize(7);
     doc.setTextColor(178, 18, 28);
     const stampDate = data.agreement_date
       ? new Date(data.agreement_date).toLocaleDateString("en-GB")
       : new Date().toLocaleDateString("en-GB");
-    doc.text(stampDate, stampX + stampSize / 2, stampY + stampSize / 2 + 2.5, { align: "center" });
+    doc.text(stampDate, stampX + stampSize / 2, stampY + stampSize / 2 + 2.2, { align: "center" });
   } catch {
     /* stamp optional */
   }
-  y += boxH + 8;
+  // Certification note on the left of the stamp
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...DARK);
+  doc.text("Certified by Justice Ultimate Automobiles", M, y + 12);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...GREY);
+  doc.text("Official company stamp affixed.", M, y + 17);
+  y += stampSize + 6;
 
   // ============ FOOTER ON EVERY PAGE ============
   // (watermark is drawn beneath the content when each page is created)
@@ -439,20 +448,21 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
     // Footer
     doc.setDrawColor(...RED);
     doc.setLineWidth(0.5);
-    doc.line(M, 285, W - M, 285);
-    doc.setFontSize(7.5);
+    doc.line(M, 283, W - M, 283);
+    doc.setFontSize(7.2);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(...GREY);
     doc.text(
       "© 2026 Justice Ultimate Automobiles • Westlands, Nairobi • 0722 827 458 / 0751 555 544 • www.justiceultimateautomobiles.com",
       W / 2,
-      289.5,
+      287.5,
       { align: "center" }
     );
-    doc.setFont("helvetica", "bold");
-    doc.text(`Page ${p} of ${pages}`, W - M, 289.5, { align: "right" });
     doc.setFont("helvetica", "italic");
-    doc.text("Trusted. Reliable. With you every step of the way.", M, 289.5);
+    doc.text("Trusted. Reliable. With you every step of the way.", M, 292);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Page ${p} of ${pages}`, W - M, 292, { align: "right" });
+
   }
 
   return doc.output("blob");
