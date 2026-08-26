@@ -153,6 +153,9 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
     doc.setFontSize(10);
     doc.text(title.toUpperCase(), M + 3, y + 5.2);
     y += 10.5;
+    // reset ink to dark so following body text is always visible
+    doc.setTextColor(...DARK);
+    doc.setFont("helvetica", "normal");
   };
 
   const pairTable = (rows: [string, string][]) => {
@@ -161,10 +164,14 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
       margin: { left: M, right: M },
       theme: "grid",
       body: rows,
-      styles: { fontSize: 9, cellPadding: 2.2, textColor: DARK, lineColor: [220, 220, 220], lineWidth: 0.2 },
-      columnStyles: { 0: { fontStyle: "bold", cellWidth: 52, textColor: GREY } },
+      styles: { fontSize: 9, cellPadding: 2.4, textColor: DARK, lineColor: [215, 215, 215], lineWidth: 0.2 },
+      columnStyles: {
+        0: { fontStyle: "bold", cellWidth: 52, textColor: GREY },
+        1: { fontStyle: "bold", textColor: DARK },
+      },
     });
     y = (doc as any).lastAutoTable.finalY + 6;
+    doc.setTextColor(...DARK);
   };
 
   const quadTable = (rows: [string, string, string, string][]) => {
@@ -173,14 +180,18 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
       margin: { left: M, right: M },
       theme: "grid",
       body: rows,
-      styles: { fontSize: 9, cellPadding: 2.2, textColor: DARK, lineColor: [220, 220, 220], lineWidth: 0.2 },
+      styles: { fontSize: 9, cellPadding: 2.4, textColor: DARK, lineColor: [215, 215, 215], lineWidth: 0.2 },
       columnStyles: {
         0: { fontStyle: "bold", cellWidth: 30, textColor: GREY },
+        1: { fontStyle: "bold", textColor: DARK },
         2: { fontStyle: "bold", cellWidth: 34, textColor: GREY },
+        3: { fontStyle: "bold", textColor: DARK },
       },
     });
     y = (doc as any).lastAutoTable.finalY + 6;
+    doc.setTextColor(...DARK);
   };
+
 
   // ============ HEADER ============
   // Draw the watermark first so all page-1 content sits on top of it
