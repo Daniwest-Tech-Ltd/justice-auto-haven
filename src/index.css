@@ -139,16 +139,16 @@ All colors MUST be HSL.
 @layer utilities {
   .glass {
     background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(12px) saturate(150%);
     -webkit-backdrop-filter: blur(12px) saturate(150%);
+    backdrop-filter: blur(12px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.25);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   }
 
   .glass-strong {
     background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.35);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.5);
   }
@@ -157,8 +157,8 @@ All colors MUST be HSL.
   .about-page .glass-strong,
   .about-page .glass {
     background: hsl(var(--card) / 0.95) !important;
-    backdrop-filter: blur(24px) saturate(160%);
     -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
     border: 1px solid hsl(var(--primary) / 0.25);
     color: hsl(var(--card-foreground));
   }
@@ -193,8 +193,8 @@ All colors MUST be HSL.
 
   .auth-form-glass {
     background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(25px) saturate(200%);
     -webkit-backdrop-filter: blur(25px) saturate(200%);
+    backdrop-filter: blur(25px) saturate(200%);
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.4);
   }
@@ -202,8 +202,8 @@ All colors MUST be HSL.
   /* Register form specific - more opaque for better visibility */
   .sign-up-container .auth-form-glass {
     background: rgba(30, 40, 60, 0.95) !important;
-    backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
   }
 
   /* Ensure text is visible in register form */
@@ -357,8 +357,8 @@ All colors MUST be HSL.
 }
 
 .backface-hidden {
-  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .rotate-y-180 {
@@ -562,6 +562,7 @@ All colors MUST be HSL.
     linear-gradient(hsl(var(--primary) / 0.06) 1px, transparent 1px),
     linear-gradient(90deg, hsl(var(--primary) / 0.06) 1px, transparent 1px);
   background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
   mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
   z-index: 0;
 }
@@ -591,6 +592,7 @@ All colors MUST be HSL.
   position: relative;
   border: 1px solid hsl(var(--primary) / 0.35) !important;
   background: linear-gradient(135deg, hsl(var(--card) / 0.92), hsl(var(--secondary) / 0.85)) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
   backdrop-filter: blur(20px) saturate(140%);
   box-shadow:
     0 0 0 1px hsl(var(--primary) / 0.08) inset,
@@ -608,6 +610,7 @@ All colors MUST be HSL.
   padding: 1px;
   background: linear-gradient(135deg, hsl(var(--primary) / 0.6), transparent 40%, hsl(var(--accent) / 0.5));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
   opacity: 0.7;

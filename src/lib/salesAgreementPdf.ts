@@ -7,30 +7,8 @@ import autoTable from "jspdf-autotable";
 const logoUrl = "/pdf.png";
 import stampUrl from "@/assets/stamp.png";
 
-declare module "docx" {
-  export class Document {
-    constructor(options?: any);
-  }
-  export class Paragraph {
-    constructor(options?: any);
-  }
-  export class TextRun {
-    constructor(text?: any, options?: any);
-  }
-  export const Packer: {
-    toBlob: (doc: any) => Promise<Blob>;
-  };
-  export enum AlignmentType {
-    LEFT,
-    CENTER,
-    RIGHT,
-  }
-  export enum HeadingLevel {
-    HEADING_1,
-    HEADING_2,
-    HEADING_3,
-  }
-}
+// @ts-ignore
+import { Document, Paragraph, TextRun, Packer, AlignmentType, HeadingLevel } from "docx";
 
 export interface SalesAgreementData {
   id?: string;
@@ -291,7 +269,7 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
   doc.setFontSize(11);
   doc.setTextColor(...RED);
   doc.text("SELLER:", M, y);
-  doc.text("BUYER:", W / 2 + 5, y);
+  doc.text("BUYER:", M + 90, y); // Aligned with the start of column 2
   y += 4;
 
   const detailsRows = [
@@ -307,7 +285,7 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
     margin: { left: M, right: M },
     theme: "plain",
     body: detailsRows,
-    styles: { fontSize: 9, cellPadding: 1.8, textColor: DARK },
+    styles: { fontSize: 9, cellPadding: 1.5, textColor: DARK },
     columnStyles: {
       0: { cellWidth: 28, fontStyle: "normal" },
       1: { cellWidth: 62, fontStyle: "bold" },
@@ -318,19 +296,21 @@ export const buildSalesAgreementPdf = async (data: SalesAgreementData): Promise<
       // Underline only for values in columns 1 and 3
       if ((data.column.index === 1 || data.column.index === 3)) {
         const text = String(data.cell.raw);
-        const textWidth = doc.getTextWidth(text);
-        doc.setDrawColor(...DARK);
-        doc.setLineWidth(0.4);
-        doc.line(
-          data.cell.x + data.cell.padding('left'),
-          data.cell.y + data.cell.height - 1.2,
-          data.cell.x + data.cell.padding('left') + textWidth,
-          data.cell.y + data.cell.height - 1.2
-        );
+        if (text && text !== "_____________________") {
+          const textWidth = doc.getTextWidth(text);
+          doc.setDrawColor(...DARK);
+          doc.setLineWidth(0.5);
+          doc.line(
+            data.cell.x + data.cell.padding('left'),
+            data.cell.y + data.cell.height - 1.2,
+            data.cell.x + data.cell.padding('left') + textWidth,
+            data.cell.y + data.cell.height - 1.2
+          );
+        }
       }
     }
   });
-  y = (doc as any).lastAutoTable.finalY + 10;
+  y = (doc as any).lastAutoTable.finalY + 8;
 
   // ============ 3. VEHICLE ============
   sectionBar("3. Vehicle Details");
