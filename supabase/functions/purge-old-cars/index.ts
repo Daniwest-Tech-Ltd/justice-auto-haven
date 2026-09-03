@@ -48,7 +48,29 @@ Deno.serve(async (req) => {
       .lt('created_at', cutoff)
     if (carsErr) return json({ error: carsErr.message }, 500)
 
-    const ids = (cars ?? []).map((c: { id: string }) => c.id)
+    let ids = (cars ?? []).map((c: { id: string }) => c.id)
+
+    // Never delete vehicles that are referenced by financial / operational records
+    const PROTECTED: [string, string][] = [
+      ['sales', 'car_id'],
+      ['sales_receipts', 'car_id'],
+      ['customer_documents', 'car_id'],
+      ['customer_orders', 'car_id'],
+      ['job_cards', 'vehicle_id'],
+    ]
+    const keep = new Set<string>()
+    for (const [table, col] of PROTECTED) {
+      for (let i = 0; i < ids.length; i += 100) {
+        const chunk = ids.slice(i, i + 100)
+        const { data } = await admin.from(table).select(col).in(col, chunk)
+        for (const row of data ?? []) {
+          const v = (row as Record<string, string | null>)[col]
+          if (v) keep.add(v)
+        }
+      }
+    }
+    const skipped = ids.filter((id) => keep.has(id)).length
+    ids = ids.filter((id) => !keep.has(id))
     if (ids.length === 0) return json({ deleted_cars: 0, deleted_files: 0, cutoff })
 
     const idSet = new Set(ids)
@@ -81,7 +103,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (dryRun) return json({ cutoff, cars: ids.length, files: paths.length, dry_run: true })
+    if (dryRun) return json({ cutoff, cars: ids.length, skipped_protected: skipped, files: paths.length, dry_run: true })
 
     let deletedFiles = 0
     const fileErrors: string[] = []
@@ -112,7 +134,7 @@ Deno.serve(async (req) => {
       deletedCars += count ?? 0
     }
 
-    return json({ cutoff, deleted_cars: deletedCars, deleted_files: deletedFiles, related: rowCounts, file_errors: fileErrors.slice(0, 3) })
+    return json({ cutoff, deleted_cars: deletedCars, skipped_protected: skipped, deleted_files: deletedFiles, related: rowCounts, file_errors: fileErrors.slice(0, 3) })
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : String(e) }, 500)
   }
