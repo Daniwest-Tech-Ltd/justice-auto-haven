@@ -12,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import {
   Brain, Target, Users, TrendingUp, Building2, Car, BellRing, Briefcase,
-  MapPin, Phone, Mail, CheckCircle2, Globe, Flame, BarChart3, ChevronLeft, Send, Sparkles, User, MessageSquare
+  MapPin, Phone, Mail, CheckCircle2, Globe, Flame, BarChart3, ChevronLeft, Send, Sparkles, User, MessageSquare, Activity
 } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 
