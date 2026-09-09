@@ -108,6 +108,7 @@ const HelpSupport = lazyWithRetry(() => import("./pages/HelpSupport"));
 const SystemHealth = lazyWithRetry(() => import("./pages/SystemHealth"));
 const SystemAuthDetails = lazyWithRetry(() => import("./pages/SystemAuthDetails"));
 const SystemDatabaseDetails = lazyWithRetry(() => import("./pages/SystemDatabaseDetails"));
+const AISalesIntelligence = lazyWithRetry(() => import("./pages/AISalesIntelligence"));
 const SystemStorageDetails = lazyWithRetry(() => import("./pages/SystemStorageDetails"));
 const SystemSecurityDetails = lazyWithRetry(() => import("./pages/SystemSecurityDetails"));
 const CookieManagement = lazyWithRetry(() => import("./pages/CookieManagement"));
@@ -444,6 +445,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <VIPAnalytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/ai-sales"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AISalesIntelligence />
               </ProtectedRoute>
             } 
           />

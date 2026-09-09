@@ -20,7 +20,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone, Eye, EyeOff, RefreshCw, CreditCard, ThumbsUp, Briefcase, ShieldCheck, Globe, Trophy } from "lucide-react";
+import { Brain, BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone, Eye, EyeOff, RefreshCw, CreditCard, ThumbsUp, Briefcase, ShieldCheck, Globe, Trophy } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -197,6 +197,7 @@ const AdminDashboard = () => {
         { title: "Activity Analytics", icon: Activity, path: "/admin/analytics" },
         { title: "Sales Analytics", icon: DollarSign, path: "/admin/sales" },
         { title: "Sales Forecasting", icon: TrendingUp, path: "/admin/sales/forecasting" },
+        { title: "AI Sales Intelligence", icon: Brain, path: "/admin/ai-sales", badge: "New" },
       ]
     },
     {
