@@ -167,6 +167,75 @@ const About = () => {
              </div>
           </section>
 
+          {/* Our Importation Process & 150-Point Inspection (E-E-A-T Signal) */}
+          <section className="bg-slate-900 p-12 md:p-16 rounded-[40px] text-white space-y-12 shadow-2xl relative overflow-hidden">
+             <div className="absolute top-0 right-0 h-96 w-96 bg-brand-red/10 rounded-full blur-3xl pointer-events-none" />
+             <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-8 relative z-10">
+                <div className="space-y-2">
+                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-red">Trust & Transparency</p>
+                   <h2 className="text-3xl font-black uppercase tracking-tighter italic leading-none">The Ultimate <br/> <span className="text-brand-red">Standard.</span></h2>
+                </div>
+                <div className="flex gap-4">
+                   <Badge variant="outline" className="border-brand-red text-brand-red font-bold tracking-widest uppercase">150-Point Check</Badge>
+                   <Badge variant="outline" className="border-emerald-500 text-emerald-400 font-bold tracking-widest uppercase">QISJ Certified</Badge>
+                </div>
+             </div>
+
+             <div className="grid lg:grid-cols-2 gap-12 relative z-10">
+                <div className="space-y-6 text-sm text-slate-300 leading-loose font-medium text-justify">
+                   <h3 className="text-xl font-black uppercase tracking-tight text-white flex items-center gap-3">
+                     <Shield className="h-6 w-6 text-brand-red" /> Our Importation Protocol
+                   </h3>
+                   <p>
+                      Importing a vehicle from Japan or Europe to Kenya requires strict adherence to KEBS standards (KS 1515:2000). At Justice Ultimate Automobiles, we manage the entire supply chain to guarantee your investment.
+                   </p>
+                   <ul className="space-y-4 pt-2">
+                      <li className="flex gap-3 items-start">
+                         <div className="h-6 w-6 rounded bg-brand-red/20 text-brand-red flex items-center justify-center font-bold text-xs shrink-0 mt-1">1</div>
+                         <p className="text-xs uppercase tracking-wider font-bold"><strong>Auction Sourcing:</strong> We bid exclusively on vehicles graded 4.0 and above, strictly avoiding R (Repaired) or RA (Accident) grades.</p>
+                      </li>
+                      <li className="flex gap-3 items-start">
+                         <div className="h-6 w-6 rounded bg-brand-red/20 text-brand-red flex items-center justify-center font-bold text-xs shrink-0 mt-1">2</div>
+                         <p className="text-xs uppercase tracking-wider font-bold"><strong>Pre-Export Inspection:</strong> Mandatory QISJ (Quality Inspection Services Japan) certification to verify roadworthiness and radiation safety.</p>
+                      </li>
+                      <li className="flex gap-3 items-start">
+                         <div className="h-6 w-6 rounded bg-brand-red/20 text-brand-red flex items-center justify-center font-bold text-xs shrink-0 mt-1">3</div>
+                         <p className="text-xs uppercase tracking-wider font-bold"><strong>KRA Clearance:</strong> Complete handling of all import duties, excise taxes, and VAT, providing you with original customs entry documents.</p>
+                      </li>
+                      <li className="flex gap-3 items-start">
+                         <div className="h-6 w-6 rounded bg-brand-red/20 text-brand-red flex items-center justify-center font-bold text-xs shrink-0 mt-1">4</div>
+                         <p className="text-xs uppercase tracking-wider font-bold"><strong>NTSA Registration:</strong> Processing of logbooks, digital plates, and final handover at our Westlands terminal.</p>
+                      </li>
+                   </ul>
+                </div>
+
+                <div className="bg-white/5 p-8 rounded-3xl border border-white/10 space-y-6">
+                   <h3 className="text-xl font-black uppercase tracking-tight text-white flex items-center gap-3">
+                     <Target className="h-6 w-6 text-brand-red" /> The 150-Point Audit
+                   </h3>
+                   <p className="text-xs text-slate-400 uppercase tracking-widest font-bold leading-relaxed mb-4">
+                     Every vehicle delivered to our Mpesi Lane yard undergoes a rigorous localized diagnostic test before handover.
+                   </p>
+                   <div className="space-y-3">
+                      {[
+                        "Engine Compression & Diagnostic OBD2 Scan",
+                        "Transmission Shift Quality & Fluid Analysis",
+                        "Suspension, Bushings, and Underbody Integrity",
+                        "Brake Pad Thickness & Rotor Surfacing",
+                        "Battery Health & Alternator Voltage Output",
+                        "Air Conditioning Refrigerant Levels",
+                        "Exterior Paint Depth & Structural Rails"
+                      ].map((check, i) => (
+                        <div key={i} className="flex items-center gap-3 bg-black/40 p-3 rounded-lg border border-white/5">
+                           <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                           <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{check}</span>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+             </div>
+          </section>
+
           {/* Corporate Responsibility - Giving Back */}
           <section className="bg-slate-50 p-12 md:p-16 rounded-[40px] border border-slate-200 space-y-12">
              <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-slate-200 pb-8">
@@ -221,15 +290,15 @@ const About = () => {
 
              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <div className="bg-slate-900 p-8 rounded-2xl border border-white/5 space-y-6 text-center">
-                   <div className="h-32 w-32 rounded-full bg-brand-red/20 mx-auto border-2 border-brand-red/50 flex items-center justify-center shadow-2xl shadow-brand-red/20">
-                      <Users className="h-12 w-12 text-brand-red" />
+                   <div className="h-32 w-32 rounded-full overflow-hidden border-2 border-brand-red/50 mx-auto shadow-2xl shadow-brand-red/20 bg-slate-800">
+                      <img src="/founder.jpg" alt="Justice Vincent" className="h-full w-full object-cover grayscale hover:grayscale-0 transition-all duration-500" onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=Justice+Vincent&background=random&color=fff&size=128' }} />
                    </div>
                    <div className="space-y-1">
                       <h4 className="text-xl font-black uppercase text-white">Justice Vincent</h4>
                       <p className="text-xs font-black uppercase tracking-widest text-brand-red italic">Founder & CEO</p>
                    </div>
-                   <p className="text-[11px] text-slate-400 font-medium leading-relaxed uppercase tracking-wider">
-                      Directing the institutional growth and strategic procurement protocols of the Ultimate brand.
+                   <p className="text-[11px] text-slate-400 font-medium leading-relaxed uppercase tracking-wider text-justify">
+                      With over a decade of experience in automotive logistics and Japanese imports, Justice Vincent founded the company to bring transparency and institutional-grade precision to the Kenyan car market. His vision drives our 150-point audit standard.
                    </p>
                 </div>
                 <div className="bg-slate-900 p-8 rounded-2xl border border-white/5 space-y-6 text-center">
@@ -248,7 +317,7 @@ const About = () => {
           </section>
 
           {/* Contact CTA */}
-          <section className="bg-brand-red p-12 md:p-20 rounded-3xl text-center space-y-8 shadow-2xl shadow-brand-red/30">
+          <section className="bg-brand-red p-12 md:p-20 rounded-3xl text-center space-y-8 shadow-2xl shadow-brand-red/30 mb-20">
              <div className="space-y-4">
                 <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white leading-none">Ready to Scale Your <br/> <span className="text-slate-900">Automotive Future?</span></h2>
                 <p className="text-xs md:text-sm text-white/90 font-bold uppercase tracking-widest max-w-2xl mx-auto">

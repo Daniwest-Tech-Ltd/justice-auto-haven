@@ -185,9 +185,9 @@ const PrivacyPolicy = () => {
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Privacy Meta-Data</p>
                 <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 space-y-1">
                   <p>Status: Encrypted & Active</p>
-                  <p>Revision: 2025.1.1-SEC</p>
-                  <p>Audit Date: January 15, 2025</p>
-                  <p>© 2025 Justice Ultimate Automobiles</p>
+                  <p>Revision: 2026.1.1-SEC</p>
+                  <p>Audit Date: January 15, 2026</p>
+                  <p>© 2026 Justice Ultimate Automobiles</p>
                 </div>
               </div>
               <div className="bg-secondary/10 p-6 rounded border border-border max-w-sm w-full text-left">
@@ -200,9 +200,9 @@ const PrivacyPolicy = () => {
                       </a>
                     </Button>
                     <Button variant="outline" className="justify-start gap-2 h-auto py-3 text-[10px] font-bold uppercase tracking-widest border-border/50 hover:bg-brand-red hover:text-white transition-colors" asChild>
-                      <a href="mailto:support@justiceultimateautos.com">
+                      <a href="mailto:info@justiceultimateautomobiles.com">
                         <Mail className="h-3 w-3" />
-                        Dispatch: support@justiceultimateautos.com
+                        Dispatch: info@justiceultimateautomobiles.com
                       </a>
                     </Button>
                     <Button variant="outline" className="justify-start gap-2 h-auto py-3 text-[10px] font-bold uppercase tracking-widest border-border/50 hover:bg-brand-red hover:text-white transition-colors" asChild>
@@ -217,6 +217,9 @@ const PrivacyPolicy = () => {
           </div>
         </div>
       </div>
+
+      {/* Spacing element to prevent footer overlap */}
+      <div className="h-20 bg-background" />
     </div>
   );
 };

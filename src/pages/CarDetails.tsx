@@ -427,11 +427,24 @@ const CarDetails = () => {
                       {car.price.toLocaleString()}
                     </h2>
                   </div>
-                  <div className="bg-emerald-500/20 text-emerald-400 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl border border-emerald-500/30 w-fit mt-2 animate-pulse flex items-center gap-2">
-                     <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-                     <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.1em]">
-                        Lipa Mdogo Mdogo ...Deposit Available
-                     </span>
+                  {/* Dynamic Deposit Calculation */}
+                  <div className="bg-emerald-500/20 text-emerald-400 px-3 py-2 rounded-xl border border-emerald-500/30 w-full mt-3 flex flex-col gap-1">
+                     <div className="flex items-center gap-2">
+                       <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse" />
+                       <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-white">
+                          Lipa Mdogo Mdogo Financing
+                       </span>
+                     </div>
+                     <div className="flex justify-between items-end mt-1">
+                       <div className="flex flex-col">
+                         <span className="text-[8px] sm:text-[9px] uppercase tracking-widest text-slate-400 font-bold">Min Deposit (20%)</span>
+                         <span className="text-sm sm:text-base font-black text-emerald-300">KSh {(car.price * 0.2).toLocaleString()}</span>
+                       </div>
+                       <div className="flex flex-col text-right">
+                         <span className="text-[8px] sm:text-[9px] uppercase tracking-widest text-slate-400 font-bold">Est. Monthly (48m)</span>
+                         <span className="text-sm sm:text-base font-black text-white">KSh {Math.round((car.price * 0.8) / 48).toLocaleString()}</span>
+                       </div>
+                     </div>
                   </div>
                </div>
                <div className="pt-4 border-t border-white/10 relative z-10">

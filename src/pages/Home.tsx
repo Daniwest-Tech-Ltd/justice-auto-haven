@@ -130,6 +130,41 @@ const Home = () => {
         description="Buy your next car from Justice Ultimate Automobiles. Top-rated car dealer in Westlands, Nairobi. We offer up to 90% financing and direct Japan imports."
         keywords="Lipa Mdogo Mdogo cars, car dealers Nairobi, car imports Kenya, Toyota for sale Kenya, cheap cars Nairobi"
       />
+
+      {/* Inject LocalBusiness Schema for Google Maps and Search Authority */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "AutoDealer",
+          "name": "Justice Ultimate Automobiles",
+          "image": "https://www.justiceultimateautomobiles.com/images/company-logo.png",
+          "url": "https://www.justiceultimateautomobiles.com",
+          "telephone": "+254722827458",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Muthithi Road, Westlands",
+            "addressLocality": "Nairobi",
+            "addressRegion": "Nairobi County",
+            "addressCountry": "KE"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": -1.286389,
+            "longitude": 36.817223
+          },
+          "openingHoursSpecification": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "opens": "08:00",
+            "closes": "18:00"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "reviewCount": "650"
+          }
+        })}
+      </script>
       {/* Background Overlays - Subtle & Official */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(200,210,255,0.15),transparent_70%)]" />
