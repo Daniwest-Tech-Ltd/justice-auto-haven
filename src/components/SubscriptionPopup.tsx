@@ -13,16 +13,18 @@ const SubscriptionPopup = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if the user has already seen the popup in this session
-    const hasSeenPopup = localStorage.getItem("hasSeenSubscriptionPopup");
+    // Check if the user has already explicitly closed or subscribed the popup in this session/browser
+    const hasHandledPopup = localStorage.getItem("hasHandledSubscriptionPopup");
 
     const handleOpen = () => {
-      setIsOpen(true);
-      setIsSubmitted(false);
+      if (!hasHandledPopup) {
+        setIsOpen(true);
+        setIsSubmitted(false);
+      }
     };
     window.addEventListener('open-subscription-popup', handleOpen);
 
-    if (!hasSeenPopup) {
+    if (!hasHandledPopup) {
       // Show popup after 5 seconds for first-time visitors
       const timer = setTimeout(() => {
         setIsOpen(true);
@@ -32,12 +34,8 @@ const SubscriptionPopup = () => {
         window.removeEventListener('open-subscription-popup', handleOpen);
       };
     } else {
-      // For returning visitors, show after staying for a while (e.g., 60 seconds)
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 60000);
+      // Completely prevent it from showing automatically again
       return () => {
-        clearTimeout(timer);
         window.removeEventListener('open-subscription-popup', handleOpen);
       };
     }
@@ -45,7 +43,8 @@ const SubscriptionPopup = () => {
 
   const handleClose = () => {
     setIsOpen(false);
-    localStorage.setItem("hasSeenSubscriptionPopup", "true");
+    // Use a persistent key that prevents the popup from EVER automatically appearing again on this device/browser
+    localStorage.setItem("hasHandledSubscriptionPopup", "true");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
