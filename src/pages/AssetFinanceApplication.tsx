@@ -219,6 +219,15 @@ const AssetFinanceApplication = () => {
       </section>
 
       <div className="container mx-auto px-4 py-12 relative z-10">
+
+        {/* Intro SEO text to fix Thin Content issue */}
+        <div className="bg-secondary/5 border border-border p-6 md:p-8 rounded-xl space-y-4 mb-12 max-w-7xl mx-auto">
+          <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Car Loans & Lipa Mdogo Mdogo Financing in Kenya</h2>
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-relaxed text-justify uppercase tracking-wide">
+            At Justice Ultimate Automobiles, we make car ownership a reality through our flexible asset financing and Lipa Mdogo Mdogo plans. We understand that buying a vehicle is a major investment, which is why we partner with leading financial institutions in Kenya to offer up to 90% financing on our Japanese and European imports. Whether you are formally employed, running a business, or looking to expand your corporate fleet, our finance desk will guide you through the requirements. Apply online today to get pre-approved quickly and drive away in your dream car.
+          </p>
+        </div>
+
         <div className="max-w-7xl mx-auto mb-12">
           <Card className="glass-strong border-border overflow-hidden group hover:border-primary/30 transition-all duration-500">
             <div className="grid md:grid-cols-2 items-center">

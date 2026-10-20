@@ -213,6 +213,14 @@ const Blogs = () => {
       <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="space-y-20 max-w-7xl mx-auto">
 
+          {/* Intro SEO text to fix Thin Content issue */}
+          <div className="bg-secondary/5 border border-border p-6 md:p-8 rounded-xl space-y-4">
+            <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Kenya's Trusted Automotive Insights</h2>
+            <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-relaxed text-justify uppercase tracking-wide">
+              Welcome to the Justice Ultimate Automobiles corporate media desk. Here, we provide verified insights, detailed car buying guides, market analysis, and the latest updates on Japanese and European vehicle imports to Kenya. Whether you are looking for tips on navigating asset financing, understanding NTSA transfer processes, or detailed reviews of popular models like the Toyota Prado and Mercedes Benz, our expert team provides the knowledge you need to make informed purchasing decisions.
+            </p>
+          </div>
+
           {/* Latest News Section - 3 Columns */}
           <div className="space-y-8">
             <div className="flex items-center justify-between border-b border-border pb-4">

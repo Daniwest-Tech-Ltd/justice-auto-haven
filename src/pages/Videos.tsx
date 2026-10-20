@@ -212,6 +212,14 @@ const Videos = () => {
       <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="space-y-20 max-w-7xl mx-auto">
 
+          {/* Intro SEO text to fix Thin Content issue */}
+          <div className="bg-secondary/5 border border-border p-6 md:p-8 rounded-xl space-y-4">
+            <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Premium Car Videos & Walkthroughs</h2>
+            <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-relaxed text-justify uppercase tracking-wide">
+              Explore our extensive library of verified visual assets at Justice Ultimate Automobiles. Watch high-definition video walkthroughs of the latest Japanese and European car imports available in Kenya. Our video inventory provides an in-depth look at interior features, engine performance, and exterior styling for top models like the Toyota Land Cruiser, Mazda CX-5, and Mercedes-Benz. Experience our 150-point inspection process visually and make a confident, informed purchasing decision before you ever step foot in our Nairobi yard.
+            </p>
+          </div>
+
           {/* Category Filter - Professional Style */}
           {categories.length > 0 && (
             <div className="flex flex-wrap gap-3 justify-center">

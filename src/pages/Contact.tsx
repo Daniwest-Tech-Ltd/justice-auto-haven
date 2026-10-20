@@ -169,6 +169,15 @@ const Contact = () => {
       </section>
 
       <div className="container mx-auto px-4 py-12 relative z-10">
+
+        {/* Intro SEO text to fix Thin Content issue */}
+        <div className="bg-secondary/5 border border-border p-6 md:p-8 rounded-xl space-y-4 mb-12 max-w-7xl mx-auto">
+          <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Get in Touch with Kenya's Top Car Dealer</h2>
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-relaxed text-justify uppercase tracking-wide">
+            Need assistance finding your dream car or navigating our asset financing options? The Justice Ultimate Automobiles corporate contact desk is here to help. Located strategically in Westlands, Nairobi, our team of automotive experts provides authoritative support for vehicle sales, direct Japan imports, Lipa Mdogo Mdogo loans, and trade-in valuations. Reach out to us via our direct phone lines, WhatsApp, or through our secure dispatch form below. We guarantee a rapid response turnaround to ensure your car buying experience is seamless and professional.
+          </p>
+        </div>
+
         <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Main Communication Channel */}
           <div className="lg:col-span-2">

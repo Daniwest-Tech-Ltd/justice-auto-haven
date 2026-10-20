@@ -194,6 +194,15 @@ const TradeInSubmission = () => {
       </section>
 
       <div className="container mx-auto px-4 py-12 relative z-10">
+
+        {/* Intro SEO text to fix Thin Content issue */}
+        <div className="bg-secondary/5 border border-border p-6 md:p-8 rounded-xl space-y-4 mb-12 max-w-7xl mx-auto">
+          <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Vehicle Trade-In & Upgrade Services in Kenya</h2>
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-relaxed text-justify uppercase tracking-wide">
+            Looking to upgrade your current car? Justice Ultimate Automobiles offers the most competitive trade-in valuations in Nairobi. Our transparent trade-in process allows you to easily swap your used vehicle for a brand new Japanese or European import. Simply submit your vehicle details, including mileage, condition, and clear photos, and our expert valuation team will provide a fair market assessment. Use the value of your current car as a deposit for your next purchase or towards our flexible asset financing plans. Upgrade your ride today with zero hassle.
+          </p>
+        </div>
+
         <div className="max-w-7xl mx-auto mb-12">
           <Card className="glass-strong border-border overflow-hidden group hover:border-brand-red/30 transition-all duration-500">
             <div className="grid md:grid-cols-2 items-center">

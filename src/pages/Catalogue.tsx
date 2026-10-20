@@ -417,6 +417,13 @@ const Catalogue = () => {
       {/* Our Car Collection */}
       <section className="py-12 sm:py-24 relative z-10">
         <div className="container max-w-[2400px] mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Intro SEO text to fix Thin Content issue */}
+          <div className="bg-slate-50 border border-slate-200 p-6 md:p-8 rounded-xl space-y-4 mb-10">
+            <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Premium Japanese & European Car Imports in Kenya</h2>
+            <p className="text-xs sm:text-sm font-medium text-slate-600 leading-relaxed text-justify uppercase tracking-wide">
+              Browse our live inventory of high-quality vehicles available at the Justice Ultimate Automobiles yard in Westlands, Nairobi. We specialize in importing top-tier Japanese and European cars, ensuring every unit passes a rigorous 150-point inspection and QISJ certification before delivery. Whether you are looking for a fuel-efficient daily driver, a luxury SUV like the Toyota Prado, or a reliable commercial fleet vehicle, our catalogue offers fully vetted options. Take advantage of our Lipa Mdogo Mdogo asset financing, offering up to 90% funding with 48-hour approval.
+            </p>
+          </div>
           <div className="flex items-center gap-3 mb-6 sm:mb-10 border-b border-slate-100 pb-4 sm:pb-6">
             <div className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-emerald-500" />
             <span className="text-sm sm:text-lg font-black text-slate-900 uppercase tracking-tight">In Stock</span>
