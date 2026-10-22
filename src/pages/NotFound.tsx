@@ -1,7 +1,5 @@
-import { Link } from "react-router-dom";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Home, Search } from "lucide-react";
+import { Frown } from "lucide-react";
 
 const NotFound = () => {
   const location = window.location;
@@ -11,28 +9,23 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/20 to-background p-4">
-      <div className="text-center">
-        <h1 className="mb-4 text-9xl font-bold text-primary">404</h1>
-        <h2 className="mb-4 text-3xl font-semibold">Page not found</h2>
-        <p className="mb-8 max-w-md text-lg text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
+    <div className="flex min-h-screen items-center justify-center bg-[#F8F9FA] p-4 font-sans">
+      <div className="text-center flex flex-col items-center">
+        {/* Sad Face Icon matching the image */}
+        <Frown className="w-32 h-32 text-slate-400 mb-6 stroke-[1.5]" />
         
-        <div className="flex gap-4 justify-center">
-          <Button asChild size="lg">
-            <Link to="/">
-              <Home className="mr-2 h-5 w-5" />
-              Return Home
-            </Link>
-          </Button>
-          <Button variant="outline" asChild size="lg">
-            <Link to="/catalogue">
-              <Search className="mr-2 h-5 w-5" />
-              Browse Cars
-            </Link>
-          </Button>
-        </div>
+        {/* 404 Text */}
+        <h1 className="text-7xl md:text-8xl font-medium text-slate-500 mb-4 tracking-tight">404</h1>
+
+        {/* Page Not Found Text */}
+        <h2 className="text-xl md:text-2xl text-slate-500 uppercase tracking-widest font-medium mb-8">
+          Page Not Found
+        </h2>
+
+        {/* Helper Text */}
+        <p className="max-w-md text-sm md:text-base text-slate-400">
+          The Page you are looking for doesn't exist or an other error occurred.
+        </p>
       </div>
     </div>
   );
