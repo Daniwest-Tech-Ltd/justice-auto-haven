@@ -20,11 +20,27 @@ Deno.serve(async (req) => {
     const domains = Array.isArray(body?.data)
       ? body.data.map((d: any) => ({ name: d.name, status: d.status }))
       : [];
+    const domainId: string | undefined = body?.data?.[0]?.id;
+    let records: any = null;
+    if (domainId) {
+      const dres = await fetch(`https://api.resend.com/domains/${domainId}`, {
+        headers: { Authorization: `Bearer ${RESEND_API_KEY}` },
+      });
+      const dbody = await dres.json();
+      records = Array.isArray(dbody?.records)
+        ? dbody.records.map((r: any) => ({
+            name: r.name, type: r.type, status: r.status,
+            // DKIM/SPF record values are public DNS entries, safe to show.
+            value: String(r.value ?? '').slice(0, 120),
+          }))
+        : null;
+    }
     return new Response(JSON.stringify({
       ok: res.ok,
       keyValid: res.status !== 401 && res.status !== 403,
       domainCount: domains.length,
       domains,
+      records,
     }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (e) {
     return new Response(JSON.stringify({ ok: false, error: String(e) }), {
