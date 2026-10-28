@@ -35,13 +35,41 @@ Deno.serve(async (req) => {
           }))
         : null;
     }
-    return new Response(JSON.stringify({
+    const result: Record<string, unknown> = {
       ok: res.ok,
       keyValid: res.status !== 401 && res.status !== 403,
       domainCount: domains.length,
       domains,
       records,
-    }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    };
+
+    // Optional test send: only when the caller explicitly asks for it.
+    let payload: any = null;
+    try { payload = await req.json(); } catch { /* no body */ }
+    if (payload?.test_to && typeof payload.test_to === 'string' && payload.test_to.includes('@')) {
+      const sres = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Justice Ultimate Automobiles <noreply@justiceultimateautomobiles.com>',
+          to: [payload.test_to],
+          subject: 'Test email — new Resend SMTP check',
+          html: '<p>This is a test email confirming the new Resend account is sending for Justice Ultimate Automobiles.</p>',
+        }),
+      });
+      const sbody = await sres.json();
+      result.testSend = {
+        status: sres.status,
+        accepted: sres.ok,
+        // Never surface error bodies verbatim; they can contain ids. Status only.
+        errorType: sres.ok ? null : (sbody?.name ?? 'unknown'),
+      };
+    }
+
+    return new Response(JSON.stringify(result), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (e) {
     return new Response(JSON.stringify({ ok: false, error: String(e) }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
