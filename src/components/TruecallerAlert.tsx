@@ -35,27 +35,37 @@ const TruecallerAlert = () => {
     };
 
     const processAlert = async (targetPhone: string, amount: number) => {
+      // Clean up phone numbers to ensure a match (e.g. +2547... vs 07... vs 2547...)
+      const normalizePhone = (p: string) => p ? p.replace(/\D/g, '').slice(-9) : '';
+      const normalizedTarget = normalizePhone(targetPhone);
+
       // Get the currently logged in user
       const { data: authData } = await supabase.auth.getUser();
       const currentUserId = authData.user?.id;
 
-      if (!currentUserId) return;
+      // If user is logged in, check if their phone matches the broadcast.
+      // IF NO USER is logged in, OR we want to force the simulator on the admin's device,
+      // we need a bypass. We'll show the popup if the phone matches the logged in user,
+      // OR if the current URL is the simulator (for testing).
 
-      // Fetch current user's profile to check phone (ignoring missing truecaller_alert_enabled column if migration not applied)
-      const { data } = await supabase
-        .from('profiles')
-        .select('phone')
-        .eq('id', currentUserId)
-        .maybeSingle();
+      let shouldShowAlert = false;
 
-      if (!data) return;
+      if (window.location.pathname.includes('/truecaller-simulator')) {
+         shouldShowAlert = true; // Always show on the simulator page to test!
+      } else if (currentUserId) {
+        // Fetch current user's profile to check phone
+        const { data } = await supabase
+          .from('profiles')
+          .select('phone')
+          .eq('id', currentUserId)
+          .maybeSingle();
 
-      // Clean up phone numbers to ensure a match (e.g. +2547... vs 07... vs 2547...)
-      const normalizePhone = (p: string) => p.replace(/\D/g, '').slice(-9);
-      const isPhoneMatch = normalizePhone(data.phone || '') === normalizePhone(targetPhone || '');
+        if (data && normalizePhone(data.phone || '') === normalizedTarget) {
+          shouldShowAlert = true;
+        }
+      }
 
-      // Show alert if phone matches (skipping truecaller_alert_enabled check to fix 400 error)
-      if (isPhoneMatch) {
+      if (shouldShowAlert) {
         const formattedAmt = (amount * 130).toLocaleString('en-US', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -69,7 +79,7 @@ const TruecallerAlert = () => {
         setTimeout(() => {
           playTruecallerChime();
           setTruecallerPopupVisible(true);
-        }, 6000);
+        }, 6000); // 6-second delay before playing sound and showing popup
       }
     };
 
@@ -94,37 +104,47 @@ const TruecallerAlert = () => {
 
   return (
     <>
-      <div className={`tc-popup ${truecallerPopupVisible ? 'show' : ''}`}>
-        <div className="tc-popup-header">
+      <div className={`tc-popup ${truecallerPopupVisible ? 'show' : ''}`} style={{ fontFamily: 'sans-serif' }}>
+        <div className="tc-popup-header" style={{ background: '#0080ff', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
           <div style={{ fontWeight: 800, fontSize: '18px', fontStyle: 'italic', letterSpacing: '-0.5px' }}>truecaller</div>
           <div style={{ fontSize: '12px', opacity: 0.9 }}>SMS • Just now</div>
           <button
             onClick={() => setTruecallerPopupVisible(false)}
-            style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer', lineHeight: 1 }}
+            style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer', lineHeight: 1, padding: 0 }}
           >×</button>
         </div>
 
-        <div className="tc-popup-body">
-          <div className="tc-mpesa-brand">
-            <span style={{ color: '#4ade80', fontWeight: 900, fontStyle: 'italic', fontSize: '16px' }}>M</span>
-            <span style={{ color: '#ef4444', fontWeight: 900, fontStyle: 'italic', fontSize: '16px', marginLeft: '-4px' }}>PESA</span>
-            <span style={{ marginLeft: '4px', fontSize: '14px', color: '#555' }}>MPESA</span>
+        <div className="tc-popup-body" style={{ background: 'white', padding: '20px', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
+          <div className="tc-mpesa-brand" style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+            <span style={{ color: '#4ade80', fontWeight: 900, fontStyle: 'italic', fontSize: '18px' }}>M</span>
+            <span style={{ color: '#ef4444', fontWeight: 900, fontStyle: 'italic', fontSize: '18px', marginLeft: '-4px' }}>PESA</span>
+            <span style={{ marginLeft: '8px', fontSize: '15px', color: '#555', fontWeight: 500 }}>MPESA</span>
           </div>
 
-          <div className="tc-amount">
+          <div className="tc-amount" style={{ fontSize: '28px', fontWeight: 800, color: '#22c55e', marginBottom: '8px' }}>
             + KSH {truecallerFormattedAmount}
           </div>
 
-          <div className="tc-sender">
+          <div className="tc-sender" style={{ fontSize: '14px', color: '#666', marginBottom: '24px' }}>
             Received from JUSTICE ULTIMATE AUTOMOBILES
           </div>
 
-          <div className="tc-actions">
-            <button onClick={() => setTruecallerPopupVisible(false)}>Mark as read</button>
-            <button onClick={() => {
-              setTruecallerPopupVisible(false);
-              window.open('https://justiceultimateautomobiles.com', '_blank');
-            }}>View profile</button>
+          <div className="tc-actions" style={{ display: 'flex', borderTop: '1px solid #eee', margin: '0 -20px -20px -20px' }}>
+            <button
+              onClick={() => setTruecallerPopupVisible(false)}
+              style={{ flex: 1, padding: '16px', background: 'transparent', border: 'none', borderRight: '1px solid #eee', color: '#0080ff', fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}
+            >
+              Mark as read
+            </button>
+            <button
+              onClick={() => {
+                setTruecallerPopupVisible(false);
+                window.open('https://justiceultimateautomobiles.com', '_blank');
+              }}
+              style={{ flex: 1, padding: '16px', background: 'transparent', border: 'none', color: '#0080ff', fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}
+            >
+              View profile
+            </button>
           </div>
         </div>
       </div>
