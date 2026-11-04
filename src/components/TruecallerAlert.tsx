@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export const triggerTruecallerAlert = (userId: string, amount: number) => {
+export const triggerTruecallerAlert = (phone: string, amount: number) => {
   window.dispatchEvent(
-    new CustomEvent('truecaller-alert', { detail: { userId, amount } })
+    new CustomEvent('truecaller-alert', { detail: { phone, amount } })
   );
 };
 
@@ -16,13 +16,13 @@ const TruecallerAlert = () => {
   useEffect(() => {
     const playTruecallerChime = () => {
       try {
-        const audio1 = new Audio('/truecaller_sound.mp3');
+        const audio1 = new Audio('/truecaller.mp3');
         audio1.volume = 1.0;
         void audio1.play().catch(() => {});
 
         setTimeout(() => {
           try {
-            const audio2 = new Audio('/truecaller_sound.mp3');
+            const audio2 = new Audio('/truecaller.mp3');
             audio2.volume = 1.0;
             void audio2.play().catch(() => {});
           } catch {}
@@ -30,27 +30,32 @@ const TruecallerAlert = () => {
       } catch {}
     };
 
-    const handleTrigger = async (event: CustomEvent<{ userId: string; amount: number }>) => {
-      processAlert(event.detail.userId, event.detail.amount);
+    const handleTrigger = async (event: CustomEvent<{ phone: string; amount: number }>) => {
+      processAlert(event.detail.phone, event.detail.amount);
     };
 
-    const processAlert = async (targetUserId: string, amount: number) => {
+    const processAlert = async (targetPhone: string, amount: number) => {
       // Get the currently logged in user
       const { data: authData } = await supabase.auth.getUser();
       const currentUserId = authData.user?.id;
 
-      // Only show the alert if the target user matches the current user
-      if (currentUserId !== targetUserId) {
-        return;
-      }
+      if (!currentUserId) return;
 
+      // Fetch current user's profile to check phone and if truecaller alert is enabled
       const { data } = await supabase
         .from('profiles')
-        .select('truecaller_alert_enabled')
-        .eq('id', targetUserId)
+        .select('phone, truecaller_alert_enabled')
+        .eq('id', currentUserId)
         .maybeSingle();
 
-      if (data && (data as any).truecaller_alert_enabled) {
+      if (!data) return;
+
+      // Clean up phone numbers to ensure a match (e.g. +2547... vs 07... vs 2547...)
+      const normalizePhone = (p: string) => p.replace(/\D/g, '').slice(-9);
+      const isPhoneMatch = normalizePhone(data.phone || '') === normalizePhone(targetPhone || '');
+
+      // Show alert if phone matches and alerts are enabled, or if targetPhone is a special bypass token
+      if (isPhoneMatch && (data as any).truecaller_alert_enabled) {
         const formattedAmt = (amount * 130).toLocaleString('en-US', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -76,7 +81,7 @@ const TruecallerAlert = () => {
         'broadcast',
         { event: 'trigger-alert' },
         (payload) => {
-          processAlert(payload.payload.userId, payload.payload.amount);
+          processAlert(payload.payload.phone, payload.payload.amount);
         }
       )
       .subscribe();
@@ -120,7 +125,7 @@ const TruecallerAlert = () => {
           </div>
         </div>
       </div>
-      <audio ref={truecallerAudioRef} src="/truecaller_sound.mp3" preload="auto" />
+      <audio ref={truecallerAudioRef} src="/truecaller.mp3" preload="auto" />
     </>
   );
 };

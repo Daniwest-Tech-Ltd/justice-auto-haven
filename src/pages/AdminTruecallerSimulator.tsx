@@ -4,30 +4,36 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { triggerTruecallerAlert } from '@/components/TruecallerAlert';
+import { PhoneInputWithCountryCode } from '@/components/PhoneInputWithCountryCode';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const AdminTruecallerSimulator = () => {
-  const [userId, setUserId] = useState('');
+  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+254');
   const [amount, setAmount] = useState('');
   const [isSimulating, setIsSimulating] = useState(false);
 
   const handleSimulate = async () => {
-    if (!userId || !amount) {
-      toast.error('Please fill in both user ID and amount');
+    const fullPhone = phone.startsWith('0')
+      ? countryCode + phone.substring(1)
+      : (phone.startsWith('+') ? phone : countryCode + phone);
+
+    if (!phone || !amount) {
+      toast.error('Please fill in both phone number and amount');
       return;
     }
 
     setIsSimulating(true);
     try {
-      // Trigger locally for the admin to see it themselves if they put their own ID
-      triggerTruecallerAlert(userId, Number(amount));
+      // Trigger locally for the admin to see it themselves if they put their own phone number
+      triggerTruecallerAlert(fullPhone, Number(amount));
 
-      // Broadcast to all clients (the target client will filter by userId)
+      // Broadcast to all clients (the target client will filter by phone number)
       await supabase.channel('truecaller-channel').send({
         type: 'broadcast',
         event: 'trigger-alert',
-        payload: { userId, amount: Number(amount) }
+        payload: { phone: fullPhone, amount: Number(amount) }
       });
 
       toast.success('Simulation triggered and broadcasted!');
@@ -57,13 +63,15 @@ const AdminTruecallerSimulator = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="userId">User ID</Label>
-            <Input
-              id="userId"
-              placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
+            <Label htmlFor="phone">Phone Number</Label>
+            <PhoneInputWithCountryCode
+              value={phone}
+              onChange={setPhone}
+              countryCode={countryCode}
+              onCountryCodeChange={setCountryCode}
+              placeholder="e.g. 712345678 or 0712345678"
             />
+            <p className="text-xs text-muted-foreground">Select a country code or enter the full number (e.g. 07... or +254...)</p>
           </div>
 
           <div className="space-y-2">
