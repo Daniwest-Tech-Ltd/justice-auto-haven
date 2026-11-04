@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS truecaller_alert_enabled BOOLEAN DEFAULT FALSE;

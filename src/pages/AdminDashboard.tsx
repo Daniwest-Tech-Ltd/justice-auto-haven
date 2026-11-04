@@ -20,7 +20,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { Brain, BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone, Eye, EyeOff, RefreshCw, CreditCard, ThumbsUp, Briefcase, ShieldCheck, Globe, Trophy } from "lucide-react";
+import { Brain, BarChart3, Car, Users, DollarSign, Settings, LogOut, Ban, Trash2, MessageSquare, Bell, Home, TrendingUp, Clock, Shield, Activity, Key, Search, Grid3x3, Package, ChevronRight, FileText, Video, BookOpen, UserCog, Cookie, Database, Server, Sun, Moon, Phone, Eye, EyeOff, RefreshCw, CreditCard, ThumbsUp, Briefcase, ShieldCheck, Globe, Trophy, Smartphone } from "lucide-react";
 import { useAuth, getGreeting } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -260,6 +260,7 @@ const AdminDashboard = () => {
       label: "System Settings",
       items: [
         { title: "Settings", icon: Settings, path: "/admin/settings" },
+        { title: "Truecaller Simulator", icon: Smartphone, path: "/admin/truecaller-simulator" },
         { title: "Data Backup", icon: Database, path: "/admin/settings?tab=backup" },
         { title: "System Health", icon: Activity, path: "/system-health" },
         { title: "Auth Details", icon: Key, path: "/system-auth-details" },

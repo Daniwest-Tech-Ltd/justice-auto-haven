@@ -15,6 +15,7 @@ import type { Theme } from "./lib/theme";
 import { supabase } from "@/integrations/supabase/client";
 import KillSwitchOverlay from "./components/KillSwitchOverlay";
 import CookieConsentBanner from "./components/CookieConsentBanner";
+import TruecallerAlert from "./components/TruecallerAlert";
 import { checkAppUpdate, AppVersion } from './services/UpdateService';
 
 
@@ -113,6 +114,7 @@ const SystemStorageDetails = lazyWithRetry(() => import("./pages/SystemStorageDe
 const SystemSecurityDetails = lazyWithRetry(() => import("./pages/SystemSecurityDetails"));
 const CookieManagement = lazyWithRetry(() => import("./pages/CookieManagement"));
 const SMSManagement = lazyWithRetry(() => import("./pages/SMSManagement")); // note: preserved path matching yours
+const AdminTruecallerSimulator = lazyWithRetry(() => import("./pages/AdminTruecallerSimulator"));
 const AdminNotes = lazyWithRetry(() => import("./pages/AdminNotes"));
 const BackupRecovery = lazyWithRetry(() => import("./pages/BackupRecovery"));
 const PaymentsManagement = lazyWithRetry(() => import("./pages/PaymentsManagement"));
@@ -618,6 +620,15 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/admin/truecaller-simulator"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminTruecallerSimulator />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin/messages"
             element={
@@ -849,6 +860,7 @@ const App = () => (
       <BrowserRouter>
         <AppContent />
         <CookieConsentBanner />
+        <TruecallerAlert />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
