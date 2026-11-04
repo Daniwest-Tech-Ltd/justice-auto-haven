@@ -568,11 +568,22 @@ const AdminDashboard = () => {
             </div>
 
             <Tabs defaultValue="vehicles" className="space-y-6">
-              <TabsList className="glass-strong">
-                <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
-                <TabsTrigger value="customers">Customers</TabsTrigger>
-                <TabsTrigger value="sales">Sales</TabsTrigger>
-              </TabsList>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <TabsList className="glass-strong">
+                  <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
+                  <TabsTrigger value="customers">Customers</TabsTrigger>
+                  <TabsTrigger value="sales">Sales</TabsTrigger>
+                </TabsList>
+
+                <Button
+                  onClick={() => navigate("/admin/truecaller-simulator")}
+                  variant="outline"
+                  className="gap-2 border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Truecaller SMS Simulator
+                </Button>
+              </div>
 
               <TabsContent value="vehicles" className="space-y-4">
                 <Card className="glass-strong">

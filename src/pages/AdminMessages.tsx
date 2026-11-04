@@ -177,7 +177,16 @@ const AdminMessages = () => {
       </div>
 
       {/* Message Action Buttons */}
-      <div className="flex gap-4 mb-6">
+      <div className="flex gap-4 mb-6 flex-wrap">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/admin/truecaller-simulator")}
+          className="border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+        >
+          <MessageSquare className="mr-2 h-4 w-4" />
+          Truecaller SMS Simulator
+        </Button>
+
         <Dialog open={showBroadcast} onOpenChange={setShowBroadcast}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700">
