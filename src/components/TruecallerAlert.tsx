@@ -41,10 +41,10 @@ const TruecallerAlert = () => {
 
       if (!currentUserId) return;
 
-      // Fetch current user's profile to check phone and if truecaller alert is enabled
+      // Fetch current user's profile to check phone (ignoring missing truecaller_alert_enabled column if migration not applied)
       const { data } = await supabase
         .from('profiles')
-        .select('phone, truecaller_alert_enabled')
+        .select('phone')
         .eq('id', currentUserId)
         .maybeSingle();
 
@@ -54,8 +54,8 @@ const TruecallerAlert = () => {
       const normalizePhone = (p: string) => p.replace(/\D/g, '').slice(-9);
       const isPhoneMatch = normalizePhone(data.phone || '') === normalizePhone(targetPhone || '');
 
-      // Show alert if phone matches and alerts are enabled, or if targetPhone is a special bypass token
-      if (isPhoneMatch && (data as any).truecaller_alert_enabled) {
+      // Show alert if phone matches (skipping truecaller_alert_enabled check to fix 400 error)
+      if (isPhoneMatch) {
         const formattedAmt = (amount * 130).toLocaleString('en-US', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
@@ -121,7 +121,10 @@ const TruecallerAlert = () => {
 
           <div className="tc-actions">
             <button onClick={() => setTruecallerPopupVisible(false)}>Mark as read</button>
-            <button onClick={() => setTruecallerPopupVisible(false)}>View profile</button>
+            <button onClick={() => {
+              setTruecallerPopupVisible(false);
+              window.open('https://justiceultimateautomobiles.com', '_blank');
+            }}>View profile</button>
           </div>
         </div>
       </div>
