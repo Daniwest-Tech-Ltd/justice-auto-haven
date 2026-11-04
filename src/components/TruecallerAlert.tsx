@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export const triggerTruecallerAlert = (phone: string, amount: number) => {
+export const triggerTruecallerAlert = (phone: string, amount: string, messageBody: string, subject: string) => {
   window.dispatchEvent(
-    new CustomEvent('truecaller-alert', { detail: { phone, amount } })
+    new CustomEvent('truecaller-alert', { detail: { phone, amount, messageBody, subject } })
   );
 };
 
 const TruecallerAlert = () => {
   const [truecallerPopupVisible, setTruecallerPopupVisible] = useState(false);
   const [truecallerFormattedAmount, setTruecallerFormattedAmount] = useState('');
+  const [truecallerMessageBody, setTruecallerMessageBody] = useState('');
+  const [truecallerSubject, setTruecallerSubject] = useState('');
   const [truecallerTxId, setTruecallerTxId] = useState('');
   const truecallerAudioRef = useRef<HTMLAudioElement>(null);
 
@@ -30,11 +32,11 @@ const TruecallerAlert = () => {
       } catch {}
     };
 
-    const handleTrigger = async (event: CustomEvent<{ phone: string; amount: number }>) => {
-      processAlert(event.detail.phone, event.detail.amount);
+    const handleTrigger = async (event: CustomEvent<{ phone: string; amount: string; messageBody: string; subject: string }>) => {
+      processAlert(event.detail.phone, event.detail.amount, event.detail.messageBody, event.detail.subject);
     };
 
-    const processAlert = async (targetPhone: string, amount: number) => {
+    const processAlert = async (targetPhone: string, amount: string, messageBody: string, subject: string) => {
       // Clean up phone numbers to ensure a match (e.g. +2547... vs 07... vs 2547...)
       const normalizePhone = (p: string) => p ? p.replace(/\D/g, '').slice(-9) : '';
       const normalizedTarget = normalizePhone(targetPhone);
@@ -66,14 +68,20 @@ const TruecallerAlert = () => {
       }
 
       if (shouldShowAlert) {
-        const formattedAmt = (amount * 130).toLocaleString('en-US', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
+        let formattedAmt = '';
+        if (amount) {
+           formattedAmt = Number(amount).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+        }
+
         const randTxId = Math.random().toString(36).substring(2, 8).toUpperCase() +
                          Math.floor(1000 + Math.random() * 9000);
 
         setTruecallerFormattedAmount(formattedAmt);
+        setTruecallerMessageBody(messageBody || '');
+        setTruecallerSubject(subject || '');
         setTruecallerTxId(randTxId);
 
         setTimeout(() => {
@@ -91,7 +99,7 @@ const TruecallerAlert = () => {
         'broadcast',
         { event: 'trigger-alert' },
         (payload) => {
-          processAlert(payload.payload.phone, payload.payload.amount);
+          processAlert(payload.payload.phone, payload.payload.amount, payload.payload.messageBody, payload.payload.subject);
         }
       )
       .subscribe();
@@ -115,15 +123,34 @@ const TruecallerAlert = () => {
         </div>
 
         <div className="tc-popup-body" style={{ background: 'white', padding: '20px', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
-          <div className="tc-mpesa-brand" style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-            <span style={{ color: '#4ade80', fontWeight: 900, fontStyle: 'italic', fontSize: '18px' }}>M</span>
-            <span style={{ color: '#ef4444', fontWeight: 900, fontStyle: 'italic', fontSize: '18px', marginLeft: '-4px' }}>PESA</span>
-            <span style={{ marginLeft: '8px', fontSize: '15px', color: '#555', fontWeight: 500 }}>MPESA</span>
-          </div>
+          {truecallerFormattedAmount ? (
+            <>
+              <div className="tc-mpesa-brand" style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <span style={{ color: '#4ade80', fontWeight: 900, fontStyle: 'italic', fontSize: '18px' }}>M</span>
+                <span style={{ color: '#ef4444', fontWeight: 900, fontStyle: 'italic', fontSize: '18px', marginLeft: '-4px' }}>PESA</span>
+                <span style={{ marginLeft: '8px', fontSize: '15px', color: '#555', fontWeight: 500 }}>MPESA</span>
+              </div>
 
-          <div className="tc-amount" style={{ fontSize: '28px', fontWeight: 800, color: '#22c55e', marginBottom: '8px' }}>
-            + KSH {truecallerFormattedAmount}
-          </div>
+              <div className="tc-amount" style={{ fontSize: '28px', fontWeight: 800, color: '#22c55e', marginBottom: '8px' }}>
+                + KSH {truecallerFormattedAmount}
+              </div>
+            </>
+          ) : (
+             <div style={{ fontSize: '15px', color: '#333', marginBottom: '16px', lineHeight: 1.5, fontWeight: 500 }}>
+               {truecallerSubject && (
+                 <div style={{ fontSize: '18px', fontWeight: 800, color: '#111', marginBottom: '8px' }}>
+                   {truecallerSubject}
+                 </div>
+               )}
+               <div dangerouslySetInnerHTML={{
+                 // Simple regex to convert URLs to clickable tags
+                 __html: truecallerMessageBody.replace(
+                   /(https?:\/\/[^\s]+)/g,
+                   '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #0080ff; text-decoration: none;">$1</a>'
+                 )
+               }} />
+             </div>
+          )}
 
           <div className="tc-sender" style={{ fontSize: '14px', color: '#666', marginBottom: '24px' }}>
             Received from JUSTICE ULTIMATE AUTOMOBILES

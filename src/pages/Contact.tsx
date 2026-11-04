@@ -66,7 +66,7 @@ const Contact = () => {
         .select("user_id")
         .eq("role", "admin")
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (adminData) {
         await supabase.from("notifications").insert({

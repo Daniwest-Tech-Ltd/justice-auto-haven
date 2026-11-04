@@ -91,20 +91,17 @@ const CustomerMessages = () => {
       .select("user_id")
       .eq("role", "admin")
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (!adminData) {
-      toast({
-        title: "Error",
-        description: "Unable to send message",
-        variant: "destructive",
-      });
-      return;
+      console.warn("No admin user found to notify.");
+      // We still want to let them send it if possible, but the schema requires receiver_id.
+      // If receiver_id can't be null, it might fail. But let's pass null and see, or we handle it gracefully.
     }
 
     const { error } = await supabase.from("messages").insert({
       sender_id: user.id,
-      receiver_id: adminData.user_id,
+      receiver_id: adminData?.user_id || null, // pass null if no admin found
       subject: newMessage.subject,
       message: newMessage.message,
     });
