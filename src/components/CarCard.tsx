@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, MapPin, ChevronLeft, ChevronRight, MessageCircle, ArrowRight, Eye } from "lucide-react";
+import ParticleNetwork from "./ParticleNetwork";
 
 interface Car {
   id: string;
@@ -143,9 +144,12 @@ export const CarCard = ({ car, isWhitelisted, onToggleWishlist, onQuickView, onZ
       </div>
 
       {/* Content */}
-      <div className="p-4 flex flex-col flex-1 space-y-3">
-        {/* Thumbnails */}
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+      <div className="p-4 flex flex-col flex-1 relative overflow-hidden bg-slate-900 text-white">
+        <ParticleNetwork />
+
+        <div className="relative z-10 flex flex-col flex-1 space-y-3">
+          {/* Thumbnails */}
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
           {images.slice(0, 4).map((img, i) => (
             <button
               key={i}
@@ -157,15 +161,15 @@ export const CarCard = ({ car, isWhitelisted, onToggleWishlist, onQuickView, onZ
           ))}
         </div>
 
-        <div className="space-y-1">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Stock ID: {car.stock_id || car.id.slice(0, 8).toUpperCase()}
-          </p>
-          <div className="flex justify-between items-center gap-2">
-            <h3 className="font-black text-slate-900 dark:text-white uppercase leading-tight italic group-hover:text-emerald-600 transition-colors">
-              {car.make} {car.model}
-            </h3>
-            <div className="flex flex-col items-end gap-1">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Stock ID: {car.stock_id || car.id.slice(0, 8).toUpperCase()}
+            </p>
+            <div className="flex justify-between items-center gap-2">
+              <h3 className="font-black text-white uppercase leading-tight italic group-hover:text-emerald-400 transition-colors">
+                {car.make} {car.model}
+              </h3>
+              <div className="flex flex-col items-end gap-1">
               <div className="bg-brand-red/5 px-2 py-1 rounded-lg border border-brand-red/10">
                 <p className="text-lg font-black text-brand-red whitespace-nowrap drop-shadow-sm leading-none">
                   <span className="text-[9px] font-bold mr-0.5 opacity-70">KSh</span>{car.price?.toLocaleString()}
@@ -178,47 +182,48 @@ export const CarCard = ({ car, isWhitelisted, onToggleWishlist, onQuickView, onZ
           </div>
         </div>
 
-        {/* Spec Chips */}
-        <div className="flex flex-wrap gap-2">
-          <div className="bg-slate-50 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase">
-            {car.mileage || '0 KM'}
+          {/* Spec Chips */}
+          <div className="flex flex-wrap gap-2">
+            <div className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold uppercase border border-slate-700">
+              {car.mileage || '0 KM'}
+            </div>
+            <div className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold uppercase border border-slate-700">
+              {car.transmission?.slice(0, 4) || 'AUTO'}
+            </div>
+            <div className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold uppercase border border-slate-700">
+              {car.engine || 'N/A'}
+            </div>
+            <div className="bg-amber-900/40 text-amber-400 px-2 py-0.5 rounded text-[9px] font-bold uppercase border border-amber-900/50">
+              {car.fuel_type || 'PETROL'}
+            </div>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase">
-            {car.transmission?.slice(0, 4) || 'AUTO'}
-          </div>
-          <div className="bg-slate-50 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase">
-            {car.engine || 'N/A'}
-          </div>
-          <div className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded text-[9px] font-bold uppercase">
-            {car.fuel_type || 'PETROL'}
-          </div>
-        </div>
 
-        {/* Action Buttons - Always Visible */}
-        <div className="pt-2 space-y-2 mt-auto">
-          <Button
-            className="w-full bg-[#25D366] hover:bg-[#20ba54] text-white font-bold rounded-lg h-12 shadow-md transition-all flex items-center justify-center gap-2.5 border-none"
-            asChild
-          >
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <svg
-                viewBox="0 0 24 24"
-                className="h-5 w-5 fill-white"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.375-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.87 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.438 9.886-9.886 9.886m11.415-15.813A11.923 11.923 0 0012.046 2.5a12.05 12.05 0 00-12.04 12.05c0 2.096.547 4.142 1.588 5.945L.057 24l4.3-.113a11.961 11.961 0 005.692 1.448h.005c6.647 0 12.054-5.406 12.057-12.056 0-3.22-1.258-6.248-3.543-8.529"/>
-              </svg>
-              Inquire Price
-            </a>
-          </Button>
-          <Button
-            variant="default"
-            className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-lg h-12 transition-all flex items-center justify-center gap-2"
-            onClick={() => navigate(`/car/${car.id}`)}
-          >
-            View Details
-            <ArrowRight className="h-5 w-5" />
-          </Button>
+          {/* Action Buttons - Always Visible */}
+          <div className="pt-2 space-y-2 mt-auto">
+            <Button
+              className="w-full bg-[#25D366] hover:bg-[#20ba54] text-white font-bold rounded-lg h-12 shadow-md transition-all flex items-center justify-center gap-2.5 border-none"
+              asChild
+            >
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 fill-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.375-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.87 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.438 9.886-9.886 9.886m11.415-15.813A11.923 11.923 0 0012.046 2.5a12.05 12.05 0 00-12.04 12.05c0 2.096.547 4.142 1.588 5.945L.057 24l4.3-.113a11.961 11.961 0 005.692 1.448h.005c6.647 0 12.054-5.406 12.057-12.056 0-3.22-1.258-6.248-3.543-8.529"/>
+                </svg>
+                Inquire Price
+              </a>
+            </Button>
+            <Button
+              variant="default"
+              className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-lg h-12 transition-all flex items-center justify-center gap-2"
+              onClick={() => navigate(`/car/${car.id}`)}
+            >
+              View Details
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
