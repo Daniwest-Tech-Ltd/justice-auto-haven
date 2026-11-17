@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Search, Clock, X, Headphones, Smartphone, Mail, Globe, ArrowRight, Shield, Download, Trophy, Activity, Send } from "lucide-react";
 import BrandMarquee from "./BrandMarquee";
+import ParticleNetwork from "./ParticleNetwork";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
@@ -79,9 +80,15 @@ const Footer = () => {
 
   return (
     <TooltipProvider>
-    <footer className="bg-background border-t border-border relative z-10 overflow-hidden">
-      {/* Background patterns */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+    <footer className="bg-slate-900 border-t border-border relative z-10 overflow-hidden text-white dark:bg-slate-950">
+      {/* Network Effect */}
+      <div className="absolute inset-0 z-0 opacity-100 hidden dark:block">
+        <ParticleNetwork />
+      </div>
+
+      <div className="relative pointer-events-auto z-10">
+        {/* Background patterns */}
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none"
         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, hsl(var(--foreground)) 1px, transparent 0)', backgroundSize: '40px 40px' }}
       />
 
@@ -400,6 +407,7 @@ const Footer = () => {
         </div>
       </div>
 
+      </div>
       <style>{`
         @keyframes hazard-border-move {
           0% { background-position: 0 0; }

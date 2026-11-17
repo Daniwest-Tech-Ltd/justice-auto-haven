@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import ParticleNetwork from "@/components/ParticleNetwork";
 import { getCurrentSale } from "@/lib/currentSale";
 import HeroSlider from "@/components/HeroSlider";
 
@@ -87,15 +88,21 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20">
-      {/* Background Overlays */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+    <div className="min-h-screen bg-slate-900 selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20 relative">
+      {/* Network Effect */}
+      <div className="fixed inset-0 z-0 pointer-events-auto opacity-100 hidden dark:block">
+        <ParticleNetwork />
       </div>
 
+      <div className="relative z-10">
+        {/* Background Overlays */}
+        <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.1),transparent_70%)]" />
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+        </div>
+
       {/* Professional Marquee - Institutional Branding */}
-      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30 shadow-2xl">
+      <div className="bg-primary/80 backdrop-blur-md text-white py-2 overflow-hidden border-b border-white/5 relative z-30 shadow-2xl pointer-events-auto">
         <div className="flex whitespace-nowrap animate-marquee-professional">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center shrink-0">
@@ -153,10 +160,15 @@ const Contact = () => {
       `}</style>
 
       {/* Hero - Professional & Formal */}
-      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden">
-        <HeroSlider />
-        <div className="container mx-auto px-4 relative z-10 text-center">
-          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700">
+      <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden bg-slate-900 text-white pointer-events-none">
+        <div className="absolute inset-0 z-0 opacity-100 pointer-events-auto hidden dark:block">
+          <ParticleNetwork />
+        </div>
+        <div className="absolute inset-0 z-10 pointer-events-none">
+           <HeroSlider />
+        </div>
+        <div className="container mx-auto px-4 relative z-20 text-center">
+          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-700 pointer-events-auto">
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-brand-red">Operational Desk: {sale.year}</p>
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground uppercase">
               Corporate <span className="text-brand-red">Contact Room.</span>

@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getCurrentSale } from "@/lib/currentSale";
 import specialOffer from "@/assets/special-offer.png";
 import QuickViewModal from "@/components/QuickViewModal";
+import ParticleNetwork from "@/components/ParticleNetwork";
 import { LiveViewers, StockUrgency } from "@/components/SocialProof";
 import { useAuth } from "@/hooks/useAuth";
 import { CarCard } from "@/components/CarCard";
@@ -350,12 +351,15 @@ const Home = () => {
 
       {/* Institutional Profile Section - Story & Experience */}
       <section className="py-32 bg-slate-900 text-white overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+        <div className="absolute inset-0 z-0 opacity-100 pointer-events-auto">
+          <ParticleNetwork />
+        </div>
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none z-0">
            <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-red/20 blur-[120px]" />
            <div className="absolute bottom-0 left-0 w-1/2 h-full bg-primary/20 blur-[120px]" />
         </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none">
+          <div className="grid lg:grid-cols-2 gap-20 items-center pointer-events-auto">
              <div className="space-y-8 animate-in slide-in-from-left duration-700">
                 <div className="space-y-4">
                    <p className="text-[10px] font-black uppercase tracking-[0.6em] text-brand-red">Establishment: 2020</p>
@@ -594,8 +598,11 @@ const Home = () => {
 
       {/* Why Choose Us - AUTHORITY & TRUST */}
       <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-6 mb-20">
+        <div className="absolute inset-0 z-0 opacity-100 pointer-events-auto">
+          <ParticleNetwork />
+        </div>
+        <div className="container mx-auto px-4 relative z-10 pointer-events-none">
+          <div className="max-w-4xl mx-auto text-center space-y-6 mb-20 pointer-events-auto">
              <p className="text-[11px] font-black uppercase tracking-[0.8em] text-brand-red">Why Buy From Us</p>
              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic leading-none">Why Choose <br/> <span className="text-brand-red">Justice Ultimate.</span></h2>
              <p className="text-sm text-slate-400 font-bold uppercase tracking-widest leading-loose">The best quality and reliability for your car purchase.</p>

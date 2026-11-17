@@ -193,14 +193,14 @@ const Header = () => {
   return (
     <TooltipProvider>
     <>
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md overflow-hidden">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md overflow-hidden pointer-events-none">
       {/* Network Effect */}
       <div className="absolute inset-0 z-0 opacity-50 dark:opacity-100 hidden dark:block pointer-events-auto">
         <ParticleNetwork />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10 pointer-events-none">
-        <div className="flex items-center justify-between h-20 pointer-events-auto">
+      <div className="container mx-auto px-4 relative z-10 pointer-events-auto">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group shrink-0">
             <div className="relative h-12 w-12 transition-transform duration-500 group-hover:scale-110">

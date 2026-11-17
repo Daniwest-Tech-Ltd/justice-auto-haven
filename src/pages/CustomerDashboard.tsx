@@ -27,6 +27,7 @@ import { CustomerLoyaltyBadge } from "@/components/CustomerLoyaltyBadge";
 import logo from "@/assets/logo.png";
 import { setTheme, Theme } from "@/lib/theme";
 import DashboardHolidayBanner, { DashboardSnowfall } from "@/components/DashboardHolidayBanner";
+import ParticleNetwork from "@/components/ParticleNetwork";
 
 const CustomerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -122,9 +123,12 @@ const CustomerDashboard = () => {
   return (
     <SidebarProvider>
       <DashboardSnowfall />
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full relative overflow-hidden bg-slate-900 text-white dark:bg-slate-950">
+        <div className="absolute inset-0 z-0 pointer-events-auto opacity-100 hidden dark:block">
+          <ParticleNetwork />
+        </div>
         
-        <Sidebar collapsible="icon">
+        <Sidebar collapsible="icon" className="relative z-10">
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel>My Dashboard</SidebarGroupLabel>
@@ -152,7 +156,8 @@ const CustomerDashboard = () => {
           </SidebarContent>
         </Sidebar>
 
-        <main className="flex-1 w-full">
+        <main className="flex-1 w-full relative z-10 pointer-events-none">
+          <div className="pointer-events-auto h-full overflow-y-auto">
           <header className="sticky top-0 z-30 flex h-auto flex-col border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="px-6 py-3">
               <div className="flex items-center justify-between mb-3">
@@ -426,6 +431,7 @@ const CustomerDashboard = () => {
                 )}
               </TabsContent>
             </Tabs>
+          </div>
           </div>
         </main>
       </div>
