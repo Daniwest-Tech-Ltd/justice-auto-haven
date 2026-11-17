@@ -82,7 +82,7 @@ const Footer = () => {
     <TooltipProvider>
     <footer className="bg-slate-900 border-t border-border relative z-10 overflow-hidden text-white dark:bg-slate-950">
       {/* Network Effect */}
-      <div className="absolute inset-0 z-0 opacity-100 hidden dark:block">
+      <div className="absolute inset-0 z-0 opacity-100 block">
         <ParticleNetwork />
       </div>
 

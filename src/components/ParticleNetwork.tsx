@@ -61,13 +61,6 @@ const ParticleNetwork = () => {
         this.x += this.vx;
         this.y += this.vy;
       }
-
-      draw(ctx: CanvasRenderingContext2D) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'; // Made dots brighter
-        ctx.fill();
-      }
     }
 
     const init = () => {
@@ -80,12 +73,20 @@ const ParticleNetwork = () => {
     };
 
     const animate = () => {
-      // Clear with dark overlay for trailing effect or just clear
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const isDark = document.documentElement.classList.contains('dark');
+      const particleRgb = isDark ? '255, 255, 255' : '30, 41, 59';
+      const lineRgb = isDark ? '255, 255, 255' : '30, 41, 59';
 
       particles.forEach((p, index) => {
         p.update(canvas.width, canvas.height);
-        p.draw(ctx);
+
+        // Draw node
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${particleRgb}, ${isDark ? 0.8 : 0.65})`;
+        ctx.fill();
 
         // Draw lines between particles
         for (let j = index + 1; j < particles.length; j++) {
@@ -96,22 +97,22 @@ const ParticleNetwork = () => {
 
           if (dist < 100) { // Increased line distance
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 * (1 - dist / 100)})`; // Brighter lines
-            ctx.lineWidth = 0.8; // Thicker lines
+            ctx.strokeStyle = `rgba(${lineRgb}, ${(isDark ? 0.4 : 0.3) * (1 - dist / 100)})`;
+            ctx.lineWidth = 0.8;
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
             ctx.stroke();
           }
         }
 
-        // Draw lines to mouse (Creating a web connecting mouse to particles)
+        // Draw lines to mouse
         const dxMouse = p.x - mouse.x;
         const dyMouse = p.y - mouse.y;
         const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
 
-        if (distMouse < 200) { // Massive web radius for the cursor
+        if (distMouse < 200) {
           ctx.beginPath();
-          ctx.strokeStyle = `rgba(255, 255, 255, ${0.7 * (1 - distMouse / 200)})`; // Bright solid white lines for cursor web
+          ctx.strokeStyle = `rgba(${lineRgb}, ${(isDark ? 0.7 : 0.5) * (1 - distMouse / 200)})`;
           ctx.lineWidth = 1.2;
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mouse.x, mouse.y);
@@ -158,7 +159,7 @@ const ParticleNetwork = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 z-0 mix-blend-screen opacity-70"
+      className="absolute inset-0 z-0 opacity-80 pointer-events-none"
     />
   );
 };

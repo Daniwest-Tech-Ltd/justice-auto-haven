@@ -195,7 +195,7 @@ const Header = () => {
     <>
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md overflow-hidden pointer-events-none">
       {/* Network Effect */}
-      <div className="absolute inset-0 z-0 opacity-50 dark:opacity-100 hidden dark:block pointer-events-auto">
+      <div className="absolute inset-0 z-0 opacity-60 dark:opacity-100 pointer-events-auto">
         <ParticleNetwork />
       </div>
 

@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Upload, X } from "lucide-react";
 import { AvailableColorsMultiSelect } from "@/components/AvailableColorsMultiSelect";
 import StockUploadAnimation from "@/components/StockUploadAnimation";
+import ParticleNetwork from "@/components/ParticleNetwork";
 
 const AddCar = () => {
   const navigate = useNavigate();
@@ -304,8 +305,13 @@ const AddCar = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="flex items-center gap-4 mb-8">
+    <div className="container mx-auto px-4 py-8 max-w-4xl relative">
+      {/* Network Effect */}
+      <div className="fixed inset-0 z-0 pointer-events-auto opacity-100 block">
+        <ParticleNetwork />
+      </div>
+      <div className="relative z-10">
+        <div className="flex items-center gap-4 mb-8">
         <Button variant="outline" onClick={() => navigate("/admin/cars")}>
           ← Back
         </Button>
@@ -656,6 +662,7 @@ const AddCar = () => {
           <style>{`@keyframes heartbeat { 0%,100%{transform:scale(1)} 25%{transform:scale(1.04)} 50%{transform:scale(1)} 75%{transform:scale(1.02)} }`}</style>
         )}
       </form>
+      </div>
     </div>
   );
 };

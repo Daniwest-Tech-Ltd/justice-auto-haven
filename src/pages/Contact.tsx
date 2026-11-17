@@ -90,7 +90,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-slate-900 selection:bg-brand-red selection:text-white font-sans antialiased overflow-x-hidden pb-20 relative">
       {/* Network Effect */}
-      <div className="fixed inset-0 z-0 pointer-events-auto opacity-100 hidden dark:block">
+      <div className="fixed inset-0 z-0 pointer-events-auto opacity-100 block">
         <ParticleNetwork />
       </div>
 
@@ -162,7 +162,7 @@ const Contact = () => {
 
       {/* Hero - Professional & Formal */}
       <section className="relative flex items-center justify-center border-b border-border py-16 sm:py-24 overflow-hidden bg-slate-900 text-white pointer-events-none">
-        <div className="absolute inset-0 z-0 opacity-100 pointer-events-auto hidden dark:block">
+        <div className="absolute inset-0 z-0 opacity-100 pointer-events-auto block">
           <ParticleNetwork />
         </div>
         <div className="absolute inset-0 z-10 pointer-events-none">

@@ -275,8 +275,8 @@ const AdminDashboard = () => {
   return (
     <SidebarProvider>
       <DashboardSnowfall />
-      <div className="min-h-screen flex w-full relative overflow-hidden bg-slate-900 text-white dark:bg-slate-950">
-        <div className="absolute inset-0 z-0 pointer-events-auto opacity-100 hidden dark:block">
+      <div className="min-h-screen flex w-full relative overflow-hidden bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-white">
+        <div className="absolute inset-0 z-0 pointer-events-auto opacity-100 block">
           <ParticleNetwork />
         </div>
         
